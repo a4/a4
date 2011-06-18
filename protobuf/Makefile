@@ -11,7 +11,15 @@ all: $(PROTOPY) $(PROTOCPP) $(PROTOCOBJ)
 py: $(PROTOPY)
 
 python/%_pb2.py cpp/%.pb.cc cpp/%.pb.h: proto/%.proto
+	mkdir -p python
+	mkdir -p cpp
 	protoc -I=proto --python_out python --cpp_out cpp $<
 
 obj/%.o: cpp/%.pb.cc cpp/%.pb.h	
+	mkdir -p obj
 	$(CCC) $(CXXFLAGS) -c $< -o $@
+
+clean:
+	rm -f $(PROTOCPP)
+	rm -f $(PROTOPY)
+	rm -f $(PROTOCOBJ)
