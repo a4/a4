@@ -1,1 +1,4 @@
 *.pyc
+protobuf/cpp
+protobuf/python
+protobuf/obj
