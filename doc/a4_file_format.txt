@@ -1,0 +1,36 @@
+A4 Stream File Format
+---------------------
+
+An A4 stream file MUST be delimited by magic byte strings:
+* start magic bytes: "A4STREAM"
+* end magic bytes: "KTHXBYE4"
+
+The rest of the file is a sequence of google protocol buffer messages. 
+Each message is preceded by one or two 32-bit big-endian unsigned integers:
+
+The first integer without the highest bit is the size of the message in bytes:
+size = i1 & ((1<<31)-1)
+
+If the highest bit of the first integer is set i1 (1<<31), 
+then a second 32-bit integer with the CLASS_ID of the next message must follow.
+
+At the end of the stream/file, an A4StreamFooter message is expected.
+After an A4StreamFooter message, the size of that message is repeated as an
+32-bit integer, to allow seeking backwards from the end of file.
+
+Summary
+-------
+A4STREAM
+<size|HIGH_BIT> <type> A4StreamHeader
+<size|HIGH_BIT> <type> A4StartCompressedSection
+  --start of compression--
+    <size|HIGH_BIT><type> Run
+    <size|HIGH_BIT><type> Event
+    <size> Event
+    <size> Event
+    ...
+    <size|HIGH_BIT><type> A4EndCompressedSection
+  --end of compression--
+<size|HIGH_BIT><type> A4StreamFooter
+<size of A4StreamFooter again>
+KTHXBYE4
