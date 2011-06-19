@@ -1,0 +1,27 @@
+
+message LorentzVector
+{
+    required double e = 1;
+    required double px = 2;
+    required double py = 3;
+    required double pz = 4;
+}
+
+message Vertex
+{
+    required double x = 1;
+    required double y = 2;
+    required double z = 3;
+    optional int32 index = 4;
+    optional int32 tracks = 5;
+}
+
+message MET
+{
+    required double x = 1;
+    required double y = 2;
+}
+
+
+
+

@@ -1,0 +1,75 @@
+
+import "Physics.proto";
+import "Atlas.proto";
+
+message Lepton
+{
+    enum Quality
+    {
+        LOOSE = 1;
+        MEDIUM = 2;
+        TIGHT = 3;
+        COMBINED = 4;
+    }
+
+    required LorentzVector p4 = 2;
+    optional int32 charge = 3;
+    optional Vertex vertex = 4;
+    optional int32 index = 5;
+    optional Isolation isolation = 6;
+    optional Quality quality = 12;
+
+    optional LorentzVector p4_track = 7;
+    optional LorentzVector p4_cluster = 8;
+    optional LorentzVector p4_ms = 9;
+
+    optional TrackHits track_hits = 10;
+    optional MuonTrackHits ms_hits = 11;
+
+    optional double z0 = 13;
+    optional double d0 = 16;
+    optional double d0sig = 15;
+}
+
+message Photon
+{
+    required LorentzVector p4 = 1;
+    optional Vertex vertex = 2;
+    optional int32 index = 3;
+    optional Vertex conversion = 5;
+    optional Isolation isolation = 9;
+}
+
+message Jet
+{
+    enum JetQuality
+    {
+        GOOD = 1;
+        BAD = 2;
+        UGLY = 3;
+    }
+    required LorentzVector p4 = 1;
+    optional Vertex vertex = 2;
+    optional int32 index = 3;
+    optional JetQuality quality = 4;
+    optional double jet_vertex_fraction = 5;
+}
+
+message Event
+{
+    optional int32 CLASS_ID = 1001;
+    optional int32 run_number = 1;
+    optional int32 event_number = 2;
+    optional int32 lumi_block = 3;
+
+    optional double mc_event_weight = 4 [default = 1.0];
+    optional double scale_factor = 15 [default = 1.0];
+
+    repeated Trigger triggers = 5;
+    repeated Vertex vertices = 6;
+    optional MET met = 7;
+
+    repeated Jet jets = 8;
+    repeated Lepton muons = 9;
+    repeated Lepton electrons = 10;
+}
