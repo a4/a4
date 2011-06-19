@@ -16,7 +16,7 @@ message Vertex
     optional int32 tracks = 5;
 }
 
-message MET
+message MissingEnergy
 {
     required double x = 1;
     required double y = 2;

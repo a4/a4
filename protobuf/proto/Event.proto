@@ -67,7 +67,7 @@ message Event
 
     repeated Trigger triggers = 5;
     repeated Vertex vertices = 6;
-    optional MET met = 7;
+    optional MissingEnergy met = 7;
 
     repeated Jet jets = 8;
     repeated Lepton muons = 9;
