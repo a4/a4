@@ -1,4 +1,4 @@
 *.pyc
-protobuf/cpp
-protobuf/python
-protobuf/obj
+obj/
+python/a4/messages/
+src/pb/
