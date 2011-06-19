@@ -1,11 +1,10 @@
-from __future__ import with_statement
-
-from logging import getLogger; log = getLogger("aaa")
-from glob import glob
+from logging import getLogger; log = getLogger("a4")
+from a4 import A4WriterStream
+from a4.messages import Trigger, Isolation, TrackHits, MuonTrackHits
+from a4.messages import Lepton, Photon, Jet, Event
+from a4.messages import LorentzVector, Vertex, MissingEnergy
 
 from AthenaPython import PyAthena
-
-import ROOT as R
 
 def athena_setup(input = None, max_events = None):
     # use closest DB replica
@@ -46,76 +45,22 @@ def athena_setup(input = None, max_events = None):
         athenaCommonFlags.EvtMax = max_events
 
 
-def setup_pool_skim(filename, accept_algs, type="AOD"):
-    from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-    from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
-    stream_name = "StreamD%s" % (type)
-    stream = MSMgr.NewPoolStream(stream_name, filename)
-    stream.AcceptAlgs( accept_algs )
-    dpdOutput.addAllItemsFromInputExceptExcludeList( stream_name, [])
-    if False:
-        dpdOutput.addBasicOutput(stream_name)
-        dpdOutput.addBasicPhysics(stream_name)
-        dpdOutput.addCalorimeter(stream_name)
-        dpdOutput.addEGamma(stream_name)
-        dpdOutput.addInnerDetectorPrepRawData(stream_name)
-        dpdOutput.addMissingEt(stream_name)
-        dpdOutput.addMuons(stream_name)
-        dpdOutput.addPerfLite(stream_name)
-        dpdOutput.addTau(stream_name)
-        dpdOutput.addTrackParticles(stream_name)
-        dpdOutput.addTracks(stream_name)
-        dpdOutput.addTrigger(stream_name)
-        dpdOutput.addTruth(stream_name)
-
-class DropEvent(Exception):
-    pass
-
-class AnalysisAlgorithm(PyAthena.Alg):
-    def __init__(self, name, options = {}, histoman=None):
+class AOD2A4(PyAthena.Alg):
+    def __init__(self, name, options = {}):
         super(AnalysisAlgorithm,self).__init__(name)
         self.options = options
-        if histoman is None:
-            histoman = HistogramManager(name+".root")
-        self.histogram_manager = self.h = histoman
-        self.exception_count = 0
-        self.event_info_key = None
+        self.file_name = options.get("file_name", "events.a4")
         self.is_mc = None
-        self.do_cosmics = False
-        self._skim_filter = None
-        self.tasks = []
-        if "grl_path" in options:
-            self.grl = GRL(options["grl_path"])
-        else:
-            self.grl = FakeGRL()
-    
-    def __getattr__(self, name):
-        """ This is necessary to make properties work"""
-        return object.__getattribute__(self, name)
+        self.event_info_key = None
         
     def initialize(self):
-        log.info("Initialize Minty")
+        log.info("Initialize AOD2A4")
         self.sg = PyAthena.py_svc("StoreGateSvc")
         self.sum_mc_event_weights = 0.0
         self.number_events = 0
-        self.init()
+        self.a4 = A4WriterStream(open(self.file_name, "w"), "Event", Event)
+
         return PyAthena.StatusCode.Success
-
-    def init(self):
-        pass
-
-    def setSkimFilter(self, func):
-        self._skim_filter = func
-
-    @property
-    @event_cache
-    def electrons(event):
-        return list(event.sg["ElectronAODCollection"])
-
-    @property
-    @event_cache
-    def muons(event):
-        return list(event.sg["%sMuonCollection" % event.muon_algo])
 
 
     def load_event_info(self):
@@ -136,56 +81,43 @@ class AnalysisAlgorithm(PyAthena.Alg):
                 self.sg.dump()
                 raise RuntimeError("EventInfo not found in StoreGate!") 
         self.event_info = self.sg[self.event_info_key]
-        self.event_number = self.event_info.event_ID().event_number()
-        self.run_number = self.event_info.event_ID().run_number()
-        self.lumi_block = self.event_info.event_ID().lumi_block()
-        self.event_weight = 1.0
+
+        self.event.event_number = self.event_info.event_ID().event_number()
+        self.event.run_number = self.event_info.event_ID().run_number()
+        self.event.lumi_block = self.event_info.event_ID().lumi_block()
+
         if self.is_mc:
+            event_weight = 1.0
             try:
                 truth = self.sg["GEN_AOD"]
                 try:
                     truth = truth[0]
-                    weights = truth.weights()                    
-                    self.event_weight = weights[0]
+                    weights = truth.weights()
+                    event_weight = weights[0]
                 except IndexError, x:
                     print("STRANGE: No MC Weight in this event - set to 1.0 (%s)" % x)
             except KeyError:
                 self.sg.dump()
                 raise RuntimeError("MC weight not found in StoreGate (GEN_AOD)!") 
-        self.sum_mc_event_weights += self.event_weight
+            self.event.event_weight = event_weight
+            self.sum_mc_event_weights += self.event_weight
         self.number_events += 1
+
+    def finalize(self):
+        log.info("Finalizing AOD2A4")
+        self.histogram_manager.write_parameter("sum_mc_event_weights", self.sum_mc_event_weights)
+        self.histogram_manager.write_parameter("initial_events", self.number_events)
+        return PyAthena.StatusCode.Success
+ 
+    def electrons(event):
+        return list(event.sg["ElectronAODCollection"])
+
+    def muons(event):
+        return list(event.sg["%sMuonCollection" % event.muon_algo])
 
     def execute(event):
         # note that "self" is named "event" here for semantic reasons
-        log.debug("Executing Minty")
+        self.event = Event()
         event.load_event_info()
-        event.setFilterPassed(False)
-        try:
-            for task in event.tasks:
-                task(event)
-            if event._skim_filter:
-                event.setFilterPassed(event._skim_filter(event))
-            event_cache.invalidate()
-        except DropEvent:
-            pass
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except:
-            rlum = event.run_number, event.lumi_block, event.event_number
-            log.exception("Exception encountered in (run, lb, nr) = %r", rlum)
-            if event.options.get("shell_on_exception", False):
-                raise
-            
-            event.exception_count += 1
-            if event.exception_count > event.options.get("max_exception_count", 100):
-                raise RuntimeError("Encountered more than `max_exception_count`"
-                                   " exceptions. Aborting.")
-        return PyAthena.StatusCode.Success
- 
-    def finalize(self):
-        log.info("Finalizing Minty")
-        self.histogram_manager.write_parameter("exception_count", self.exception_count)
-        self.histogram_manager.write_parameter("sum_mc_event_weights", self.sum_mc_event_weights)
-        self.histogram_manager.write_parameter("initial_events", self.number_events)
-        self.histogram_manager.finalize()
+        
         return PyAthena.StatusCode.Success
