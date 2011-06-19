@@ -1,5 +1,7 @@
 CCC=g++
 CXXFLAGS = ${DEBUG} -fPIC -pipe -Wall -I./ $(PROTOBUF)
+LIBS     = -lprotobuf -lboost_filesystem -lboost_system -lboost_thread-mt -lboost_program_options -lpthread
+LDFLAGS  = -shared -W1
 
 PYDIR  = ./python/a4/messages
 CPPDIR = ./src/pb
@@ -14,8 +16,9 @@ PROTOCOBJ = $(subst ./messages/,$(OBJDIR)/,$(patsubst %.proto,%.o,$(PROTOS)))
 PYINIT    = $(PYDIR)/__init__.py
 
 OBJS      = $(foreach obj,$(addprefix ./obj/,$(patsubst %.cc,%.o,$(notdir $(SRCS)))),$(obj))
+PROGS     = $(patsubst ./src/%.cpp,./bin/%,$(wildcard ./src/*.cpp))
 
-all: py $(PROTOCPP) $(PROTOCOBJ) $(OBJS)
+all: py $(PROTOCPP) $(PROTOCOBJ) $(OBJS) $(PROGS)
 
 py: $(PROTOPY) $(PYINIT)
 
@@ -34,8 +37,12 @@ $(OBJDIR)/%.o: $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h
 $(OBJDIR)/%.o: src/%.cc
 	$(CCC) $(CXXFLAGS) -c $< -o $@
 
+./bin/%: ./src/%.cpp $(OBJS) $(PROTOCOBJ)
+	$(CCC) $(CXXFLAGS) $(LIBS) $^ -o $@
+	@echo
 clean:
 	rm -f $(PROTOCPP)
 	rm -f $(PROTOPY)
 	rm -f $(PROTOCOBJ)
 	rm -f $(PYINIT)
+	rm -f $(OBJS)
