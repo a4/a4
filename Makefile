@@ -1,29 +1,35 @@
 CCC=g++
 CXXFLAGS = ${DEBUG} -fPIC -pipe -Wall -I./ $(PROTOBUF)
 
-PROTOS    = $(wildcard ./proto/*.proto)
-PROTOPY   = $(subst ./proto/,./python/,$(patsubst %.proto,%_pb2.py,$(PROTOS)))
-PROTOCPP  = $(subst ./proto/,./cpp/,$(patsubst %.proto,%.pb.cc,$(PROTOS)))
-PROTOCOBJ = $(subst ./proto/,./obj/,$(patsubst %.proto,%.o,$(PROTOS)))
+
+PYDIR  = ./python/a4/messages
+CPPDIR = ./src/pb
+OBJDIR = ./obj
+
+PROTOS    = $(wildcard ./messages/*.proto)
+PROTOPY   = $(subst ./messages/,$(PYDIR)/,$(patsubst %.proto,%_pb2.py,$(PROTOS)))
+PROTOCPP  = $(subst ./messages/,$(CPPDIR)/,$(patsubst %.proto,%.pb.cc,$(PROTOS)))
+PROTOCOBJ = $(subst ./messages/,$(OBJDIR)/,$(patsubst %.proto,%.o,$(PROTOS)))
+PYINIT    = $(PYDIR)/__init__.py
 
 all: py $(PROTOCPP) $(PROTOCOBJ)
 
-py: $(PROTOPY) python/__init__.py
+py: $(PROTOPY) $(PYINIT)
 
-python/%_pb2.py cpp/%.pb.cc cpp/%.pb.h: proto/%.proto
-	mkdir -p python
-	mkdir -p cpp
-	protoc -I=proto --python_out python --cpp_out cpp $<
+$(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: messages/%.proto
+	mkdir -p $(PYDIR)
+	mkdir -p $(CPPDIR)
+	protoc -I=messages --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
 
-python/__init__.py: $(PROTOPY)
-	grep -o "class [A-Za-z0-9]*" $(PROTOPY) | sed 's/.py:class/ import/' | sed 's/\.\/python\//from ./' > $@
+$(PYINIT): $(PROTOPY)
+	grep -o "class [A-Za-z0-9]*" $(PROTOPY) | sed 's/.py:class/ import/' | sed 's/\.\/python\/a4\/messages\//from ./' > $@
 
-obj/%.o: cpp/%.pb.cc cpp/%.pb.h	
-	mkdir -p obj
+$(OBJDIR)/%.o: $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h	
+	mkdir -p $(OBJDIR)
 	$(CCC) $(CXXFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(PROTOCPP)
 	rm -f $(PROTOPY)
 	rm -f $(PROTOCOBJ)
-	rm -f python/__init__.py
+	rm -f $(PYINIT)
