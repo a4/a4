@@ -1,5 +1,5 @@
 from logging import getLogger; log = getLogger("a4")
-from a4 import A4WriterStream
+
 
 
 from AthenaPython import PyAthena
@@ -44,8 +44,9 @@ def athena_setup(input = None, max_events = None):
 
 
 class AOD2A4Base(PyAthena.Alg):
-    def __init__(self, name, options = {}):
-        super(AnalysisAlgorithm,self).__init__(name)
+    def __init__(self, name, year, options = {}):
+        super(AOD2A4Base,self).__init__(name)
+        self.year = year
         self.options = options
         self.file_name = options.get("file_name", "events.a4")
         self.is_mc = None
@@ -56,11 +57,11 @@ class AOD2A4Base(PyAthena.Alg):
         self.sg = PyAthena.py_svc("StoreGateSvc")
         self.sum_mc_event_weights = 0.0
         self.number_events = 0
-        self.a4 = A4WriterStream(open(self.file_name, "w"), "Event", Event)
+
         self.init()
         return PyAthena.StatusCode.Success
 
-    def load_event_info(self):
+    def load_event_info(self, event):
         if self.event_info_key is None:
             if self.sg.contains("EventInfo", "ByteStreamEventInfo"):
                 # EventInfo in data
@@ -79,9 +80,9 @@ class AOD2A4Base(PyAthena.Alg):
                 raise RuntimeError("EventInfo not found in StoreGate!") 
         self.event_info = self.sg[self.event_info_key]
 
-        self.event.event_number = self.event_info.event_ID().event_number()
-        self.event.run_number = self.event_info.event_ID().run_number()
-        self.event.lumi_block = self.event_info.event_ID().lumi_block()
+        event.event_number = self.event_info.event_ID().event_number()
+        event.run_number = self.event_info.event_ID().run_number()
+        event.lumi_block = self.event_info.event_ID().lumi_block()
 
         if self.is_mc:
             event_weight = 1.0
@@ -96,13 +97,8 @@ class AOD2A4Base(PyAthena.Alg):
             except KeyError:
                 self.sg.dump()
                 raise RuntimeError("MC weight not found in StoreGate (GEN_AOD)!") 
-            self.event.event_weight = event_weight
-            self.sum_mc_event_weights += self.event_weight
+            event.mc_event_weight = event_weight
+            self.sum_mc_event_weights += event_weight
         self.number_events += 1
 
-    def finalize(self):
-        log.info("Finalizing AOD2A4")
-        self.histogram_manager.write_parameter("sum_mc_event_weights", self.sum_mc_event_weights)
-        self.histogram_manager.write_parameter("initial_events", self.number_events)
-        return PyAthena.StatusCode.Success
 

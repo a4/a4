@@ -1,11 +1,13 @@
 from math import sin, atan, atan2, exp, pi
 
+from a4 import A4WriterStream
 from aod2a4 import AOD2A4Base, athena_setup
 
 from AthenaCommon.AppMgr import topSequence
 from ROOT import gROOT, TLorentzVector
 
 from array import array
+from glob import glob
 
 from a4.messages import Trigger, Isolation, TrackHits, MuonTrackHits
 from a4.messages import Lepton, Photon, Jet, Event
@@ -134,10 +136,12 @@ trigger_names = {
 def getMomentumLV(value):
     return TLorentzVector(value.px(),value.py(),value.pz(),value.e())
 
-def make_lv(self, lv):
-    return LorentzVector(lv.px(), lv.py(), lv.pz(), lv.e())
+def make_lv(lv):
+    v = LorentzVector()
+    v.px, v.py, v.pz, v.e = lv.px(), lv.py(), lv.pz(), lv.e()
+    return v
 
-def make_track_hits(self, idtp):
+def make_track_hits(idtp):
     if not idtp:
         return None
     ts = idtp.trackSummary()
@@ -148,7 +152,7 @@ def make_track_hits(self, idtp):
         setattr(t, n, ts.get(getattr(SummaryType, n)))
     return t
 
-def make_ms_track_hits(self, tp):
+def make_ms_track_hits(tp):
     if not tp:
         return None
     ts = tp.trackSummary()
@@ -164,6 +168,8 @@ JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/
 class AOD2A4(AOD2A4Base):
 
     def init(self):
+        self.a4 = A4WriterStream(open(self.file_name, "w"), "Event", Event)
+
         import PyCintex
 
         PyCintex.loadDictionary("JetUtils")
@@ -187,8 +193,8 @@ class AOD2A4(AOD2A4Base):
         if self.year == 2010: 
             gROOT.ProcessLine(".L checkOQ.C++")
             from ROOT import egammaOQ
-            EAnalysisElectron.egOQ = egammaOQ()
-            EAnalysisElectron.egOQ.initialize()
+            self.egOQ = egammaOQ()
+            self.egOQ.initialize()
 
         self.tool_ttv = PyAthena.py_tool("Reco::TrackToVertex", iface="Reco::ITrackToVertex")
         self.tool_tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
@@ -198,36 +204,37 @@ class AOD2A4(AOD2A4Base):
         for i, el in enumerate(self.sg["ElectronAODCollection"]):
             e = Lepton()
             e.index = i
-            e.p4 = make_lv(el)
-            e.charge = el.charge()
+            e.p4.CopyFrom(make_lv(el))
+            assert int(el.charge()) == el.charge()
+            e.charge = int(el.charge())
             #e.vertex =.recVertex().position()
-            e.isolation = Isolation()
             for iso in ("etcone20", "etcone30", "ptcone20", "ptcone30"):
-                setattr(e.isolation, iso, e.detailValue(getattr(self.egammaParameters, iso)))
+                setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
 
             if self.year == 2011:
-                e.bad = not (el.isgoodoq(EAnalysisElectron.egammaPID.BADCLUSELECTRON) == 0)
+                e.bad = not (el.isgoodoq(self.egammaPID.BADCLUSELECTRON) == 0)
             elif self.year == 2010:
                 e.bad = not (self.egOQ.checkOQClusterElectron(167521, el.cluster.Eta(), el.cluster.Phi()) != 3)
 
-            e.quality = e.Quality_NONE
-            if el.isElectron(EAnalysisElectron.egammaPID.ElectronLoose):
-                e.quality = e.Quality_LOOSE
-            if el.isElectron(EAnalysisElectron.egammaPID.ElectronMedium):
-                e.quality = e.Quality_MEDIUM
+            e.quality = e.NONE
+            if el.isElectron(self.egammaPID.ElectronLoose):
+                e.quality = e.LOOSE
+            if el.isElectron(self.egammaPID.ElectronMedium):
+                e.quality = e.MEDIUM
             if self.year == 2010:
-                if el.isElectron(EAnalysisElectron.egammaPID.ElectronTight_WithTrackMatch):
-                    e.quality = e.Quality_TIGHT
+                if el.isElectron(self.egammaPID.ElectronTight_WithTrackMatch):
+                    e.quality = e.TIGHT
             else:
-                if el.isElectron(EAnalysisElectron.egammaPID.ElectronTight):
-                    e.quality = e.Quality_TIGHT
+                if el.isElectron(self.egammaPID.ElectronTight):
+                    e.quality = e.TIGHT
 
-            if e.track():
-                e.p4_track = make_lv(e.track())
-                e.z0, e.z0err, e.d0, e.d0err = perigee_z0_d0_d0err(e.track())
-                e.track_hits = make_track_hits(e.track())
-            if e.cluster():
-                e.p4_cluster = make_lv(e.cluster())
+            trk = el.trackParticle()
+            if trk:
+                e.p4_track.CopyFrom(make_lv(trk))
+                e.z0, e.z0err, e.d0, e.d0err = self.perigee_z0_d0(trk)
+                e.track_hits.CopyFrom(make_track_hits(trk))
+            if el.cluster():
+                e.p4_cluster.CopyFrom(make_lv(el.cluster()))
             els.append(e)
         return els
 
@@ -236,30 +243,30 @@ class AOD2A4(AOD2A4Base):
         for i, mu in enumerate(self.sg["%sMuonCollection" % self.muon_algo]):
             m = Lepton()
             m.index = i
-            m.p4 = make_lv(mu)
-            m.charge = mu.charge()
+            m.p4.CopyFrom(make_lv(mu))
+            assert int(mu.charge()) == mu.charge()
+            m.charge = int(mu.charge())
             #m.vertex =.recVertex().position()
-            m.isolation = Isolation()
             for iso in ("etcone20", "etcone30", "ptcone20", "ptcone30"):
                 setattr(m.isolation, iso, mu.parameter(getattr(self.MuonParameters, iso)))
 
             if mu.isTight() == 1:
-                m.quality = m.Quality_TIGHT
-            if self.muon_algo == "Muid"
+                m.quality = m.TIGHT
+            if self.muon_algo == "Muid":
                 m.combined = mu.isAuthor(self.MuonParameters.MuidCo)
             elif self.muon_algo == "Staco":
-                m.combined = mu.isAuthor(EAnalysisMuon.MuonParameters.STACO) and self.mu.isCombinedMuon()
+                m.combined = mu.isAuthor(self.MuonParameters.STACO) and mu.isCombinedMuon()
 
             trk = mu.inDetTrackParticle()
 
             if trk:
-                e.p4_track = make_lv(trk)
-                e.z0, e.z0err, e.d0, e.d0err = perigee_z0_d0_d0err(trk)
-                e.track_hits = make_track_hits(trk)
+                m.p4_track.CopyFrom(make_lv(trk))
+                m.z0, m.z0err, m.d0, m.d0err = self.perigee_z0_d0(trk)
+                m.track_hits.CopyFrom(make_track_hits(trk))
 
             ctrk = mu.combinedMuonTrackParticle()
             if ctrk:
-                e.ms_hits = make_ms_track_hits(ctrk)
+                m.ms_hits.CopyFrom(make_ms_track_hits(ctrk))
 
             mus.append(m)
         return mus
@@ -269,7 +276,7 @@ class AOD2A4(AOD2A4Base):
         for i, jet in enumerate(self.sg["AntiKt4TopoEMJets"]):
             j = Jet()
             j.index = i
-            j.p4 = make_lv(jet.hlv(JETEMSCALE))
+            j.p4.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
             #j.vertex =.recVertex().position()
             j.bad = self.jet_bad(jet)
             j.ugly = self.jet_ugly(jet)
@@ -281,7 +288,7 @@ class AOD2A4(AOD2A4Base):
         triggers = []
         for tn in trigger_names[self.year]:
             t = Trigger()
-            t.name = getattr(t, "TriggerName_" + tn)
+            t.name = getattr(t, tn)
             t.fired = self.tool_tdt.isPassed(tn)
             triggers.append(t)
         return triggers
@@ -293,7 +300,7 @@ class AOD2A4(AOD2A4Base):
             v.index = i
             pos = vx.recVertex().position()
             v.x, v.y, v.z = pos.x(), pos.y(), pos.z()
-            v.tracks = vx.vxTrackAtVertex()
+            v.tracks = len(vx.vxTrackAtVertex())
             vxs.append(v)
         return vxs
 
@@ -330,12 +337,18 @@ class AOD2A4(AOD2A4Base):
     def execute(self):
         event = Event()
         self.load_event_info(event) # sets run_number, event_number, lumi_block and mc_event_weight
-        event.triggers = self.triggers()
-        event.vertices = self.vertices()
-        event.met = self.met() 
-        event.jets = self.jets()
-        event.muons = self.muons()
-        event.electrons = self.electrons()
+        event.triggers.extend(self.triggers())
+        event.vertices.extend(self.vertices())
+        event.met.CopyFrom(self.met())
+        event.jets.extend(self.jets())
+        event.muons.extend(self.muons())
+        event.electrons.extend(self.electrons())
+        self.a4.write(event)
+        return PyAthena.StatusCode.Success
+
+    def finalize(self):
+        log.info("Finalizing AOD2A4")
+        self.a4.close()
         return PyAthena.StatusCode.Success
 
 if not "options" in dir():
@@ -348,6 +361,7 @@ if os.path.exists(a_local_directory):
         input = glob(options["input"]) 
     else:
         input = glob("/data/etp/ebke/data/*109074*/*")
+    athena_setup(input, 1000)
     athena_setup(input, -1)
 else:
     athena_setup(None, -1)

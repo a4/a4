@@ -19,6 +19,7 @@ message Lepton
     optional Isolation isolation = 5;
     optional Quality quality = 6;
     optional bool combined = 16;
+    optional bool bad = 17;
 
     optional LorentzVector p4_track = 7;
     optional LorentzVector p4_cluster = 8;
