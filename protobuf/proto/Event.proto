@@ -6,18 +6,19 @@ message Lepton
 {
     enum Quality
     {
-        LOOSE = 1;
-        MEDIUM = 2;
-        TIGHT = 3;
-        COMBINED = 4;
+        NONE = 1;
+        LOOSE = 2;
+        MEDIUM = 3;
+        TIGHT = 4;
     }
 
-    required LorentzVector p4 = 2;
-    optional int32 charge = 3;
-    optional Vertex vertex = 4;
-    optional int32 index = 5;
-    optional Isolation isolation = 6;
-    optional Quality quality = 12;
+    required LorentzVector p4 = 1;
+    optional int32 charge = 2;
+    optional Vertex vertex = 3;
+    optional int32 index = 4;
+    optional Isolation isolation = 5;
+    optional Quality quality = 6;
+    optional bool combined = 16;
 
     optional LorentzVector p4_track = 7;
     optional LorentzVector p4_cluster = 8;
@@ -26,9 +27,10 @@ message Lepton
     optional TrackHits track_hits = 10;
     optional MuonTrackHits ms_hits = 11;
 
-    optional double z0 = 13;
-    optional double d0 = 16;
-    optional double d0sig = 15;
+    optional double z0 = 12;
+    optional double z0err = 13;
+    optional double d0 = 14;
+    optional double d0err = 15;
 }
 
 message Photon
@@ -42,17 +44,12 @@ message Photon
 
 message Jet
 {
-    enum JetQuality
-    {
-        GOOD = 1;
-        BAD = 2;
-        UGLY = 3;
-    }
     required LorentzVector p4 = 1;
     optional Vertex vertex = 2;
     optional int32 index = 3;
-    optional JetQuality quality = 4;
-    optional double jet_vertex_fraction = 5;
+    optional double jet_vertex_fraction = 4;
+    optional bool bad = 5;
+    optional bool ugly = 6;
 }
 
 message Event
@@ -72,4 +69,5 @@ message Event
     repeated Jet jets = 8;
     repeated Lepton muons = 9;
     repeated Lepton electrons = 10;
+    repeated Photon photons = 11;
 }

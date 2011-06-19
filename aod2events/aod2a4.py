@@ -1,8 +1,6 @@
 from logging import getLogger; log = getLogger("a4")
 from a4 import A4WriterStream
-from a4.messages import Trigger, Isolation, TrackHits, MuonTrackHits
-from a4.messages import Lepton, Photon, Jet, Event
-from a4.messages import LorentzVector, Vertex, MissingEnergy
+
 
 from AthenaPython import PyAthena
 
@@ -45,7 +43,7 @@ def athena_setup(input = None, max_events = None):
         athenaCommonFlags.EvtMax = max_events
 
 
-class AOD2A4(PyAthena.Alg):
+class AOD2A4Base(PyAthena.Alg):
     def __init__(self, name, options = {}):
         super(AnalysisAlgorithm,self).__init__(name)
         self.options = options
@@ -59,9 +57,8 @@ class AOD2A4(PyAthena.Alg):
         self.sum_mc_event_weights = 0.0
         self.number_events = 0
         self.a4 = A4WriterStream(open(self.file_name, "w"), "Event", Event)
-
+        self.init()
         return PyAthena.StatusCode.Success
-
 
     def load_event_info(self):
         if self.event_info_key is None:
@@ -108,16 +105,4 @@ class AOD2A4(PyAthena.Alg):
         self.histogram_manager.write_parameter("sum_mc_event_weights", self.sum_mc_event_weights)
         self.histogram_manager.write_parameter("initial_events", self.number_events)
         return PyAthena.StatusCode.Success
- 
-    def electrons(event):
-        return list(event.sg["ElectronAODCollection"])
 
-    def muons(event):
-        return list(event.sg["%sMuonCollection" % event.muon_algo])
-
-    def execute(event):
-        # note that "self" is named "event" here for semantic reasons
-        self.event = Event()
-        event.load_event_info()
-        
-        return PyAthena.StatusCode.Success
