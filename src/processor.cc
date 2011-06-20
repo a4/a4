@@ -62,7 +62,7 @@ void Processor::process()
 
         for(int i = 0; i < number_of_muons; ++i)
         {
-            const Lepton &muon = event.muons(i);
+            const Muon &muon = event.muons(i);
             HIST1(_results,"muon_e",100,0,100000)->fill(muon.p4().e());
             HIST1(_results,"muon_px",100,0,100000)->fill(muon.p4().px());
             HIST1(_results,"muon_py",100,0,100000)->fill(muon.p4().py());

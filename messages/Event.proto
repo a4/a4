@@ -1,40 +1,10 @@
 
+import "Atlas.proto";
 import "Physics.proto";
 import "Photon.proto";
+import "Electron.proto";
+import "Muon.proto";
 import "Jet.proto";
-import "Atlas.proto";
-
-message Lepton
-{
-    enum Quality
-    {
-        NONE = 1;
-        LOOSE = 2;
-        MEDIUM = 3;
-        TIGHT = 4;
-    }
-
-    required LorentzVector p4 = 1;
-    optional int32 charge = 2;
-    optional Vertex vertex = 3;
-    optional int32 index = 4;
-    optional Isolation isolation = 5;
-    optional Quality quality = 6;
-    optional bool combined = 16;
-    optional bool bad = 17;
-
-    optional LorentzVector p4_track = 7;
-    optional LorentzVector p4_cluster = 8;
-    optional LorentzVector p4_ms = 9;
-
-    optional TrackHits track_hits = 10;
-    optional MuonTrackHits ms_hits = 11;
-
-    optional double z0 = 12;
-    optional double z0err = 13;
-    optional double d0 = 14;
-    optional double d0err = 15;
-}
 
 message Event
 {
@@ -51,7 +21,7 @@ message Event
     optional MissingEnergy met = 7;
 
     repeated Jet jets = 8;
-    repeated Lepton muons = 9;
-    repeated Lepton electrons = 10;
+    repeated Muon muons = 9;
+    repeated Electron electrons = 10;
     repeated Photon photons = 11;
 }

@@ -1,0 +1,32 @@
+import "Physics.proto";
+import "Atlas.proto";
+
+message Electron
+{
+    enum Quality
+    {
+        NONE = 1;
+        LOOSE = 2;
+        MEDIUM = 3;
+        TIGHT = 4;
+    }
+
+    required LorentzVector p4 = 1;
+    optional int32 charge = 2;
+    optional Vertex vertex = 3;
+    optional int32 index = 4;
+    optional Isolation isolation = 5;
+    optional Quality quality = 6;
+    optional bool combined = 16;
+    optional bool bad = 17;
+
+    optional LorentzVector p4_track = 7;
+    optional LorentzVector p4_cluster = 8;
+
+    optional TrackHits track_hits = 10;
+
+    optional double z0 = 12;	
+    optional double z0err = 13;
+    optional double d0 = 14;
+    optional double d0err = 15;
+}
