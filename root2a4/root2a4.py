@@ -39,25 +39,38 @@ def map_egamma(new, old):
     map_showershapes(new, old)
     #new.cluster_time = old.time
 
+def map_quality(Type, new, old):
+
+    for q in ["tight", "medium", "loose"]:
+        tightness = getattr(Type, q.upper(), None)
+        if tightness and getattr(old, q): # old.{loose,medium,tight} is true
+            new.quality = tightness
+            break
+
 def map_photons(objects):
     for new, old in objects:
         map_egamma(new, old)
+        map_quality(Photon, new, old)
         
 def map_electrons(objects):
     for new, old in objects:
         map_egamma(new, old)
+        map_quality(Electron, new, old)
         
 def map_triggers(Nevent, event):
     Nevent.triggers.add(name=Trigger.EF_2g20_loose, fired=event.EF._2g20_loose)
+
+def map_vertices(n, o):
+    for v in o.vertices:
+        n.vertices.add(tracks=v.nTracks, z=v.z)
 
 def map_event(event):
     n = Nevent = Event()
     o = event
         
-    n.run_number = o.RunNumber
-    n.lumi_block = o.LumiBlock
-    n.event_number = o.EventNumber
+    n.run_number, n.lumi_block, n.event_number = o.RunNumber, o.LumiBlock, o.EventNumber
     
+    map_vertices(n, o)
     map_triggers(n, o)
     
     map_photons  (object_maker(Nevent.photons,   event.photons))
@@ -89,7 +102,11 @@ def main():
     tree = egamma_wrap_tree(ph, options)
     
     with A4WriterStream(open(file_name, "w"), "Event", Event) as a4w:
-        i = tree.loop(lambda i, evt: a4w.write(map_event(evt)))
+        def copy(index, event):
+            if not index % 100:
+                print index
+            a4w.write(map_event(event))
+        i = tree.loop(copy, hi=5000)
             
     print "Copied {0} events".format(i)
     
