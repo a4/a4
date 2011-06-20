@@ -16,4 +16,9 @@ message Photon
     optional int32 index = 3;
     optional Vertex conversion = 5;
     optional Isolation isolation = 9;
+    
+    optional LorentzVector p4_cluster = 8;
+    optional double cluster_time = 10;
+    
+    optional ShowerShape shower_shape = 11;
 }

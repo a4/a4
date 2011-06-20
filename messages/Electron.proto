@@ -29,4 +29,6 @@ message Electron
     optional double z0err = 13;
     optional double d0 = 14;
     optional double d0err = 15;
+    
+    optional ShowerShape shower_shape = 11;
 }
