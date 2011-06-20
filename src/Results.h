@@ -1,33 +1,32 @@
-/**
- * Results container Interface
- *
- * Created by Samvel Khalatyan on Mar 13, 2011
- * Copyright 2011, All rights reserved
- */
-
 #ifndef RESULTS_H
 #define RESULTS_H
 
+#include <map>
+#include <string>
+#include <iostream>
+
+#include <boost/shared_ptr.hpp>
+
+#include "H1.h"
+            
 class Results
 {
     public:
-        enum Type
-        {
-            ROOT,
-            PROTO_BUF
-        };
+        typedef boost::shared_ptr<H1> H1Ptr;
 
-        Results(const Type &type);
+        Results();
         virtual ~Results();
 
-        Type type() const;
+        virtual void add(const Results &);
+        virtual void print(std::ostream &) const;
+        virtual void print() const { print(std::cout); };
 
-        virtual void add(const Results &) = 0;
-
-        virtual void print() const = 0;
+        H1Ptr h1(std::string name);
+        H1Ptr h1(std::string name, const uint32_t &bins, const double &min, const double &max);
 
     private:
-        Type _type;
+        typedef std::map<std::string, H1Ptr> HMap;
+        HMap _h1;
 };
 
 #endif

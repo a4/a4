@@ -13,11 +13,12 @@
 #include "Processor.h"
 
 class H1;
+class Results;
 
 namespace pb
 {
     class Reader;
-    class Results;
+
 
     class Processor : public ::Processor
     {
@@ -28,6 +29,8 @@ namespace pb
 
             virtual void init(const fs::path &file);
             virtual void processEvents();
+
+            virtual void process();
 
             virtual ResultsPtr results() const;
 

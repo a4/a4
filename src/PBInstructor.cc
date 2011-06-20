@@ -15,7 +15,7 @@
 #include "Cout.h"
 #include "PBInstructor.h"
 #include "PBThread.h"
-#include "PBResults.h"
+#include "Results.h"
 
 namespace fs = boost::filesystem;
 
