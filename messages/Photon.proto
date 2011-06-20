@@ -9,7 +9,6 @@ message Photon
     {
         NONE = 1;
         LOOSE = 2;
-        MEDIUM = 3;
         TIGHT = 4;
     }
     
@@ -19,6 +18,7 @@ message Photon
     optional Vertex conversion = 5;
     optional Isolation isolation = 9;
     optional CustomIsolation custom_isolation = 12;
+    optional Quality quality = 13;
     
     optional LorentzVector p4_cluster = 8;
     optional double cluster_time = 10;
