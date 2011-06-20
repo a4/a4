@@ -25,9 +25,7 @@ Writer::Writer(const fs::path &output_file, string content_name = "", uint32_t c
     _content_type(content_type)
 {
     _raw_out.reset(new ::google::protobuf::io::OstreamOutputStream(&_output));
-
     _coded_out.reset(new ::google::protobuf::io::CodedOutputStream(_raw_out.get()));
-
     write_header(content_name);
 }
 
@@ -47,28 +45,32 @@ bool Writer::write_header(string content_name) {
     header.set_a4_version(1);
     if (_content_type != 0)
         header.set_content(content_name);
-    return write(MessagePtr(&header));
+
+    return write(header);
 }
 
 bool Writer::write_footer() {
+
     A4StreamFooter footer;
     footer.set_size(_bytes_written);
     if (_content_type != 0)
         footer.set_content_count(_content_count);
-    write(MessagePtr(&footer));
+    write(footer);
+
     _coded_out->WriteLittleEndian32(footer.ByteSize());
     _coded_out->WriteString(END_MAGIC);
     _bytes_written += END_MAGIC.size();
+
     return true;
 }
 
-bool Writer::write(Writer::MessagePtr msg)
+bool Writer::write(Message &msg)
 {
     string message;
-    if (!msg->SerializeToString(&message))
+    if (!msg.SerializeToString(&message))
         return false;
 
-    uint32_t type = msg->GetDescriptor()->FindFieldByName("CLASS_ID")->number();
+    uint32_t type = msg.GetDescriptor()->FindFieldByName("CLASS_ID")->number();
     uint32_t size = message.size();
     if (type == _content_type) _content_count++;
     if (type != _previous_type) {

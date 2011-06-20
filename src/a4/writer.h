@@ -13,18 +13,17 @@
 namespace fs = boost::filesystem;
 using std::string;
 
+typedef boost::shared_ptr< ::google::protobuf::Message> MessagePtr;
+using ::google::protobuf::Message;
+
 class Writer
 {
     public:
         Writer(const fs::path &output_file, string content_name, uint32_t content_cls);
         ~Writer();
-
-        typedef boost::shared_ptr< ::google::protobuf::Message> MessagePtr;
-        bool write(MessagePtr m);
+        bool write(Message& m);
 
     private:
-
-
         std::fstream _output;
 
         boost::shared_ptr< ::google::protobuf::io::ZeroCopyOutputStream>
