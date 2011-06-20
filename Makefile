@@ -1,6 +1,6 @@
 CCC=g++
-CXXFLAGS = ${DEBUG} -fPIC -pipe -Wall -I./ $(PROTOBUF)
-LIBS     = -lprotobuf -lboost_filesystem -lboost_system -lboost_thread-mt -lboost_program_options -lpthread
+CXXFLAGS = ${DEBUG} -fPIC -pipe -Wall -I./ $(ADD_INCLUDES)
+LIBS     = $(ADD_LIBS) -lprotobuf -lboost_filesystem -lboost_system -lboost_thread-mt -lboost_program_options -lpthread
 LDFLAGS  = -shared -W1
 
 PYDIR  = ./python/a4/messages
