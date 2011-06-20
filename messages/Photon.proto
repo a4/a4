@@ -8,9 +8,11 @@ message Photon
     required LorentzVector p4 = 1;
     optional Vertex vertex = 2;
     optional int32 index = 3;
-    optional Vertex conversion = 5;
     optional Isolation isolation = 9;
     optional CustomIsolation custom_isolation = 12;
+    
+    optional Vertex conversion = 5;
+    
     optional bool loose = 13;
     optional bool tight = 14;
     
