@@ -11,11 +11,11 @@ Results::~Results()
 {
 }
 
-Results::H1Ptr Results::h1(const char * name) {
+H1Ptr Results::h1(string name) {
     return _h1[name];
 };
         
-Results::H1Ptr Results::h1(const char * name, const uint32_t &bins, const double &min, const double &max) {
+H1Ptr Results::h1(string name, const uint32_t &bins, const double &min, const double &max) {
     HMap::const_iterator search = _h1.find(name);
     if (search != _h1.end()) {
         return search->second;
@@ -48,4 +48,12 @@ void Results::print(std::ostream & out) const {
         out << "Histogram '" << (it->first) << "':" << endl;
         it->second->print(out);
     }
+}
+
+std::vector<std::string> Results::names() const {
+    std::vector<std::string> result;
+    HMap::const_iterator end = _h1.end();
+    for (HMap::const_iterator it = _h1.begin(); it != end; ++it)
+        result.push_back(it->first);
+    return result;
 }

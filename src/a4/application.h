@@ -4,6 +4,6 @@
 #include <boost/shared_ptr.hpp>
 #include "a4/processor.h"
 
-int a4_main(int argc, char *argv[], ProcessorFactoryPtr pf);
+int a4_main(int argc, char *argv[], ProcessorFactoryPtr pf, ResultsPtr &r);
 
 #endif

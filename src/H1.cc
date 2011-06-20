@@ -9,7 +9,7 @@
 #include <iostream>
 #include <string.h>
 
-#include "Axis.h"
+#include "a4/axis.h"
 #include "a4/H1.h"
 
 using namespace std;

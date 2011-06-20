@@ -2,6 +2,7 @@
 #include "example.h"
 
 #include "a4/application.h"
+#include "a4/results.h"
 #include "pb/Event.pb.h"
 
 void Example::process()
@@ -39,5 +40,10 @@ void Example::process()
 
 int main(int argc, char ** argv) {
     ProcessorFactoryPtr pf(new ExampleFactory());
-    return a4_main(argc, argv, pf);
+    ResultsPtr r;
+    int rv = a4_main(argc, argv, pf, r);
+    if (rv != 0) {
+        return rv;
+    }
+    //r->print();
 }

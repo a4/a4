@@ -21,7 +21,7 @@ typedef vector<string> Inputs;
 
 int THREADS = 0;
 
-int a4_main(int argc, char *argv[], ProcessorFactoryPtr pf) 
+int a4_main(int argc, char *argv[], ProcessorFactoryPtr pf, ResultsPtr &r) 
 try
 {
     // Verify that the version of the library that we linked against is
@@ -61,7 +61,7 @@ try
             fs::path file_path(*inputs.begin());
             boost::shared_ptr<Instructor> instructor(new Instructor(pf, -1 == ::THREADS ? 0 : ::THREADS));
             instructor->processFiles(inputs);
-            instructor->results()->print();
+            r = instructor->results();
         }
         else
         {
@@ -84,9 +84,7 @@ try
                 processor->processEvents();
             }
 
-            processor->results()->print();
-            cout << "Processed events: " << processor->eventsRead() << endl;
-
+            r = processor->results();
         }
     }
     catch(const exception &error)
