@@ -31,9 +31,7 @@ void pb::Processor::processEvents()
 
     Event event;
 
-    while(_reader->good())
-    {
-        _reader->read_event(event);
+    while(_reader->good() && _reader->read_event(event)) {
 
         const int number_of_jets = event.jets_size();
         _results->jets()->fill(number_of_jets);
