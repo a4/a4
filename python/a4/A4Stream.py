@@ -41,6 +41,12 @@ class A4WriterStream(object):
         self.out_stream.write(END_MAGIC)
         self.bytes_written += len(END_MAGIC)
 
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
     def close(self):
         self.write_footer()
         return self.out_stream.close()
