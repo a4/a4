@@ -19,7 +19,7 @@ message Muon
     optional Vertex vertex = 3;
     optional int32 index = 4;
     optional Isolation isolation = 5;
-    optional Quality quality = 6;
+    optional Quality quality = 6 [default = NONE];
     optional bool combined = 16;
     optional bool bad = 17;
 
