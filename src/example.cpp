@@ -39,11 +39,8 @@ void Example::process()
 
 
 int main(int argc, char ** argv) {
-    ProcessorFactoryPtr pf(new ExampleFactory());
-    ResultsPtr r;
-    int rv = a4_main(argc, argv, pf, r);
-    if (rv != 0) {
-        return rv;
-    }
-    //r->print();
+    ProcessingJobPtr pf(new ExampleJob());
+    int rv = a4_main(argc, argv, pf);
+    if (rv != 0) return rv;
+    pf->results()->print();
 }

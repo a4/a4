@@ -11,7 +11,7 @@ class CopyProcessor : public Processor
 };
 
 
-class CopyProcessorFactory : public ProcessorFactory
+class CopyProcessingJob : public ProcessingJob
 {
     public:
         virtual ProcessorPtr get_processor() { return ProcessorPtr(new CopyProcessor()); };

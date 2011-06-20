@@ -1,6 +1,12 @@
 #ifndef A4_PROCESSOR_H
 #define A4_PROCESSOR_H
 
+#include <vector>
+#include <string>
+
+using std::vector;
+using std::string;
+
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -12,8 +18,6 @@ namespace fs = boost::filesystem;
 class Processor
 {
     public:
-        typedef boost::shared_ptr<Results> ResultsPtr;
-
         Processor();
         virtual ~Processor() {}
 
@@ -37,12 +41,24 @@ class Processor
 
 typedef boost::shared_ptr<Processor> ProcessorPtr;
 
-class ProcessorFactory
+class ProcessingJob
 {
     public:
+        typedef vector<string> Inputs;
+
+        ProcessingJob();
+        virtual ~ProcessingJob() {}
+
         virtual ProcessorPtr get_processor() = 0;
+
+        virtual ResultsPtr results() const {return _results;};
+        virtual void set_threads(int threads) {_threads = threads;};
+        virtual bool process_files(vector<string>);
+    private:
+        int _threads;
+        ResultsPtr _results;
 };
 
-typedef boost::shared_ptr<ProcessorFactory> ProcessorFactoryPtr;
+typedef boost::shared_ptr<ProcessingJob> ProcessingJobPtr;
 
 #endif

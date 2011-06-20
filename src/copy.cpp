@@ -16,8 +16,6 @@ void CopyProcessor::process()
 }
 
 int main(int argc, char ** argv) {
-    ProcessorFactoryPtr pf(new CopyProcessorFactory());
-    ResultsPtr r;
-    return a4_main(argc, argv, pf, r);
-    //r->print();
+    ProcessingJobPtr pf(new CopyProcessingJob());
+    return a4_main(argc, argv, pf);
 }

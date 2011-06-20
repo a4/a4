@@ -29,7 +29,7 @@ class Instructor
         typedef Thread::CoutPtr CoutPtr;
         typedef boost::shared_ptr<Results> ResultsPtr;
 
-        Instructor(ProcessorFactoryPtr, const uint32_t &max_threads = 0);
+        Instructor(ProcessingJob *, const uint32_t &max_threads = 0);
 
         void processFiles(const Files &files);
 
@@ -88,7 +88,7 @@ class Instructor
 
         ResultsPtr _results;
 
-        ProcessorFactoryPtr _processor_factory;
+        ProcessingJob * _processor_factory;
 
         CoutPtr _out;
 };

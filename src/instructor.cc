@@ -23,7 +23,7 @@ namespace fs = boost::filesystem;
 
 using namespace std;
 
-Instructor::Instructor(ProcessorFactoryPtr pf, const uint32_t &max_threads):
+Instructor::Instructor(ProcessingJob * pf, const uint32_t &max_threads):
     _next_file(_input_files.begin()),
     _running_threads(0),
     _processor_factory(pf)

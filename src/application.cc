@@ -19,9 +19,9 @@ namespace po = boost::program_options;
 
 typedef vector<string> Inputs;
 
-int THREADS = 0;
+int THREADS = -1;
 
-int a4_main(int argc, char *argv[], ProcessorFactoryPtr pf, ResultsPtr &r) 
+int a4_main(int argc, char *argv[], ProcessingJobPtr job) 
 try
 {
     // Verify that the version of the library that we linked against is
@@ -31,7 +31,8 @@ try
     po::options_description description("Allowed options");
     description.add_options()
         ("help", "produce help message")
-        ("threads", po::value<int>(), "run N multi-threads[-1 for cores]")
+        ("threads", po::value<int>(), "run N multi-threads[0 for # of cores]")
+        ("output,o", po::value<string>(), "output file(s)")
         ("input,i", po::value<Inputs>(), "input file(s)")
     ;
 
@@ -51,41 +52,13 @@ try
     }
 
     if (arguments.count("threads"))
-        ::THREADS = arguments["threads"].as<int>();
+        job->set_threads(arguments["threads"].as<int>());
 
     try
     {
-        if (::THREADS)
-        {
-            Inputs inputs(arguments["input"].as<Inputs>());
-            fs::path file_path(*inputs.begin());
-            boost::shared_ptr<Instructor> instructor(new Instructor(pf, -1 == ::THREADS ? 0 : ::THREADS));
-            instructor->processFiles(inputs);
-            r = instructor->results();
-        }
-        else
-        {
-            boost::shared_ptr<Processor> processor;
-            processor = pf->get_processor();
-
-            string results_file;
-            {
-                fs::path file_path(argv[1]);
-                const string extension(fs::extension(file_path));
-            }
-
-            Inputs inputs(arguments["input"].as<Inputs>());
-            for(Inputs::const_iterator input = inputs.begin();
-                inputs.end() != input;
-                ++input)
-            {
-                fs::path file_path(*input);
-                processor->init(file_path);
-                processor->processEvents();
-            }
-
-            r = processor->results();
-        }
+        Inputs inputs(arguments["input"].as<Inputs>());
+        fs::path file_path(*inputs.begin());
+        job->process_files(inputs);
     }
     catch(const exception &error)
     {

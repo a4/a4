@@ -8,10 +8,12 @@
 #include "a4/H1.h"
 #include "a4/processor.h"
 #include "a4/results.h"
+#include "a4/reader.h"
 
 #include "pb/Event.pb.h"
 
-#include "a4/reader.h"
+#include "instructor.h"
+
 
 Processor::Processor():
     _events_read(0),
@@ -71,7 +73,7 @@ void Processor::process()
     }
 }
 
-Processor::ResultsPtr Processor::results() const
+ResultsPtr Processor::results() const
 {
     return _results;
 }
@@ -84,4 +86,30 @@ uint32_t Processor::eventsRead() const
 uint32_t Processor::eventsReadInLastFile() const
 {
     return _events_read_in_last_file;
+}
+
+ProcessingJob::ProcessingJob() : _threads(-1) {};
+
+bool ProcessingJob::process_files(ProcessingJob::Inputs inputs) {
+    if (_threads != -1)
+    {
+        boost::shared_ptr<Instructor> instructor(new Instructor(this, _threads));
+        instructor->processFiles(inputs);
+        _results = instructor->results();
+    }
+    else
+    {
+        boost::shared_ptr<Processor> processor;
+        processor = get_processor();
+        for(Inputs::const_iterator input = inputs.begin();
+            inputs.end() != input;
+            ++input)
+        {
+            fs::path file_path(*input);
+            processor->init(file_path);
+            processor->processEvents();
+        }
+        _results = processor->results();
+    }
+    return true;
 }

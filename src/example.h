@@ -11,7 +11,7 @@ class Example : public Processor
 };
 
 
-class ExampleFactory : public ProcessorFactory
+class ExampleJob : public ProcessingJob
 {
     public:
         virtual ProcessorPtr get_processor() { return ProcessorPtr(new Example()); };
