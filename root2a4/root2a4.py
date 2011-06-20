@@ -39,13 +39,16 @@ def map_egamma(new, old):
     map_showershapes(new, old)
     #new.cluster_time = old.time
 
-def map_quality(Type, new, old):
-
+def map_quality(Type, new, old):    
+    
     for q in ["tight", "medium", "loose"]:
         tightness = getattr(Type, q.upper(), None)
-        if tightness and getattr(old, q): # old.{loose,medium,tight} is true
-            new.quality = tightness
-            break
+        if tightness:
+            setattr(new, q, getattr(old, q))
+            
+    if hasattr(Type, "dq"):
+        for q in ["OQ", "goodOQ", "OQRecalc"]:
+            setattr(new.dq, q, getattr(old, q))
 
 def map_photons(objects):
     for new, old in objects:

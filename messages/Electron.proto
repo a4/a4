@@ -3,6 +3,7 @@ import "Physics.proto";
 import "Atlas/Isolation.proto";
 import "Atlas/ShowerShape.proto";
 import "Atlas/TrackHits.proto";
+import "Atlas/DataQuality.proto";
 
 message Electron
 {
@@ -27,4 +28,6 @@ message Electron
     optional double d0err = 15;
     
     optional ShowerShape shower_shape = 11;
+    
+    optional DataQuality dq = 19;
 }

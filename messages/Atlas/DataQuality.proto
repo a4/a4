@@ -1,4 +1,4 @@
-message ObjectQuality
+message DataQuality
 {
     optional double goodOQ = 1;
     optional double OQ = 2;
