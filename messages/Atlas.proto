@@ -15,6 +15,7 @@ message Trigger
         EF_e10_medium_mu6 = 11;
         EF_2mu10 = 12;
         EF_2e12_medium = 13;
+        EF_2g20_loose = 14;
     }
 
     required TriggerName name = 1;
@@ -37,6 +38,41 @@ message Isolation
     optional double ptcone50 = 14;
     optional double ptcone60 = 15;
 }
+
+message CustomIsolation
+{
+    optional double etcone40Iso = 1001;
+    optional double etcone40_ED_corrected = 1002;
+    optional double etcone40_ED_corrected_new = 1003;
+    optional double etcone40_corrected = 1004;
+    optional double etcone40_corrected_new = 1005;
+    optional double etcone40_pt_corrected = 1006;
+}
+
+message ShowerShape
+{    
+    optional double E233 = 1;
+    optional double E237 = 2;
+    optional double E277 = 3;
+    optional double Emax2 = 4;
+    optional double Emins1 = 5;
+    optional double Ethad = 6;
+    optional double Ethad1 = 7;
+    optional double deltaEmax2 = 8;
+    optional double deltaEs = 9;
+    optional double depth = 10;
+    optional double emaxs1 = 11;
+    optional double f1 = 12;
+    optional double f1core = 13;
+    optional double f3 = 14;
+    optional double f3core = 15;
+    optional double fside = 16;
+    optional double reta = 17;
+    optional double rphi = 18;
+    optional double weta2 = 19;
+    optional double ws3 = 20;
+    optional double wstot = 21;
+}    
 
 // Taken from
 // http://alxr.usatlas.bnl.gov/lxr-stb5/source/atlas/Tracking/TrkEvent/TrkTrackSummary/TrkTrackSummary/TrackSummary.h#043
