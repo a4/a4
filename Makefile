@@ -64,3 +64,4 @@ clean:
 	rm -f $(PROTOCOBJ)
 	rm -f $(PYINIT)
 	rm -f $(OBJS)
+	rm -f $(ROOT_OBJS)
