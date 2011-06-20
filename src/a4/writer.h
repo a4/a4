@@ -1,10 +1,3 @@
-/**
- * ProtoBuf Writer
- *
- * Created by Samvel Khalatyan on Mar 8, 2011
- * Copyright 2011, All rights reserved
- */
-
 #ifndef PROTOBUF_WRITER_H
 #define PROTOBUF_WRITER_H
 

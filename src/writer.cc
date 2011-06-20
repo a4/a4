@@ -1,10 +1,3 @@
-/**
- * ProtoBuf Writer
- *
- * Created by Samvel Khalatyan on Mar 8, 2011
- * Copyright 2011, All rights reserved
- */
-
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -16,7 +9,7 @@
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
-#include "PBWriter.h"
+#include "a4/writer.h"
 
 using namespace std;
 
