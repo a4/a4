@@ -82,6 +82,7 @@ try
 
             boost::shared_ptr<pb::Instructor> instructor(new pb::Instructor(-1 == ::THREADS ? 0 : ::THREADS));
             instructor->processFiles(inputs);
+            instructor->results()->print();
         }
         else
         {
@@ -119,6 +120,7 @@ try
                 processor->processEvents();
             }
 
+            processor->results()->print();
             cout << "Processed events: "
                 << processor->eventsRead() << endl;
 

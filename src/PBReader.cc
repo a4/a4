@@ -36,7 +36,7 @@ Reader::Reader(const fs::path &input_file):
     _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
 
     //
-    _coded_in->ReadLittleEndian32(&_events_stored);
+    //_coded_in->ReadLittleEndian32(&_events_stored);
     //_coded_in->ReadBigEndian32(&_events_stored);
     read_header();
 
@@ -50,7 +50,7 @@ bool Reader::read_header()
     string magic;
     if (!_coded_in->ReadString(&magic, 8))
         return false;
-    if (! (magic == "A4STREAM"))
+    if (0 != magic.compare("A4STREAM"))
         return false;
 
     uint32_t size = 0;
@@ -68,6 +68,11 @@ bool Reader::read_header()
     string message;
     if (!_coded_in->ReadString(&message, size))
         return false;
+
+    A4StreamHeader h;
+    if (!h.ParseFromString(message))
+        return false;
+
     // now ignore the message!
     return true;
 }
@@ -104,7 +109,8 @@ bool Reader::read_event(Event &event)
 
             if (!_coded_in->ReadString(&magic, 8))
                 return false;
-            if (! (magic == "KTHXBYE4"))
+            //cout << "read magic " << magic << endl;
+            if (0 != magic.compare("KTHXBYE4"))
                 return false;
             if (! read_header())
                 return false;
