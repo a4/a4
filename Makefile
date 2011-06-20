@@ -18,7 +18,18 @@ PYINIT    = $(PYDIR)/__init__.py
 OBJS      = $(foreach obj,$(addprefix ./obj/,$(patsubst %.cc,%.o,$(notdir $(SRCS)))),$(obj))
 PROGS     = $(patsubst ./src/%.cpp,./bin/%,$(wildcard ./src/*.cpp))
 
-all: py $(PROTOCPP) $(PROTOCOBJ) $(OBJS) $(PROGS)
+
+ROOT_CXXFLAGS =-c -g -Wall `root-config --cflags` $(CXXFLAGS)
+ROOT_LDFLAGS  =`root-config --glibs`
+ROOT_SOURCES  = $(wildcard ./root/*.C)
+ROOT_PROGS    = $(patsubst ./root/%.cpp,./bin/%,$(wildcard ./root/*.cpp))
+ROOT_OBJS     = $(patsubst ./root/%.C,$(OBJDIR)/%.o,$(ROOT_SOURCES))
+
+
+
+all: py $(PROTOCPP) $(PROTOCOBJ) $(OBJS) $(PROGS) $(ROOT_PROGS)
+
+rootobj: $(ROOT_OBJS)
 
 py: $(PROTOPY) $(PYINIT)
 
@@ -34,12 +45,19 @@ $(OBJDIR)/%.o: $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h
 	mkdir -p $(OBJDIR)
 	$(CCC) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)/%.o: src/%.cc
+$(OBJDIR)/%.o: ./src/%.cc
 	$(CCC) $(CXXFLAGS) -c $< -o $@
 
-./bin/%: ./src/%.cpp $(OBJS) $(PROTOCOBJ)
+$(OBJDIR)/%.o: ./root/%.C
+	$(CCC) $(ROOT_CXXFLAGS) -c $< -o $@
+
+bin/%: src/%.cpp $(OBJS) $(PROTOCOBJ)
 	$(CCC) $(CXXFLAGS) $(LIBS) $^ -o $@
-	@echo
+
+bin/%: root/%.cpp $(ROOT_OBJS)
+	$(CCC) $(ROOT_CXXFLAGS) $< -o $(OBJDIR)/$*.o
+	$(CCC) $(ROOT_LDFLAGS) $(LIBS) $(ROOT_OBJS) $(OBJDIR)/$*.o -o $@
+
 clean:
 	rm -f $(PROTOCPP)
 	rm -f $(PROTOPY)
