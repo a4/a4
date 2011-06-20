@@ -1,0 +1,23 @@
+message Trigger
+{
+    enum TriggerName 
+    {
+        
+        L1_EM14 = 1; 
+        L1_MU10 = 2;
+        EF_e15_medium = 3;
+        EF_e20_medium = 5;
+        EF_mu10_MG = 6;
+        EF_mu13_MG = 7; 
+        EF_mu13_MG_tight = 8;
+        EF_mu18_MG = 9;
+        EF_mu20_MG = 10;
+        EF_e10_medium_mu6 = 11;
+        EF_2mu10 = 12;
+        EF_2e12_medium = 13;
+        EF_2g20_loose = 14;
+    }
+
+    required TriggerName name = 1;
+    required bool fired = 2; 
+}

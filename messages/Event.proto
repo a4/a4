@@ -1,6 +1,7 @@
-
-import "Atlas.proto";
 import "Physics.proto";
+
+import "Atlas/Trigger.proto";
+
 import "Photon.proto";
 import "Electron.proto";
 import "Muon.proto";

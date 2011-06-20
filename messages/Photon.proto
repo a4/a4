@@ -1,5 +1,7 @@
 import "Physics.proto";
-import "Atlas.proto";
+
+import "Atlas/Isolation.proto";
+import "Atlas/ShowerShape.proto";
 
 message Photon
 {

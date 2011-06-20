@@ -1,7 +1,7 @@
 DEBUG=-g
 
 CCC=g++
-CXXFLAGS = ${DEBUG} -fPIC -pipe -Wall -I./ -I./src $(ADD_INCLUDES)
+CXXFLAGS = ${DEBUG} -fPIC -pipe -Wall -I./ -I./src -I./src/pb $(ADD_INCLUDES)
 LIBS     = $(ADD_LIBS) -lprotobuf -lboost_filesystem -lboost_system -lboost_thread-mt -lboost_program_options -lpthread
 LDFLAGS  = -shared -W1
 
@@ -9,7 +9,7 @@ PYDIR  = ./python/a4/messages
 CPPDIR = ./src/pb
 OBJDIR = ./obj
 
-PROTOS    = $(wildcard ./messages/*.proto)
+PROTOS    = $(wildcard ./messages/*.proto) $(wildcard ./messages/Atlas/*.proto)
 SRCS      = $(wildcard ./src/*.cc) 
 
 PROTOPY   = $(subst ./messages/,$(PYDIR)/,$(patsubst %.proto,%_pb2.py,$(PROTOS)))
@@ -33,7 +33,7 @@ all: py $(PROTOCPP) $(PROTOCOBJ) $(OBJS) $(PROGS) $(ROOT_PROGS)
 
 rootobj: $(ROOT_OBJS)
 
-py: $(PROTOPY) $(PYINIT)
+py: $(PROTOPY) $(PYINIT) $(PYDIR)/Atlas/__init__.py
 
 $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: messages/%.proto
 	mkdir -p $(PYDIR)
@@ -41,10 +41,13 @@ $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: messages/%.proto
 	protoc -I=messages --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
 
 $(PYINIT): $(PROTOPY)
-	grep -o "class [A-Za-z0-9]*" $(PROTOPY) | sed 's/.py:class/ import/' | sed 's/\.\/python\/a4\/messages\//from ./' > $@
+	grep -o "class [A-Za-z0-9]*" $(PROTOPY) | sed 's/.py:class/ import/' | sed 's/\.\/python\/a4\/messages\//from ./' | sed 's/\//./g' > $@
+
+$(PYDIR)/Atlas/__init__.py: $(PYINIT)
+	echo > $@
 
 $(OBJDIR)/%.o: $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h	
-	mkdir -p $(OBJDIR)
+	mkdir -p $(OBJDIR)/Atlas
 	$(CCC) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR)/%.o: ./src/%.cc
