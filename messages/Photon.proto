@@ -4,21 +4,15 @@ import "Atlas/Isolation.proto";
 import "Atlas/ShowerShape.proto";
 
 message Photon
-{
-    enum Quality
-    {
-        NONE = 1;
-        LOOSE = 2;
-        TIGHT = 4;
-    }
-    
+{    
     required LorentzVector p4 = 1;
     optional Vertex vertex = 2;
     optional int32 index = 3;
     optional Vertex conversion = 5;
     optional Isolation isolation = 9;
     optional CustomIsolation custom_isolation = 12;
-    optional Quality quality = 13 [default = NONE];
+    optional bool loose = 13;
+    optional bool tight = 14;
     
     optional LorentzVector p4_cluster = 8;
     optional double cluster_time = 10;

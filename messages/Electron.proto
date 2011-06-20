@@ -6,22 +6,14 @@ import "Atlas/TrackHits.proto";
 
 message Electron
 {
-    enum Quality
-    {
-        NONE = 1;
-        LOOSE = 2;
-        MEDIUM = 3;
-        TIGHT = 4;
-    }
-
     required LorentzVector p4 = 1;
     optional int32 charge = 2;
     optional Vertex vertex = 3;
     optional int32 index = 4;
     optional Isolation isolation = 5;
-    optional Quality quality = 6 [default = NONE];
-    optional bool combined = 16;
-    optional bool bad = 17;
+    optional bool loose = 16;
+    optional bool medium = 17;
+    optional bool tight = 18;
 
     optional LorentzVector p4_track = 7;
     optional LorentzVector p4_cluster = 8;
