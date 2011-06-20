@@ -10,7 +10,7 @@ from array import array
 from glob import glob
 
 from a4.messages import Trigger, Isolation, TrackHits, MuonTrackHits
-from a4.messages import Lepton, Photon, Jet, Event
+from a4.messages import Electron, Muon, Photon, Jet, Event
 from a4.messages import LorentzVector, Vertex, MissingEnergy
 
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
@@ -202,7 +202,7 @@ class AOD2A4(AOD2A4Base):
     def electrons(self):
         els = []
         for i, el in enumerate(self.sg["ElectronAODCollection"]):
-            e = Lepton()
+            e = Electron()
             e.index = i
             e.p4.CopyFrom(make_lv(el))
             assert int(el.charge()) == el.charge()
@@ -241,7 +241,7 @@ class AOD2A4(AOD2A4Base):
     def muons(self):
         mus = []
         for i, mu in enumerate(self.sg["%sMuonCollection" % self.muon_algo]):
-            m = Lepton()
+            m = Muon()
             m.index = i
             m.p4.CopyFrom(make_lv(mu))
             assert int(mu.charge()) == mu.charge()
