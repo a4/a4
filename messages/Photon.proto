@@ -3,6 +3,14 @@ import "Atlas.proto";
 
 message Photon
 {
+    enum Quality
+    {
+        NONE = 1;
+        LOOSE = 2;
+        MEDIUM = 3;
+        TIGHT = 4;
+    }
+    
     required LorentzVector p4 = 1;
     optional Vertex vertex = 2;
     optional int32 index = 3;
