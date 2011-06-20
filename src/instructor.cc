@@ -13,17 +13,20 @@
 
 #include "Condition.h"
 #include "Cout.h"
-#include "PBInstructor.h"
-#include "PBThread.h"
-#include "Results.h"
+
+#include "a4/results.h"
+
+#include "instructor.h"
+#include "thread.h"
 
 namespace fs = boost::filesystem;
 
 using namespace std;
 
-pb::Instructor::Instructor(const uint32_t &max_threads):
+Instructor::Instructor(ProcessorFactoryPtr pf, const uint32_t &max_threads):
     _next_file(_input_files.begin()),
-    _running_threads(0)
+    _running_threads(0),
+    _processor_factory(pf)
 {
     _condition.reset(new Condition());
 
@@ -36,10 +39,9 @@ pb::Instructor::Instructor(const uint32_t &max_threads):
     _out.reset(new Cout());
 }
 
-void pb::Instructor::processFiles(const Files &files)
+void Instructor::processFiles(const Files &files)
 {
     // Do nothing if there are already running threads or there is nothing to do
-    //
     {
         Lock lock(*_condition->mutex());
         if (files.empty() ||
@@ -54,30 +56,28 @@ void pb::Instructor::processFiles(const Files &files)
     }
 
     // Start processing files
-    //
     process();
 }
 
 // Communication with Thread
-//
-::Thread::ConditionPtr pb::Instructor::condition() const
+Thread::ConditionPtr Instructor::condition() const
 {
     return _condition;
 }
 
-void pb::Instructor::notify(Thread *thread)
+void Instructor::notify(Thread *thread)
 {
     Lock lock(*_condition->mutex());
 
     _complete_threads.push(thread);
 }
 
-pb::Instructor::ResultsPtr pb::Instructor::results() const
+Instructor::ResultsPtr Instructor::results() const
 {
     return _results;
 }
 
-pb::Instructor::CoutPtr pb::Instructor::out() const
+Instructor::CoutPtr Instructor::out() const
 {
     return _out;
 }
@@ -86,7 +86,7 @@ pb::Instructor::CoutPtr pb::Instructor::out() const
 
 // Private
 //
-void pb::Instructor::process()
+void Instructor::process()
 {
     // Create Threads
     //
@@ -101,7 +101,7 @@ void pb::Instructor::process()
     loop();
 }
 
-void pb::Instructor::init()
+void Instructor::init()
 {
     Lock lock(*_condition->mutex());
 
@@ -115,7 +115,7 @@ void pb::Instructor::init()
         0 < threads;
         --threads)
     {
-        ThreadPtr thread(new Thread(this));
+        ThreadPtr thread(new Thread(this, _processor_factory->get_processor()));
 
         thread->setId(threads);
 
@@ -123,7 +123,7 @@ void pb::Instructor::init()
     }
 }
 
-void pb::Instructor::start()
+void Instructor::start()
 {
     Lock lock(*_condition->mutex());
 
@@ -143,7 +143,7 @@ void pb::Instructor::start()
     }
 }
 
-void pb::Instructor::loop()
+void Instructor::loop()
 {
     while(0 < _running_threads)
     {
@@ -153,7 +153,7 @@ void pb::Instructor::loop()
     }
 }
 
-void pb::Instructor::wait()
+void Instructor::wait()
 {
     Lock lock(*_condition->mutex());
 
@@ -163,7 +163,7 @@ void pb::Instructor::wait()
         _condition->variable()->wait(lock);
 }
 
-void pb::Instructor::processCompleteThreads()
+void Instructor::processCompleteThreads()
 {
     Lock lock(*_condition->mutex());
     while(!_complete_threads.empty())
@@ -175,7 +175,7 @@ void pb::Instructor::processCompleteThreads()
     }
 }
 
-void pb::Instructor::stopThread()
+void Instructor::stopThread()
 {
     Thread *thread = _complete_threads.front();
     _complete_threads.pop();
@@ -195,7 +195,7 @@ void pb::Instructor::stopThread()
     --_running_threads;
 }
 
-void pb::Instructor::continueThread()
+void Instructor::continueThread()
 {
     Thread *thread = _complete_threads.front();
     _complete_threads.pop();

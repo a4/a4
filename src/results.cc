@@ -1,4 +1,4 @@
-#include "Results.h"
+#include "a4/results.h"
 
 using namespace std;
 
@@ -11,11 +11,11 @@ Results::~Results()
 {
 }
 
-Results::H1Ptr Results::h1(std::string name) {
+Results::H1Ptr Results::h1(const char * name) {
     return _h1[name];
 };
         
-Results::H1Ptr Results::h1(std::string name, const uint32_t &bins, const double &min, const double &max) {
+Results::H1Ptr Results::h1(const char * name, const uint32_t &bins, const double &min, const double &max) {
     HMap::const_iterator search = _h1.find(name);
     if (search != _h1.end()) {
         return search->second;

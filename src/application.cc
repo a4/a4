@@ -1,20 +1,16 @@
-/**
- * Read from file saved events (format is extracted from extension):
- * ROOT or ProtoBuf
- *
- * Created by Samvel Khalatyan on Mar 8, 2011
- * Copyright 2011, All rights reserved
- */
-
 #include <iostream>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
+#include <boost/shared_ptr.hpp>
 
-#include "PBInstructor.h"
-#include "PBProcessor.h"
-#include "Results.h"
+#include "a4/application.h"
+#include "a4/processor.h"
+#include "a4/results.h"
+
 #include "pb/Event.pb.h"
+
+#include "instructor.h"
 
 using namespace std;
 
@@ -25,21 +21,17 @@ typedef vector<string> Inputs;
 
 int THREADS = 0;
 
-int main(int argc, char *argv[])
+int a4_main(int argc, char *argv[], ProcessorFactoryPtr pf) 
 try
 {
     // Verify that the version of the library that we linked against is
     // compatible with the version of the headers we compiled against
-    //
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     po::options_description description("Allowed options");
     description.add_options()
         ("help", "produce help message")
-
-        ("threads", po::value<int>(),
-         "run N multi-threads (works only with ProtoBuf) [-1 for cores]")
-
+        ("threads", po::value<int>(), "run N multi-threads[-1 for cores]")
         ("input,i", po::value<Inputs>(), "input file(s)")
     ;
 
@@ -51,13 +43,10 @@ try
             options(description).positional(positional_options).run(),
             arguments);
 
-    if (2 > argc ||
-        arguments.count("help") ||
-        !arguments.count("input"))
+    if (2 > argc || arguments.count("help") || !arguments.count("input"))
     {
         cout << "Usage: " << argv[0] << " [Options] input(s)" << endl;
         cout << description << endl;
-
         return 1;
     }
 
@@ -70,43 +59,19 @@ try
         {
             Inputs inputs(arguments["input"].as<Inputs>());
             fs::path file_path(*inputs.begin());
-            const string extension(fs::extension(file_path));
-
-            if (".a4" != extension)
-            {
-                cout << "Usage: " << argv[0] << " [Options] input(s)" << endl;
-                cout << description << endl;
-
-                return 1;
-            }
-
-            boost::shared_ptr<pb::Instructor> instructor(new pb::Instructor(-1 == ::THREADS ? 0 : ::THREADS));
+            boost::shared_ptr<Instructor> instructor(new Instructor(pf, -1 == ::THREADS ? 0 : ::THREADS));
             instructor->processFiles(inputs);
             instructor->results()->print();
         }
         else
         {
             boost::shared_ptr<Processor> processor;
+            processor = pf->get_processor();
+
             string results_file;
             {
                 fs::path file_path(argv[1]);
                 const string extension(fs::extension(file_path));
-
-                if (".a4" == extension)
-                {
-                    cout << "Read ProtoBuf" << endl;
-
-                    results_file = "out_pb";
-
-                    processor.reset(new pb::Processor());
-                }
-                else
-                {
-                    cout << "Usage: " << argv[0] << " [Options] input(s)" << endl;
-                    cout << description << endl;
-
-                    return 1;
-                }
             }
 
             Inputs inputs(arguments["input"].as<Inputs>());
@@ -115,14 +80,12 @@ try
                 ++input)
             {
                 fs::path file_path(*input);
-
                 processor->init(file_path);
                 processor->processEvents();
             }
 
             processor->results()->print();
-            cout << "Processed events: "
-                << processor->eventsRead() << endl;
+            cout << "Processed events: " << processor->eventsRead() << endl;
 
         }
     }
@@ -131,14 +94,12 @@ try
         cerr << "error: " << error.what() << endl;
 
         // Clean Up any memory allocated by libprotobuf
-        //
         google::protobuf::ShutdownProtobufLibrary();
 
         return 1;
     }
 
     // Clean Up any memory allocated by libprotobuf
-    //
     google::protobuf::ShutdownProtobufLibrary();
 
     return 0;
@@ -146,7 +107,6 @@ try
 catch(...)
 {
     // Clean Up any memory allocated by libprotobuf
-    //
     google::protobuf::ShutdownProtobufLibrary();
 
     cerr << "Unknown error" << endl;

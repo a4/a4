@@ -1,5 +1,7 @@
+DEBUG=-g
+
 CCC=g++
-CXXFLAGS = ${DEBUG} -fPIC -pipe -Wall -I./ $(ADD_INCLUDES)
+CXXFLAGS = ${DEBUG} -fPIC -pipe -Wall -I./ -I./src $(ADD_INCLUDES)
 LIBS     = $(ADD_LIBS) -lprotobuf -lboost_filesystem -lboost_system -lboost_thread-mt -lboost_program_options -lpthread
 LDFLAGS  = -shared -W1
 
@@ -51,12 +53,14 @@ $(OBJDIR)/%.o: ./src/%.cc
 $(OBJDIR)/%.o: ./root/%.C
 	$(CCC) $(ROOT_CXXFLAGS) -c $< -o $@
 
+$(OBJDIR)/%.o: ./root/%.cpp
+	$(CCC) $(ROOT_CXXFLAGS) -c $< -o $@
+
 bin/%: src/%.cpp $(OBJS) $(PROTOCOBJ)
 	$(CCC) $(CXXFLAGS) $(LIBS) $^ -o $@
 
-bin/%: root/%.cpp $(ROOT_OBJS)
-	$(CCC) $(ROOT_CXXFLAGS) $< -o $(OBJDIR)/$*.o
-	$(CCC) $(ROOT_LDFLAGS) $(LIBS) $(ROOT_OBJS) $(OBJDIR)/$*.o -o $@
+bin/%: obj/%.o $(ROOT_OBJS) $(OBJS) $(PROTOCOBJ)
+	$(CCC) $(ROOT_LDFLAGS) $(LIBS) $^ -o $@
 
 clean:
 	rm -f $(PROTOCPP)

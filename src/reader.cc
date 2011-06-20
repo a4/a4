@@ -14,12 +14,9 @@
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
-#include "PBReader.h"
+#include "a4/reader.h"
 
 using namespace std;
-
-using pb::Reader;
-
 
 const uint32_t HIGH_BIT = (1<<31);
 

@@ -5,25 +5,30 @@
  * Copyright 2011, All rights reserved
  */
 
-#include "Cout.h"
-#include "PBInstructor.h"
-#include "PBProcessor.h"
-#include "PBThread.h"
-#include "Results.h"
+#include "thread.h"
 
-pb::Thread::Thread(Instructor *instructor):
+#include "Cout.h"
+
+#include "a4/processor.h"
+#include "a4/results.h"
+
+#include "instructor.h"
+
+
+
+Thread::Thread(Instructor *instructor, ProcessorPtr processor):
     _wait_for_instructions(false),
     _continue(false),
+    _processor(processor),
     _thread_id(0)
 {
     _instructor = instructor;
     _out = _instructor->out();
 
     _condition.reset(new Condition());
-    _processor.reset(new Processor());
 }
 
-bool pb::Thread::start()
+bool Thread::start()
 {
     // Start only if thread is not running so far
     //
@@ -35,7 +40,7 @@ bool pb::Thread::start()
     return true;
 }
 
-void pb::Thread::stop()
+void Thread::stop()
 {
     Lock lock(*_condition->mutex());
 
@@ -43,17 +48,17 @@ void pb::Thread::stop()
     _wait_for_instructions = false;
 }
 
-void pb::Thread::join()
+void Thread::join()
 {
     _thread.join();
 }
 
-::Thread::ConditionPtr pb::Thread::condition() const
+Thread::ConditionPtr Thread::condition() const
 {
     return _condition;
 }
 
-void pb::Thread::init(const fs::path &file)
+void Thread::init(const fs::path &file)
 {
     Lock lock(*_condition->mutex());
 
@@ -64,19 +69,19 @@ void pb::Thread::init(const fs::path &file)
     _out->print(_thread_id, file.string());
 }
 
-uint32_t pb::Thread::eventsRead() const
+uint32_t Thread::eventsRead() const
 {
     Lock lock(*_condition->mutex());
 
     return _processor->eventsRead();
 }
 
-pb::Thread::ResultsPtr pb::Thread::results() const
+Thread::ResultsPtr Thread::results() const
 {
     return _processor->results();
 }
 
-void pb::Thread::setId(const int &id)
+void Thread::setId(const int &id)
 {
     _thread_id = id;
 }
@@ -85,7 +90,7 @@ void pb::Thread::setId(const int &id)
 
 // Private
 //
-void pb::Thread::loop()
+void Thread::loop()
 {
     // thread will execute only in case input file was initally set. Otherwise
     // thread will quit
@@ -109,17 +114,17 @@ void pb::Thread::loop()
     }
 }
 
-void pb::Thread::process()
+void Thread::process()
 {
     _processor->processEvents();
 }
 
-void pb::Thread::notify()
+void Thread::notify()
 {
     _instructor->notify(this);
 }
 
-void pb::Thread::wait()
+void Thread::wait()
 {
     Lock lock(*_condition->mutex());
 

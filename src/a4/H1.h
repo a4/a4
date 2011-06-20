@@ -5,8 +5,8 @@
  * Copyright 2011, All rights reserved
  */
 
-#ifndef H1_H
-#define H1_H
+#ifndef A4_H1_H
+#define A4_H1_H
 
 #include <iosfwd>
 #include <string>
@@ -17,13 +17,10 @@
 #include <inttypes.h>
 
 class Axis;
-class TH1;
 
 class H1
 {
     public:
-        typedef boost::shared_ptr<TH1> TH1Ptr;
-
         H1(const uint32_t &bins, const double &min, const double &max);
         ~H1();
 
