@@ -1,0 +1,11 @@
+import "Physics.proto";
+
+message Jet
+{
+    required LorentzVector p4 = 1;
+    optional Vertex vertex = 2;
+    optional int32 index = 3;
+    optional double jet_vertex_fraction = 4;
+    optional bool bad = 5;
+    optional bool ugly = 6;
+}

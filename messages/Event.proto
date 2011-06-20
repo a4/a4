@@ -1,5 +1,7 @@
 
 import "Physics.proto";
+import "Photon.proto";
+import "Jet.proto";
 import "Atlas.proto";
 
 message Lepton
@@ -32,25 +34,6 @@ message Lepton
     optional double z0err = 13;
     optional double d0 = 14;
     optional double d0err = 15;
-}
-
-message Photon
-{
-    required LorentzVector p4 = 1;
-    optional Vertex vertex = 2;
-    optional int32 index = 3;
-    optional Vertex conversion = 5;
-    optional Isolation isolation = 9;
-}
-
-message Jet
-{
-    required LorentzVector p4 = 1;
-    optional Vertex vertex = 2;
-    optional int32 index = 3;
-    optional double jet_vertex_fraction = 4;
-    optional bool bad = 5;
-    optional bool ugly = 6;
 }
 
 message Event

@@ -1,0 +1,11 @@
+import "Physics.proto";
+import "Atlas.proto";
+
+message Photon
+{
+    required LorentzVector p4 = 1;
+    optional Vertex vertex = 2;
+    optional int32 index = 3;
+    optional Vertex conversion = 5;
+    optional Isolation isolation = 9;
+}
