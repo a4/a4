@@ -39,6 +39,16 @@ message Isolation
     optional double ptcone60 = 15;
 }
 
+message CustomIsolation
+{
+    optional double etcone40Iso = 1001;
+    optional double etcone40_ED_corrected = 1002;
+    optional double etcone40_ED_corrected_new = 1003;
+    optional double etcone40_corrected = 1004;
+    optional double etcone40_corrected_new = 1005;
+    optional double etcone40_pt_corrected = 1006;
+}
+
 message ShowerShape
 {    
     optional double E233 = 1;
