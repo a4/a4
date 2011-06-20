@@ -37,7 +37,7 @@ class A4WriterStream(object):
         if self.content_type:
             footer.content_count = self.content_count
         self.write(footer)
-        self.out_stream.write(pack("!I", footer.ByteSize()))
+        self.out_stream.write(pack("<I", footer.ByteSize()))
         self.out_stream.write(END_MAGIC)
         self.bytes_written += len(END_MAGIC)
 
@@ -56,12 +56,12 @@ class A4WriterStream(object):
         assert 0 <= size < HIGH_BIT, "Message size not in range!"
         assert 0 < type < HIGH_BIT, "Type ID not in range!"
         if type != self.previous_type:
-            self.out_stream.write(pack("!I", size | HIGH_BIT))
-            self.out_stream.write(pack("!I", type))
+            self.out_stream.write(pack("<I", size | HIGH_BIT))
+            self.out_stream.write(pack("<I", type))
             self.bytes_written += 8
             self.previous_type = type
         else:
-            self.out_stream.write(pack("!I", size))
+            self.out_stream.write(pack("<I", size))
             self.bytes_written += 4
         self.out_stream.write(o.SerializeToString())
         self.bytes_written += size
@@ -101,7 +101,7 @@ class A4ReaderStream(object):
             self.in_stream.seek(0)
             return None
         self.in_stream.seek(-neg_offset - len(END_MAGIC) - 4, SEEK_END)
-        footer_size, = unpack("!I", self.in_stream.read(4))
+        footer_size, = unpack("<I", self.in_stream.read(4))
         footer_start = - neg_offset - len(END_MAGIC) - 4 - footer_size - 8
         self.in_stream.seek(footer_start, SEEK_END)
         cls, footer = self.read_message()
@@ -130,10 +130,10 @@ class A4ReaderStream(object):
         return ", ".join(info)
 
     def read_message(self):
-        size, = unpack("!I", self.in_stream.read(4))
+        size, = unpack("<I", self.in_stream.read(4))
         if size & HIGH_BIT:
             size = size & (HIGH_BIT - 1)
-            type,  = unpack("!I", self.in_stream.read(4))
+            type,  = unpack("<I", self.in_stream.read(4))
             self.previous_type = type
         else:
             type = self.previous_type
@@ -145,7 +145,7 @@ class A4ReaderStream(object):
         if cls is A4StreamHeader:
             return self.read()
         if cls is A4StreamFooter:
-            footer_size,  = unpack("!I", self.in_stream.read(4))
+            footer_size,  = unpack("<I", self.in_stream.read(4))
             if not END_MAGIC == self.in_stream.read(len(END_MAGIC)):
                 print("File seems to be not closed!")
                 return None
