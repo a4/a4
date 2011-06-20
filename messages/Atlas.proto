@@ -15,6 +15,7 @@ message Trigger
         EF_e10_medium_mu6 = 11;
         EF_2mu10 = 12;
         EF_2e12_medium = 13;
+        EF_2g20_loose = 14;
     }
 
     required TriggerName name = 1;
