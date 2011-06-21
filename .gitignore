@@ -1,8 +1,10 @@
-*.pyc
-obj/
-python/a4/messages/
-src/pb/
-/bin/*
 *~
 *.a4
-/setup.sh
+*.pyc
+setup.sh
+bin/
+obj/
+run/
+src/pb/
+python/a4/messages/
+
