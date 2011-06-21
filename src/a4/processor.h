@@ -16,6 +16,8 @@ namespace fs = boost::filesystem;
 #include "a4/reader.h"
 #include "a4/writer.h"
 
+#include "pb/Event.pb.h"
+
 class Processor
 {
     public:
@@ -26,6 +28,7 @@ class Processor
         virtual void init_output(const fs::path &file);
 
         virtual void process();
+        virtual void process_event(Event &event) {};
 
         virtual void process_stream();
         virtual ResultsPtr results() const;
