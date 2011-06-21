@@ -54,11 +54,15 @@ try
     if (arguments.count("threads"))
         job->set_threads(arguments["threads"].as<int>());
 
+    if (arguments.count("output"))
+        job->set_output(arguments["output"].as<string>());
+
+    Inputs inputs(arguments["input"].as<Inputs>());
+
     try
     {
-        Inputs inputs(arguments["input"].as<Inputs>());
-        fs::path file_path(*inputs.begin());
         job->process_files(inputs);
+        job->finalize();
     }
     catch(const exception &error)
     {

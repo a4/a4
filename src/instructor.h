@@ -31,7 +31,7 @@ class Instructor
 
         Instructor(ProcessingJob *, const uint32_t &max_threads = 0);
 
-        void processFiles(const Files &files);
+        void process_files(const Files &files);
 
         // Communication with Thread
         //
@@ -88,7 +88,7 @@ class Instructor
 
         ResultsPtr _results;
 
-        ProcessingJob * _processor_factory;
+        ProcessingJob * _processing_job;
 
         CoutPtr _out;
 };

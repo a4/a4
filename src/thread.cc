@@ -116,7 +116,7 @@ void Thread::loop()
 
 void Thread::process()
 {
-    _processor->processEvents();
+    _processor->process_stream();
 }
 
 void Thread::notify()

@@ -9,9 +9,8 @@
 void CopyProcessor::process()
 {
     Event event;
-    Writer w("copy.a4", "Event", Event::kCLASSIDFieldNumber);
     while(_reader->good() && _reader->read_event(event)) {
-        w.write(event);
+        _writer->write(event);
     }
 }
 

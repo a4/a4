@@ -26,7 +26,7 @@ using namespace std;
 Instructor::Instructor(ProcessingJob * pf, const uint32_t &max_threads):
     _next_file(_input_files.begin()),
     _running_threads(0),
-    _processor_factory(pf)
+    _processing_job(pf)
 {
     _condition.reset(new Condition());
 
@@ -39,7 +39,7 @@ Instructor::Instructor(ProcessingJob * pf, const uint32_t &max_threads):
     _out.reset(new Cout());
 }
 
-void Instructor::processFiles(const Files &files)
+void Instructor::process_files(const Files &files)
 {
     // Do nothing if there are already running threads or there is nothing to do
     {
@@ -115,7 +115,7 @@ void Instructor::init()
         0 < threads;
         --threads)
     {
-        ThreadPtr thread(new Thread(this, _processor_factory->get_processor()));
+        ThreadPtr thread(new Thread(this, _processing_job->get_configured_processor()));
 
         thread->setId(threads);
 
