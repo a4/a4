@@ -1,0 +1,46 @@
+#! /usr/bin/env python
+
+import xml.etree.cElementTree as cElementTree
+
+from collections import defaultdict
+from os import listdir
+from os.path import join as pjoin
+from os.path import isfile
+
+class GRL(object):
+    def __init__(self, grldir):
+        self.grl = defaultdict(set)
+        if isfile(grldir):
+            self.parse_xml(grldir)
+            return
+        for filename in listdir(grldir):
+            if filename.endswith(".xml"):
+                self.parse_xml(pjoin(grldir, filename))
+        
+    def parse_xml(self, xml_file):
+        xml = cElementTree.parse(xml_file)
+
+        for lbc in xml.getiterator('LumiBlockCollection'):
+            run = int(lbc.find('Run').text)
+            for lbr in lbc.findall('LBRange'):
+                runs = (int(lbr.get('Start')), int(lbr.get('End')))
+                self.grl[run].add(runs)
+
+if __name__ == "__main__":
+    import sys
+    fn = sys.argv[1]
+    g = GRL(fn)
+    o = []
+    for run in sorted(g.grl.keys()):
+        for start, end in sorted(g.grl[run]):
+            o.append("%i %i %i" % (run, start, end))
+        
+    if isfile(fn):
+        if fn.endswith(".xml"):
+            fn = fn[:-len(".xml")]
+    else:
+        fn = fn.rstrip("/")
+    fn += ".grl"
+    f = file(fn, "w")
+    f.writelines("\n".join(o))
+    f.close()
