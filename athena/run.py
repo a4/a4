@@ -212,21 +212,16 @@ class AOD2A4(AOD2A4Base):
                 setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
 
             if self.year == 2011:
-                e.bad = not (el.isgoodoq(self.egammaPID.BADCLUSELECTRON) == 0)
+                e.bad_oq = not (el.isgoodoq(self.egammaPID.BADCLUSELECTRON) == 0)
             elif self.year == 2010:
-                e.bad = not (self.egOQ.checkOQClusterElectron(167521, el.cluster.Eta(), el.cluster.Phi()) != 3)
+                e.bad_oq = not (self.egOQ.checkOQClusterElectron(167521, el.cluster.Eta(), el.cluster.Phi()) != 3)
 
-            e.quality = e.NONE
-            if el.isElectron(self.egammaPID.ElectronLoose):
-                e.quality = e.LOOSE
-            if el.isElectron(self.egammaPID.ElectronMedium):
-                e.quality = e.MEDIUM
+            e.loose = bool(el.isElectron(self.egammaPID.ElectronLoose))
+            e.medium = bool(el.isElectron(self.egammaPID.ElectronMedium))
             if self.year == 2010:
-                if el.isElectron(self.egammaPID.ElectronTight_WithTrackMatch):
-                    e.quality = e.TIGHT
+                e.tight = bool(el.isElectron(self.egammaPID.ElectronTight_WithTrackMatch))
             else:
-                if el.isElectron(self.egammaPID.ElectronTight):
-                    e.quality = e.TIGHT
+                e.tight = bool(el.isElectron(self.egammaPID.ElectronTight))
 
             trk = el.trackParticle()
             if trk:
@@ -250,19 +245,21 @@ class AOD2A4(AOD2A4Base):
             for iso in ("etcone20", "etcone30", "ptcone20", "ptcone30"):
                 setattr(m.isolation, iso, mu.parameter(getattr(self.MuonParameters, iso)))
 
-            if mu.isTight() == 1:
-                m.quality = m.TIGHT
+            m.tight = (mu.isTight() == 1)
             if self.muon_algo == "Muid":
                 m.combined = mu.isAuthor(self.MuonParameters.MuidCo)
             elif self.muon_algo == "Staco":
                 m.combined = mu.isAuthor(self.MuonParameters.STACO) and mu.isCombinedMuon()
 
             trk = mu.inDetTrackParticle()
-
             if trk:
                 m.p4_track.CopyFrom(make_lv(trk))
                 m.z0, m.z0err, m.d0, m.d0err = self.perigee_z0_d0(trk)
                 m.track_hits.CopyFrom(make_track_hits(trk))
+    
+            ms_trk = mu.muonExtrapolatedTrackParticle()
+            if ms_trk:
+                m.p4_ms.CopyFrom(make_lv(ms_trk))
 
             ctrk = mu.combinedMuonTrackParticle()
             if ctrk:
@@ -343,6 +340,7 @@ class AOD2A4(AOD2A4Base):
         event.jets.extend(self.jets())
         event.muons.extend(self.muons())
         event.electrons.extend(self.electrons())
+        #event.photons.extend(self.photons())
         self.a4.write(event)
         return PyAthena.StatusCode.Success
 

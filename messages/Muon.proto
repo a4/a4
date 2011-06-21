@@ -13,11 +13,9 @@ message Muon
     optional Isolation isolation = 5;
     
     optional bool combined = 16;
-    optional bool bad = 17;
     optional bool tight = 18;
 
     optional LorentzVector p4_track = 7;
-    optional LorentzVector p4_cluster = 8;
     optional LorentzVector p4_ms = 9;
 
     optional TrackHits track_hits = 10;

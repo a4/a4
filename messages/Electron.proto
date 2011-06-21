@@ -17,6 +17,8 @@ message Electron
     optional bool medium = 17;
     optional bool tight = 18;
 
+    optional bool bad_oq = 6;
+
     optional LorentzVector p4_track = 7;
     optional LorentzVector p4_cluster = 8;
 
