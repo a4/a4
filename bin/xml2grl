@@ -34,13 +34,16 @@ if __name__ == "__main__":
     for run in sorted(g.grl.keys()):
         for start, end in sorted(g.grl[run]):
             o.append("%i %i %i" % (run, start, end))
-        
-    if isfile(fn):
-        if fn.endswith(".xml"):
-            fn = fn[:-len(".xml")]
-    else:
-        fn = fn.rstrip("/")
-    fn += ".grl"
+
+    if len(sys.argv) == 3:
+        fn = sys.argv[2]
+    else: 
+        if isfile(fn):
+            if fn.endswith(".xml"):
+                fn = fn[:-len(".xml")]
+        else:
+            fn = fn.rstrip("/")
+        fn += ".grl"
     f = file(fn, "w")
     f.writelines("\n".join(o))
     f.close()
