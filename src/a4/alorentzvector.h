@@ -24,7 +24,7 @@ class ALorentzVector
     double m()   const {return sqrt(E*E - p2());}
     double mt()  const {return sqrt((E-pz)*(E+pz));}
     double y()   const {return 0.5*log((E + pz)/(E - pz));}
-    // TODO: find out... inline double et()  const {return e()/cosh();}
+    inline double et()  const {return E/p()*pt();}
     inline double e()  const {return E;}
     double eta() const {return 0.5*log((p() + pz)/(p() - pz));}
     double phi() const
