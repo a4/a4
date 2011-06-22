@@ -1,96 +1,70 @@
-/**
- * ProtoBuf Thread(s) Instructor:
- *  - Create threads
- *  - synchronize
- *
- * Created by Samvel Khalatyan on Mar 10, 2011
- * Copyright 2011, All rights reserved
- */
+#ifndef _INSTRUCTOR_H
+#define _INSTRUCTOR_H
 
-#ifndef PROTOBUF_INSTRUCTOR_H
-#define PROTOBUF_INSTRUCTOR_H
-
-#include <queue>
-#include <string>
+#include <list>
 #include <vector>
 
-#include "a4/processor.h"
+#include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
 
-#include "thread.h"
+#include <a4/worker.h>
 
-class Results;
+namespace boost {
+    class mutex;
+    class condition_variable;
+    class thread;
+}
 
 class Instructor
 {
     public:
-        typedef std::vector<std::string> Files;
-        typedef ::Thread::ConditionPtr ConditionPtr;
-        typedef ::Thread::Lock Lock;
-        typedef Thread::CoutPtr CoutPtr;
-        typedef boost::shared_ptr<Results> ResultsPtr;
+        Instructor(WorkerAgency *, const uint32_t &max_threads = 0);
+        void submit_work_units(const std::vector<Worker::WorkUnit> &);
 
-        Instructor(ProcessingJob *, const uint32_t &max_threads = 0);
-
-        void process_files(const Files &files);
-
-        // Communication with Thread
-        //
-        ConditionPtr condition() const;
-
-        void notify(Thread *thread);
-
-        ResultsPtr results() const;
-
-        CoutPtr out() const;
+        void loop_until_done() const;
+        bool is_done() const;
 
     private:
-        void process();
+        typedef boost::shared_ptr<Worker::WorkUnit> WorkUnitPtr;
 
-        // Create threads
-        //
-        void init();
+        class Thread {
+            public:
+                Thread(Instructor &, const int &id, WorkerPtr);
+                virtual ~Thread() {};
+                virtual void join() {_thread.join();};
+                WorkerPtr worker() const {return _worker;};
+                int id() const {return _thread_id;};
+            private:
+                virtual void loop();
 
-        // Start threads
-        //
-        void start();
+                Instructor & _instructor;
+                WorkerPtr _worker;
 
-        // Run threads
-        //
-        void loop();
+                int _thread_id;
+                boost::thread _thread;
+        };
 
-        // Wait for any thread to finish
-        //
-        void wait();
+        void launch_threads();
+        void cleanup() const;
 
-        // threads manipulation
-        //
-        void processCompleteThreads();
-        void stopThread();
-        void continueThread();
+        WorkUnitPtr thread_instruct(Thread *thread);
 
-        // Inputs to be processed
-        //
-        Files _input_files;
-        Files::const_iterator _next_file;
+        // Todo Items
+        std::list<Worker::WorkUnit> _todo;
+
+        // Thread pool information
+        int _max_threads;
+        int _max_thread_id;
 
         typedef boost::shared_ptr<Thread> ThreadPtr;
-        typedef std::vector<ThreadPtr> Threads;
-        typedef std::queue<Thread *> ThreadsFIFO;
-
-        int _max_threads;
-        Threads _threads;
-        ThreadsFIFO _complete_threads;
-        int _running_threads;
+        std::map<int,ThreadPtr> _threads;
+        mutable std::vector<ThreadPtr> _finished_threads;
 
         // Instructor Mutex
-        //
-        ConditionPtr _condition; 
+        mutable boost::mutex _mutex;
+        mutable boost::condition_variable _waiting;
 
-        ResultsPtr _results;
-
-        ProcessingJob * _processing_job;
-
-        CoutPtr _out;
+        WorkerAgency * _worker_agency;
 };
 
 #endif

@@ -22,10 +22,10 @@ class Reader
 {
     public:
         Reader(const fs::path &input_file);
-        ~Reader();
+        ~Reader() {};
 
-        bool good() const;
-        uint32_t eventsRead() const;
+        bool good() const {return _is_good;};
+        uint32_t eventsRead() const {return _events_read;};
 
         bool read_event(Event &);
 

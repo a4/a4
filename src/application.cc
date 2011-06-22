@@ -21,7 +21,7 @@ typedef vector<string> Inputs;
 
 int THREADS = -1;
 
-int a4_main(int argc, char *argv[], ProcessingJobPtr job) 
+int a4_main(int argc, char *argv[], ProcessingJob &job) 
 try
 {
     // Verify that the version of the library that we linked against is
@@ -52,17 +52,17 @@ try
     }
 
     if (arguments.count("threads"))
-        job->set_threads(arguments["threads"].as<int>());
+        THREADS = arguments["threads"].as<int>();
 
     if (arguments.count("output"))
-        job->set_output(arguments["output"].as<string>());
+        job.set_output(arguments["output"].as<string>());
 
     Inputs inputs(arguments["input"].as<Inputs>());
 
     try
     {
-        job->process_files(inputs);
-        job->finalize();
+        job.process_work_units(inputs, THREADS);
+        job.finalize();
     }
     catch(const exception &error)
     {

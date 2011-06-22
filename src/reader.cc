@@ -119,17 +119,3 @@ bool Reader::read_event(Event &event)
     }
     return false; // unknown type
 }
-
-Reader::~Reader()
-{
-}
-
-bool Reader::good() const
-{
-    return _is_good;
-}
-
-uint32_t Reader::eventsRead() const
-{
-    return _events_read;
-}

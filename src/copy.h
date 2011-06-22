@@ -7,7 +7,7 @@
 class CopyProcessor : public Processor
 {
     public:
-        virtual void process();
+        virtual void process_event(Event &);
 };
 
 

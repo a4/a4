@@ -6,15 +6,12 @@
 #include "a4/writer.h"
 #include "pb/Event.pb.h"
 
-void CopyProcessor::process()
+void CopyProcessor::process_event(Event &event)
 {
-    Event event;
-    while(_reader->good() && _reader->read_event(event)) {
-        _writer->write(event);
-    }
+    write_event(event);
 }
 
 int main(int argc, char ** argv) {
-    ProcessingJobPtr pf(new CopyProcessingJob());
-    return a4_main(argc, argv, pf);
+    CopyProcessingJob j;
+    return a4_main(argc, argv, j);
 }

@@ -11,51 +11,34 @@
 
 using namespace std;
 
-Axis::Axis():
-    _min(0),
-    _max(0),
-    _bins(0),
-    _delta(0)
+Axis::Axis(const uint32_t &bins, const double &min, const double &max):
+    _min(min),
+    _max(max),
+    _bins(bins),
+    _delta(bins == 0 ? 0 : (max - min)/bins)
+{   
+};
+
+Axis::Axis(const Axis & a):
+    _min(a._min),
+    _max(a._max),
+    _bins(a._bins),
+    _delta(a._delta)
 {
 }
 
 Axis::~Axis()
 {
+};
+
+bool Axis::sane() const
+{
+    return (_bins > 0 && _min <= _max);
 }
 
-bool Axis::init(const uint32_t &bins, const double &min, const double &max)
+uint32_t Axis::find_bin(const double &x) const
 {
-    if (1 > bins ||
-        min >= max)
-
-        return false;
-
-    _bins = bins;
-    _min = min;
-    _max = max;
-    _delta = (max - min) / bins;
-
-    return true;
-}
-
-double Axis::min() const
-{
-    return _min;
-}
-
-double Axis::max() const
-{
-    return _max;
-}
-
-uint32_t Axis::bins() const
-{
-    return _bins;
-}
-
-uint32_t Axis::findBin(const double &x) const
-{
-    if (!_bins)
+    if (!sane())
         return 0;
 
     if (x < _min)
@@ -64,10 +47,8 @@ uint32_t Axis::findBin(const double &x) const
     if (x > _max)
         return 1 + _bins;
 
-    return 1 + static_cast<int>((x - _min) / _delta);
+    return 1 + ((x - _min) / _delta);
 }
-
-
 
 // Helpers
 //

@@ -1,207 +1,100 @@
-/**
- * ProtoBuf Thread(s) Instructor:
- *  - Create threads
- *  - synchronize
- *
- * Created by Samvel Khalatyan on Mar 10, 2011
- * Copyright 2011, All rights reserved
- */
 
-#include <iostream>
-
-#include <boost/filesystem.hpp>
-
-#include "Condition.h"
-#include "Cout.h"
-
-#include "a4/results.h"
 
 #include "instructor.h"
-#include "thread.h"
 
-namespace fs = boost::filesystem;
+typedef boost::unique_lock<boost::mutex> Lock;
 
 using namespace std;
 
-Instructor::Instructor(ProcessingJob * pf, const uint32_t &max_threads):
-    _next_file(_input_files.begin()),
-    _running_threads(0),
-    _processing_job(pf)
+Instructor::Instructor(WorkerAgency * a, const uint32_t &max_threads):
+    _max_threads(max_threads ? max_threads : boost::thread::hardware_concurrency()),
+    _max_thread_id(0),
+    _worker_agency(a)
+{};
+
+void Instructor::submit_work_units(const std::vector<Worker::WorkUnit> &wu)
 {
-    _condition.reset(new Condition());
+    {
+        Lock lock(_mutex);
+        // Append the work units to the todo list 
+        _todo.insert(_todo.end(), wu.begin(), wu.end());
+    }
+    // Up the number of running threads
+    launch_threads();
+};
 
-    _max_threads = max_threads
-        ? max_threads
-        : boost::thread::hardware_concurrency();
+// Create as many threads as are needed, up to _max_threads.
+// Can be called multiple times if more input is added
+void Instructor::launch_threads()
+{
+    Lock lock(_mutex);
+    const int n_todo = _todo.size();
+    const int n_threads = (_max_threads == 0 ? 1 : 
+        ((_max_threads < n_todo) ? _max_threads : n_todo));
 
-    _results.reset(new Results());
-
-    _out.reset(new Cout());
+    for(int threads = _threads.size(); threads < n_threads; threads++) {
+        WorkerPtr worker = _worker_agency->get_configured_worker();
+        int id = ++_max_thread_id;
+        _threads[id].reset(new Thread(*this, id, worker));
+    }
 }
 
-void Instructor::process_files(const Files &files)
+Instructor::WorkUnitPtr Instructor::thread_instruct(Thread *thread)
 {
-    // Do nothing if there are already running threads or there is nothing to do
-    {
-        Lock lock(*_condition->mutex());
-        if (files.empty() ||
-            0 < _running_threads)
-
-            return;
-
-        _input_files = files;
-        _next_file = _input_files.begin();
-
-        _running_threads = 0;
+    Lock lock(_mutex);
+    if (_todo.size() > 0) {
+        Instructor::WorkUnitPtr work_unit(new Worker::WorkUnit(_todo.front()));
+        _todo.pop_front();
+        return work_unit;
     }
 
-    // Start processing files
-    process();
+    // Merge thread result
+    _worker_agency->worker_finished(thread->worker());
+    _finished_threads.push_back(_threads[thread->id()]);
+    _threads.erase(thread->id());
+    _waiting.notify_all();
+    return Instructor::WorkUnitPtr();
 }
 
-// Communication with Thread
-Thread::ConditionPtr Instructor::condition() const
+void Instructor::loop_until_done() const
 {
-    return _condition;
+    Lock lock(_mutex);
+    // Wait for any thread to complete, as long as any are running
+    while(_threads.size() > 0) {
+        _waiting.wait(lock);
+        cleanup();
+    }
+    cleanup();
 }
 
-void Instructor::notify(Thread *thread)
+bool Instructor::is_done() const
 {
-    Lock lock(*_condition->mutex());
-
-    _complete_threads.push(thread);
+    Lock lock(_mutex);
+    cleanup();
+    return (_threads.size() == 0);
 }
 
-Instructor::ResultsPtr Instructor::results() const
-{
-    return _results;
+void Instructor::cleanup() const {
+    // Join all finished threads
+    while(_finished_threads.size()) {
+        ThreadPtr thread = _finished_threads.back();
+        thread->join();
+        _finished_threads.pop_back();
+    };
 }
 
-Instructor::CoutPtr Instructor::out() const
-{
-    return _out;
-}
-
-
+Instructor::Thread::Thread(Instructor &instructor, const int &id, WorkerPtr worker):
+    _instructor(instructor),
+    _worker(worker),
+    _thread_id(id),
+    _thread(boost::thread(&Thread::loop, this))
+{};
 
 // Private
-//
-void Instructor::process()
+void Instructor::Thread::loop()
 {
-    // Create Threads
-    //
-    init();
-
-    // Start Threads
-    //
-    start();
-
-    // Run Threads
-    //
-    loop();
-}
-
-void Instructor::init()
-{
-    Lock lock(*_condition->mutex());
-
-    const int input_files = _input_files.size();
-
-    for(int threads = (_max_threads
-                        ? (_max_threads < input_files
-                            ? _max_threads
-                            : input_files)
-                        : 1);
-        0 < threads;
-        --threads)
-    {
-        ThreadPtr thread(new Thread(this, _processing_job->get_configured_processor()));
-
-        thread->setId(threads);
-
-        _threads.push_back(thread);
+    boost::shared_ptr<Worker::WorkUnit> work_unit;
+    while (work_unit = _instructor.thread_instruct(this)) {
+        _worker->process_work_unit(*work_unit);
     }
-}
-
-void Instructor::start()
-{
-    Lock lock(*_condition->mutex());
-
-    for(Threads::iterator thread_iter = _threads.begin();
-        _threads.end() != thread_iter;
-        ++thread_iter)
-    {
-        Thread *thread = thread_iter->get();
-
-        thread->init(fs::path(*_next_file));
-
-        if (!thread->start())
-            continue;
-
-        ++_next_file;
-        ++_running_threads;
-    }
-}
-
-void Instructor::loop()
-{
-    while(0 < _running_threads)
-    {
-        wait();
-
-        processCompleteThreads();
-    }
-}
-
-void Instructor::wait()
-{
-    Lock lock(*_condition->mutex());
-
-    // Wait for any thread to complete
-    //
-    while(_complete_threads.empty())
-        _condition->variable()->wait(lock);
-}
-
-void Instructor::processCompleteThreads()
-{
-    Lock lock(*_condition->mutex());
-    while(!_complete_threads.empty())
-    {
-        if (_input_files.end() == _next_file)
-            stopThread();
-        else
-            continueThread();
-    }
-}
-
-void Instructor::stopThread()
-{
-    Thread *thread = _complete_threads.front();
-    _complete_threads.pop();
-
-    thread->stop();
-    thread->condition()->variable()->notify_all();
-
-    // Potential delay. Threads can be added to the thread group instead
-    // and then "joined" (or waited for all to finish)
-    //
-    thread->join();
-
-    cout << "Thread read " << thread->eventsRead() << " events" << endl;
-
-    _results->add(*thread->results());
-
-    --_running_threads;
-}
-
-void Instructor::continueThread()
-{
-    Thread *thread = _complete_threads.front();
-    _complete_threads.pop();
-
-    thread->init(*_next_file);
-    ++_next_file;
-
-    thread->condition()->variable()->notify_all();
 }

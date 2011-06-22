@@ -7,12 +7,11 @@
 
 class GRL {
     public:
-        typedef std::pair<uint32_t,uint32_t> LBRange; // WARNING: order end, start
-
-        GRL(std::string fn);
-        bool pass(uint32_t run, uint32_t lb);
+        GRL(const std::string & fn);
+        bool pass(const uint32_t &run, const uint32_t &lb) const;
 
     private:
+        typedef std::pair<uint32_t,uint32_t> LBRange; // <end lb, start lb>
         std::map<uint32_t, std::set<LBRange> > _data;
 
 };
