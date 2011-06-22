@@ -141,6 +141,11 @@ def make_lv(lv):
     v.px, v.py, v.pz, v.e = lv.px(), lv.py(), lv.pz(), lv.e()
     return v
 
+def make_vertex(vx):
+    v = Vertex()
+    v.x, v.y, v.z = vx.x(), vx.y(), vx.z()
+    return v
+
 def make_track_hits(idtp):
     if not idtp:
         return None
@@ -207,7 +212,9 @@ class AOD2A4(AOD2A4Base):
             e.p4.CopyFrom(make_lv(el))
             assert int(el.charge()) == el.charge()
             e.charge = int(el.charge())
-            #e.vertex =.recVertex().position()
+            vx = el.origin()
+            e.vertex.CopyFrom(make_vertex(vx.position()))
+            e.vertex_index = list(vc.recVertex() for vc in self.sg["VxPrimaryCandidate"]).index(vx)
             e.author = el.author()
             for iso in ("etcone20", "etcone30", "ptcone20", "ptcone30"):
                 setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
@@ -242,7 +249,9 @@ class AOD2A4(AOD2A4Base):
             m.p4.CopyFrom(make_lv(mu))
             assert int(mu.charge()) == mu.charge()
             m.charge = int(mu.charge())
-            #m.vertex =.recVertex().position()
+            vx = mu.origin()
+            m.vertex.CopyFrom(make_vertex(vx.position()))
+            m.vertex_index = list(vc.recVertex() for vc in self.sg["VxPrimaryCandidate"]).index(vx)
             for iso in ("etcone20", "etcone30", "ptcone20", "ptcone30"):
                 setattr(m.isolation, iso, mu.parameter(getattr(self.MuonParameters, iso)))
 
@@ -275,7 +284,9 @@ class AOD2A4(AOD2A4Base):
             j = Jet()
             j.index = i
             j.p4.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
-            #j.vertex =.recVertex().position()
+            j.vertex_index = int(jet.getMoment("OriginIndex"))
+            vx = self.sg["VxPrimaryCandidate"][j.vertex_index]
+            j.vertex.CopyFrom(make_vertex(vx.recVertex().position()))
             j.bad = self.jet_bad(jet)
             j.ugly = self.jet_ugly(jet)
             j.jet_vertex_fraction = self.jet_jvf(jet)

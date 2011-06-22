@@ -25,4 +25,6 @@ message Muon
     optional double z0err = 13;
     optional double d0 = 14;
     optional double d0err = 15;
+
+    optional int32 vertex_index = 30;
 }

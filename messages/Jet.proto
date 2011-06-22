@@ -8,4 +8,6 @@ message Jet
     optional double jet_vertex_fraction = 4;
     optional bool bad = 5;
     optional bool ugly = 6;
+
+    optional int32 vertex_index = 30;
 }

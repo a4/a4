@@ -33,4 +33,6 @@ message Electron
     optional ShowerShape shower_shape = 11;
     
     optional DataQuality dq = 19;
+
+    optional int32 vertex_index = 30;
 }

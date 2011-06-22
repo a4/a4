@@ -23,4 +23,6 @@ message Photon
     optional ShowerShape shower_shape = 11;
     
     optional DataQuality dq = 15;
+
+    optional int32 vertex_index = 30;
 }
