@@ -1,7 +1,7 @@
-DEBUG=-g
+DEBUG=-O3 -ffast-math
 
 CCC=g++
-CXXFLAGS = ${DEBUG} -fPIC -pipe -Wall -I./ -I./src -I./src/pb $(ADD_INCLUDES)
+CXXFLAGS = ${DEBUG} -pipe -Wall -I./src $(ADD_INCLUDES)
 LIBS     = $(ADD_LIBS) -lprotobuf -lboost_filesystem -lboost_system -lboost_thread-mt -lboost_program_options -lpthread
 LDFLAGS  = -shared -W1
 
@@ -48,7 +48,7 @@ $(PYDIR)/Atlas/__init__.py: $(PYINIT)
 
 $(OBJDIR)/%.o: $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h	
 	mkdir -p $(OBJDIR)/Atlas
-	$(CCC) $(CXXFLAGS) -c $< -o $@
+	$(CCC) $(CXXFLAGS) -I./src/pb -c $< -o $@
 
 $(OBJDIR)/%.o: ./src/%.cc
 	$(CCC) $(CXXFLAGS) -c $< -o $@
