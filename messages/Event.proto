@@ -25,4 +25,10 @@ message Event
     repeated Muon muons = 9;
     repeated Electron electrons = 10;
     repeated Photon photons = 11;
+
+    repeated Muon muons_staco = 20;
+    repeated Muon muons_muid = 21;
+
+    optional MissingEnergy met_lochadtopo = 30;
+    optional MissingEnergy met_reffinal = 31;
 }

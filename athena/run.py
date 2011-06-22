@@ -234,9 +234,9 @@ class AOD2A4(AOD2A4Base):
             els.append(e)
         return els
 
-    def muons(self):
+    def muons(self, muon_algo):
         mus = []
-        for i, mu in enumerate(self.sg["%sMuonCollection" % self.muon_algo]):
+        for i, mu in enumerate(self.sg["%sMuonCollection" % muon_algo]):
             m = Muon()
             m.index = i
             m.p4.CopyFrom(make_lv(mu))
@@ -313,33 +313,46 @@ class AOD2A4(AOD2A4Base):
             return z0, z0err, d0, d0err
         return None, None, None
 
-    def met(self):
+    def met_reffinal(self):
         met = MissingEnergy()
-        if self.year == 2010 or self.met_loc_had_topo:
-            lht = self.sg["MET_LocHadTopo"]
-            reg = lht.getRegions()
-            newMET_LocHadTopo_etx = reg.exReg(reg.Central) + reg.exReg(reg.EndCap) + reg.exReg(reg.Forward)
-            newMET_LocHadTopo_ety = reg.eyReg(reg.Central) + reg.eyReg(reg.EndCap) + reg.eyReg(reg.Forward)
-            if self.muon_algo == "Staco":
-                midmet = "MET_MuonBoy"
-            else:
-                midmet = "MET_Muid"
-            met.x = newMET_LocHadTopo_etx + self.sg[midmet].etx() - self.sg["MET_RefMuon_Track"].etx()
-            met.y = newMET_LocHadTopo_ety + self.sg[midmet].ety() - self.sg["MET_RefMuon_Track"].ety()
-        else:
-            lht = self.sg["MET_RefFinal"]
-            met.x = lht.etx()
-            met.y = lht.ety()
+        lht = self.sg["MET_RefFinal"]
+        met.x = lht.etx()
+        met.y = lht.ety()
         return met
+
+    def met_lochadtopo(self, muon_algo = "Staco"):
+        met = MissingEnergy()
+        lht = self.sg["MET_LocHadTopo"]
+        reg = lht.getRegions()
+        newMET_LocHadTopo_etx = reg.exReg(reg.Central) + reg.exReg(reg.EndCap) + reg.exReg(reg.Forward)
+        newMET_LocHadTopo_ety = reg.eyReg(reg.Central) + reg.eyReg(reg.EndCap) + reg.eyReg(reg.Forward)
+        if muon_algo == "Staco":
+            midmet = "MET_MuonBoy"
+        else:
+            midmet = "MET_Muid"
+        met.x = newMET_LocHadTopo_etx + self.sg[midmet].etx() - self.sg["MET_RefMuon_Track"].etx()
+        met.y = newMET_LocHadTopo_ety + self.sg[midmet].ety() - self.sg["MET_RefMuon_Track"].ety()
+        return met
+
+    def met(self):
+        if self.year == 2010:
+            return self.met_lochadtopo()
+        else:
+            return self.met_reffinal()
 
     def execute(self):
         event = Event()
         self.load_event_info(event) # sets run_number, event_number, lumi_block and mc_event_weight
         event.triggers.extend(self.triggers())
         event.vertices.extend(self.vertices())
-        event.met.CopyFrom(self.met())
+
+        event.met_lochadtopo.CopyFrom(self.met_lochadtopo())
+        event.met_reffinal.CopyFrom(self.met_reffinal())
+
         event.jets.extend(self.jets())
-        event.muons.extend(self.muons())
+
+        event.muons_staco.extend(self.muons("Staco"))
+        event.muons_muid.extend(self.muons("Muid"))
         event.electrons.extend(self.electrons())
         #event.photons.extend(self.photons())
         self.a4.write(event)
