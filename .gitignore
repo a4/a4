@@ -1,6 +1,8 @@
 *~
 *.a4
 *.pyc
+*.datasets
+*.grl
 setup.sh
 bin/
 obj/
