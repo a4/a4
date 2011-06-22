@@ -208,6 +208,7 @@ class AOD2A4(AOD2A4Base):
             assert int(el.charge()) == el.charge()
             e.charge = int(el.charge())
             #e.vertex =.recVertex().position()
+            e.author = el.author()
             for iso in ("etcone20", "etcone30", "ptcone20", "ptcone30"):
                 setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
 
