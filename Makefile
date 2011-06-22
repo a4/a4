@@ -65,6 +65,9 @@ bin/%: src/%.cpp $(OBJS) $(PROTOCOBJ)
 bin/%: obj/%.o $(ROOT_OBJS) $(OBJS) $(PROTOCOBJ)
 	$(CCC) $(ROOT_LDFLAGS) $(LIBS) $^ -o $@
 
+pyclean:
+	find . -iname "*.pyc" -exec rm {} \;
+
 clean:
 	rm -f $(PROTOCPP)
 	rm -f $(PROTOPY)
