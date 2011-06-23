@@ -1,5 +1,5 @@
 GRL_XML   = $(wildcard grl/*.xml)
-GRL_DSS   = $(patsubst %.xml,%.grl,$(GRL_XML))
+GRL_GRL   = $(patsubst %.xml,%.grl,$(GRL_XML))
 GRL_EGAM  = $(patsubst grl/%.xml,datasets/data/%.physics_Egamma.datasets,$(GRL_XML))
 GRL_MUON  = $(patsubst grl/%.xml,datasets/data/%.physics_Muons.datasets,$(GRL_XML))
 
@@ -14,11 +14,11 @@ all: $(GRL_DSS) $(GRL_EGAM) $(GRL_MUON) datasets/data.datasets datasets/mc.datas
 %.grl: %.xml
 	xml2grl $^ $@
 
-datasets/data.datasets: $(GRL_DSS)
-	cat $(GRL_DSS) > $@
+datasets/data.datasets: $(GRL_EGAM) $(GRL_MUON)
+	cat $^ > $@
 
 datasets/mc.datasets: $(MC_DSS)
-	cat $(MC_DSS) > $@
+	cat $^ > $@
 
 %.datasets: %.ids
 	ids2datasets $^ $(MC_TAG) | tee $@
