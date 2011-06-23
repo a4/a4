@@ -213,8 +213,10 @@ class AOD2A4(AOD2A4Base):
             assert int(el.charge()) == el.charge()
             e.charge = int(el.charge())
             vx = el.origin()
-            e.vertex.CopyFrom(make_vertex(vx.position()))
-            e.vertex_index = list(vc.recVertex() for vc in self.sg["VxPrimaryCandidate"]).index(vx)
+            if vx:
+                #if vx.position():
+                #    e.vertex.CopyFrom(make_vertex(vx.position()))
+                e.vertex_index = list(vc.recVertex() for vc in self.sg["VxPrimaryCandidate"]).index(vx)
             e.author = el.author()
             for iso in ("etcone20", "etcone30", "ptcone20", "ptcone30"):
                 setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
@@ -250,8 +252,10 @@ class AOD2A4(AOD2A4Base):
             assert int(mu.charge()) == mu.charge()
             m.charge = int(mu.charge())
             vx = mu.origin()
-            m.vertex.CopyFrom(make_vertex(vx.position()))
-            m.vertex_index = list(vc.recVertex() for vc in self.sg["VxPrimaryCandidate"]).index(vx)
+            if vx:
+                #if vx.position():
+                #    m.vertex.CopyFrom(make_vertex(vx.position()))
+                m.vertex_index = list(vc.recVertex() for vc in self.sg["VxPrimaryCandidate"]).index(vx)
             for iso in ("etcone20", "etcone30", "ptcone20", "ptcone30"):
                 setattr(m.isolation, iso, mu.parameter(getattr(self.MuonParameters, iso)))
 
@@ -285,8 +289,8 @@ class AOD2A4(AOD2A4Base):
             j.index = i
             j.p4.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
             j.vertex_index = int(jet.getMoment("OriginIndex"))
-            vx = self.sg["VxPrimaryCandidate"][j.vertex_index]
-            j.vertex.CopyFrom(make_vertex(vx.recVertex().position()))
+            #vx = self.sg["VxPrimaryCandidate"][j.vertex_index]
+            #j.vertex.CopyFrom(make_vertex(vx.recVertex().position()))
             j.bad = self.jet_bad(jet)
             j.ugly = self.jet_ugly(jet)
             j.jet_vertex_fraction = self.jet_jvf(jet)
