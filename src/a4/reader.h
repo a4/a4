@@ -1,10 +1,3 @@
-/**
- * ProtoBuf Reader
- *
- * Created by Samvel Khalatyan on Mar 8, 2011
- * Copyright 2011, All rights reserved
- */
-
 #ifndef PROTOBUF_READER_H
 #define PROTOBUF_READER_H
 

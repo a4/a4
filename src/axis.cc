@@ -1,10 +1,3 @@
-/**
- * Histogram Axis
- *
- * Created by Samvel Khalatyan on Mar 13, 2011
- * Copyright 2011, All rights reserved
- */
-
 #include <iostream>
 
 #include "a4/axis.h"

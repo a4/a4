@@ -1,10 +1,3 @@
-/**
- * ProtoBuf Reader
- *
- * Created by Samvel Khalatyan on Mar 8, 2011
- * Copyright 2011, All rights reserved
- */
-
 #include <math.h>
 
 #include <string>
@@ -29,15 +22,9 @@ Reader::Reader(const fs::path &input_file):
     _coded_in.reset(new ::google::protobuf::io::CodedInputStream(_raw_in.get()));
 
     // Push limit of read bytes
-    //
     _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
 
-    //
-    //_coded_in->ReadLittleEndian32(&_events_stored);
-    //_coded_in->ReadBigEndian32(&_events_stored);
     read_header();
-
-
 }
 
 bool Reader::read_header()
