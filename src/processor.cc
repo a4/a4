@@ -2,7 +2,7 @@
 
 #include <boost/format.hpp>
 
-#include "a4/H1.h"
+#include "a4/h1.h"
 #include "a4/processor.h"
 #include "a4/results.h"
 #include "a4/reader.h"

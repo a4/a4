@@ -8,7 +8,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "H1.h"
+#include "h1.h"
 
 #define TOKENPASTE(x, y) x ## y
 #define TOKENPASTE2(x, y) TOKENPASTE(x, y)      

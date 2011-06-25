@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "a4/axis.h"
-#include "a4/H1.h"
+#include "a4/h1.h"
 
 using namespace std;
 
