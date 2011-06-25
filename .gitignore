@@ -3,6 +3,7 @@
 *.pyc
 *.datasets
 *.grl
+*.d
 setup.sh
 bin/
 obj/
