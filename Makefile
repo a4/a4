@@ -118,6 +118,7 @@ objclean:
 	rm -f $(ROOT_OBJS)
 
 clean: pyclean objclean protoclean
+	find . -iname "*.d" -exec rm {} \;
 
 
 
