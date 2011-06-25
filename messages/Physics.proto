@@ -23,5 +23,11 @@ message MissingEnergy
 }
 
 
-
+message Perigee
+{
+    optional double z0 = 1;
+    optional double z0err = 2;
+    optional double d0 = 3;
+    optional double d0err = 4;
+}
 

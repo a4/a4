@@ -21,10 +21,8 @@ message Muon
     optional TrackHits track_hits = 10;
     optional MuonTrackHits ms_hits = 11;
 
-    optional double z0 = 12;	
-    optional double z0err = 13;
-    optional double d0 = 14;
-    optional double d0err = 15;
+    optional Perigee perigee_id = 12;
+    optional Perigee perigee_cmb = 13;
 
     optional int32 vertex_index = 30;
 }

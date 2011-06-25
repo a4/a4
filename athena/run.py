@@ -11,7 +11,7 @@ from glob import glob
 
 from a4.messages import Trigger, Isolation, TrackHits, MuonTrackHits
 from a4.messages import Electron, Muon, Photon, Jet, Event
-from a4.messages import LorentzVector, Vertex, MissingEnergy
+from a4.messages import LorentzVector, Vertex, MissingEnergy, Perigee
 
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
 
@@ -236,7 +236,7 @@ class AOD2A4(AOD2A4Base):
             trk = el.trackParticle()
             if trk:
                 e.p4_track.CopyFrom(make_lv(trk))
-                e.z0, e.z0err, e.d0, e.d0err = self.perigee_z0_d0(trk)
+                e.perigee.CopyFrom(self.perigee_z0_d0(trk))
                 e.track_hits.CopyFrom(make_track_hits(trk))
             if el.cluster():
                 e.p4_cluster.CopyFrom(make_lv(el.cluster()))
@@ -268,7 +268,7 @@ class AOD2A4(AOD2A4Base):
             trk = mu.inDetTrackParticle()
             if trk:
                 m.p4_track.CopyFrom(make_lv(trk))
-                m.z0, m.z0err, m.d0, m.d0err = self.perigee_z0_d0(trk)
+                m.perigee_id.CopyFrom(self.perigee_z0_d0(trk))
                 m.track_hits.CopyFrom(make_track_hits(trk))
     
             ms_trk = mu.muonExtrapolatedTrackParticle()
@@ -277,6 +277,7 @@ class AOD2A4(AOD2A4Base):
 
             ctrk = mu.combinedMuonTrackParticle()
             if ctrk:
+                m.perigee_cmb.CopyFrom(self.perigee_z0_d0(trk))
                 m.ms_hits.CopyFrom(make_ms_track_hits(ctrk))
 
             mus.append(m)
@@ -319,14 +320,15 @@ class AOD2A4(AOD2A4Base):
 
     def perigee_z0_d0(self, trk):
         if trk and len(self.sg["VxPrimaryCandidate"]) > 0:
+            p = Perigee()
             vxp = self.sg["VxPrimaryCandidate"][0].recVertex().position()
             pavV0 = self.tool_ttv.perigeeAtVertex(trk, vxp)
-            d0 = pavV0.parameters()[0]
-            d0err = pavV0.localErrorMatrix().error(0)
-            z0 = pavV0.parameters()[1]
-            z0err = pavV0.localErrorMatrix().error(0)
-            return z0, z0err, d0, d0err
-        return None, None, None
+            p.d0 = pavV0.parameters()[0]
+            p.d0err = pavV0.localErrorMatrix().error(0)
+            p.z0 = pavV0.parameters()[1]
+            p.z0err = pavV0.localErrorMatrix().error(0)
+            return p
+        return None
 
     def met_reffinal(self):
         met = MissingEnergy()
