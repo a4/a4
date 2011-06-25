@@ -1,0 +1,50 @@
+#! /usr/bin/env python
+
+
+if __name__ == "__main__":
+    from sys import argv, exit
+    if len(argv) < 3:
+        print "Usage: %s <file with ids> <tag> [<type, default AOD> [<project, default mc10_7TeV>]]" % (argv[0])
+        exit(-1)
+
+    ids = sorted(set(int(l.split()[0]) for l in open(argv[1]).readlines() if l.strip() and not l.startswith("#")))
+    tag = argv[2]
+    dtype = "AOD"
+    if len(argv) > 3:
+        dtype = argv[3]
+    project = "mc10_7TeV"
+    if len(argv) > 4:
+        project = argv[4]
+    base = "%s.%%i.*.merge.%s.*%s*" % (project,dtype,tag)
+
+    from dq2.clientapi.DQ2 import DQ2
+    dq2 = DQ2()
+
+    for run in ids:
+        ds = base % run
+        res = dq2.listDatasets(ds)
+        dss = []
+        for k in sorted(res.keys()):
+            last_tag = k.rstrip("0123456789_")[-3:]
+            if last_tag in ("sub", "tid"):
+                continue
+            #if not k.split(".")[-1][0] in ("f", "r"):
+            #    continue
+            n = dq2.getNumberOfFiles(k)
+            if n > 0:
+                dss.append((n,k))
+
+        # prefer containers (aka reprocessed):
+        containers = [(n, ds) for n, ds in dss if "/" in ds]
+        if containers:
+            dss = containers
+
+        # prefer merged: (less files)
+        if len(dss) == 0:
+            print "MISSING RUN: ", run
+        elif len(dss) != 1:
+            for i, (n, ds) in enumerate(sorted(dss)):
+                print '%2i :'%i, ds, n
+        else:
+            print dss[0][1]
+

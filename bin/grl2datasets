@@ -1,0 +1,50 @@
+#! /usr/bin/env python
+
+
+if __name__ == "__main__":
+    from sys import argv, exit
+    if len(argv) == 1 or len(argv) > 3:
+        print "Usage: %s <grl> <stream=physics_Egamma>" % (argv[0])
+        exit(-1)
+
+    runs = sorted(set(int(l.split()[0]) for l in open(argv[1]).readlines()))
+    if len(argv) == 2:
+        stream = None
+    else:
+        stream = argv[2]
+    if stream:
+        base = "data*%%i.%s.merge.AOD*" % stream
+    else:
+        base = "data*%i.*.merge.AOD*" % stream
+
+    from dq2.clientapi.DQ2 import DQ2
+    dq2 = DQ2()
+
+    for run in runs:
+        ds = base % run
+        res = dq2.listDatasets(ds)
+        dss = []
+        for k in sorted(res.keys()):
+            last_tag = k.rstrip("0123456789_")[-3:]
+            if last_tag in ("sub", "tid"):
+                continue
+            if not k.split(".")[-1][0] in ("f", "r"):
+                continue
+            n = dq2.getNumberOfFiles(k)
+            if n > 0:
+                dss.append((n,k))
+
+        # prefer containers (aka reprocessed):
+        containers = [(n, ds) for n, ds in dss if "/" in ds]
+        if containers:
+            dss = containers
+
+        # prefer merged: (less files)
+        if len(dss) == 0:
+            print "MISSING RUN: ", run
+        elif len(dss) != 1:
+            for i, (n, ds) in enumerate(sorted(dss)):
+                print '%2i :'%i, ds, n
+        else:
+            print dss[0][1]
+
