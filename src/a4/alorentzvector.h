@@ -14,27 +14,27 @@ class ALorentzVector
     double px, py, pz, E;
 
     ALorentzVector(): px(0), py(0), pz(0), E(0) {};
-    ALorentzVector(double p1, double p2, double p3, double E): px(p1), py(p2), pz(p3), E(E) {};
+    ALorentzVector(const double &p1, const double &p2, const double &p3, const double &E): px(p1), py(p2), pz(p3), E(E) {};
     ALorentzVector(const ALorentzVector& p): px(p.px), py(p.py), pz(p.pz), E(p.E) {};
 
     double p()   const {return sqrt(px*px + py*py + pz*pz);}
     double p2()  const {return px*px + py*py + pz*pz;}
     double pt()  const {return sqrt(px*px + py*py);}
-    double m2()  const {return E*E - p2();}
-    double m()   const {return sqrt(E*E - p2());}
-    double mt()  const {return sqrt((E-pz)*(E+pz));}
+    double m2()  const {return (E - p()) * (E + p());}
+    double m()   const {return sqrt((E - p()) * (E + p()));}
+    double mt()  const {return sqrt((E - pz)  * (E + pz));}
     double y()   const {return 0.5*log((E + pz)/(E - pz));}
-    inline double et()  const {return E/p()*pt();}
+    inline double et() const {return E/p()*pt();}
     inline double e()  const {return E;}
     double eta() const {return 0.5*log((p() + pz)/(p() - pz));}
     double phi() const
     {
-        double r = atan2(py,px);
+        double r = atan2(py, px);
         if(r < 0) r += 2*M_PI;
         return r;
     }
 
-    bool operator== (const ALorentzVector & rhs) const {
+    bool operator==(const ALorentzVector & rhs) const {
         return px == rhs.px && py == rhs.py && pz == rhs.pz && E == rhs.E;
     };
 
