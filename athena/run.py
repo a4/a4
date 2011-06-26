@@ -295,6 +295,7 @@ class AOD2A4(AOD2A4Base):
             j.bad = self.jet_bad(jet)
             j.ugly = self.jet_ugly(jet)
             j.jet_vertex_fraction = self.jet_jvf(jet)
+            j.EMJES = jet.getMoment("EMJES")
             jets.append(j)
         return jets
 

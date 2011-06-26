@@ -10,4 +10,5 @@ message Jet
     optional bool ugly = 6;
 
     optional int32 vertex_index = 30;
+    optional double EMJES = 100;
 }
