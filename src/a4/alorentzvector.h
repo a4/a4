@@ -33,6 +33,19 @@ class ALorentzVector
         if(r < 0) r += 2*M_PI;
         return r;
     }
+    double delta_phi(const ALorentzVector &p) const
+    {
+        double d_phi = phi() - p.phi();
+        while (d_phi >= M_PI) d_phi -= 2*M_PI;
+        while (d_phi < -M_PI) d_phi += 2*M_PI;
+        return d_phi;
+    }
+    double delta_r(const ALorentzVector &p) const
+    {
+        double d_eta = eta() - p.eta();
+        double d_phi = delta_phi(p);
+        return sqrt(d_eta*d_eta + d_phi*d_phi);
+    }
 
     bool operator==(const ALorentzVector & rhs) const {
         return px == rhs.px && py == rhs.py && pz == rhs.pz && E == rhs.E;
