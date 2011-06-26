@@ -283,9 +283,9 @@ class AOD2A4(AOD2A4Base):
             mus.append(m)
         return mus
 
-    def jets(self):
+    def jets(self, container):
         jets = []
-        for i, jet in enumerate(self.sg["AntiKt4TopoEMJets"]):
+        for i, jet in enumerate(self.sg[container]):
             j = Jet()
             j.index = i
             j.p4.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
@@ -366,7 +366,8 @@ class AOD2A4(AOD2A4Base):
         event.met_lochadtopo.CopyFrom(self.met_lochadtopo())
         event.met_reffinal.CopyFrom(self.met_reffinal())
 
-        event.jets.extend(self.jets())
+        event.jets_antikt4h1topo.extend(self.jets("AntiKt4TopoJets"))
+        event.jets_antikt4h1topoem.extend(self.jets("AntiKt4TopoEMJets"))
 
         event.muons_staco.extend(self.muons("Staco"))
         event.muons_muid.extend(self.muons("Muid"))
