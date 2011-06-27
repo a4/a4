@@ -21,16 +21,20 @@ PYINIT    = $(PYDIR)/__init__.py
 OBJS      = $(foreach obj,$(addprefix ./obj/,$(patsubst %.cc,%.o,$(notdir $(SRCS)))),$(obj))
 PROGS     = $(patsubst ./src/%.cpp,./bin/%,$(wildcard ./src/*.cpp))
 
-ROOT_CXXFLAGS = ${DEBUG} -Wall `root-config --cflags` $(CXXFLAGS)
+ROOT_CXXFLAGS = ${DEBUG} -Wall `root-config --cflags` $(CXXFLAGS) -I./root -I./external
 ROOT_LDFLAGS  =`root-config --glibs`
 ROOT_SOURCES  = $(wildcard ./root/*.C)
 ROOT_PROGS    = $(patsubst ./root/%.cpp,./bin/%,$(wildcard ./root/*.cpp))
 ROOT_OBJS     = $(patsubst ./root/%.C,$(OBJDIR)/%.o,$(ROOT_SOURCES))
 
-ALL_SOURCES = $(PROTOCPP) $(SRCS) $(ROOT_SOURCES) $(wildcard ./root/*.cpp) $(wildcard ./src/*.cpp)
+EXT_SOURCES  = $(wildcard ./external/*.C)
+EXT_OBJS     = $(patsubst ./external/%.C,$(OBJDIR)/%.o,$(EXT_SOURCES))
+
+ALL_SOURCES = $(PROTOCPP) $(SRCS) $(ROOT_SOURCES) $(EXT_SOURCES) $(wildcard ./root/*.cpp) $(wildcard ./src/*.cpp)
 
 all: py $(PROTOCPP) $(PROTOCOBJ) $(OBJS) $(PROGS) $(ROOT_PROGS)
 
+extobjs: $(EXT_OBJS)
 ######### DEPENDENCIES
 # Add .d to Make's recognized suffixes.
 SUFFIXES += .d
@@ -63,9 +67,11 @@ root/%.d: root/%.cpp
 root/%.d: root/%.C
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) -MM -MT '$(patsubst root/%.C,obj/%.o,$<)' $< > $@
+
+external/%.d: external/%.C
+	@mkdir -p $(dir $@)
+	$(CXX) $(ROOT_CXXFLAGS) -MM -MT '$(patsubst external/%.C,obj/%.o,$<)' $< > $@
 ######### END DEPENDENCIES
-
-
 
 rootobj: $(ROOT_OBJS)
 
@@ -95,11 +101,15 @@ $(OBJDIR)/%.o: ./root/%.C ./root/%.d $(wildcard ./root/%.h*) $(wildcard ./root/*
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) -c $< -o $@
 
+$(OBJDIR)/%.o: ./external/%.C ./external/%.d $(wildcard ./external/%.h*) $(wildcard ./external/*/%.h*)
+	@mkdir -p $(dir $@)
+	$(CXX) $(ROOT_CXXFLAGS) -c $< -o $@
+
 bin/%: src/%.cpp src/%.d $(OBJS) $(PROTOCOBJ) $(wildcard ./src/%.h*)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(filter %.o,$^) $< -o $@
 
-bin/%: root/%.cpp $(ROOT_OBJS) $(OBJS) $(PROTOCOBJ) $(wildcard ./root/%.h*) $(wildcard ./root/*/%.h*)
+bin/%: root/%.cpp $(ROOT_OBJS) $(OBJS) $(PROTOCOBJ) $(wildcard ./root/%.h*) $(wildcard ./root/*/%.h*) $(EXT_OBJS)
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) $(ROOT_LDFLAGS) $(LIBS) $(filter %.o,$^) $< -o $@
 
