@@ -14,8 +14,8 @@ message Jet
     optional LorentzVector p4_em = 101;
     optional double EMJES = 100;
     optional double SV0 = 102;
-    optional double BCH_CORR_CELL = 103;
-    optional double BCH_CORR_JET = 104;
+    optional double BCH_CORR_CELL = 110;
+    optional double BCH_CORR_JET = 111;
 
     enum TruthFlavor {
         Light = 0;
