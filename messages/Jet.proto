@@ -10,5 +10,17 @@ message Jet
     optional bool ugly = 6;
 
     optional int32 vertex_index = 30;
+
+    required LorentzVector p4_em = 101;
     optional double EMJES = 100;
+    optional double SV0 = 102;
+
+    enum TruthFlavor {
+        Light = 0;
+        C = 1;
+        B = 2;
+        T = 3;
+    }
+    optional TruthFlavor truth_flavor = 103;
+
 }

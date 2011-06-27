@@ -288,14 +288,28 @@ class AOD2A4(AOD2A4Base):
         for i, jet in enumerate(self.sg[container]):
             j = Jet()
             j.index = i
-            j.p4.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
+            j.p4.CopyFrom(make_lv(jet))
             j.vertex_index = int(jet.getMoment("OriginIndex"))
             #vx = self.sg["VxPrimaryCandidate"][j.vertex_index]
             #j.vertex.CopyFrom(make_vertex(vx.recVertex().position()))
             j.bad = self.jet_bad(jet)
             j.ugly = self.jet_ugly(jet)
             j.jet_vertex_fraction = self.jet_jvf(jet)
+
+            j.p4_em.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
             j.EMJES = jet.getMoment("EMJES")
+            j.SV0 = j.getFlavourTagWeight("SV0")
+            #http://alxr.usatlas.bnl.gov/lxr/source/atlas/PhysicsAnalysis/D3PDMaker/JetD3PDMaker/src/JetTrueTagFillerTool.cxx#045
+            tti = j.getTagInfo("TruthInfo")
+            if tti:
+                tl = tti.jetTruthLabel()
+                j.truth_flavor = j.Light
+                if tl == "C":
+                    j.truth_flavor = j.C
+                if tl == "B":
+                    j.truth_flavor = j.B
+                if tl == "T":
+                    j.truth_flavor = j.T
             jets.append(j)
         return jets
 
