@@ -11,7 +11,7 @@ message Jet
 
     optional int32 vertex_index = 30;
 
-    required LorentzVector p4_em = 101;
+    optional LorentzVector p4_em = 101;
     optional double EMJES = 100;
     optional double SV0 = 102;
 
