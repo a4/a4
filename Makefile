@@ -120,6 +120,8 @@ objclean:
 clean: pyclean objclean protoclean
 	find . -iname "*.d" -exec rm {} \;
 
-
+distclean: clean
+	rm $(PYDIR) -rf
+	rm $(CPPDIR) -rf
 
 
