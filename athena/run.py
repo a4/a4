@@ -1,4 +1,5 @@
 from math import sin, atan, atan2, exp, pi
+import gc
 
 from a4 import A4WriterStream
 from aod2a4 import AOD2A4Base, athena_setup
@@ -380,6 +381,7 @@ class AOD2A4(AOD2A4Base):
             return self.met_reffinal()
 
     def execute(self):
+        gc.collect(2)
         event = Event()
         self.load_event_info(event) # sets run_number, event_number, lumi_block and mc_event_weight
         event.triggers.extend(self.triggers())
@@ -413,8 +415,7 @@ if os.path.exists(a_local_directory):
         input = glob(options["input"]) 
     else:
         input = glob("/data/etp/ebke/data/*109074*/*")
-    athena_setup(input, 1000)
-    athena_setup(input, -1)
+    athena_setup(input, 5000)
 else:
     athena_setup(None, -1)
 
@@ -434,8 +435,6 @@ include ("RecExCommon/RecExCommon_topOptions.py")
 
 def get_aod2a4(year, options):
     a = AOD2A4("AOD2A4", year, options)
-    a.met_loc_had_topo = True
-    a.met_loc_had_topo = False
     a.muon_algo = "Staco"
     return a
 
