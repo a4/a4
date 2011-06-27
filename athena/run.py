@@ -294,7 +294,7 @@ class AOD2A4(AOD2A4Base):
             #j.vertex.CopyFrom(make_vertex(vx.recVertex().position()))
             j.bad = self.jet_bad(jet)
             j.ugly = self.jet_ugly(jet)
-            j.jet_vertex_fraction = self.jet_jvf(jet)
+            j.jet_vertex_fraction = jet.getMoment("JVF")
 
             j.p4_em.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
             j.EMJES = jet.getMoment("EMJES")

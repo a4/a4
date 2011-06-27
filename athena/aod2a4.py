@@ -83,6 +83,7 @@ class AOD2A4Base(PyAthena.Alg):
         event.event_number = self.event_info.event_ID().event_number()
         event.run_number = self.event_info.event_ID().run_number()
         event.lumi_block = self.event_info.event_ID().lumi_block()
+        event.error_state_lar = self.event_info.errorState(self.event_info.LAr)
 
         if self.is_mc:
             event_weight = 1.0
