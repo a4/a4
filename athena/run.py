@@ -298,9 +298,9 @@ class AOD2A4(AOD2A4Base):
 
             j.p4_em.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
             j.EMJES = jet.getMoment("EMJES")
-            j.SV0 = j.getFlavourTagWeight("SV0")
+            j.SV0 = jet.getFlavourTagWeight("SV0")
             #http://alxr.usatlas.bnl.gov/lxr/source/atlas/PhysicsAnalysis/D3PDMaker/JetD3PDMaker/src/JetTrueTagFillerTool.cxx#045
-            tti = j.getTagInfo("TruthInfo")
+            tti = jet.tagInfo("TruthInfo")
             if tti:
                 tl = tti.jetTruthLabel()
                 j.truth_flavor = j.Light
