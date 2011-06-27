@@ -106,6 +106,9 @@ bin/%: root/%.cpp $(ROOT_OBJS) $(OBJS) $(PROTOCOBJ) $(wildcard ./root/%.h*) $(wi
 pyclean:
 	find . -iname "*.pyc" -exec rm {} \;
 
+depclean:
+	find . -iname "*.d" -exec rm {} \;
+
 protoclean:
 	rm -f $(PYINIT)
 	rm -f $(PROTOCPP)
@@ -117,8 +120,7 @@ objclean:
 	rm -f $(OBJS)
 	rm -f $(ROOT_OBJS)
 
-clean: pyclean objclean protoclean
-	find . -iname "*.d" -exec rm {} \;
+clean: objclean protoclean
 
 distclean: clean
 	rm $(PYDIR) -rf
