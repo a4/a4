@@ -36,6 +36,9 @@ message Electron
 
     repeated Trigger.TriggerName matched_trigger = 15;
 
+    optional double eta_s0 = 42;
+    optional double eta_s1 = 43;
     optional double eta_s2 = 40;
+    optional double eta_s3 = 44;
     optional double eta_pointing = 41;
 }
