@@ -412,6 +412,17 @@ if os.path.exists(a_local_directory):
 else:
     athena_setup(None, -1)
 
+# JVF fix by Scott Snyder
+from RecExConfig.RecFlags import rec
+rec.UserExecs = ["myjets()"]
+def myjets():
+    from JetRec.JetMomentGetter import make_JetMomentGetter
+
+    from JetMomentTools.SetupJetMomentTools import getJetVertexAssociationTool
+    jvatool = getJetVertexAssociationTool('AntiKt', 0.4, 'Topo') # parameters are irrelevant, these will work for any jets
+    make_JetMomentGetter( 'AntiKt4TopoJets' , [jvatool] ) 
+    make_JetMomentGetter( 'AntiKt4TopoEMJets' , [jvatool] ) 
+
 # do autoconfiguration of input
 include ("RecExCommon/RecExCommon_topOptions.py")
 
