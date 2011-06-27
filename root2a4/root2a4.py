@@ -54,11 +54,16 @@ def map_photons(objects):
     for new, old in objects:
         map_egamma(new, old)
         map_quality(Photon, new, old)
-        
+
+def map_hits(new, old):
+    if hasattr(old, "nPixHits"): new.numberOfPixelHits = old.nPixHits
+    if hasattr(old, "nSCTHits"): new.numberOfSCTHits = old.nSCTHits
+
 def map_electrons(objects):
     for new, old in objects:
         map_egamma(new, old)
         map_quality(Electron, new, old)
+        map_hits(new.track_hits, old)
         
 def map_triggers(Nevent, event):
     Nevent.triggers.add(name=Trigger.EF_2g20_loose, fired=event.EF._2g20_loose)
