@@ -32,4 +32,7 @@ message Electron
     optional DataQuality dq = 19;
 
     optional int32 vertex_index = 30;
+
+    optional double eta_s2 = 40;
+    optional double eta_pointing = 41;
 }

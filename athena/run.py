@@ -214,6 +214,13 @@ class AOD2A4(AOD2A4Base):
             e.p4.CopyFrom(make_lv(el))
             assert int(el.charge()) == el.charge()
             e.charge = int(el.charge())
+
+            if el.cluster():
+                e.eta_s2 = el.cluster().etaBE(2)
+            shower = el.__getattribute__("detail<EMShower>")()
+            if shower:
+                e.eta_pointing = shower.parameter(self.egammaParameters.etap)
+
             vx = el.origin()
             if vx:
                 #if vx.position():
