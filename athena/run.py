@@ -297,6 +297,9 @@ class AOD2A4(AOD2A4Base):
                 m.perigee_cmb.CopyFrom(self.perigee_z0_d0(trk))
                 m.ms_hits.CopyFrom(make_ms_track_hits(ctrk))
 
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<CombinedMuonFeature, INavigable4Momentum>")(mu)):
+                if chain in trigger_names[self.year]:
+                    m.matched_trigger.append(getattr(Trigger,chain))
             for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEFInfo, INavigable4Momentum>")(mu)):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger.append(getattr(Trigger,chain))
