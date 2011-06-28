@@ -4,6 +4,7 @@ import "Atlas/Isolation.proto";
 import "Atlas/ShowerShape.proto";
 import "Atlas/TrackHits.proto";
 import "Atlas/DataQuality.proto";
+import "Atlas/Trigger.proto";
 
 message Electron
 {
@@ -32,6 +33,8 @@ message Electron
     optional DataQuality dq = 19;
 
     optional int32 vertex_index = 30;
+
+    repeated Trigger.TriggerName matched_trigger = 15;
 
     optional double eta_s2 = 40;
     optional double eta_pointing = 41;

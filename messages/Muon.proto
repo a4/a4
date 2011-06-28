@@ -3,6 +3,7 @@ import "Physics.proto";
 import "Atlas/Isolation.proto";
 import "Atlas/ShowerShape.proto";
 import "Atlas/TrackHits.proto";
+import "Atlas/Trigger.proto";
 
 message Muon
 {
@@ -25,4 +26,6 @@ message Muon
     optional Perigee perigee_cmb = 13;
 
     optional int32 vertex_index = 30;
+
+    repeated Trigger.TriggerName matched_trigger = 15;
 }

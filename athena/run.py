@@ -205,6 +205,8 @@ class AOD2A4(AOD2A4Base):
 
         self.tool_ttv = PyAthena.py_tool("Reco::TrackToVertex", iface="Reco::ITrackToVertex")
         self.tool_tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
+        self.tool_tmt = PyAthena.py_tool("TrigMatchTool/TrigMatchTool")
+
  
     def electrons(self):
         els = []
@@ -249,6 +251,12 @@ class AOD2A4(AOD2A4Base):
                 e.track_hits.CopyFrom(make_track_hits(trk))
             if el.cluster():
                 e.p4_cluster.CopyFrom(make_lv(el.cluster()))
+
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigElectron, INavigable4Momentum>")(el)):
+                if chain in trigger_names[self.year]:
+                    e.matched_trigger.append(getattr(Trigger,chain))
+
+
             els.append(e)
         return els
 
@@ -288,6 +296,10 @@ class AOD2A4(AOD2A4Base):
             if ctrk:
                 m.perigee_cmb.CopyFrom(self.perigee_z0_d0(trk))
                 m.ms_hits.CopyFrom(make_ms_track_hits(ctrk))
+
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEFInfo, INavigable4Momentum>")(mu)):
+                if chain in trigger_names[self.year]:
+                    m.matched_trigger.append(getattr(Trigger,chain))
 
             mus.append(m)
         return mus
