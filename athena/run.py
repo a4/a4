@@ -367,6 +367,14 @@ class AOD2A4(AOD2A4Base):
         met.y = lht.ety()
         return met
 
+    def met_reffinal45(self):
+        met = MissingEnergy()
+        lht = self.sg["MET_RefFinal"]
+        reg = lht.getRegions()
+        met.x = reg.exReg(reg.Central) + reg.exReg(reg.EndCap) + reg.exReg(reg.Forward)
+        met.y = reg.eyReg(reg.Central) + reg.eyReg(reg.EndCap) + reg.eyReg(reg.Forward)
+        return met
+
     def met_lochadtopo(self, muon_algo = "Staco"):
         met = MissingEnergy()
         lht = self.sg["MET_LocHadTopo"]
@@ -396,6 +404,7 @@ class AOD2A4(AOD2A4Base):
 
         event.met_lochadtopo.CopyFrom(self.met_lochadtopo())
         event.met_reffinal.CopyFrom(self.met_reffinal())
+        event.met_reffinal45.CopyFrom(self.met_reffinal45())
 
         event.jets_antikt4h1topo.extend(self.jets("AntiKt4TopoJets"))
         event.jets_antikt4h1topoem.extend(self.jets("AntiKt4TopoEMJets"))
