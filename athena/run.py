@@ -385,6 +385,9 @@ class AOD2A4(AOD2A4Base):
         reg = lht.getRegions()
         met.x = reg.exReg(reg.Central) + reg.exReg(reg.EndCap) + reg.exReg(reg.Forward)
         met.y = reg.eyReg(reg.Central) + reg.eyReg(reg.EndCap) + reg.eyReg(reg.Forward)
+        met.sum_central = reg.etSumReg(reg.Central)
+        met.sum_endcap = reg.etSumReg(reg.EndCap)
+        met.sum_forward = reg.etSumReg(reg.Forward)
         return met
 
     def met_lochadtopo(self, muon_algo = "Staco"):

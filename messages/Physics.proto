@@ -20,6 +20,9 @@ message MissingEnergy
 {
     required double x = 1;
     required double y = 2;
+    optional sum_central = 3;
+    optional sum_endcap = 4;
+    optional sum_forward = 5;
 }
 
 
