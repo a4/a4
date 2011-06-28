@@ -27,12 +27,8 @@ class ALorentzVector
     inline double et() const {return E/p()*pt();}
     inline double e()  const {return E;}
     double eta() const {return 0.5*log((p() + pz)/(p() - pz));}
-    double phi() const
-    {
-        double r = atan2(py, px);
-        if(r < 0) r += 2*M_PI;
-        return r;
-    }
+    double phi() const {return atan2(py, px); };
+
     double delta_phi(const ALorentzVector &p) const
     {
         double d_phi = phi() - p.phi();
