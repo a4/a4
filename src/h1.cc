@@ -59,7 +59,8 @@ void H1::print(std::ostream &out) const
     out << "Entries: " << entries() << " Integral: " << integral() << endl;
 
     for(uint32_t bin = 0, bins = _axis.bins() + 2; bins > bin; ++bin)
-        out << "[" << setw(3) << bin << "]: " << *(_data.get() + bin) << endl;
+        //out << "[" << setw(3) << bin << "]: " << *(_data.get() + bin) << endl;
+        out << "[" << setw(3) << bin << "]: " << setiosflags(ios::fixed) << setprecision(3) << *(_data.get() + bin) << endl;
 }
 
 void H1::add(const H1 &source)
