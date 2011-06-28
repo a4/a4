@@ -28,7 +28,7 @@ def a4_tasks(todo, year = 2011, files_per_job=1):
 
     return tsks
 
-def a4_process(datasets_files, year=2011, files_per_job=10, dry_run=False):
+def a4_process(datasets_files, year=2011, files_per_job=2, dry_run=False):
     todo = []
     for datasets_file in datasets_files:
         dss = []

@@ -173,6 +173,7 @@ def make_ms_track_hits(tp):
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
 
 class AOD2A4(AOD2A4Base):
+    try_hfor = True
 
     def init(self):
         self.a4 = A4WriterStream(open(self.file_name, "w"), "Event", Event)
@@ -206,7 +207,7 @@ class AOD2A4(AOD2A4Base):
         self.tool_ttv = PyAthena.py_tool("Reco::TrackToVertex", iface="Reco::ITrackToVertex")
         self.tool_tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
         self.tool_tmt = PyAthena.py_tool("TrigMatchTool/TrigMatchTool")
-
+        self.tool_hfor= PyAthena.py_tool("HforTool",iface="IHforTool")
  
     def electrons(self):
         els = []
@@ -219,7 +220,7 @@ class AOD2A4(AOD2A4Base):
 
             if el.cluster():
                 e.eta_s2 = el.cluster().etaBE(2)
-            shower = el.__getattribute__("detail<EMShower>")()
+            shower = el.detail("EMShower")
             if shower:
                 e.eta_pointing = shower.parameter(self.egammaParameters.etap)
 
@@ -252,10 +253,9 @@ class AOD2A4(AOD2A4Base):
             if el.cluster():
                 e.p4_cluster.CopyFrom(make_lv(el.cluster()))
 
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigElectron, INavigable4Momentum>")(el)):
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigElectron, INavigable4Momentum>")(el, 0.15)):
                 if chain in trigger_names[self.year]:
                     e.matched_trigger.append(getattr(Trigger,chain))
-
 
             els.append(e)
         return els
@@ -297,12 +297,15 @@ class AOD2A4(AOD2A4Base):
                 m.perigee_cmb.CopyFrom(self.perigee_z0_d0(trk))
                 m.ms_hits.CopyFrom(make_ms_track_hits(ctrk))
 
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<CombinedMuonFeature, INavigable4Momentum>")(mu)):
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<CombinedMuonFeature, INavigable4Momentum>")(mu,0.15)):
                 if chain in trigger_names[self.year]:
-                    m.matched_trigger.append(getattr(Trigger,chain))
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEFInfo, INavigable4Momentum>")(mu)):
+                    m.matched_trigger_cmf.append(getattr(Trigger,chain))
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEFInfo, INavigable4Momentum>")(mu,0.15)):
                 if chain in trigger_names[self.year]:
-                    m.matched_trigger.append(getattr(Trigger,chain))
+                    m.matched_trigger_efi.append(getattr(Trigger,chain))
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEF, INavigable4Momentum>")(mu,0.15)):
+                if chain in trigger_names[self.year]:
+                    m.matched_trigger_ef.append(getattr(Trigger,chain))
 
             mus.append(m)
         return mus
@@ -349,6 +352,17 @@ class AOD2A4(AOD2A4Base):
             t = Trigger()
             t.name = getattr(t, tn)
             t.fired = self.tool_tdt.isPassed(tn)
+            #if t.fired:
+            #    cmf  = list(ana.tool_tdt.features(t.name).get("CombinedMuonFeature")())
+            #    mefi = list(ana.tool_tdt.features(t.name).get("TrigMuonEFInfo")())
+            #    mef  = list(ana.tool_tdt.features(t.name).get("TrigMuonEF")())
+            #    te   = list(ana.tool_tdt.features(t.name).get("TrigElectron")())
+            #    for f in te:
+            #        if f.empty()
+            #    for f in cmf:
+            #        ff = TriggerFeature()
+            #        
+            #        t.feature_muon_cmb.append(ff)
             triggers.append(t)
         return triggers
 
@@ -431,6 +445,16 @@ class AOD2A4(AOD2A4Base):
         event.muons_muid.extend(self.muons("Muid"))
         event.electrons.extend(self.electrons())
         #event.photons.extend(self.photons())
+
+        if self.try_hfor:
+            if not self.tool_hfor.execute().isFailure():
+                decision = self.tool_hfor.getDecision()
+                if decision == "":
+                    decision = "None"
+                event.hfor_decision = getattr(event, decision)
+            else:
+                self.try_hfor = False
+            
         self.a4.write(event)
         return PyAthena.StatusCode.Success
 

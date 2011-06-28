@@ -38,4 +38,13 @@ message Event
 
     optional int32 error_state_lar = 50;
 
+    enum HFORDecision {
+        None = 0;
+        isBB = 1;
+        isCC = 2;
+        isC = 3;
+        isLightFlavor = 4;
+        kill = 5;
+    }
+    optional HFORDecision hfor_decision = 60;
 }
