@@ -406,7 +406,7 @@ class AOD2A4(AOD2A4Base):
         event.met_reffinal.CopyFrom(self.met_reffinal())
         event.met_reffinal45.CopyFrom(self.met_reffinal45())
 
-        event.jets_antikt4h1topo.extend(self.jets("AntiKt4TopoJets"))
+        #event.jets_antikt4h1topo.extend(self.jets("AntiKt4TopoJets"))
         event.jets_antikt4h1topoem.extend(self.jets("AntiKt4TopoEMJets"))
 
         event.muons_staco.extend(self.muons("Staco"))
