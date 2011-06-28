@@ -301,10 +301,10 @@ class AOD2A4(AOD2A4Base):
             j.p4_em.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
             j.EMJES = jet.getMoment("EMJES")
             j.SV0 = jet.getFlavourTagWeight("SV0")
-            cc = jet->getMoment("BCH_CORR_CELL")
+            cc = jet.getMoment("BCH_CORR_CELL")
             if cc != 0:
                 j.BCH_CORR_CELL = cc
-            cj = jet->getMoment("BCH_CORR_JET")
+            cj = jet.getMoment("BCH_CORR_JET")
             if cj != 0:
                 j.BCH_CORR_JET = cj
             #http://alxr.usatlas.bnl.gov/lxr/source/atlas/PhysicsAnalysis/D3PDMaker/JetD3PDMaker/src/JetTrueTagFillerTool.cxx#045
