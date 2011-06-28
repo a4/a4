@@ -82,8 +82,7 @@ class A4ReaderStream(object):
         self.headers = {}
         self.footers = {}
         self.read_header()
-        while True:
-            self.read_footer(self.size)
+        while self.read_footer(self.size):
             self.in_stream.seek(-self.size, SEEK_END)
             self.read_header()
             first = False
@@ -105,7 +104,7 @@ class A4ReaderStream(object):
         if not END_MAGIC == self.in_stream.read(len(END_MAGIC)):
             print("File seems to be not closed!")
             self.in_stream.seek(0)
-            return None
+            return False
         self.in_stream.seek(-neg_offset - len(END_MAGIC) - 4, SEEK_END)
         footer_size, = unpack("<I", self.in_stream.read(4))
         footer_start = - neg_offset - len(END_MAGIC) - 4 - footer_size - 8
@@ -113,6 +112,7 @@ class A4ReaderStream(object):
         cls, footer = self.read_message()
         self.footers[footer_start] = footer
         self.size += footer.size - footer_start - neg_offset
+        return True
 
     def register(self, cls):
         self.numbering[cls.CLASS_ID_FIELD_NUMBER] = cls
