@@ -127,6 +127,7 @@ trigger_names = {
         ],
     2011 : [
         "EF_e20_medium",
+        "EF_mu18_MG",
         "EF_mu20_MG",
         "EF_e10_medium_mu6",
         "EF_2mu10",
