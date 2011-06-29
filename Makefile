@@ -27,12 +27,12 @@ ROOT_SOURCES  = $(wildcard ./root/*.C)
 ROOT_PROGS    = $(patsubst ./root/%.cpp,./bin/%,$(wildcard ./root/*.cpp))
 ROOT_OBJS     = $(patsubst ./root/%.C,$(OBJDIR)/%.o,$(ROOT_SOURCES))
 
-EXT_SOURCES  = $(wildcard ./external/*.C)
-EXT_OBJS     = $(patsubst ./external/%.C,$(OBJDIR)/%.o,$(EXT_SOURCES))
+EXT_SOURCES  = $(wildcard ./external/*.C) $(wildcard ./external/*.cxx)
+EXT_OBJS     = $(patsubst ./external/%.cxx,$(OBJDIR)/%.o,$(patsubst ./external/%.C,$(OBJDIR)/%.o,$(EXT_SOURCES)))
 
 ALL_SOURCES = $(PROTOCPP) $(SRCS) $(ROOT_SOURCES) $(EXT_SOURCES) $(wildcard ./root/*.cpp) $(wildcard ./src/*.cpp)
 
-all: py $(PROTOCPP) $(PROTOCOBJ) $(OBJS) $(PROGS) $(ROOT_PROGS)
+all: py $(PROTOCPP) $(PROTOCOBJ) $(OBJS) $(PROGS) $(ROOT_PROGS) $(EXT_OBJS)
 
 extobjs: $(EXT_OBJS)
 ######### DEPENDENCIES
@@ -42,7 +42,7 @@ SUFFIXES += .d
 # #We don't need to clean up when we're making these targets
 NODEPS := clean
 # #These are the dependency files, which make will clean up after it creates them
-DEPFILES := $(patsubst %.C,%.d,$(patsubst %.cc,%.d,$(patsubst %.cpp,%.d,$(ALL_SOURCES))))
+DEPFILES := $(patsubst %.cxx,%.d,$(patsubst %.C,%.d,$(patsubst %.cc,%.d,$(patsubst %.cpp,%.d,$(ALL_SOURCES)))))
 #
 # #Don't create dependencies when we're cleaning, for instance
 ifeq (0, $(words $(findstring $(MAKECMDGOALS), $(NODEPS))))
@@ -71,6 +71,10 @@ root/%.d: root/%.C
 external/%.d: external/%.C
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) -MM -MT '$(patsubst external/%.C,obj/%.o,$<)' $< > $@
+
+external/%.d: external/%.cxx
+	@mkdir -p $(dir $@)
+	$(CXX) $(ROOT_CXXFLAGS) -MM -MT '$(patsubst external/%.cxx,obj/%.o,$<)' $< > $@
 ######### END DEPENDENCIES
 
 rootobj: $(ROOT_OBJS)
@@ -93,23 +97,27 @@ $(OBJDIR)/%.o: $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.d $(CPPDIR)/%.pb.h
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -I./src/pb -c $< -o $@
 
-$(OBJDIR)/%.o: ./src/%.cc ./src/%.d $(wildcard ./src/%.h*) $(wildcard ./src/a4/%.h*)
+$(OBJDIR)/%.o: ./src/%.cc ./src/%.d
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)/%.o: ./root/%.C ./root/%.d $(wildcard ./root/%.h*) $(wildcard ./root/*/%.h*)
+$(OBJDIR)/%.o: ./root/%.C ./root/%.d
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) -c $< -o $@
 
-$(OBJDIR)/%.o: ./external/%.C ./external/%.d $(wildcard ./external/%.h*) $(wildcard ./external/*/%.h*)
+$(OBJDIR)/%.o: ./external/%.C ./external/%.d
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) -c $< -o $@
 
-bin/%: src/%.cpp src/%.d $(OBJS) $(PROTOCOBJ) $(wildcard ./src/%.h*)
+$(OBJDIR)/%.o: ./external/%.cxx ./external/%.d
+	@mkdir -p $(dir $@)
+	$(CXX) $(ROOT_CXXFLAGS) -c $< -o $@
+
+bin/%: src/%.cpp src/%.d $(OBJS) $(PROTOCOBJ)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) $(LIBS) $(filter %.o,$^) $< -o $@
 
-bin/%: root/%.cpp $(ROOT_OBJS) $(OBJS) $(PROTOCOBJ) $(wildcard ./root/%.h*) $(wildcard ./root/*/%.h*) $(EXT_OBJS)
+bin/%: root/%.cpp $(ROOT_OBJS) $(OBJS) $(PROTOCOBJ) $(EXT_OBJS)
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) $(ROOT_LDFLAGS) $(LIBS) $(filter %.o,$^) $< -o $@
 
