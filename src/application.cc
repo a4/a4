@@ -19,7 +19,7 @@ namespace po = boost::program_options;
 
 typedef vector<string> Inputs;
 
-int THREADS = -1;
+int THREADS = 0;
 
 int a4_main(int argc, char *argv[], ProcessingJob &job) 
 try
