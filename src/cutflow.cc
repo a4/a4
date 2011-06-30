@@ -59,8 +59,10 @@ void Cutflow::print(std::ostream &out) const
 
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
         if (_cut_names[i].size() != 0) {
-            out << std::setw(max_namelen) << _cut_names[i] << ":";
-            out << setiosflags(ios::fixed) << setprecision(3) << _fast_access_bin[i] << endl;
+            out << std::setw(15) << setiosflags(ios::fixed) << setprecision(3) << _fast_access_bin[i];
+            out << " | ";
+            out << _cut_names[i];
+            out << endl;
         }
     }
 }
