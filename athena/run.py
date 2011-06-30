@@ -254,9 +254,10 @@ class AOD2A4(AOD2A4Base):
             if el.cluster():
                 e.p4_cluster.CopyFrom(make_lv(el.cluster()))
 
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigElectron, INavigable4Momentum>")(el, 0.15)):
-                if chain in trigger_names[self.year]:
-                    e.matched_trigger.append(getattr(Trigger,chain))
+            if trk:
+                for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigElectron, INavigable4Momentum>")(trk, 0.15)):
+                    if chain in trigger_names[self.year]:
+                        e.matched_trigger.append(getattr(Trigger,chain))
 
             els.append(e)
         return els
