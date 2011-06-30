@@ -7,12 +7,33 @@ import "Electron.proto";
 import "Muon.proto";
 import "Jet.proto";
 
+enum Stream {
+    express = 0;
+    ZeroBias = 1;
+    MinBias = 2;
+    Background = 3;
+    CosmicCalo = 4;
+    JetTauEtmiss = 5;
+    Muons = 6;
+    Egamma = 7;
+    Standby = 8;
+
+    // 2010 only streams
+    MuonswBeam = 10;
+    CosmicCaloEM = 11;
+    L1Calo = 12;
+    L1CaloEM = 13;
+    RNDM = 14;
+}
+
 message Event
 {
     optional int32 CLASS_ID = 1001;
     optional int32 run_number = 1;
     optional int32 event_number = 2;
     optional int32 lumi_block = 3;
+    optional int32 bunch_crossing_id = 12;
+    repeated Stream stream_tag = 13;
 
     optional double mc_event_weight = 4 [default = 1.0];
     optional double scale_factor = 15 [default = 1.0];

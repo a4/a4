@@ -83,7 +83,15 @@ class AOD2A4Base(PyAthena.Alg):
         event.event_number = self.event_info.event_ID().event_number()
         event.run_number = self.event_info.event_ID().run_number()
         event.lumi_block = self.event_info.event_ID().lumi_block()
+        event.bunch_crossing_id = self.event_info.event_ID().bunch_crossing_id()
         event.error_state_lar = self.event_info.errorState(self.event_info.LAr)
+
+        if not self.is_mc:
+            s_tags = self.event_info.trigger_info().streamTags()
+            for t in list(stags):
+                name = t.name()
+                if hasattr(Event_pb2, name):
+                    event.stream_tag.add(getattr(Event_pb2, name))
 
         if self.is_mc:
             event_weight = 1.0
