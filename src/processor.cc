@@ -2,6 +2,8 @@
 
 #include <boost/format.hpp>
 
+#include <stdexcept>
+
 #include "a4/h1.h"
 #include "a4/processor.h"
 #include "a4/results.h"
@@ -63,7 +65,7 @@ ProcessorPtr ProcessingJob::get_configured_processor() {
             fs::path out_file_path(_output);
             p->init_output(out_file_path);
         } else {
-            throw "More than one processor without threads? Madness!";
+            throw std::runtime_error("More than one processor without threads? Madness!");
         }
     }
     return p;

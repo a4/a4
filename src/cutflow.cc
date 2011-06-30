@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <iomanip>
 #include <algorithm>
+#include <stdexcept>
 #include <inttypes.h>
 
 using std::max;
@@ -77,7 +78,7 @@ void Cutflow::add(const Cutflow &source)
             _cut_names[i] = source._cut_names[i];
             _fast_access_bin[i] = source._fast_access_bin[i];
         } else if (_cut_names[i] != source._cut_names[i]) {
-            throw "Trying to add Cutflows with unequal cut names!";
+            throw std::runtime_error("Trying to add Cutflows with unequal cut names!");
         } else {
             _fast_access_bin[i] += source._fast_access_bin[i];
         }

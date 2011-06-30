@@ -3,11 +3,13 @@
 
 #include <a4/grl.h>
 
+#include <stdexcept>
+
 using namespace std;
 
 GRL::GRL(const string & fn) {
     ifstream in(fn.c_str(), ios::in);
-    if (!in) throw "Could not open GRL";
+    if (!in) throw runtime_error("Could not open GRL file!");
     uint32_t run, start, end;
     while(in >> run >> start >> end) {
         _data[run].insert(LBRange(end, start));
