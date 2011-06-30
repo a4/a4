@@ -10,7 +10,7 @@ from ROOT import gROOT, TLorentzVector
 from array import array
 from glob import glob
 
-from a4.messages import Trigger, Isolation, TrackHits, MuonTrackHits
+from a4.messages import Trigger, TriggerFeature, Isolation, TrackHits, MuonTrackHits
 from a4.messages import Electron, Muon, Photon, Jet, Event
 from a4.messages import LorentzVector, Vertex, MissingEnergy, Perigee
 
@@ -354,17 +354,26 @@ class AOD2A4(AOD2A4Base):
             t = Trigger()
             t.name = getattr(t, tn)
             t.fired = self.tool_tdt.isPassed(tn)
-            #if t.fired:
-            #    cmf  = list(ana.tool_tdt.features(t.name).get("CombinedMuonFeature")())
-            #    mefi = list(ana.tool_tdt.features(t.name).get("TrigMuonEFInfo")())
-            #    mef  = list(ana.tool_tdt.features(t.name).get("TrigMuonEF")())
-            #    te   = list(ana.tool_tdt.features(t.name).get("TrigElectron")())
-            #    for f in te:
-            #        if f.empty()
-            #    for f in cmf:
-            #        ff = TriggerFeature()
-            #        
-            #        t.feature_muon_cmb.append(ff)
+            if t.fired:
+                te  = list(ana.tool_tmt.__getattribute__("getTriggerObjects<TrigElectron>")(tn, True))
+                tp  = list(ana.tool_tmt.__getattribute__("getTriggerObjects<TrigPhoton>")(tn, True))
+                tme = list(ana.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEF>")(tn, True))
+                mf  = list(ana.tool_tmt.__getattribute__("getTriggerObjects<MuonFeature>")(tn, True))
+                cmf = list(ana.tool_tmt.__getattribute__("getTriggerObjects<CombinedMuonFeature>")(tn, True))
+
+                def make_tf(feature):
+                    ff = TriggerFeature()
+                    ff.eta = feature.eta()
+                    ff.phi = feature.phi()
+                    ff.pt = feature.pt()
+                    return ff
+
+                t.features_trig_electron.extend(make_tf(f) for f in te)
+                t.features_trig_photon.extend(make_tf(f) for f in tp)
+                t.features_trig_muon_ef.extend(make_tf(f) for f in tme)
+                t.features_muon.extend(make_tf(f) for f in mf)
+                t.features_muon_combined.extend(make_tf(f) for f in cmf)
+ 
             triggers.append(t)
         return triggers
 
