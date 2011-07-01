@@ -31,8 +31,12 @@ class A4WriterStream(object):
             self.content_type = None
         self.write(header)
 
-    def write_footer(self):
+    def write_footer(self, metadata=None):
         footer = A4StreamFooter()
+        if metadata:
+            self.write(metadata)
+            meta_size = metadata.ByteSize()
+            footer.metadata_offset = meta_size
         footer.size = self.bytes_written
         if self.content_type:
             footer.content_count = self.content_count
@@ -47,8 +51,8 @@ class A4WriterStream(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def close(self):
-        self.write_footer()
+    def close(self, metadata):
+        self.write_footer(metadata)
         return self.out_stream.close()
 
     def flush(self):

@@ -1,30 +1,13 @@
 import "Physics.proto";
 
 import "Atlas/Trigger.proto";
+import "Atlas/EventStreamInfo.proto";
 
 import "Photon.proto";
 import "Electron.proto";
 import "Muon.proto";
 import "Jet.proto";
 
-enum Stream {
-    express = 0;
-    ZeroBias = 1;
-    MinBias = 2;
-    Background = 3;
-    CosmicCalo = 4;
-    JetTauEtmiss = 5;
-    Muons = 6;
-    Egamma = 7;
-    Standby = 8;
-
-    // 2010 only streams
-    MuonswBeam = 10;
-    CosmicCaloEM = 11;
-    L1Calo = 12;
-    L1CaloEM = 13;
-    RNDM = 14;
-}
 
 message Event
 {

@@ -1,6 +1,6 @@
 from logging import getLogger; log = getLogger("a4")
 
-
+from a4.messages import Atlas, EventStreamInfo
 
 from AthenaPython import PyAthena
 
@@ -51,6 +51,10 @@ class AOD2A4Base(PyAthena.Alg):
         self.file_name = options.get("file_name", "events.a4")
         self.is_mc = None
         self.event_info_key = None
+
+        self.possible_streams = None
+        self.runs_encountered = dict()
+        self.lbs_encountered = dict()
         
     def initialize(self):
         log.info("Initialize AOD2A4")
@@ -86,12 +90,26 @@ class AOD2A4Base(PyAthena.Alg):
         event.bunch_crossing_id = self.event_info.event_ID().bunch_crossing_id()
         event.error_state_lar = self.event_info.errorState(self.event_info.LAr)
 
+
+        if not event.run_number in self.runs_encountered:
+            self.runs_encountered[event.run_number] = 0
+            self.lbs_encountered[event.run_number] = set()
+        self.runs_encountered[event.run_number] += 1
+
         if not self.is_mc:
-            s_tags = self.event_info.trigger_info().streamTags()
+            self.lbs_encountered[event.run_number].add(event.lumi_block)
+
+            s_tags = [t.name() for t in self.event_info.trigger_info().streamTags()]
+            if self.possible_streams is None:
+                self.possible_streams = set(s_tags)
+            elif len(self.possible_streams) > 0:
+                self.possible_streams = set(s for s in self.possible_streams if s in s_tags)
+
             for t in list(stags):
                 name = t.name()
-                if hasattr(Event_pb2, name):
-                    event.stream_tag.add(getattr(Event_pb2, name))
+                if hasattr(Atlas.EventStreamInfo_pb2, name):
+                    event.stream_tag.add(getattr(Atlas.EventStreamInfo_pb2, name))
+
 
         if self.is_mc:
             event_weight = 1.0
@@ -110,4 +128,23 @@ class AOD2A4Base(PyAthena.Alg):
             self.sum_mc_event_weights += event_weight
         self.number_events += 1
 
-
+    def finalize(self):
+        log.info("Finalizing AOD2A4")
+        meta = EventStreamInfo()
+        total_events = 0
+        for run in sorted(self.runs_encountered.keys()):
+            ri = RunInfo()
+            ri.run_number = run
+            ri.event_count = self.runs_encountered[run]
+            for lb in sorted(self.lbs_encountered[run]):
+                ri.lumi_block.append(lb)
+            if self.possible_streams:
+                for s in sorted(self.possible_streams):
+                    if hasattr(Atlas.EventStreamInfo_pb2, s):
+                        ri.stream.append(getattr(Atlas.EventStreamInfo_pb2, name))
+            meta.run_info.append(ri)
+            total_events += self.runs_encountered[run]
+        meta.total_events = total_events
+        meta.simulation = self.is_mc
+        self.a4.close(meta)
+        return PyAthena.StatusCode.Success

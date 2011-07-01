@@ -469,10 +469,7 @@ class AOD2A4(AOD2A4Base):
         self.a4.write(event)
         return PyAthena.StatusCode.Success
 
-    def finalize(self):
-        log.info("Finalizing AOD2A4")
-        self.a4.close()
-        return PyAthena.StatusCode.Success
+
 
 if not "options" in dir():
     raise RuntimeError("No options set!")
