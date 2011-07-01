@@ -21,7 +21,7 @@ class ALorentzVector
     double p2()  const {return px*px + py*py + pz*pz;}
     double pt()  const {return sqrt(px*px + py*py);}
     double m2()  const {return (E - p()) * (E + p());}
-    double m()   const {return sqrt((E - p()) * (E + p()));}
+    double m()   const {double msq = m2(); return msq < 0 ? -sqrt(-msq) : sqrt(msq);}///sqrt(fabs(msq));}
     double mt()  const {return sqrt((E - pz)  * (E + pz));}
     double y()   const {return 0.5*log((E + pz)/(E - pz));}
     inline double et() const {return E/p()*pt();}
