@@ -1,0 +1,34 @@
+
+enum Stream {
+    express = 0;
+    ZeroBias = 1;
+    MinBias = 2;
+    Background = 3;
+    CosmicCalo = 4;
+    JetTauEtmiss = 5;
+    Muons = 6;
+    Egamma = 7;
+    Standby = 8;
+
+    // 2010 only streams
+    MuonswBeam = 10;
+    CosmicCaloEM = 11;
+    L1Calo = 12;
+    L1CaloEM = 13;
+    RNDM = 14;
+}
+
+message RunInfo 
+{
+    required int32 run_number = 1;
+    required int32 event_count = 2;
+    repeated int32 lumi_blocks = 3;
+    repeated Stream stream = 4;
+}
+
+message EventStreamInfo 
+{
+    optional bool simulation = 3;
+    repeated RunInfo run_info = 4;
+    optional int32 total_events = 2;
+}
