@@ -36,6 +36,9 @@ message Event
     optional MissingEnergy met_lochadtopo = 30;
     optional MissingEnergy met_reffinal = 31;
     optional MissingEnergy met_reffinal45 = 32;
+    optional MissingEnergy met_muonboy = 33;
+    optional MissingEnergy met_muid = 34;
+    optional MissingEnergy met_refmuon_track = 35;
 
     repeated Jet jets_antikt4h1topo = 40;
     repeated Jet jets_antikt4h1topoem = 41;

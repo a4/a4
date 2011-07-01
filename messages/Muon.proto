@@ -30,4 +30,5 @@ message Muon
     repeated Trigger.TriggerName matched_trigger_cmf = 40;
     repeated Trigger.TriggerName matched_trigger_efi = 41;
     repeated Trigger.TriggerName matched_trigger_ef = 42;
+    repeated Trigger.TriggerName matched_trigger_mf = 43;
 }

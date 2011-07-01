@@ -308,6 +308,9 @@ class AOD2A4(AOD2A4Base):
             for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEF, INavigable4Momentum>")(mu,0.15)):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger_ef.append(getattr(Trigger,chain))
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<MuonFeature, INavigable4Momentum>")(mu,0.15)):
+                if chain in trigger_names[self.year]:
+                    m.matched_trigger_mf.append(getattr(Trigger,chain))
 
             mus.append(m)
         return mus
@@ -413,9 +416,16 @@ class AOD2A4(AOD2A4Base):
         reg = lht.getRegions()
         met.x = reg.exReg(reg.Central) + reg.exReg(reg.EndCap) + reg.exReg(reg.Forward)
         met.y = reg.eyReg(reg.Central) + reg.eyReg(reg.EndCap) + reg.eyReg(reg.Forward)
-        met.sum_central = reg.etSumReg(reg.Central)
-        met.sum_endcap = reg.etSumReg(reg.EndCap)
-        met.sum_forward = reg.etSumReg(reg.Forward)
+        met.sum = reg.etSumReg(reg.Central) + reg.etSumReg(reg.EndCap) + reg.etSumReg(reg.Forward)
+        met.met_central.x = reg.exReg(reg.Central); 
+        met.met_central.y = reg.eyReg(reg.Central); 
+        met.met_central.sum = reg.etSumReg(reg.Central); 
+        met.met_endcap.x = reg.exReg(reg.EndCap); 
+        met.met_endcap.y = reg.eyReg(reg.EndCap); 
+        met.met_endcap.sum = reg.etSumReg(reg.EndCap); 
+        met.met_forward.x = reg.exReg(reg.Forward); 
+        met.met_forward.y = reg.eyReg(reg.Forward);
+        met.met_forward.sum = reg.etSumReg(reg.Forward);
         return met
 
     def met_lochadtopo(self, muon_algo = "Staco"):
@@ -424,12 +434,32 @@ class AOD2A4(AOD2A4Base):
         reg = lht.getRegions()
         newMET_LocHadTopo_etx = reg.exReg(reg.Central) + reg.exReg(reg.EndCap) + reg.exReg(reg.Forward)
         newMET_LocHadTopo_ety = reg.eyReg(reg.Central) + reg.eyReg(reg.EndCap) + reg.eyReg(reg.Forward)
+        newMET_LocHadTopo_etsum = reg.etSumReg(reg.Central) + reg.etSumReg(reg.EndCap) + reg.etSumReg(reg.Forward)
         if muon_algo == "Staco":
             midmet = "MET_MuonBoy"
         else:
             midmet = "MET_Muid"
         met.x = newMET_LocHadTopo_etx + self.sg[midmet].etx() - self.sg["MET_RefMuon_Track"].etx()
         met.y = newMET_LocHadTopo_ety + self.sg[midmet].ety() - self.sg["MET_RefMuon_Track"].ety()
+        met.sum = newMET_LocHadTopo_etsum + self.sg[midmet].sumet() - self.sg["MET_RefMuon_Track"].sumet()
+
+        met.met_central.x = reg.exReg(reg.Central); 
+        met.met_central.y = reg.eyReg(reg.Central); 
+        met.met_central.sum = reg.etSumReg(reg.Central); 
+        met.met_endcap.x = reg.exReg(reg.EndCap); 
+        met.met_endcap.y = reg.eyReg(reg.EndCap); 
+        met.met_endcap.sum = reg.etSumReg(reg.EndCap); 
+        met.met_forward.x = reg.exReg(reg.Forward); 
+        met.met_forward.y = reg.eyReg(reg.Forward);
+        met.met_forward.sum = reg.etSumReg(reg.Forward);
+        return met
+
+    def met_named(self, name):
+        met = MissingEnergy()
+        met.x = self.sg[name].etx();
+        met.y = self.sg[name].ety();
+        met.sum = self.sg[name].sumet();
+
         return met
 
     def met(self):
@@ -448,6 +478,9 @@ class AOD2A4(AOD2A4Base):
         event.met_lochadtopo.CopyFrom(self.met_lochadtopo())
         event.met_reffinal.CopyFrom(self.met_reffinal())
         event.met_reffinal45.CopyFrom(self.met_reffinal45())
+        event.met_muonboy.CopyFrom(self.met_named("MET_MuonBoy"))
+        event.met_muid.CopyFrom(self.met_named("MET_Muid"))
+        event.met_refmuon_track.CopyFrom(self.met_named("MET_RefMuon_Track"))
 
         #event.jets_antikt4h1topo.extend(self.jets("AntiKt4TopoJets"))
         event.jets_antikt4h1topoem.extend(self.jets("AntiKt4TopoEMJets"))
