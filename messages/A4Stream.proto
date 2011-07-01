@@ -12,6 +12,7 @@ message A4StreamFooter
     optional int32 CLASS_ID = 101;
     required int64 size = 1; // number of bytes written before the footer
     optional int32 content_count = 2; // number of 'content' events
+    optional int32 metadata_offset = 3; // size of the metadata message before this footer
 }
 
 message A4StartCompressedSection
