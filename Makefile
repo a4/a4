@@ -128,10 +128,9 @@ depclean:
 	find . -iname "*.d" -exec rm {} \;
 
 protoclean:
-	rm -f $(PYINIT)
-	rm -f $(PROTOCPP)
-	rm -f $(PROTOPY)
-	rm -f $(PROTOCOBJ)
+	rm -rf python/a4/messages/*
+	rm -rf obj/*
+	rm -rf src/pb/*
 
 objclean:
 	rm -f $(PROTOCOBJ)
