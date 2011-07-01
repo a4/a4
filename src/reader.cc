@@ -110,5 +110,5 @@ bool Reader::read_event(Event &event)
             return false;
             //return read_event(event);
     }
-    return false; // unknown type
+    return read_event(event); // unknown type, skip and read next event
 }

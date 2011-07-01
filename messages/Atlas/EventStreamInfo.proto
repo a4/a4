@@ -28,6 +28,7 @@ message RunInfo
 
 message EventStreamInfo 
 {
+    optional int32 CLASS_ID = 1002;
     optional bool simulation = 3;
     repeated RunInfo run_info = 4;
     optional int32 total_events = 2;
