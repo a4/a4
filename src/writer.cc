@@ -72,15 +72,14 @@ bool Writer::write(Message &msg)
 
     uint32_t type = msg.GetDescriptor()->FindFieldByName("CLASS_ID")->number();
     uint32_t size = message.size();
-    if (type == _content_type) _content_count++;
-    if (type != _previous_type) {
+    if (type == _content_type) {
+        _content_count++;
+        _coded_out->WriteLittleEndian32(size);
+        _bytes_written += 4;
+    } else {
         _coded_out->WriteLittleEndian32(size | HIGH_BIT );
         _coded_out->WriteLittleEndian32(type);
         _bytes_written += 8;
-        _previous_type = type;
-    } else {
-        _coded_out->WriteLittleEndian32(size);
-        _bytes_written += 4;
     }
 
     _coded_out->WriteString(message);

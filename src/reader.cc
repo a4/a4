@@ -41,12 +41,13 @@ bool Reader::read_header()
     if (!_coded_in->ReadLittleEndian32(&size))
         return false;
 
+    uint32_t message_type = 0;
     if (size & HIGH_BIT) {
         size = size & (HIGH_BIT - 1);
-        if (!_coded_in->ReadLittleEndian32(&_current_type))
+        if (!_coded_in->ReadLittleEndian32(&message_type))
             return false;
     }
-    if (!_current_type == A4StreamHeader::kCLASSIDFieldNumber)
+    if (!message_type == A4StreamHeader::kCLASSIDFieldNumber)
         return false;
 
     string message;
@@ -57,7 +58,9 @@ bool Reader::read_header()
     if (!h.ParseFromString(message))
         return false;
 
-    // now ignore the message!
+    // get the main content type from the header
+    _content_type = h.content_type();
+
     return true;
 }
 
@@ -69,9 +72,10 @@ bool Reader::read_event(Event &event)
     if (!_coded_in->ReadLittleEndian32(&size))
         return false;
 
+    uint32_t message_type = _content_type;
     if (size & HIGH_BIT) {
         size = size & (HIGH_BIT - 1);
-        if (!_coded_in->ReadLittleEndian32(&_current_type))
+        if (!_coded_in->ReadLittleEndian32(&message_type))
             return false;
     }
 
@@ -80,7 +84,7 @@ bool Reader::read_event(Event &event)
         return false;
 
     string magic;
-    switch(_current_type) {
+    switch(message_type) {
         case Event::kCLASSIDFieldNumber:
             if (!event.ParseFromString(message))
                 return false;
@@ -90,7 +94,6 @@ bool Reader::read_event(Event &event)
             // TODO: Process footer
             if (!_coded_in->ReadLittleEndian32(&size))
                 return false;
-
             if (!_coded_in->ReadString(&magic, 8))
                 return false;
             //cout << "read magic " << magic << endl;

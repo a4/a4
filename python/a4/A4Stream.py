@@ -14,7 +14,6 @@ class A4WriterStream(object):
     def __init__(self, out_stream, content=None, content_cls=None):
         self.bytes_written = 0
         self.content_count = 0
-        self.previous_type = 0
         self.content_type = None
         self.out_stream = out_stream
         self.write_header(content, content_cls)
@@ -65,11 +64,10 @@ class A4WriterStream(object):
             self.content_count += 1
         assert 0 <= size < HIGH_BIT, "Message size not in range!"
         assert 0 < type < HIGH_BIT, "Type ID not in range!"
-        if type != self.previous_type:
+        if type != self.content_type:
             self.out_stream.write(pack("<I", size | HIGH_BIT))
             self.out_stream.write(pack("<I", type))
             self.bytes_written += 8
-            self.previous_type = type
         else:
             self.out_stream.write(pack("<I", size))
             self.bytes_written += 4
@@ -80,7 +78,6 @@ class A4WriterStream(object):
 class A4ReaderStream(object):
     def __init__(self, in_stream):
         self.numbering = dict(numbering)
-        self.previous_type = None
         self.in_stream = in_stream
         self.size = 0
         self.headers = {}
@@ -144,9 +141,8 @@ class A4ReaderStream(object):
         if size & HIGH_BIT:
             size = size & (HIGH_BIT - 1)
             type,  = unpack("<I", self.in_stream.read(4))
-            self.previous_type = type
         else:
-            type = self.previous_type
+            type = self.content_type
         cls = self.numbering[type]
         return cls, cls.FromString(self.in_stream.read(size))
 

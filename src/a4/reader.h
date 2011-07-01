@@ -36,7 +36,7 @@ class Reader
         bool _is_good;
         uint32_t _events_stored;
         uint32_t _events_read;
-        uint32_t _current_type;
+        uint32_t _content_type;
 };
 
 #endif
