@@ -29,12 +29,20 @@ class ALorentzVector
     double eta() const {return 0.5*log((p() + pz)/(p() - pz));}
     double phi() const {return atan2(py, px); };
 
-    double delta_phi(const ALorentzVector &p) const
+    double delta_phi(const double & p_phi) const
     {
-        double d_phi = phi() - p.phi();
+        double d_phi = phi() - p_phi;
         while (d_phi >= M_PI) d_phi -= 2*M_PI;
         while (d_phi < -M_PI) d_phi += 2*M_PI;
         return d_phi;
+    }
+    double delta_phi(const ALorentzVector &p) const { return delta_phi(p.phi()); };
+
+    double delta_r(const double & p_eta, const double & p_phi) const
+    {
+        double d_eta = eta() - p_eta;
+        double d_phi = delta_phi(p_phi);
+        return sqrt(d_eta*d_eta + d_phi*d_phi);
     }
     double delta_r(const ALorentzVector &p) const
     {
