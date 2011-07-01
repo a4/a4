@@ -73,7 +73,7 @@ void Cutflow::add(const Cutflow &source)
         _fast_access_bin.resize(source._cut_names.size());
         _cut_names.resize(source._cut_names.size());
     }
-    for(uint32_t i = 0; i < _cut_names.size(); i++) {
+    for(uint32_t i = 0; i < source._cut_names.size(); i++) {
         if (source._cut_names[i].size() == 0) {
             // do nothing
         } else if (_cut_names[i].size() == 0) {
