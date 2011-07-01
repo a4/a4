@@ -24,7 +24,7 @@ message Trigger
         EF_2mu10 = 12;
         EF_2e12_medium = 13;
         EF_2g20_loose = 14;
-        EF_mu40_MSOnly_barrel = 15;
+        EF_mu40_MSonly_barrel = 15;
     }
 
     required TriggerName name = 1;
