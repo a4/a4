@@ -14,7 +14,7 @@ class A4WriterStream(object):
     def __init__(self, out_stream, content=None, content_cls=None):
         self.bytes_written = 0
         self.content_count = 0
-        self.content_type = None
+        self.content_class_id = None
         self.out_stream = out_stream
         self.write_header(content, content_cls)
 
@@ -24,10 +24,11 @@ class A4WriterStream(object):
         header = A4StreamHeader()
         header.a4_version = 1
         if content_name:
+            self.content_class_id = content_cls.CLASS_ID_FIELD_NUMBER
             header.content = content_name
-            self.content_type = content_cls.CLASS_ID_FIELD_NUMBER
+            header.content_class_id = self.content_class_id
         else:
-            self.content_type = None
+            self.content_class_id = None
         self.write(header)
 
     def write_footer(self, metadata=None):
@@ -37,7 +38,7 @@ class A4WriterStream(object):
             meta_size = metadata.ByteSize()
             footer.metadata_offset = meta_size
         footer.size = self.bytes_written
-        if self.content_type:
+        if self.content_class_id:
             footer.content_count = self.content_count
         self.write(footer)
         self.out_stream.write(pack("<I", footer.ByteSize()))
@@ -60,11 +61,11 @@ class A4WriterStream(object):
     def write(self, o):
         type = o.CLASS_ID_FIELD_NUMBER
         size = o.ByteSize()
-        if type == self.content_type:
+        if type == self.content_class_id:
             self.content_count += 1
         assert 0 <= size < HIGH_BIT, "Message size not in range!"
         assert 0 < type < HIGH_BIT, "Type ID not in range!"
-        if type != self.content_type:
+        if type != self.content_class_id:
             self.out_stream.write(pack("<I", size | HIGH_BIT))
             self.out_stream.write(pack("<I", type))
             self.bytes_written += 8
@@ -98,6 +99,10 @@ class A4ReaderStream(object):
         assert START_MAGIC == self.in_stream.read(len(START_MAGIC)), "Not an A4 file!"
         cls, header = self.read_message()
         assert header.a4_version == 1, "Incompatible stream version :( Upgrade your client?"
+        if header.content_class_id:
+            self.content_class_id = header.content_class_id
+        else:
+            self.content_class_id = 1001 # class id of Event for legacy files
         self.headers[header_position] = header
 
     def read_footer(self, neg_offset=0):
@@ -142,7 +147,7 @@ class A4ReaderStream(object):
             size = size & (HIGH_BIT - 1)
             type,  = unpack("<I", self.in_stream.read(4))
         else:
-            type = self.content_type
+            type = self.content_class_id
         cls = self.numbering[type]
         return cls, cls.FromString(self.in_stream.read(size))
 

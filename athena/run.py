@@ -514,7 +514,7 @@ if os.path.exists(a_local_directory):
         input = glob(options["input"]) 
     else:
         input = glob("/data/etp/ebke/data/*109074*/*")
-    athena_setup(input, 5000)
+    athena_setup(input, 1000)
 else:
     athena_setup(None, -1)
 
