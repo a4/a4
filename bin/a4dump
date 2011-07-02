@@ -14,6 +14,7 @@ if len(argv) == 3:
 
 r = A4ReaderStream(open(fn))
 r.register(Event)
+r.register(EventStreamInfo)
 print("%s: %s" % (fn, r.info()))
 print("Object at index %i:" % (index))
 print("--------------------")
