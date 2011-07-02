@@ -105,10 +105,10 @@ class AOD2A4Base(PyAthena.Alg):
             elif len(self.possible_streams) > 0:
                 self.possible_streams = set(s for s in self.possible_streams if s in s_tags)
 
-            for t in list(stags):
-                name = t.name()
-                if hasattr(Atlas.EventStreamInfo_pb2, name):
-                    event.stream_tag.add(getattr(Atlas.EventStreamInfo_pb2, name))
+            event.stream_tag.extend(
+                getattr(Atlas.EventStreamInfo_pb2, name) for name in list(s_tags) 
+                if hasattr(Atlas.EventStreamInfo_pb2, name)
+            )
 
 
         if self.is_mc:
@@ -136,12 +136,13 @@ class AOD2A4Base(PyAthena.Alg):
             ri = meta.run_info.add()
             ri.run_number = run
             ri.event_count = self.runs_encountered[run]
-            for lb in sorted(self.lbs_encountered[run]):
-                ri.lumi_block.append(lb)
+            ri.lumi_blocks.extend(sorted(self.lbs_encountered[run]))
             if self.possible_streams:
+                streams = []
                 for s in sorted(self.possible_streams):
                     if hasattr(Atlas.EventStreamInfo_pb2, s):
-                        ri.stream.append(getattr(Atlas.EventStreamInfo_pb2, name))
+                        streams.append(getattr(Atlas.EventStreamInfo_pb2, s))
+                ri.stream.extend(streams)
             total_events += self.runs_encountered[run]
         meta.total_events = total_events
         meta.simulation = self.is_mc
