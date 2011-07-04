@@ -1,9 +1,10 @@
 from struct import pack, unpack
 
 from messages.A4Stream_pb2 import A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection
+from messages import EventStreamInfo
 
 numbering = dict((cls.CLASS_ID_FIELD_NUMBER, cls) for cls in 
-                 (A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection))
+                 (A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection, EventStreamInfo))
 
 START_MAGIC = "A4STREAM"
 END_MAGIC = "KTHXBYE4"
@@ -83,6 +84,7 @@ class A4ReaderStream(object):
         self.size = 0
         self.headers = {}
         self.footers = {}
+        self.metadata = {}
         self.read_header()
         while self.read_footer(self.size):
             self.in_stream.seek(-self.size, SEEK_END)
@@ -118,6 +120,14 @@ class A4ReaderStream(object):
         cls, footer = self.read_message()
         self.footers[footer_start] = footer
         self.size += footer.size - footer_start - neg_offset
+
+        # get metadata from footer
+        if footer.metadata_offset:
+            metadata_start = footer_start - footer.metadata_offset - 8
+            self.in_stream.seek(metadata_start, SEEK_END)
+            cls, metadata = self.read_message()
+            self.metadata[metadata_start] = metadata
+
         return True
 
     def register(self, cls):
@@ -139,6 +149,13 @@ class A4ReaderStream(object):
             else:
                 ms = ""
             info.append("%i %s%s" % (cccd[content], content, ms))
+
+        if self.metadata:
+            info.append("\n")
+        for index in sorted(self.metadata):
+            info.append("Metadata at %s\n" % index)
+            info.append(str(self.metadata[index]))
+            info.append("\n")
         return ", ".join(info)
 
     def read_message(self):
