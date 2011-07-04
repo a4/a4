@@ -42,6 +42,7 @@ class Processor : public Worker
 
         // You should not need to touch the rest...
         void init_output(const fs::path &outfile);
+        void event_passed(Event &);
 
         virtual uint32_t eventsRead() const {return _events_read;};
         virtual uint32_t eventsReadInLastFile() const {return _events_read_in_last_file;};

@@ -9,12 +9,14 @@
 
 #include <inttypes.h>
 #include <a4/axis.h>
+#include <a4/streamable.h>
 
-class H1
+class H1 : public streamable
 {
     public:
         H1(const uint32_t &bins, const double &min, const double &max);
         H1(const H1 &);
+        H1(Message &);
         ~H1();
 
         void fill(const double &, const double &weight = 1);
@@ -30,6 +32,8 @@ class H1
 
         typedef boost::shared_array<double> DataPtr;
         const DataPtr data() const {return _data;}; //TODO: only for copyin into TH1D
+
+        virtual MessagePtr get_message();
 
     private:
         // Prevent copying by assignment

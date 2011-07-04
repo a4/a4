@@ -1,0 +1,17 @@
+package a4pb;
+
+
+message Axis
+{
+    optional int32 bins = 1;
+    optional double min = 2;
+    optional double max = 3;
+}
+
+message Histogram1
+{
+    optional string name = 1;
+    required Axis x = 10;
+    repeated double data = 11 [packed=true];
+    optional int64 entries = 12;
+}

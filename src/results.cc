@@ -18,13 +18,23 @@ Results::Results()
 
 MessagePtr Results::get_message() {
     boost::shared_ptr<a4pb::Results> res(new a4pb::Results);
-    map<string, CutflowPtr>::const_iterator end = _cf.end();
-    for (map<string, CutflowPtr>::const_iterator it = _cf.begin(); it != end; ++it) {
-        a4pb::Cutflow * cf = res->add_cutflow();
-        //cf->CopyFrom(dynamic_cast<a4pb::Cutflow*>(it->second->get_message()));
-        MessagePtr cfmsg = it->second->get_message();
-        cf->CopyFrom(*cfmsg);
-        cf->set_name(it->first);
+    {
+        map<string, CutflowPtr>::const_iterator end = _cf.end();
+        for (map<string, CutflowPtr>::const_iterator it = _cf.begin(); it != end; ++it) {
+            a4pb::Cutflow * cf = res->add_cutflow();
+            MessagePtr cfmsg = it->second->get_message();
+            cf->CopyFrom(*cfmsg);
+            cf->set_name(it->first);
+        }
+    }
+    {
+        map<string, H1Ptr>::const_iterator end = _h1.end();
+        for (map<string, H1Ptr>::const_iterator it = _h1.begin(); it != end; ++it) {
+            a4pb::Histogram1 * h1 = res->add_h1();
+            MessagePtr msg = it->second->get_message();
+            h1->CopyFrom(*msg);
+            h1->set_name(it->first);
+        }
     }
     return res;
 }
@@ -32,6 +42,7 @@ MessagePtr Results::get_message() {
 Results::Results(Message& m) {
     a4pb::Results * msg = dynamic_cast<a4pb::Results*>(&m);
     BOOST_FOREACH(a4pb::Cutflow cf, msg->cutflow()) _cf[cf.name()] = CutflowPtr(new Cutflow(cf));
+    BOOST_FOREACH(a4pb::Histogram1 h1, msg->h1()) _h1[h1.name()] = H1Ptr(new H1(h1));
 }
 
 Results::~Results()

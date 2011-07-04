@@ -33,6 +33,7 @@ try
         ("help", "produce help message")
         ("threads", po::value<int>(), "run N multi-threads[0 for # of cores]")
         ("output,o", po::value<string>(), "output file(s)")
+        ("results,r", po::value<string>(), "result file(s)")
         ("input,i", po::value<Inputs>(), "input file(s)")
     ;
 
@@ -73,6 +74,10 @@ try
 
         return 1;
     }
+
+    if (arguments.count("results"))
+        job.results()->to_file(arguments["results"].as<string>());
+
 
     // Clean Up any memory allocated by libprotobuf
     google::protobuf::ShutdownProtobufLibrary();

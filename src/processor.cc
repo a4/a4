@@ -25,6 +25,10 @@ void Processor::init_output(const fs::path &outfile) {
     _writer.reset(new Writer(outfile, "Event", Event::kCLASSIDFieldNumber));
 }
 
+void Processor::event_passed(Event & e) {
+    if (_writer) _writer->write(e);
+};
+
 int Processor::_histogram_fast_access_id = 0;
 
 void Processor::process_work_unit(string fn)

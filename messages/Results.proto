@@ -1,0 +1,12 @@
+package a4pb;
+
+import "Cutflow.proto";
+import "Histograms.proto";
+
+message Results
+{
+    repeated Cutflow cutflow = 11;
+    repeated Histogram1 h1 = 12;
+
+}
+
