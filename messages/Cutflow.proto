@@ -1,0 +1,8 @@
+package a4pb;
+
+message Cutflow
+{
+    optional string name = 1;
+    repeated double counts_double = 2 [packed=true];
+    repeated string counts_double_names = 3;
+}
