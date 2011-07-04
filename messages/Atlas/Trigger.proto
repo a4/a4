@@ -36,4 +36,8 @@ message Trigger
     repeated TriggerFeature features_trig_muon_ef = 5;
     repeated TriggerFeature features_muon = 6;
     repeated TriggerFeature features_muon_combined = 7;
+    repeated TriggerFeature features_trig_muon_efi_ms = 8;
+    repeated TriggerFeature features_trig_muon_efi_ex = 9;
+    repeated TriggerFeature features_trig_muon_efi_cb = 10;
+    repeated TriggerFeature features_trig_muon_efi_mg = 11;
 }

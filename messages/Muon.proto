@@ -28,7 +28,11 @@ message Muon
     optional int32 vertex_index = 30;
 
     repeated Trigger.TriggerName matched_trigger_cmf = 40;
-    repeated Trigger.TriggerName matched_trigger_efi = 41;
     repeated Trigger.TriggerName matched_trigger_ef = 42;
     repeated Trigger.TriggerName matched_trigger_mf = 43;
+    repeated Trigger.TriggerName matched_trigger_efi_ms = 44;
+    repeated Trigger.TriggerName matched_trigger_efi_ex = 45;
+    repeated Trigger.TriggerName matched_trigger_efi_cb = 46;
+    repeated Trigger.TriggerName matched_trigger_efi_mg = 47;
+    repeated Trigger.TriggerName matched_trigger_efi_mgt = 48; // A17
 }

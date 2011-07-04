@@ -138,6 +138,12 @@ trigger_names = {
         ]
 }
 
+useSpectrometerTrack = 0 #/< Use the track reconstructed in the MS
+useExtrapolatedTrack = 1 #/< Use the track extrapolated to the IP
+useCombinedTrack = 2 #/< Use the combined track
+useMuGirlTrack = 3 #/< Use a "MuGirl" track (for _MG chains)
+
+
 def getMomentumLV(value):
     return TLorentzVector(value.px(),value.py(),value.pz(),value.e())
 
@@ -182,8 +188,15 @@ class AOD2A4(AOD2A4Base):
         self.a4 = A4WriterStream(open(self.file_name, "w"), "Event", Event)
 
         import PyCintex
+        PyCintex.loadDictionary("TrigMuonEvent")
+        PyCintex.loadDictionary("TrigObjectMatching")
+        self.tmefih = PyCintex.makeClass("TrigMatch::TrigMuonEFInfoHelper")
+
+
+        from ROOT import vector
 
         PyCintex.loadDictionary("JetUtils")
+
         from ROOT import JetCaloHelper, JetCaloQualityUtils, Long, CaloSampling
         self.jet_emf = lambda jet : JetCaloHelper.jetEMFraction(jet)
         self.jet_hecF = lambda jet : JetCaloQualityUtils.hecF(jet)
@@ -302,12 +315,15 @@ class AOD2A4(AOD2A4Base):
                 m.perigee_cmb.CopyFrom(self.perigee_z0_d0(trk))
                 m.ms_hits.CopyFrom(make_ms_track_hits(ctrk))
 
+            m.matched_trigger_efi_ms.extend(self.matched_chains(mu, useSpectrometerTrack))
+            m.matched_trigger_efi_ex.extend(self.matched_chains(mu, useExtrapolatedTrack))
+            m.matched_trigger_efi_cb.extend(self.matched_chains(mu, useCombinedTrack))
+            m.matched_trigger_efi_mg.extend(self.matched_chains(mu, useMuGirlTrack))
+            #A17 m.matched_trigger_efi_mgt.extend(self.matched_chains(mu, useMuGirlTagTrack))
+
             for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<CombinedMuonFeature, INavigable4Momentum>")(mu,0.1)):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger_cmf.append(getattr(Trigger,chain))
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEFInfo, INavigable4Momentum>")(mu,0.1)):
-                if chain in trigger_names[self.year]:
-                    m.matched_trigger_efi.append(getattr(Trigger,chain))
             for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEF, INavigable4Momentum>")(mu,0.1)):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger_ef.append(getattr(Trigger,chain))
@@ -364,18 +380,34 @@ class AOD2A4(AOD2A4Base):
             jets.append(j)
         return jets
 
+    def matched_chains(self, mu, which_track):
+        self.tmefih.setTrackToUse(which_track)
+        chains = []
+        for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEFInfo, INavigable4Momentum>")(mu, 0.1)):
+            if chain in trigger_names[self.year]:
+                chains.append(getattr(Trigger, chain))
+        return chains
+        
     def triggers(self):
         triggers = []
+        self.tmei = []
         for tn in trigger_names[self.year]:
             t = Trigger()
             t.name = getattr(t, tn)
             t.fired = self.tool_tdt.isPassed(tn)
             if t.fired:
-                te  = list(ana.tool_tmt.__getattribute__("getTriggerObjects<TrigElectron>")(tn, True))
-                tp  = list(ana.tool_tmt.__getattribute__("getTriggerObjects<TrigPhoton>")(tn, True))
-                tme = list(ana.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEF>")(tn, True))
-                mf  = list(ana.tool_tmt.__getattribute__("getTriggerObjects<MuonFeature>")(tn, True))
-                cmf = list(ana.tool_tmt.__getattribute__("getTriggerObjects<CombinedMuonFeature>")(tn, True))
+                te  = list(self.tool_tmt.__getattribute__("getTriggerObjects<TrigElectron>")(tn, True))
+                tp  = list(self.tool_tmt.__getattribute__("getTriggerObjects<TrigPhoton>")(tn, True))
+                tme = list(self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEF>")(tn, True))
+                mf  = list(self.tool_tmt.__getattribute__("getTriggerObjects<MuonFeature>")(tn, True))
+                cmf = list(self.tool_tmt.__getattribute__("getTriggerObjects<CombinedMuonFeature>")(tn, True))
+                tmei= list(self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEFInfo>")(tn, True))
+
+                tmeit = sum((list(efi.TrackContainer()) for efi in tmei), [])
+                tmeit_ms = [t.SpectrometerTrack() for t in tmeit if t.MuonType() == 1 and t.hasSpectrometerTrack()]
+                tmeit_ex = [t.ExtrapolatedTrack() for t in tmeit if t.MuonType() == 1 and t.hasExtrapolatedTrack()]
+                tmeit_cb = [t.CombinedTrack() for t in tmeit if t.MuonType() == 1 and t.hasCombinedTrack()]
+                tmeit_mg = [t.CombinedTrack() for t in tmeit if t.MuonType() == 2 and t.hasCombinedTrack()]
 
                 def make_tf(feature):
                     ff = TriggerFeature()
@@ -387,10 +419,14 @@ class AOD2A4(AOD2A4Base):
                 t.features_trig_electron.extend(make_tf(f) for f in te)
                 t.features_trig_photon.extend(make_tf(f) for f in tp)
                 t.features_trig_muon_ef.extend(make_tf(f) for f in tme)
+                t.features_trig_muon_efi_ms.extend(make_tf(f) for f in tmeit_ms)
+                t.features_trig_muon_efi_ex.extend(make_tf(f) for f in tmeit_ex)
+                t.features_trig_muon_efi_cb.extend(make_tf(f) for f in tmeit_cb)
+                t.features_trig_muon_efi_mg.extend(make_tf(f) for f in tmeit_mg)
                 t.features_muon.extend(make_tf(f) for f in mf)
                 t.features_muon_combined.extend(make_tf(f) for f in cmf)
  
-            triggers.append(t)
+                triggers.append(t)
         return triggers
 
     def vertices(self):
