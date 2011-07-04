@@ -184,13 +184,14 @@ class AOD2A4(AOD2A4Base):
         import PyCintex
 
         PyCintex.loadDictionary("JetUtils")
-        from ROOT import JetCaloHelper, JetCaloQualityUtils, Long
+        from ROOT import JetCaloHelper, JetCaloQualityUtils, Long, CaloSampling
         self.jet_emf = lambda jet : JetCaloHelper.jetEMFraction(jet)
         self.jet_hecF = lambda jet : JetCaloQualityUtils.hecF(jet)
-        self.jet_time = lambda jet : JetCaloQualityUtils.jetTime(jet)
-        self.jet_quality = lambda jet : JetCaloQualityUtils.jetQualityLAr(jet)
-        self.jet_fmax = lambda jet : JetCaloQualityUtils.fracSamplingMax(jet, Long())
-        self.jet_jvf = lambda jet : JetCaloQualityUtils.fracSamplingMax(jet, Long())
+        self.jet_fmax = lambda jet : JetCaloQualityUtils.fracSamplingMax(jet, Long(CaloSampling.Unknown))
+        self.jet_time = lambda jet : JetCaloQualityUtils.jetTimeCells(jet)
+        self.jet_quality_lar = lambda jet : JetCaloQualityUtils.jetQualityLAr(jet)
+        self.jet_quality_hec = lambda jet : JetCaloQualityUtils.jetQualityHEC(jet)
+
         self.jet_bad = lambda jet : JetCaloQualityUtils.isBad(jet, False)
         self.jet_ugly = lambda jet : JetCaloQualityUtils.isUgly(jet, False)
 
@@ -350,6 +351,16 @@ class AOD2A4(AOD2A4Base):
                     j.truth_flavor = j.B
                 if tl == "T":
                     j.truth_flavor = j.T
+            if jet.pt() > 20*GeV:
+                j.lar_quality = jet.getMoment("LArQuality")
+                j.hec_quality = jet.getMoment("HECQuality")
+                j.negative_e = jet.getMoment("NegativeE")
+                j.emf = self.jet_emf(jet)
+                j.hecf = self.jet_hecF(jet)
+                j.timing = jet.getMoment("Timing")
+                j.fmax = self.jet_fmax(jet)
+                j.sum_pt_trk = jet.getMoment("sumPtTrk")
+
             jets.append(j)
         return jets
 

@@ -16,7 +16,15 @@ message Jet
     optional double SV0 = 102;
     optional double BCH_CORR_CELL = 110;
     optional double BCH_CORR_JET = 111;
-
+    optional double lar_quality = 112;
+    optional double hec_quality = 113;
+    optional double negative_e = 114;
+    optional double emf = 115;
+    optional double hecf = 116;
+    optional double timing = 117;
+    optional double fmax = 118;
+    optional double sum_pt_trk = 119;
+    
     enum TruthFlavor {
         Light = 0;
         C = 1;
