@@ -9,8 +9,9 @@ def a4_app(year = 2011):
     app.prepare()
     return app
 
-def a4_tasks(todo, year = 2011, files_per_job=1):
-    app = a4_app(year)
+def a4_tasks(todo, year = 2011, files_per_job=1, app=None):
+    if not app:
+        app = a4_app(year)
     tsks = []
     for dsets, name in todo:
         t = AnaTask()
@@ -28,7 +29,7 @@ def a4_tasks(todo, year = 2011, files_per_job=1):
 
     return tsks
 
-def a4_process(datasets_files, year=2011, files_per_job=2, dry_run=False):
+def a4_process(datasets_files, year=2011, files_per_job=2, dry_run=False, app=None):
     todo = []
     for datasets_file in datasets_files:
         dss = []
@@ -45,5 +46,5 @@ def a4_process(datasets_files, year=2011, files_per_job=2, dry_run=False):
             print " * ", ds
     if dry_run:
         return
-    return a4_tasks(todo, year, files_per_job)
+    return a4_tasks(todo, year, files_per_job, app)
 
