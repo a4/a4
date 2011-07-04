@@ -11,6 +11,7 @@
 
 #include "a4/h1.h"
 #include "a4/cutflow.h"
+#include "a4/streamable.h"
 
 #define TOKENPASTE(x, y) x ## y
 #define TOKENPASTE2(x, y) TOKENPASTE(x, y)      
@@ -22,11 +23,18 @@
 
 using std::string;
 
-class Results
+class Results;
+typedef boost::shared_ptr<Results> ResultsPtr;
+
+class Results : public streamable
 {
     public:
         Results();
+        Results(Message &);
         virtual ~Results();
+        
+        void to_file(std::string fn);
+        static ResultsPtr from_file(std::string fn);
 
         virtual void add(const Results &);
         virtual void print(std::ostream &) const;
@@ -37,6 +45,8 @@ class Results
         H1Ptr h1(string name);
         H1Ptr h1(string name, const uint32_t &bins, const double &min, const double &max);
         CutflowPtr cf(string name);
+
+        virtual MessagePtr get_message();
 
         // Fast access to H1
         static int _fast_access_id_h1;

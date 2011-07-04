@@ -1,4 +1,14 @@
 #include "a4/results.h"
+#include "pb/Results.pb.h"
+
+#include <boost/foreach.hpp>
+
+#include <google/protobuf/io/coded_stream.h>
+#include <google/protobuf/io/gzip_stream.h>
+#include <google/protobuf/io/zero_copy_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+
+#include <fstream>
 
 using namespace std;
 
@@ -6,10 +16,44 @@ Results::Results()
 {
 }
 
+MessagePtr Results::get_message() {
+    boost::shared_ptr<a4pb::Results> res(new a4pb::Results);
+    map<string, CutflowPtr>::const_iterator end = _cf.end();
+    for (map<string, CutflowPtr>::const_iterator it = _cf.begin(); it != end; ++it) {
+        a4pb::Cutflow * cf = res->add_cutflow();
+        //cf->CopyFrom(dynamic_cast<a4pb::Cutflow*>(it->second->get_message()));
+        MessagePtr cfmsg = it->second->get_message();
+        cf->CopyFrom(*cfmsg);
+        cf->set_name(it->first);
+    }
+    return res;
+}
+
+Results::Results(Message& m) {
+    a4pb::Results * msg = dynamic_cast<a4pb::Results*>(&m);
+    BOOST_FOREACH(a4pb::Cutflow cf, msg->cutflow()) _cf[cf.name()] = CutflowPtr(new Cutflow(cf));
+}
+
 Results::~Results()
 {
 }
 
+void Results::to_file(std::string fn) {
+    std::fstream _output(fn.c_str(), ios::out | ios::trunc | ios::binary);
+    //::google::protobuf::io::OstreamOutputStream _raw_out(&_output);
+    //::google::protobuf::io::CodedOutputStream _coded_out(&_raw_out);
+    get_message()->SerializeToOstream(&_output);
+}
+
+ResultsPtr Results::from_file(std::string fn) {
+    fstream _input(fn.c_str(), ios::in | ios::binary);
+    //::google::protobuf::io::IstreamInputStream raw_in(&_input);
+    //::google::protobuf::io::CodedInputStream coded_in(&raw_in);
+    a4pb::Results rpb;
+    //rpb.ParseFromIstream(&coded_in);
+    rpb.ParseFromIstream(&_input);
+    return ResultsPtr(new Results(rpb));
+}
 
 int Results::_fast_access_id_h1 = 0;
 int Results::_fast_access_id_cf = 0;
