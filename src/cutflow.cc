@@ -1,5 +1,9 @@
 #include <a4/cutflow.h>
 
+#include <google/protobuf/descriptor.h>
+
+#include <pb/Cutflow.pb.h>
+
 #include <boost/foreach.hpp>
 #include <stdexcept>
 #include <iomanip>
@@ -86,3 +90,18 @@ void Cutflow::add(const Cutflow &source)
         }
     }
 }
+
+
+MessagePtr Cutflow::get_message() {
+    boost::shared_ptr<a4pb::Cutflow> cf(new a4pb::Cutflow);
+    BOOST_FOREACH(double & d, _fast_access_bin) cf->add_counts_double(d);
+    BOOST_FOREACH(string & s, _cut_names) cf->add_counts_double_names(s);
+    return cf;
+}
+
+Cutflow::Cutflow(Message& m) {
+    a4pb::Cutflow * msg = dynamic_cast<a4pb::Cutflow*>(&m);
+    BOOST_FOREACH(double d, msg->counts_double()) _fast_access_bin.push_back(d);
+    BOOST_FOREACH(string s, msg->counts_double_names()) _cut_names.push_back(s);    
+}
+
