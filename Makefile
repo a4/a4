@@ -1,4 +1,4 @@
-DEBUG=-O3 -ffast-math
+DEBUG=-O3 #-ffast-math
 #DEBUG=-g
 
 CXX=g++
