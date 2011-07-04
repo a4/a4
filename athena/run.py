@@ -132,7 +132,9 @@ trigger_names = {
         "EF_e10_medium_mu6",
         "EF_2mu10",
         "EF_2e12_medium",
-        "EF_mu40_MSonly"
+        "EF_mu40_MSonly",
+        "EF_mu40_MSonly_barrel",
+        "EF_mu20_empty"
         ]
 }
 
