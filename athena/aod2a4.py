@@ -54,6 +54,7 @@ class AOD2A4Base(PyAthena.Alg):
 
         self.possible_streams = None
         self.runs_encountered = dict()
+        self.runs_encountered_w = dict()
         self.lbs_encountered = dict()
         
     def initialize(self):
@@ -90,11 +91,10 @@ class AOD2A4Base(PyAthena.Alg):
         event.bunch_crossing_id = self.event_info.event_ID().bunch_crossing_id()
         event.error_state_lar = self.event_info.errorState(self.event_info.LAr)
 
-
         if not event.run_number in self.runs_encountered:
             self.runs_encountered[event.run_number] = 0
+            self.runs_encountered_w[event.run_number] = 0
             self.lbs_encountered[event.run_number] = set()
-        self.runs_encountered[event.run_number] += 1
 
         if not self.is_mc:
             self.lbs_encountered[event.run_number].add(event.lumi_block)
@@ -126,7 +126,10 @@ class AOD2A4Base(PyAthena.Alg):
                 raise RuntimeError("MC weight not found in StoreGate (GEN_AOD)!") 
             event.mc_event_weight = event_weight
             self.sum_mc_event_weights += event_weight
+
         self.number_events += 1
+        self.runs_encountered[event.run_number] += 1
+        self.runs_encountered_w[event.run_number] += event_weight
 
     def finalize(self):
         log.info("Finalizing AOD2A4")
@@ -136,6 +139,7 @@ class AOD2A4Base(PyAthena.Alg):
             ri = meta.run_info.add()
             ri.run_number = run
             ri.event_count = self.runs_encountered[run]
+            ri.sum_mc_weights = self.runs_encountered_w[run]
             ri.lumi_blocks.extend(sorted(self.lbs_encountered[run]))
             if self.possible_streams:
                 streams = []

@@ -24,6 +24,7 @@ message RunInfo
     required int32 event_count = 2;
     repeated int32 lumi_blocks = 3;
     repeated Stream stream = 4;
+    optional double sum_mc_weights = 5;
 }
 
 message EventStreamInfo 
