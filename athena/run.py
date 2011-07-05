@@ -138,6 +138,8 @@ trigger_names = {
         ]
 }
 
+isolations = ("etcone20", "etcone30", "etcone40", "ptcone20", "ptcone30", "ptcone40")
+
 useSpectrometerTrack = 0 #/< Use the track reconstructed in the MS
 useExtrapolatedTrack = 1 #/< Use the track extrapolated to the IP
 useCombinedTrack = 2 #/< Use the combined track
@@ -247,7 +249,7 @@ class AOD2A4(AOD2A4Base):
                 #    e.vertex.CopyFrom(make_vertex(vx.position()))
                 e.vertex_index = list(vc.recVertex() for vc in self.sg["VxPrimaryCandidate"]).index(vx)
             e.author = el.author()
-            for iso in ("etcone20", "etcone30", "ptcone20", "ptcone30"):
+            for iso in isolations:
                 setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
 
             if self.year == 2011:
@@ -291,7 +293,7 @@ class AOD2A4(AOD2A4Base):
                 #if vx.position():
                 #    m.vertex.CopyFrom(make_vertex(vx.position()))
                 m.vertex_index = list(vc.recVertex() for vc in self.sg["VxPrimaryCandidate"]).index(vx)
-            for iso in ("etcone20", "etcone30", "ptcone20", "ptcone30"):
+            for iso in isolations:
                 setattr(m.isolation, iso, mu.parameter(getattr(self.MuonParameters, iso)))
 
             m.tight = (mu.isTight() == 1)
@@ -404,10 +406,10 @@ class AOD2A4(AOD2A4Base):
                 tmei= list(self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEFInfo>")(tn, True))
 
                 tmeit = sum((list(efi.TrackContainer()) for efi in tmei), [])
-                tmeit_ms = [t.SpectrometerTrack() for t in tmeit if t.MuonType() == 1 and t.hasSpectrometerTrack()]
-                tmeit_ex = [t.ExtrapolatedTrack() for t in tmeit if t.MuonType() == 1 and t.hasExtrapolatedTrack()]
-                tmeit_cb = [t.CombinedTrack() for t in tmeit if t.MuonType() == 1 and t.hasCombinedTrack()]
-                tmeit_mg = [t.CombinedTrack() for t in tmeit if t.MuonType() == 2 and t.hasCombinedTrack()]
+                tmeit_ms = [tr.SpectrometerTrack() for tr in tmeit if tr.MuonType() == 1 and tr.hasSpectrometerTrack()]
+                tmeit_ex = [tr.ExtrapolatedTrack() for tr in tmeit if tr.MuonType() == 1 and tr.hasExtrapolatedTrack()]
+                tmeit_cb = [tr.CombinedTrack() for tr in tmeit if tr.MuonType() == 1 and tr.hasCombinedTrack()]
+                tmeit_mg = [tr.CombinedTrack() for tr in tmeit if tr.MuonType() == 2 and tr.hasCombinedTrack()]
 
                 def make_tf(feature):
                     ff = TriggerFeature()
