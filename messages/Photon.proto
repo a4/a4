@@ -25,4 +25,10 @@ message Photon
     optional DataQuality dq = 15;
 
     optional int32 vertex_index = 30;
+    
+    optional double eta_s0 = 31;
+    optional double eta_s1 = 32;
+    optional double eta_s2 = 33;
+    optional double eta_s3 = 34;
+    optional double eta_pointing = 35;
 }
