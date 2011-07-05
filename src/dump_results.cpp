@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <boost/program_options.hpp>
+#include <boost/foreach.hpp>
 using namespace std;
 
 namespace po = boost::program_options;
@@ -23,7 +24,10 @@ int main(int argc, char ** argv) {
 
     Inputs inputs(arguments["input"].as<Inputs>());
     for (int i = 0; i < inputs.size(); i++) {
-        Results::from_file(inputs[i])->print();
+        ResultsPtr res = Results::from_file(inputs[i]);
+        BOOST_FOREACH(string s, res->h1_names()) cout << "H1 " << s << endl;
+        BOOST_FOREACH(string s, res->h2_names()) cout << "H2 " << s << endl;
+        res->print();
     }
     return 0;
 };
