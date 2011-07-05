@@ -24,7 +24,7 @@ qlock   = thread.allocate_lock()
 jobs    = []
 
 import os
-os.system("/bin/bash -c '. /project/etpsw/Common/PoD/setup.sh; lproofnodes.sh 40'")
+os.system("/bin/bash -c '. /project/etpsw/Common/PoD/setup.sh; lproofnodes.sh 20'")
 
 slots_pod = [l.split(",") for l in file("pod_ssh.cfg").readlines()]
 slots = []
