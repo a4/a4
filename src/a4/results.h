@@ -19,9 +19,11 @@
 
 #define HIST1(NAME,NBIN,XMIN,XMAX) static int TOKENPASTE2(_H1ID, __LINE__) = ++Results::_fast_access_id_h1; _results->_fast_h1(TOKENPASTE2(_H1ID, __LINE__),NAME,NBIN,XMIN,XMAX)
 #define HIST1_AS(V,NAME,NBIN,XMIN,XMAX) H1Ptr V; {static int id = ++Results::_fast_access_id_h1; V = _results->_fast_h1(id,NAME,NBIN,XMIN,XMAX);};
+#define HIST1_FILL(NAME,NBIN,XMIN,XMAX,FV,W) {static int id = ++Results::_fast_access_id_h1; _results->_fast_h1(id,NAME,NBIN,XMIN,XMAX)->fill(FV,W);};
 
 #define HIST2(NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX) static int TOKENPASTE2(_H2ID, __LINE__) = ++Results::_fast_access_id_h2; _results->_fast_h2(TOKENPASTE2(_H2ID, __LINE__),NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX)
 #define HIST2_AS(V,NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX) H2Ptr V; {static int id = ++Results::_fast_access_id_h2; V = _results->_fast_h2(TOKENPASTE2(_H2ID, __LINE__),NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX);};
+#define HIST2_FILL(NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX,FX,FY,W) {static int id = ++Results::_fast_access_id_h2; _results->_fast_h2(id,NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX)->fill(FX,FY,W);};
 
 #define CUTFLOW(V,NAME) CutflowPtr V; {static int id = ++Results::_fast_access_id_cf; V = _results->_fast_cf(id,NAME);};
 #define PASSED_CUT(cf,cut_name,w) {static int _CutID = ++Cutflow::_fast_access_id; cf->fill(_CutID, cut_name, w);}
