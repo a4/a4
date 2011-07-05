@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+from sys import argv, exit
+from a4 import A4ReaderStream
+from a4.messages import Event
+
+if len(argv) < 3:
+    print "Usage: %s <cross_sections> <files>" % argv[0]
+    exit(-1)
+
+xsf = [l.strip().split()[:4] for l in file(argv[1]).readlines() if l.strip() and not l.startswith("#")]
+xsdict = {}
+for rn, xs, kf, eff in xsf:
+    if not xs == "xs_missing":
+        xsdict[int(rn)] = float(xs) * float(kf) * float(eff)
+
+run_counts = {}
+for fn in argv[2:]:
+    print fn
+    reader = A4ReaderStream(open(fn))
+    reader.register(Event)
+    try:
+        for metadata in reader.metadata.values():
+            if metadata.simulation:
+                for run in metadata.run_info:
+                    if run.sum_mc_weights != 0:
+                        run_counts[int(run.run_number)] = run_counts.get(run.run_number, 0) + run.event_count
+                    else:
+                        raise RuntimeError("oh my...")
+    except RuntimeError:
+        while True:
+            evt = reader.read()
+            if not isinstance(evt, Event):
+                continue
+            if evt:
+                rn = int(evt.run_number)
+                run_counts[rn] = run_counts.get(rn, 0) + evt.mc_event_weight
+            else:
+                break
+
+f = file("mc_weights","w")
+missing = []
+for run, count in sorted(run_counts.items()):
+    if not run in xsdict:
+        print "missing xs: run ", run
+        missing.append(run)
+        continue
+    weight = xsdict[run]/count
+    print run, count, xsdict[run], weight
+    f.write("%s %s\n" % (run, weight))
+    
+if missing:
+    print "execute:"
+    print "echo %s | xargs id2xs >> %s" % (" ".join(map(str,missing)), argv[1])
+    print "to add the missing cross sections"
