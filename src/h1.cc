@@ -3,8 +3,12 @@
 #include <iostream>
 #include <string.h>
 
+#include <boost/foreach.hpp>
+
 #include "a4/axis.h"
 #include "a4/h1.h"
+
+#include "pb/Histograms.pb.h"
 
 using namespace std;
 
@@ -27,6 +31,26 @@ H1::H1(const H1 & h):
 
 H1::~H1()
 {
+}
+
+MessagePtr H1::get_message() {
+    boost::shared_ptr<a4pb::Histogram1> h1(new a4pb::Histogram1);
+    h1->mutable_x()->set_bins(_axis.bins());
+    h1->mutable_x()->set_min(_axis.min());
+    h1->mutable_x()->set_max(_axis.max());
+    const uint32_t total_bins = _axis.bins() + 2;
+    for(uint32_t i = 0; i < total_bins; i++) h1->add_data(_data[i]);
+    h1->set_entries(_entries);
+    return h1;
+}
+
+H1::H1(Message& m) : _axis(0,0,0) {
+    a4pb::Histogram1 * msg = dynamic_cast<a4pb::Histogram1*>(&m);
+    _axis = Axis(msg->x().bins(), msg->x().min(), msg->x().max());
+    _entries = msg->entries();
+    const uint32_t total_bins = _axis.bins() + 2;
+    _data.reset(new double[total_bins]);
+    for (int i = 0; i < total_bins; i++) _data[i] = msg->data(i);
 }
 
 double H1::integral() const

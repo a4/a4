@@ -94,8 +94,12 @@ void Cutflow::add(const Cutflow &source)
 
 MessagePtr Cutflow::get_message() {
     boost::shared_ptr<a4pb::Cutflow> cf(new a4pb::Cutflow);
-    BOOST_FOREACH(double & d, _fast_access_bin) cf->add_counts_double(d);
-    BOOST_FOREACH(string & s, _cut_names) cf->add_counts_double_names(s);
+    for(uint32_t i = 0; i < _cut_names.size(); i++) {
+        if (_cut_names[i].size() != 0) {
+            cf->add_counts_double(_fast_access_bin[i]);
+            cf->add_counts_double_names(_cut_names[i]);
+        }
+    }
     return cf;
 }
 

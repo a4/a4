@@ -132,7 +132,9 @@ trigger_names = {
         "EF_e10_medium_mu6",
         "EF_2mu10",
         "EF_2e12_medium",
-        "EF_mu40_MSonly"
+        "EF_mu40_MSonly",
+        "EF_mu40_MSonly_barrel",
+        "EF_mu20_empty"
         ]
 }
 
@@ -182,13 +184,14 @@ class AOD2A4(AOD2A4Base):
         import PyCintex
 
         PyCintex.loadDictionary("JetUtils")
-        from ROOT import JetCaloHelper, JetCaloQualityUtils, Long
+        from ROOT import JetCaloHelper, JetCaloQualityUtils, Long, CaloSampling
         self.jet_emf = lambda jet : JetCaloHelper.jetEMFraction(jet)
         self.jet_hecF = lambda jet : JetCaloQualityUtils.hecF(jet)
-        self.jet_time = lambda jet : JetCaloQualityUtils.jetTime(jet)
-        self.jet_quality = lambda jet : JetCaloQualityUtils.jetQualityLAr(jet)
-        self.jet_fmax = lambda jet : JetCaloQualityUtils.fracSamplingMax(jet, Long())
-        self.jet_jvf = lambda jet : JetCaloQualityUtils.fracSamplingMax(jet, Long())
+        self.jet_fmax = lambda jet : JetCaloQualityUtils.fracSamplingMax(jet, Long(CaloSampling.Unknown))
+        self.jet_time = lambda jet : JetCaloQualityUtils.jetTimeCells(jet)
+        self.jet_quality_lar = lambda jet : JetCaloQualityUtils.jetQualityLAr(jet)
+        self.jet_quality_hec = lambda jet : JetCaloQualityUtils.jetQualityHEC(jet)
+
         self.jet_bad = lambda jet : JetCaloQualityUtils.isBad(jet, False)
         self.jet_ugly = lambda jet : JetCaloQualityUtils.isUgly(jet, False)
 
@@ -299,16 +302,16 @@ class AOD2A4(AOD2A4Base):
                 m.perigee_cmb.CopyFrom(self.perigee_z0_d0(trk))
                 m.ms_hits.CopyFrom(make_ms_track_hits(ctrk))
 
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<CombinedMuonFeature, INavigable4Momentum>")(mu,0.15)):
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<CombinedMuonFeature, INavigable4Momentum>")(mu,0.1)):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger_cmf.append(getattr(Trigger,chain))
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEFInfo, INavigable4Momentum>")(mu,0.15)):
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEFInfo, INavigable4Momentum>")(mu,0.1)):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger_efi.append(getattr(Trigger,chain))
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEF, INavigable4Momentum>")(mu,0.15)):
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEF, INavigable4Momentum>")(mu,0.1)):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger_ef.append(getattr(Trigger,chain))
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<MuonFeature, INavigable4Momentum>")(mu,0.15)):
+            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<MuonFeature, INavigable4Momentum>")(mu,0.1)):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger_mf.append(getattr(Trigger,chain))
 
@@ -348,6 +351,16 @@ class AOD2A4(AOD2A4Base):
                     j.truth_flavor = j.B
                 if tl == "T":
                     j.truth_flavor = j.T
+            if jet.pt() > 20*GeV:
+                j.lar_quality = jet.getMoment("LArQuality")
+                j.hec_quality = jet.getMoment("HECQuality")
+                j.negative_e = jet.getMoment("NegativeE")
+                j.emf = self.jet_emf(jet)
+                j.hecf = self.jet_hecF(jet)
+                j.timing = jet.getMoment("Timing")
+                j.fmax = self.jet_fmax(jet)
+                j.sum_pt_trk = jet.getMoment("sumPtTrk")
+
             jets.append(j)
         return jets
 
