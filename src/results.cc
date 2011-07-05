@@ -36,6 +36,15 @@ MessagePtr Results::get_message() {
             h1->set_name(it->first);
         }
     }
+    {
+        map<string, H2Ptr>::const_iterator end = _h2.end();
+        for (map<string, H2Ptr>::const_iterator it = _h2.begin(); it != end; ++it) {
+            a4pb::Histogram2 * h2 = res->add_h2();
+            MessagePtr msg = it->second->get_message();
+            h2->CopyFrom(*msg);
+            h2->set_name(it->first);
+        }
+    }
     return res;
 }
 

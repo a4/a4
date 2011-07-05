@@ -11,7 +11,16 @@ message Axis
 message Histogram1
 {
     optional string name = 1;
-    required Axis x = 10;
-    repeated double data = 11 [packed=true];
-    optional int64 entries = 12;
+    repeated double data = 2 [packed=true];
+    required Axis x = 3;
+    optional int64 entries = 15;
+}
+
+message Histogram2
+{
+    optional string name = 1;
+    repeated double data = 2 [packed=true];
+    required Axis x = 3;
+    required Axis y = 4;
+    optional int64 entries = 15;
 }
