@@ -52,6 +52,7 @@ Results::Results(Message& m) {
     a4pb::Results * msg = dynamic_cast<a4pb::Results*>(&m);
     BOOST_FOREACH(a4pb::Cutflow cf, msg->cutflow()) _cf[cf.name()] = CutflowPtr(new Cutflow(cf));
     BOOST_FOREACH(a4pb::Histogram1 h1, msg->h1()) _h1[h1.name()] = H1Ptr(new H1(h1));
+    BOOST_FOREACH(a4pb::Histogram2 h2, msg->h2()) _h2[h2.name()] = H2Ptr(new H2(h2));
 }
 
 Results::~Results()
