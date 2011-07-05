@@ -32,6 +32,13 @@ H2::H2(const H2 & h):
 H2::~H2()
 {
 }
+H2 & H2::operator*=(const double & w) {
+    const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
+    for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
+        *(_data.get() + bin) *= w;
+    _entries *= w;
+    return *this;
+}
 MessagePtr H2::get_message() {
     boost::shared_ptr<a4pb::Histogram2> h2(new a4pb::Histogram2);
     h2->mutable_x()->set_bins(_x_axis.bins());

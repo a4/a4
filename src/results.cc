@@ -157,6 +157,13 @@ void Results::add(const Results & source) {
     }
 }
 
+Results & Results::operator*=(const double & weight) {
+    for (map<string, H1Ptr>::const_iterator it = _h1.begin(); it != _h1.end(); ++it) *it->second *= weight;
+    for (map<string, H2Ptr>::const_iterator it = _h2.begin(); it != _h2.end(); ++it) *it->second *= weight;
+    for (map<string, CutflowPtr>::const_iterator it = _cf.begin(); it != _cf.end(); ++it) *it->second *= weight;
+    return *this;
+}
+
 void Results::print(std::ostream & out) const {
     if (false) {
         map<string, H1Ptr>::const_iterator end = _h1.end();

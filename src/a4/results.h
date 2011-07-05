@@ -56,6 +56,7 @@ class Results : public streamable
         CutflowPtr cf(string name);
 
         virtual MessagePtr get_message();
+        Results & operator*=(const double &);
 
         // Fast access to H1
         static int _fast_access_id_h1;

@@ -33,6 +33,14 @@ H1::~H1()
 {
 }
 
+H1 & H1::operator*=(const double & w) {
+    const uint32_t total_bins = _axis.bins() + 2;
+    for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
+        *(_data.get() + bin) *= w;
+    _entries *= w;
+    return *this;
+}
+
 MessagePtr H1::get_message() {
     boost::shared_ptr<a4pb::Histogram1> h1(new a4pb::Histogram1);
     h1->mutable_x()->set_bins(_axis.bins());

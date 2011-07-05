@@ -34,6 +34,7 @@ class H2 : public streamable
         const DataPtr data() const {return _data;}; //TODO: only for copyin into TH2D
 
         virtual MessagePtr get_message();
+        H2 & operator*=(const double &);
     private:
         // Prevent copying by assignment
         H2 &operator =(const H2 &);

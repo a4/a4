@@ -35,6 +35,7 @@ class H1 : public streamable
 
         virtual MessagePtr get_message();
 
+        H1 & operator*=(const double &);
     private:
         // Prevent copying by assignment
         H1 &operator =(const H1 &);

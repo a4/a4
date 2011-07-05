@@ -31,6 +31,12 @@ Cutflow::~Cutflow()
 {
 }
 
+Cutflow & Cutflow::operator*=(const double & w) {
+    for(uint32_t bin = 0, bins = _fast_access_bin.size(); bins > bin; ++bin)
+        _fast_access_bin[bin] *= w;
+    return *this;
+}
+
 void Cutflow::fill(const int & id, const std::string & name, const double w) {
     try {
         double & current_value = _fast_access_bin.at(id);

@@ -32,6 +32,7 @@ class Cutflow : public streamable
 
         virtual MessagePtr get_message();
 
+        Cutflow & operator*=(const double &);
     private:
         std::vector<double> _fast_access_bin;
         std::vector<std::string> _cut_names;
