@@ -111,8 +111,9 @@ class AOD2A4Base(PyAthena.Alg):
             )
 
 
+        event_weight = 1.0
         if self.is_mc:
-            event_weight = 1.0
+
             try:
                 truth = self.sg["GEN_AOD"]
                 try:
