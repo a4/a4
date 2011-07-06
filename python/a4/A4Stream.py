@@ -150,12 +150,12 @@ class A4ReaderStream(object):
                 ms = ""
             info.append("%i %s%s" % (cccd[content], content, ms))
 
-        if self.metadata:
-            info.append("\n")
-        for index in sorted(self.metadata):
-            info.append("Metadata at %s\n" % index)
-            info.append(str(self.metadata[index]))
-            info.append("\n")
+        #if self.metadata:
+        #    info.append("\n")
+        #for index in sorted(self.metadata):
+        #    info.append("Metadata at %s\n" % index)
+        #    info.append(str(self.metadata[index]))
+        #    info.append("\n")
         return ", ".join(info)
 
     def read_message(self):
