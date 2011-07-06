@@ -57,7 +57,7 @@ def process(cmds, dry_run=False):
     print "Processing completed."
 
 
-n_threads = 4
+n_threads = 2
 if __name__=="__main__":
     from sys import argv
     from optparse import OptionParser
@@ -117,7 +117,7 @@ if __name__=="__main__":
             pid, status = waitpid(-1, 0)
             pids.remove(pid)
             if status == 0:
-                print "Host %s finished successfully!" % pidmap[pid]
+                print "Host %s finished successfully - %i/%i remaining." % (pidmap[pid], len(pids), len(pidmap))
             else:
                 print "ERROR on host %s!" % pidmap[pid]
         print "Done."

@@ -43,7 +43,7 @@ def my_scratch_list(host):
         if "No such file" in o:
             return []
         raise Exception("Could not SSH to %s, error %i: %s" % (host, s, o))
-    return [fn[len(my_scratch):] for fn in o.split("\n")]
+    return [fn[len(my_scratch):] for fn in o.split("\n") if fn[len(my_scratch):].strip()]
 
 def my_scratch_store(host, files):
     cmd = "ssh %s rsync --delete -vaR %s %s" % (host, ' '.join(files), my_scratch)
@@ -87,8 +87,8 @@ def cache(dirs):
     for host in hosts:
         free[host], total[host] = scratch_info(host)
         on_host = set(my_scratch_list(host))
-        used[host] = sum(fsize[f] for f in on_host)
         file_distribution[host] = on_host & file_set
+        used[host] = sum(fsize[f] for f in file_distribution[host])
         file_set.difference_update(on_host)
 
     to_distribute_size = sum(fsize[f] for f in file_set)
@@ -101,6 +101,8 @@ def cache(dirs):
     target_size = {}
     while len(target_size) < len(hosts):
         avg_target_size = remaining_size/(len(hosts)-len(target_size)) + avg_file_size
+        print "Average size target: %.1f GB"  % avg_target_size
+        recalc = False
         for host in hosts:
             if host in target_size:
                 continue
@@ -110,6 +112,11 @@ def cache(dirs):
                 if target_size[host] < used[host]:
                     target_size[host] = used[host]
                 remaining_size -= target_size[host]
+                recalc = True
+                print "Host %s will hold %.1f GB (max)" % (host, target_size[host])
+                break
+        if not recalc:
+            break
     for host in hosts:
         if not host in target_size:
             target_size[host] = avg_target_size
@@ -120,10 +127,11 @@ def cache(dirs):
         for file in sorted(f for f in file_set):
             size = fsize[file]
             # stop with this host if the size limit would be exceeded
-            if free[host] - grace < size:
+            if used[host] + size > target_size[host]:
                 break
             file_distribution[host].add(file)
             free[host] -= size
+            used[host] += size
             file_set.discard(file)
 
     # now distribute remaining files randomly to where there is space
@@ -147,10 +155,10 @@ def cache(dirs):
 
     pids = []
     pidmap = {}
+    print "Storing data on %i hosts..." % len([h for h in hosts if len(file_distribution[host]) > 0])
     for host in sorted(hosts):
         if len(file_distribution[host]) == 0:
             continue
-        print "Storing on %s..." % host
         pid = fork()
         if pid == 0:
             my_scratch_store(host, sorted(file_distribution[host]))
@@ -161,7 +169,7 @@ def cache(dirs):
         pid, status = waitpid(-1, 0)
         pids.remove(pid)
         if status == 0:
-            print "Host %s finished successfully!" % pidmap[pid]
+            print "Host %s finished successfully - %i/%i remaining." % (pidmap[pid], len(pids), len(pidmap))
         else:
             print "ERROR on host %s!" % pidmap[pid]
     print "Done."
