@@ -77,18 +77,56 @@ def cache(dirs):
     hosts = get_hosts()
     files = sum((list_files(dir) for dir in dirs), [])
     fsize = get_file_sizes(files)
-    print "Caching %.3f GB in %i files..." % (sum(fsize.values()), len(files))
+    total_csize = sum(fsize.values())
+    print "Caching %.1f GB in %i files..." % (total_csize, len(files))
 
     file_set = set(files)
     file_distribution = {}
     free, total = {}, {}
+    used = {}
     for host in hosts:
         free[host], total[host] = scratch_info(host)
         on_host = set(my_scratch_list(host))
+        used[host] = sum(fsize[f] for f in on_host)
         file_distribution[host] = on_host & file_set
         file_set.difference_update(on_host)
-    print "%i files not yet cached. Distributing..." % len(file_set)
+
+    to_distribute_size = sum(fsize[f] for f in file_set)
+    print "%.1f GB in %i files not yet cached. Distributing..." % \
+        (to_distribute_size, len(file_set))
     
+    avg_file_size = to_distribute_size / (len(file_set)+0.1)
+    # Calculate target size of cache on each host
+    remaining_size = float(total_csize)
+    target_size = {}
+    while len(target_size) < len(hosts):
+        avg_target_size = remaining_size/(len(hosts)-len(target_size)) + avg_file_size
+        for host in hosts:
+            if host in target_size:
+                continue
+            # if target cannot be reached...
+            if (free[host] - grace) < (avg_target_size - used[host]):
+                target_size[host] = (free[host] + used[host] - grace)
+                if target_size[host] < used[host]:
+                    target_size[host] = used[host]
+                remaining_size -= target_size[host]
+    for host in hosts:
+        if not host in target_size:
+            target_size[host] = avg_target_size
+
+    # First try to keep the datasets together
+    shuffle(hosts)
+    for host in hosts:
+        for file in sorted(f for f in file_set):
+            size = fsize[file]
+            # stop with this host if the size limit would be exceeded
+            if free[host] - grace < size:
+                break
+            file_distribution[host].add(file)
+            free[host] -= size
+            file_set.discard(file)
+
+    # now distribute remaining files randomly to where there is space
     for file in file_set:
         size = fsize[file]
         # sort hosts from smallest stored size to largest
