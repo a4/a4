@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+from os.path import exists, isfile
+
+def get_grl_xml(run_infos):
+    grl_start = "<LumiRangeCollection><NamedLumiRange><Name>A4</Name><Version>2.1</Version>"
+    runlist = '<Metadata Name="RunList">%s</Metadata>' % ",".join(map(str, sorted(run_infos)))
+    lbcs = []
+    for run in sorted(run_infos): 
+        lbcs.append("<LumiBlockCollection><Run>%i</Run>" % run)
+        startlb = None
+        lastlb = None
+        for lb in sorted(run_infos[run]):
+            if startlb is None:
+                startlb = lb
+                lastlb = lb
+            elif lb == lastlb + 1:
+                lastlb = lb
+            else:
+                lbcs.append('    <LBRange Start="%i" End="%i"/>' % (startlb, lastlb))
+                startlb = lb
+                lastlb = lb
+        if not startlb is None:
+            lbcs.append('    <LBRange Start="%i" End="%i"/>' % (startlb, lastlb))
+        lbcs.append("</LumiBlockCollection>")
+    grl_end = "</NamedLumiRange></LumiRangeCollection>"
+    return "\n".join((grl_start, runlist, "\n".join(lbcs), grl_end))
+
+def get_run_info(grl):
+    run_infos = {}
+    for run, start, stop in grl:
+        run_infos.setdefault(run, []).extend(range(start, stop+1))
+    return run_infos
+
+if __name__ == "__main__":
+    import sys
+    fn = sys.argv[1]
+    grl = [map(int,map(str.strip,l.split())) for l in file(fn).readlines() if l.strip()]
+    run_info = get_run_info(grl)
+    o = get_grl_xml(run_info)
+
+    if len(sys.argv) == 3:
+        fn = sys.argv[2]
+        if exists(fn):
+            raise Exception("Cowardly refusing to overwrite an existing file, %s" % fn)
+    else: 
+        if isfile(fn):
+            if fn.endswith(".grl"):
+                fn = fn[:-len(".grl")]
+        else:
+            fn = fn.rstrip("/")
+        fn += ".xml"
+    f = file(fn, "w")
+    f.write(o)
+    f.close()

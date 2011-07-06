@@ -5,7 +5,7 @@ import xml.etree.cElementTree as cElementTree
 from collections import defaultdict
 from os import listdir
 from os.path import join as pjoin
-from os.path import isfile
+from os.path import isfile, exists
 
 class GRL(object):
     def __init__(self, grldir):
@@ -37,6 +37,8 @@ if __name__ == "__main__":
 
     if len(sys.argv) == 3:
         fn = sys.argv[2]
+        if exists(fn):
+            raise Exception("Cowardly refusing to overwrite an existing file, %s" % fn)
     else: 
         if isfile(fn):
             if fn.endswith(".xml"):

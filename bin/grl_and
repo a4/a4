@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+from os.path import exists, isfile
+
+def get_grl(run_infos):
+    lbcs = []
+    for run in sorted(run_infos): 
+        startlb = None
+        lastlb = None
+        for lb in sorted(run_infos[run]):
+            if startlb is None:
+                startlb = lb
+                lastlb = lb
+            elif lb == lastlb + 1:
+                lastlb = lb
+            else:
+                lbcs.append("%s %s %s" % (run, startlb, lastlb))
+                startlb = lb
+                lastlb = lb
+        if not startlb is None:
+            lbcs.append("%s %s %s" % (run, startlb, lastlb))
+    return "\n".join(lbcs)
+
+def get_run_info(grl):
+    run_infos = {}
+    for run, start, stop in grl:
+        run_infos.setdefault(run, []).extend(range(start, stop+1))
+    return run_infos
+
+if __name__ == "__main__":
+    import sys
+    current_ri = None
+    for fn in sys.argv[1:]:
+        grl = [map(int,map(str.strip,l.split())) for l in file(fn).readlines() if l.strip()]
+        ri = get_run_info(grl)
+        if current_ri is None:
+            current_ri = ri
+        else:
+            runs = set(current_ri.keys()) & set(ri.keys())
+            current_ri = dict((run, sorted(set(current_ri[run]) & set(ri[run])) ) for run in runs)
+    print get_grl(current_ri)
