@@ -5,8 +5,47 @@ if len(argv) < 2:
     print "Usage: %s <files>" % argv[0]
     exit(-1)
 
-for fn in argv[1:]:
-    info = A4ReaderStream(open(fn)).info()
-    print("%s: %s" % (fn, info))
+run_infos = {}
 
+for fn in argv[1:]:
+    r = A4ReaderStream(open(fn))
+    print("%s: %s" % (fn, r.info()))
+    for md in r.metadata.values():
+        for ri in md.run_info:
+            run_infos.setdefault(ri.run_number, set()).update(ri.lumi_blocks)
+
+
+grl_start = "<LumiRangeCollection><NamedLumiRange><Name>A4</Name><Version>2.1</Version>"
+runlist = '<Metadata Name="RunList">%s</Metadata>' % ",".join(map(str, sorted(run_infos)))
+
+lbcs = []
+for run in sorted(run_infos): 
+    lbcs.append("<LumiBlockCollection><Run>%i</Run>" % run)
+
+    startlb = None
+    lastlb = None
+    for lb in sorted(run_infos[run]):
+        if startlb is None:
+            startlb = lb
+            lastlb = lb
+        elif lb == lastlb + 1:
+            lastlb = lb
+        else:
+            lbcs.append('    <LBRange Start="%i" End="%i"/>' % (startlb, lastlb))
+            startlb = lb
+            lastlb = lb
+
+    if not startlb is None:
+        lbcs.append('    <LBRange Start="%i" End="%i"/>' % (startlb, lastlb))
+            
+
+    lbcs.append("</LumiBlockCollection>")
+
+
+grl_end = "</NamedLumiRange></LumiRangeCollection>"
+
+print grl_start
+print runlist
+print "\n".join(lbcs)
+print grl_end
 
