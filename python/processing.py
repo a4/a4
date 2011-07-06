@@ -1,16 +1,10 @@
 #!/usr/bin/env python
 
-from os import listdir, sep, makedirs, getcwd
+from os import listdir, sep, makedirs, getcwd, fork, waitpid, system
 from os.path import abspath, basename, dirname, isdir, join as pjoin
+from poorcache import cache, job_splitter, list_files
 
-def get_dirs(d):
-    jobs = []
-    for f in listdir(d):
-        if isdir(pjoin(d,f)):
-            files.extend(get_files(pjoin(d,f)))
-        else:
-            files.append(pjoin(d,f))
-    return files
+poor_cache = None
 
 def try_mkdir(fn):
     if fn:
@@ -19,12 +13,7 @@ def try_mkdir(fn):
         except OSError:
             pass
 
-
-def get_a4_cmd(cmd, in_dir, res_out_d, skim_out_d):
-    if not isdir(in_dir):
-        raise Exception("Unexpected file: " + in_dir)
-    name = in_dir.split('/')[-1]
-    fls = [pjoin(in_dir,f) for f in listdir(in_dir) if f.endswith(".a4")]
+def get_a4_cmd(cmd, fls, name, res_out_d, skim_out_d):
     out_skim = pjoin(skim_out_d, name + ".a4") if skim_out_d else None
     out_res  = pjoin(res_out_d , name + ".results") if res_out_d else None
     try_mkdir(out_skim)
@@ -38,11 +27,21 @@ def get_a4_cmd(cmd, in_dir, res_out_d, skim_out_d):
     cmdl.extend(fls)
     return " ".join(cmdl)
 
-def get_a4_cmds(cmd, in_dirs, res_out_d=None, skim_out_d=None):
+def get_a4_cmds(cmd, in_dirs, res_out_d=None, skim_out_d=None, use_poorcache=True):
     assert res_out_d or skim_out_d
     from os import getenv, getcwd
     opts = "cd %s; LD_LIBRARY_PATH=%s PATH=%s" % (getcwd(), getenv("LD_LIBRARY_PATH"), getenv("PATH"))
-    return [get_a4_cmd(" ".join((opts,cmd)), d, res_out_d, skim_out_d) for d in in_dirs]
+    cmds = []
+    for d in in_dirs:
+        name = d.split('/')[-1]
+        fls = [f for f in list_files(d) if f.endswith(".a4")]
+        #fls = [abspath(pjoin(d,f)) for f in listdir(d) if f.endswith(".a4")]
+        if use_poorcache:
+            for host, files in job_splitter(fls, poor_cache):
+                cmds.append((host, get_a4_cmd(" ".join((opts,cmd)), files, "_".join((name,host)), res_out_d, skim_out_d)))
+        else:
+            cmds.append(get_a4_cmd(" ".join((opts,cmd)), fls, name, res_out_d, skim_out_d, use_poorcache))
+    return cmds
 
 def process(cmds, dry_run=False):
     if dry_run:
@@ -57,22 +56,28 @@ def process(cmds, dry_run=False):
     pmbs.flush()
     print "Processing completed."
 
+
+n_threads = 4
 if __name__=="__main__":
     from sys import argv
     from optparse import OptionParser
     from glob import glob
     parser = OptionParser()
     parser.add_option("-r", "--results", dest="results", default=None, help="result directory", metavar="DIR")
-    parser.add_option("-s", "--skim", dest="skims", default=None, help="skim directory", metavar="DIR")
+    parser.add_option("-o", "--skim", dest="skims", default=None, help="skim directory", metavar="DIR")
     parser.add_option("-n", "--nothing", dest="dryrun", action="store_true", default=False, help="do a dry run")
+    parser.add_option("-p", "--poorcache", dest="poorcache", action="store_true", default=True, help="use the poor cache")
     parser.add_option("-d", "--defaultdir", dest="defaultdir", default=None, help="specify a dir with /mc /egamma and /muons subdirectories, which will be processed by cmd_mc, cmd_egamma and cmd_muons", metavar="DIR")
     (options, args) = parser.parse_args()
+
     cmd = args[0]
     inputs = args[1:]
     print options.results
     if options.defaultdir:
         assert len(inputs) == 0
         input = options.defaultdir
+        if options.poorcache:
+            poor_cache = cache([input])
         cmds = []
         assert isdir(pjoin(input, "mc"))
         assert isdir(pjoin(input, "egamma"))
@@ -83,10 +88,37 @@ if __name__=="__main__":
         skm_egamma = pjoin(options.skims, "egamma") if options.skims else None
         res_muons = pjoin(options.results, "muons") if options.results else None
         skm_muons = pjoin(options.skims, "muons") if options.skims else None
-        cmds.extend(get_a4_cmds(cmd + "_mc", glob(pjoin(input, "mc","*")), res_mc, skm_mc))
-        cmds.extend(get_a4_cmds(cmd + "_egamma", glob(pjoin(input, "egamma","*")), res_egamma, skm_egamma))
-        cmds.extend(get_a4_cmds(cmd + "_muons", glob(pjoin(input, "muons","*")), res_muons, skm_muons))
+        cmds.extend(get_a4_cmds(cmd + "_mc", glob(pjoin(input, "mc","*")), res_mc, skm_mc, options.poorcache))
+        cmds.extend(get_a4_cmds(cmd + "_egamma", glob(pjoin(input, "egamma","*")), res_egamma, skm_egamma, options.poorcache))
+        cmds.extend(get_a4_cmds(cmd + "_muons", glob(pjoin(input, "muons","*")), res_muons, skm_muons, options.poorcache))
     else:
-        cmds = get_a4_cmds(cmd, inputs, options.results, options.skims)
-    process(cmds, options.dryrun)
+        if options.poorcache:
+            poor_cache = cache(inputs)
+        cmds = get_a4_cmds(cmd, inputs, options.results, options.skims, options.poorcache)
+
+    if not options.poorcache:
+        process(cmds, options.dryrun)
+    elif not options.dryrun:
+        pids = []
+        pidmap = {}
+        hosts = sorted(h for h, cmd in cmds)
+
+        for host in hosts:
+            host_commands = [cmd%n_threads for h, cmd in cmds if h == host]
+            print "Starting to run on %s..." % host
+            pid = fork()
+            if pid == 0:
+                for cmd in host_commands:
+                    system("ssh %s '%s'" % (host, cmd))
+                exit(0)
+            pids.append(pid)
+            pidmap[pid] = host
+        while len(pids) > 0:
+            pid, status = waitpid(-1, 0)
+            pids.remove(pid)
+            if status == 0:
+                print "Host %s finished successfully!" % pidmap[pid]
+            else:
+                print "ERROR on host %s!" % pidmap[pid]
+        print "Done."
 

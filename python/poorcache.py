@@ -91,7 +91,8 @@ def cache(dirs):
     
     for file in file_set:
         size = fsize[file]
-        shuffle(hosts)
+        # sort hosts from smallest stored size to largest
+        hosts = [h for sz, h in sorted((sum(fsize[fn] for fn in file_distribution[host]), host) for host in hosts)]
         full = True
         for host in hosts:
             if free[host] - grace > size:
@@ -165,6 +166,8 @@ if __name__=="__main__":
     if cmd == "kill":
         for host in get_hosts():
             system("ssh %s killall rsync" % host)
+            if len(argv) > 2:
+                system("ssh %s killall %s" % (host, argv[2]))
     if cmd == "status":
         for host in get_hosts():
             system("ssh %s ps aux | grep 12264" % host)
