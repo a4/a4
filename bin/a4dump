@@ -2,25 +2,52 @@
 from sys import argv, exit
 from a4 import A4ReaderStream
 from a4.messages import *
+from optparse import OptionParser
 
-if len(argv) == 1 or len(argv) > 3:
-    print "Usage: %s <file> [<index>]" % argv[0]
+parser = OptionParser()
+parser.add_option("-s", "--scan", action="store_true", help="wait for keypress to show next event")
+parser.add_option("-e", "--event", action="append", default=[], help="event number to dump - can be specified multiple times")
+parser.add_option("-i", "--index", default=1, help="index of the (first) event to dump")
+parser.add_option("-a", "--all", action="store_true", help="dump all events")
+(options, args) = parser.parse_args()
+
+if len(args) == 0:
+    parser.print_help()
     exit(-1)
 
-fn = argv[1]
-index = 1
-if len(argv) == 3:
-    index = int(argv[2])
+skip = options.index-1
+events = map(int, options.event)
+do_events = (len(events) > 0)
 
-r = A4ReaderStream(open(fn))
-r.register(Event)
-r.register(EventStreamInfo)
-print("%s: %s" % (fn, r.info()))
-print("Object at index %i:" % (index))
-print("--------------------")
+for fn in args:
+    r = A4ReaderStream(open(fn))
+    r.register(Event)
+    r.register(EventStreamInfo)
+    print("%s: %s" % (fn, r.info()))
+    while skip > 0:
+        r.read()
+        skip -= 1
 
-for i in range(index):
-    obj = r.read()
-print obj
+    while True:
+        obj = r.read()
+        if obj is None:
+            break
 
+        if options.all:
+            print obj
+            if options.scan:
+                raw_input("Press Enter to continue, CTRL+C to abort...")
+        elif do_events:
+            if hasattr(obj, "event_number") and obj.event_number in events:
+                print obj
+                events.remove(obj.event_number)
+                if len(events) == 0:
+                    exit(0)
+                if options.scan:
+                    raw_input("Press Enter to continue, CTRL+C to abort...")
+        elif not options.scan:
+            print obj
+            exit(0)
+        else:
+            print obj
 
