@@ -1,36 +1,139 @@
 A4 Stream File Format
 ---------------------
 
+Overview
+--------
+
+The A4 STREAM is a simple file format for sequences of 
+Google Protocol Buffer (PB) messages.
+
+Each top-level message type must have a unique CLASS ID
+between 1000 and 1073741823 (=2^30-1), specified as the field ID
+of the messages as follows:
+
+message MyTopLevelMessage
+{
+    optional int32 CLASS_ID = 1042;
+    ...
+}
+
+An A4 STREAM has a DEFAULT CLASS ID, which is specified in the header.
+Messages of this type do not need to be prefixed with type information, 
+which should help cases where many small messages are streamed.
+
+Any A4 stream files also MUST have the property that concatenating them also
+produces a valid A4 file with correct metadata information. This has to be
+considered when adding metadata. Retrieved metadata from a concatenated file
+MUST be either not available or correct for the whole concatenated file.
+
+Structure
+---------
+
 An A4 stream file MUST be delimited by magic byte strings:
 * start magic bytes: "A4STREAM"
 * end magic bytes: "KTHXBYE4"
 
-The rest of the file is a sequence of google protocol buffer messages. 
-Each message is preceded by one or two 32-bit big-endian unsigned integers:
+A reader MUST check for the start magic bytes after if reaches the end 
+magic bytes, since there can be another file concatenated.
 
-The first integer without the highest bit is the size of the message in bytes:
-size = i1 & ((1<<31)-1)
+Between these magic strings there are MESSAGES. Each MESSAGE starts
+with a 32 bit little endian integer, containing the SIZE of the message in 
+bytes in the low 30 bits. The highest bit MUST be set if the message is
+not the default message type. The second highest bit is reserved.
 
-If the highest bit of the first integer is set i1 (1<<31), 
-then a second 32-bit integer with the CLASS_ID of the next message must follow.
+SIZE = i1 & ((1<<31)-1)
 
-At the end of the stream/file, an A4StreamFooter message is expected.
+If the highest bit is set, a second 32 bit little endian integer containing 
+the CLASS ID of the following message MUST follow. This integer is not
+part of the message, and not included in the size estimate.
+
+The next SIZE bytes must be a valid PB message based on a shared specification.
+
+After the start magic bytes there MUST follow an A4StreamHeader message,
+including the size and type integers. The A4StreamHeader message has the
+following protocol specification:
+
+message A4StreamHeader
+{
+    optional int32 CLASS_ID = 100;
+    required int32 a4_version = 1;
+    optional string content = 2;
+    optional int32 content_class_id = 3;
+}
+
+The a4_version field MUST be 1 for this version of the protocol, and the 
+content_class_id MAY indicate a default CLASS ID for messages in this file.
+
+The content string is for human consumption only, and may contain a description
+of the file contents.
+
+At the end of the stream/file, an A4StreamFooter message is expected:
+
+message A4StreamFooter
+{
+    optional int32 CLASS_ID = 101;
+
+    // MUST be number of bytes written before the footer size byte
+    required int64 size = 1; 
+
+    // MAY contain the number of messages with default message class in this file
+    optional int32 content_count = 2; 
+
+    // MAY specify the SIZE of an optional metadata message before this footer
+    optional int32 metadata_offset = 3; 
+}
+
 After an A4StreamFooter message, the size of that message is repeated as an
-32-bit integer, to allow seeking backwards from the end of file.
+32-bit integer, to allow seeking backwards to the footer from the end of file.
+
+Compression
+-----------
+
+NOT IMPLEMENTED YET
+
+If an A4StartCompressionSection message is read, the reader should treat the 
+file from that point as a compressed stream:
+
+message A4StartCompressedSection
+{
+    optional int32 CLASS_ID = 102;
+    enum Compression {
+        ZLIB = 0;
+        GZIP = 1;
+        BZIP2 = 2;
+    }
+    optional Compression compression = 1;
+}
+
+In the future there may be a default compression.
+
+The reader should then continue to read messages from the compressed stream.
+This process MUST be transparent to the consumer of the messages (they should not
+have to call read() again, for example).
+
+If inside the compressed stream an A4EndCompressedSection message is read, after the
+end of that message the compression should be ended and regular reads should resume.
+
+message A4EndCompressedSection
+{
+    optional int32 CLASS_ID = 103;
+}
 
 Summary
 -------
+
 A4STREAM
-<size|HIGH_BIT> <type> A4StreamHeader
-<size|HIGH_BIT> <type> A4StartCompressedSection
+<size|HIGH_BIT> <classid=100> A4StreamHeader (default class = 1000)
+<size|HIGH_BIT> <classid=102> A4StartCompressedSection
   --start of compression--
-    <size|HIGH_BIT><type> Run
-    <size|HIGH_BIT><type> Event
+    <size|HIGH_BIT><classid=1040> Run Information Message
+    <size> Event (classid 1000 not specified)
     <size> Event
     <size> Event
     ...
-    <size|HIGH_BIT><type> A4EndCompressedSection
+    <size|HIGH_BIT><classid=103> A4EndCompressedSection
   --end of compression--
-<size|HIGH_BIT><type> A4StreamFooter
+<size|HIGH_BIT><classid=101> A4StreamFooter
 <size of A4StreamFooter again>
 KTHXBYE4
+

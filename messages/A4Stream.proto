@@ -29,5 +29,4 @@ message A4StartCompressedSection
 message A4EndCompressedSection
 {
     optional int32 CLASS_ID = 103;
-    required int64 size = 1;
 }
