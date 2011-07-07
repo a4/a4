@@ -70,6 +70,9 @@ if __name__=="__main__":
     parser.add_option("-d", "--defaultdir", dest="defaultdir", default=None, help="specify a dir with /mc /egamma and /muons subdirectories, which will be processed by cmd_mc, cmd_egamma and cmd_muons", metavar="DIR")
     (options, args) = parser.parse_args()
 
+    if options.dryrun:
+        print "DRY RUN..."
+
     cmd = args[0]
     inputs = args[1:]
     print options.results
@@ -98,13 +101,17 @@ if __name__=="__main__":
 
     if not options.poorcache:
         process(cmds, options.dryrun)
-    elif not options.dryrun:
+    else:
         pids = []
         pidmap = {}
-        hosts = sorted(h for h, cmd in cmds)
+        hosts = sorted(set(h for h, cmd in cmds))
 
         for host in hosts:
             host_commands = [cmd%n_threads for h, cmd in cmds if h == host]
+            if options.dryrun:
+                print "running %i commands on %s.." % (len(host_commands), host)
+                continue
+
             print "Starting to run on %s..." % host
             pid = fork()
             if pid == 0:
@@ -113,12 +120,14 @@ if __name__=="__main__":
                 exit(0)
             pids.append(pid)
             pidmap[pid] = host
-        while len(pids) > 0:
-            pid, status = waitpid(-1, 0)
-            pids.remove(pid)
-            if status == 0:
-                print "Host %s finished successfully - %i/%i remaining." % (pidmap[pid], len(pids), len(pidmap))
-            else:
-                print "ERROR on host %s!" % pidmap[pid]
+
+        if not options.dryrun:
+            while len(pids) > 0:
+                pid, status = waitpid(-1, 0)
+                pids.remove(pid)
+                if status == 0:
+                    print "Host %s finished successfully - %i/%i remaining." % (pidmap[pid], len(pids), len(pidmap))
+                else:
+                    print "ERROR on host %s!" % pidmap[pid]
         print "Done."
 
