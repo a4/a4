@@ -6,7 +6,7 @@ from commands import getstatusoutput
 from random import shuffle
 
 my_scratch = "/scratch-local/ebke_cache"
-grace = 10 # GB
+grace = 8 # GB
     
 def get_hosts():
     return [l.strip() for l in file(pjoin(getenv("HOME"), ".pmbs")).readlines() if l.strip()]
