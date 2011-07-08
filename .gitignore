@@ -4,6 +4,10 @@
 *.datasets
 *.grl
 *.d
+*.root
+*.pdf
+*.eps
+*.ps
 setup.sh
 bin/
 obj/
