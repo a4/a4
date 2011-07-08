@@ -5,19 +5,12 @@ from a4.messages import Event, Results
 
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("-x", "--xs", help="cross section file")
 parser.add_option("-r", "--results", action="store_true", help="extract number from results files")
 (options, args) = parser.parse_args()
 
-if len(args) == 0 or not options.xs:
+if len(args) == 0:
     parser.print_help()
     exit(-1)
-
-xsf = [l.strip().split()[:4] for l in file(options.xs).readlines() if l.strip() and not l.startswith("#")]
-xsdict = {}
-for rn, xs, kf, eff in xsf:
-    if not xs == "xs_missing":
-        xsdict[int(rn)] = float(xs) * float(kf) * float(eff)
 
 run_counts = {}
 for fn in args:
@@ -52,19 +45,7 @@ for fn in args:
                 else:
                     break
 
-
-f = file("mc_weights","w")
+f = file("mc_counts","w")
 missing = []
 for run, count in sorted(run_counts.items()):
-    if not run in xsdict:
-        print "missing xs: run ", run
-        missing.append(run)
-        continue
-    weight = xsdict[run]/count
-    print run, count, xsdict[run], weight
-    f.write("%s %s\n" % (run, weight))
-    
-if missing:
-    print "execute:"
-    print "echo %s | xargs id2xs >> %s" % (" ".join(map(str,missing)), options.xs)
-    print "to add the missing cross sections"
+    f.write("%s %s\n" % (run, count))
