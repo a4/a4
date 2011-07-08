@@ -39,6 +39,9 @@ class Results : public streamable
         Results();
         Results(Message &);
         virtual ~Results();
+
+        const string get_title() {return title;};
+        void set_title(const string &t) { title = t;};
         
         void to_file(std::string fn);
         static ResultsPtr from_file(std::string fn);
@@ -116,6 +119,7 @@ class Results : public streamable
         }
 
     private:
+        string title;
         std::map<string, H1Ptr> _h1;
         std::map<string, H2Ptr> _h2;
         std::map<string, CutflowPtr> _cf;

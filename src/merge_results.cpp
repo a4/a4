@@ -15,6 +15,7 @@ int main(int argc, char ** argv) {
     description.add_options()
         ("weight,w", po::value<double>(), "weight")
         ("output,o", po::value<string>(), "output file(s)")
+        ("title,t", po::value<string>(), "title of results object")
         ("input,i", po::value<Inputs>(), "input file(s)")
     ;
     po::positional_options_description positional_options;
@@ -24,7 +25,13 @@ int main(int argc, char ** argv) {
     po::store(po::command_line_parser(argc, argv).options(description).positional(positional_options).run(), arguments);
 
     double weight = 1.0;
-    if (arguments.count("weight")) weight = arguments["weight"].as<double>();
+    if (arguments.count("weight")) {
+        weight = arguments["weight"].as<double>();
+        cerr << "reweighting with weight " << weight << endl;
+    }
+    
+    string title;
+    if (arguments.count("title")) title = arguments["title"].as<string>();
 
     Inputs inputs(arguments["input"].as<Inputs>());
     string outs = arguments["output"].as<string>();
@@ -35,7 +42,7 @@ int main(int argc, char ** argv) {
         if (weight != 1.0) *res *= weight;
         r.add(*res);
     };
-
+    r.set_title(title);
     r.to_file(outs);
     return 0;
 };

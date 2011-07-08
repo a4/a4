@@ -5,6 +5,8 @@ import "Histograms.proto";
 
 message Results
 {
+    optional string title = 1;
+
     repeated Cutflow cutflow = 11;
     repeated Histogram1 h1 = 12;
     repeated Histogram2 h2 = 13;
