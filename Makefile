@@ -40,7 +40,7 @@ extobjs: $(EXT_OBJS)
 SUFFIXES += .d
 #
 # #We don't need to clean up when we're making these targets
-NODEPS := clean
+NODEPS := clean distclean
 # #These are the dependency files, which make will clean up after it creates them
 DEPFILES := $(patsubst %.cxx,%.d,$(patsubst %.C,%.d,$(patsubst %.cc,%.d,$(patsubst %.cpp,%.d,$(ALL_SOURCES)))))
 #
@@ -52,27 +52,27 @@ ifeq (0, $(words $(findstring $(MAKECMDGOALS), $(NODEPS))))
 endif
 
 #This is the rule for creating the dependency files
-src/%.d: src/%.cpp
+src/%.d: src/%.cpp $(PROTOCPP)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -MM -MT '$(patsubst src/%.cpp,obj/%.o,$<)' $< > $@
 
-src/%.d: src/%.cc
+src/%.d: src/%.cc $(PROTOCPP)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -MM -MT '$(patsubst src/%.cc,obj/%.o,$<)' $< > $@
+	$(CXX) $(CXXFLAGS) -I./src/pb -MM -MT '$(patsubst src/%.cc,obj/%.o,$<)' $< > $@
 
-root/%.d: root/%.cpp
+root/%.d: root/%.cpp $(PROTOCPP)
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) -MM -MT '$(patsubst root/%.cpp,obj/%.o,$<)' $< > $@
 
-root/%.d: root/%.C
+root/%.d: root/%.C $(PROTOCPP)
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) -MM -MT '$(patsubst root/%.C,obj/%.o,$<)' $< > $@
 
-external/%.d: external/%.C
+external/%.d: external/%.C $(PROTOCPP)
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) -MM -MT '$(patsubst external/%.C,obj/%.o,$<)' $< > $@
 
-external/%.d: external/%.cxx
+external/%.d: external/%.cxx $(PROTOCPP)
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) -MM -MT '$(patsubst external/%.cxx,obj/%.o,$<)' $< > $@
 ######### END DEPENDENCIES
@@ -121,26 +121,11 @@ bin/%: root/%.cpp $(ROOT_OBJS) $(OBJS) $(PROTOCOBJ) $(EXT_OBJS)
 	@mkdir -p $(dir $@)
 	$(CXX) $(ROOT_CXXFLAGS) $(ROOT_LDFLAGS) $(LIBS) $(filter %.o,$^) $< -o $@
 
-pyclean:
+distclean:
 	find . -iname "*.pyc" -exec rm {} \;
-
-depclean:
 	find . -iname "*.d" -exec rm {} \;
+	rm -rf $(PYDIR) $(CPPDIR) $(OBJDIR)
+	rm -f $(PROGS) $(ROOT_PROGS)
 
-protoclean:
-	rm -rf python/a4/messages/*
-	rm -rf obj/*
-	rm -rf src/pb/*
-
-objclean:
-	rm -f $(PROTOCOBJ)
-	rm -f $(OBJS)
-	rm -f $(ROOT_OBJS)
-
-clean: objclean protoclean
-
-distclean: clean
-	rm $(PYDIR) -rf
-	rm $(CPPDIR) -rf
-
-
+clean:
+	rm -rf $(PYDIR) $(CPPDIR) $(OBJDIR)
