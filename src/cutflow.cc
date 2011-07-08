@@ -8,6 +8,7 @@
 #include <stdexcept>
 #include <iomanip>
 #include <algorithm>
+#include <map>
 #include <stdexcept>
 #include <inttypes.h>
 
@@ -16,6 +17,7 @@ using std::ios;
 using std::setiosflags;
 using std::setprecision;
 using std::endl;
+using std::map;
 
 int Cutflow::_fast_access_id = 0;
 
@@ -79,20 +81,23 @@ void Cutflow::print(std::ostream &out) const
 
 void Cutflow::add(const Cutflow &source)
 {
-    if (source._cut_names.size() > _cut_names.size()) {
-        _fast_access_bin.resize(source._cut_names.size());
-        _cut_names.resize(source._cut_names.size());
+    map<string, int> cut_name_index;
+
+    for(uint32_t i = 0; i < _cut_names.size(); i++) {
+        if (_cut_names[i].size() != 0) 
+            cut_name_index[_cut_names[i]] = i+1; // +1 so 0 (default) is invalid
     }
+
+    // Add all cuts
     for(uint32_t i = 0; i < source._cut_names.size(); i++) {
-        if (source._cut_names[i].size() == 0) {
-            // do nothing
-        } else if (_cut_names[i].size() == 0) {
-            _cut_names[i] = source._cut_names[i];
-            _fast_access_bin[i] = source._fast_access_bin[i];
-        } else if (_cut_names[i] != source._cut_names[i]) {
-            throw std::runtime_error("Trying to add Cutflows with unequal cut names!");
+        string name = source._cut_names[i];
+        double count = source._fast_access_bin[i];
+        int index = cut_name_index[name] - 1;
+        if (index == -1) {
+            _cut_names.push_back(name);
+            _fast_access_bin.push_back(count);
         } else {
-            _fast_access_bin[i] += source._fast_access_bin[i];
+            _fast_access_bin[index] += count;
         }
     }
 }
