@@ -1,0 +1,2 @@
+#!/bin/bash
+merge_results $1/* -o $1.results && results2root $1.results -o $1.root && browse $1.root

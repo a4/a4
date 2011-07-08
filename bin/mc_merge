@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+from sys import argv, exit
+from os import listdir, sep, makedirs, system
+from os.path import join as pjoin
+from a4.messages import Event, Results
+
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("-c", "--counts", help="mc counts file")
+parser.add_option("-l", "--lumi", help="luminosity in pb")
+parser.add_option("-x", "--xs", help="cross section file")
+parser.add_option("-s", "--sets", help="file to map run numbers to output files")
+parser.add_option("-r", "--results", help="output directory of runnumber.results files")
+(options, args) = parser.parse_args()
+
+if len(args) == 0 or not options.results:
+    parser.print_help()
+    exit(-1)
+
+try:
+    makedirs(options.results)
+except OSError:
+    pass
+try:
+    makedirs(pjoin(options.results, "runs"))
+except OSError:
+    pass
+
+if options.xs:
+    xsf = [l.strip().split()[:4] for l in file(options.xs).readlines() if l.strip() and not l.startswith("#")]
+    xsdict = {}
+    for rn, xs, kf, eff in xsf:
+        if not xs == "xs_missing":
+            xsdict[int(rn)] = float(xs) * float(kf) * float(eff)
+
+    cntf = [l.strip().split()[:2] for l in file(options.counts).readlines() if l.strip() and not l.startswith("#")]
+    countdict = dict((int(rn), float(cnt)) for rn, cnt in cntf)
+
+    run_map = {}
+    for fn in args:
+        guessed_rn = int([s for s in fn.split(".") if s.isdigit() and len(s) == 6][0])
+        run_map.setdefault(guessed_rn,[]).append(fn)
+
+    for run, files in sorted(run_map.items()):
+        weight = xsdict[run]/countdict[run] * float(options.lumi)
+        out = pjoin(options.results, "runs", "%i.results" % run)
+        system("merge_results -t '%s' -w %.6g -o %s %s" % (run, weight, out, " ".join(files)))
+
+if options.sets:
+    set_dict = {}
+    active_set = None
+    for l in file(options.sets).readlines():
+        l = l.strip()
+        if not l or l.startswith('#'):
+            continue
+        if l.startswith(":"):
+            ls = l.split(":")
+            name, title = ls[1].strip(), ls[2].strip()
+            active_set = (name, title)
+            continue
+        if l.split()[0].isdigit():
+            #set_dict[int(l.split()[0])] = active_set
+            set_dict.setdefault(active_set,[]).append(int(l.split()[0]))
+    for set, runs in sorted(set_dict.items()):
+        name, title = set
+        in_files = " ".join(pjoin(options.results, "runs", "%i.results" % run) for run in runs)
+        out = pjoin(options.results, "%s.results" % name)
+        cmd = "merge_results -t '%s' -o %s %s" % (title, out, in_files)
+        print cmd
+        system(cmd)

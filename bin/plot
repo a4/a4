@@ -1,0 +1,109 @@
+#!/usr/bin/env python
+from sys import exit
+from rootools import make_page
+from rootools import atlas_style, get_legend, get_lumi_label, set_styles, stack_1D, plot_1D, draw_preliminary
+from a4.messages import Results
+from os.path import join as pjoin
+from os import makedirs
+
+disp = "1.02 fb^{-1}"
+
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("-a", "--all", action="store_true", help="make all histograms")
+parser.add_option("-i", "--interactive", action="store_true", help="interactive plots")
+parser.add_option("-d", "--data", action="append", default=[], help="data root file")
+parser.add_option("-o", "--output", default="", help="output directory for plots")
+parser.add_option("-p", "--histogram", action="append", default=[], help="histograms to plot (specify multiple times)")
+(options, args) = parser.parse_args()
+
+if not options.data and len(args) == 0:
+    parser.print_help()
+    exit(-1)
+
+if options.output:
+    try:
+        makedirs(options.output)
+    except OSError:
+        pass
+
+from ROOT import TFile
+
+class ATFile:
+    def __init__(self, fn):
+        self.fn = fn
+        self.tfile = TFile(fn)
+        self.dir = {}
+        self.scan(self.tfile)
+
+    def scan(self, dir, path=""):
+        for key in list(dir.GetListOfKeys()):
+            name = key.GetName()
+            cname = key.GetClassName()
+            if cname == "TDirectoryFile":
+                self.dir[pjoin(path,name)] = self.scan(dir.GetDirectory(name), pjoin(path, name))
+            else:
+                self.dir[pjoin(path,name)] = cname
+
+    def find_type(self, ttype, dir=None, path=""):
+        return [k for k, v in self.dir.iteritems() if v == ttype]
+
+    def get(self, h):
+        res = self.tfile.Get(h)
+        #if res:
+        #    res.SetTitle(self.fn)
+        return res
+
+mc_files = [ATFile(fn) for fn in args]
+data_files = [ATFile(d) for d in options.data]
+
+histos_1d = sorted(set(sum((f.find_type("TH1D") for f in data_files+mc_files), [])))
+histos_2d = sorted(set(sum((f.find_type("TH2D") for f in data_files+mc_files), [])))
+if not options.all:
+    histos_1d = [h for h in histos_1d if h in options.histogram]
+    histos_2d = [h for h in histos_2d if h in options.histogram]
+
+def mydraw2(name, d, b, s):
+    def draw():
+        legend, stack, summc, hsave = plot_1D(name, d, b, s, lumi=disp, rebin_to=100)
+        if stack:
+            stack.GetXaxis().SetTitle(name)
+            stack.GetYaxis().SetTitle("events")
+        return legend, stack, summc, hsave
+    return draw 
+
+prefix = options.output
+histograms = []
+
+from ROOT import TCanvas, kRed
+for h in histos_1d:
+    data = [f.get(h) for f in data_files if h in f.dir]
+    bg = [f.get(h) for f in mc_files if not "higgs" in f.fn and h in f.dir]
+    sg = [f.get(h) for f in mc_files if "higgs" in f.fn and h in f.dir]
+    for h in data+bg+sg:
+        h.SetDirectory(0)
+    assert not sg
+
+    #set_styles(data, bg, sg)
+
+    if options.interactive:
+        histograms.append(TCanvas())
+        #histograms.append(plot_1D(h, data, bg, sg, lumi=disp, rebin_to=40, range=(20,100)))
+        histograms.append(plot_1D(h, data, bg, sg, lumi=disp))
+        raw_input("Press Enter to continue, CTRL+C to abort...")
+    else:
+        make_page([mydraw2(h,data,bg,sg)], pjoin(prefix, h.replace("/","_")), h.replace("/","_"), landscape=True, split=(1,1), format="png", dpi=200)
+        make_page([mydraw2(h,data,bg,sg)], pjoin(prefix, h.replace("/","_")+"_log"), h.replace("/","_")+"_log", landscape=True, split=(1,1), format="png", dpi=200, log=True)
+
+    #histograms[-1][1].GetXaxis().SetTitle(h)
+    #make_pdf(histograms, h.replace("/","_"), h.replace("/","_"))
+    #make_pdf(histograms, h.replace("/","_"), h.replace("/","_"))
+
+if options.interactive:
+    raw_input("Press Enter to finish.")
+
+#make_page(histograms, h.replace("/","_"), h.replace("/","_"), landscape=True, format="png")
+#make_page(histograms, "plots", "plots", landscape=True, format="png")
+
+
+    
