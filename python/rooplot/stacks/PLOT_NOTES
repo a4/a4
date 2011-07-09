@@ -1,0 +1,180 @@
+See: PubComPlotStyle twiki page for more details of the ATLAS recommendations
+https://twiki.cern.ch/twiki/bin/view/AtlasProtected/PubComPlotStyle
+
+-----------------
+
+Use ATLAS-style
+
+- AtlasStyle.C file
+- gROOT->LoadMacro("AtlasStyle.C");
+  SetAtlasStyle();
+
+- this will essentially set:
+
+  gStyle->SetOptStat(0);
+  Int_t icol=0;
+  gStyle->SetFrameBorderMode(icol);
+  gStyle->SetFrameFillColor(icol);
+  gStyle->SetCanvasBorderMode(icol);
+  gStyle->SetCanvasColor(icol);
+  gStyle->SetPadBorderMode(icol); 
+  gStyle->SetPadColor(icol);
+  gStyle->SetStatColor(icol);
+  gStyle->SetPaperSize(20,26);
+  gStyle->SetPadTopMargin(0.05);
+  gStyle->SetPadRightMargin(0.05);
+  gStyle->SetPadBottomMargin(0.16);
+  gStyle->SetPadLeftMargin(0.16);
+  gStyle->SetTitleXOffset(1.4);
+  gStyle->SetTitleYOffset(1.4);
+  Int_t font=42;
+  Double_t tsize=0.05;
+  gStyle->SetTextFont(font);
+  gStyle->SetTextSize(tsize);
+  gStyle->SetLabelFont(font,"x");
+  gStyle->SetTitleFont(font,"x");
+  gStyle->SetLabelFont(font,"y");
+  gStyle->SetTitleFont(font,"y");
+  gStyle->SetLabelFont(font,"z");
+  gStyle->SetTitleFont(font,"z");
+  gStyle->SetLabelSize(tsize,"x");
+  gStyle->SetTitleSize(tsize,"x");
+  gStyle->SetLabelSize(tsize,"y");
+  gStyle->SetTitleSize(tsize,"y");
+  gStyle->SetLabelSize(tsize,"z");
+  gStyle->SetTitleSize(tsize,"z");
+  gStyle->SetMarkerStyle(20);
+  gStyle->SetMarkerSize(1.2);
+  gStyle->SetHistLineWidth(2);
+  gStyle->SetLineStyleString(2,"[12 12]");
+  gStyle->SetEndErrorSize(0.);
+  gStyle->SetOptTitle(0);
+  gStyle->SetOptFit(0);
+  gStyle->SetPadTickX(1);
+  gStyle->SetPadTickY(1);
+
+-----------------
+
+Canvas Size:
+
+a) Rectangular - 
+TCanvas *canvas = new TCanvas("canvas","canvas",200,10,800,600);
+(for 1D histograms)
+b) Square - 
+TCanvas *canvas = new TCanvas("canvas","canvas",200,10,600,600);
+(for 2D histograms)
+
+-----------------
+
+Suggested plot colours:
+
+W+jets:
+- SetFillColor(kAzure+1) for 1D
+- SetLineColor(kBlue+3) for 2D
+Z+jets: 
+- SetFillColor(kBlue+3) for 1D
+- not in 2D plot
+QCD: 
+- SetFillColor(kWhite) for 1D
+- SetFillColor(kGray+2) for 2D
+ttbar: 
+- SetFillColor(kGreen-9) for 1D
+- not in 2D plot
+
+Data: Black markers (MarkerStyle 20, MarkerSize 1.2) (1D and 2D)
+MC Total: No markers (MarkerSize 0), SetLineColor(kRed), yellow error band* 
+(* see later for instructions on drawing the yellow error band)
+
+Signal: 
+- black line SetLineWidth(4) for 1D
+
+-----------------
+
+Legend: 
+
+TLegend *legend = new TLegend(0.2,0.65,0.4,0.94);
+legend->SetBorderSize(0);
+legend->SetTextFont(42);
+legend->SetTextSize(0.04);
+legend->SetFillColor(0);
+legend->SetLineColor(0);
+legend->AddEntry(data,"Data 2010 (#sqrt{s} = 7 TeV)","p");
+legend->AddEntry(MC,"Monte Carlo","flp"); <== NB: omit this entry for 2D histogram
+legend->AddEntry(QCD,"dijets","f");
+legend->AddEntry(WplusJets,"W+jets","f"); 
+legend->AddEntry(ZplusJets,"Z+jets","f"); <== NB: omit this entry for 2D histogram
+legend->AddEntry(T1,"t#bar{t}","f"); <== NB: omit this entry for 2D histogram
+legend->AddEntry(signal,"SU4 (x500)","l"); <== NB: omit this entry for 2D histogram
+
+legend->Draw();
+
+-----------------
+
+Luminosity label:
+
+TLatex n;
+n.SetNDC();
+n.SetTextFont(42);
+n.SetTextColor(kBlack);
+n.DrawLatex(0.55,0.75,"#intL dt ~ 6.08 nb^{-1}");
+
+-----------------
+
+Axis labels:
+
+y-axis labels: Entries / x Units (x = bin width, Units = e.g. GeV)
+x-axis labels: Quantity [Unit] (Quantity = e.g. M_{eff}, Units = e.g. GeV)
+
+-----------------
+
+Other:
+
+no plot titles - histogram->SetTitle("");
+to change the maximum number of digits displayed - e.g. TGaxis::SetMaxDigits(3);
+
+Drawing 2D plots
+- Draw("box") for first MC (dijets)
+- then Draw("boxsame") for subsequent MC (W+jets)
+- Draw("psame") for data
+
+Drawing 1D plots
+- hist stack of MC Draw("hist")
+- clone total MC histogram: TH1 *hsave = (TH1F*)variable_plot_aMC[i]->Clone("hsave");
+- after cloning the total MC histogram SetFillColor(kYellow) for the total MC histogram
+- total MC Draw("e2same")
+- cloned histogram Draw("hist same][")
+- data Draw("pesame")
+- signal Draw("histsame")
+
+i.e. 
+ stack2->Draw("hist"); // <== MC histogram stack
+ variable_plot_aMC[i]->SetLineColor(kRed); // <== total MC
+ TH1 *hsave = (TH1F*)variable_plot_aMC[i]->Clone("hsave"); // <== cloned MC
+ variable_plot_aMC[i]->SetFillColor(kYellow); 
+ variable_plot_aMC[i]->SetMarkerSize(0);
+ variable_plot_aMC[i]->Draw("e2same");
+ hsave->Draw("hist same][");
+ variable_plot_data[i]->Draw("pesame");
+ variable_plot_signal[i]->Draw("histsame");
+
+All MC stacked in this order:
+- ttbar 1st 
+- Z+jets 2nd
+- W+jets 3rd
+- dijets last
+(i.e. inversely by cross-section)
+
+If a separate signal sample is drawn - it should not be added to the stack, but instead drawn as a separate line (black and SetLineWidth(4)).
+
+-----------------
+
+NB: [ATLAS Preliminary label for when plots are approved only: 
+    TLatex l;
+    l.SetNDC();
+    l.SetTextFont(72);
+    l.SetTextColor(kBlack);
+    l.DrawLatex(0.21,0.65,"ATLAS");                                                                            
+    TLatex m;
+    m.SetNDC();
+    m.SetTextFont(42);
+    m.DrawLatex(0.335,0.65,"Preliminary");]
