@@ -59,8 +59,9 @@ if options.sets:
             active_set = (name, title)
             continue
         if l.split()[0].isdigit():
-            #set_dict[int(l.split()[0])] = active_set
-            set_dict.setdefault(active_set,[]).append(int(l.split()[0]))
+            run = int(l.split()[0])
+            if not run in set_dict.setdefault(active_set,[]):
+                set_dict[active_set].append(run)
     for set, runs in sorted(set_dict.items()):
         name, title = set
         in_files = " ".join(pjoin(options.results, "runs", "%i.results" % run) for run in runs)
