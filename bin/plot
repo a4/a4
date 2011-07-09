@@ -75,7 +75,7 @@ def mydraw2(name, d, b, s):
 prefix = options.output
 histograms = []
 
-from ROOT import TCanvas, kRed
+from ROOT import TCanvas, kRed, TH1D
 for h in histos_1d:
     data = [f.get(h) for f in data_files if h in f.dir]
     bg = [f.get(h) for f in mc_files if not "higgs" in f.fn and h in f.dir]
@@ -83,6 +83,27 @@ for h in histos_1d:
     for h in data+bg+sg:
         h.SetDirectory(0)
     assert not sg
+
+    # Deal with cutflow histograms
+    if (data+sg+bg)[0].GetXaxis().GetBinLabel(1):
+        labels = map(str, (data+sg+bg)[0].GetXaxis().GetLabels())
+        for h in data+sg+bg:
+            for label in map(str,h.GetXaxis().GetLabels()):
+                if not label in labels:
+                    labels.append(label)
+        def trafo(h):
+            nh = TH1D(h.GetName(), h.GetTitle(), len(labels), 0, len(labels))
+            nh.SetDirectory(0)
+            for i, label in enumerate(labels):
+                nh.GetXaxis().SetBinLabel(i+1, label)
+                oi = h.GetXaxis().FindBin(label)
+                if oi != -1:
+                    nh.SetBinContent(i+1, h.GetBinContent(oi))
+            return nh
+        data = map(trafo, data)
+        sg = map(trafo, sg)
+        bg = map(trafo, bg)
+
 
     #set_styles(data, bg, sg)
 
