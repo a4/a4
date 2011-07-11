@@ -1,17 +1,10 @@
 #!/usr/bin/env python
-from sys import exit
-from rooplot import make_page
-from rooplot import atlas_style, get_legend, get_lumi_label, set_styles, stack_1D, plot_1D, draw_preliminary
-from a4.messages import Results
-from os.path import join as pjoin
-from os import makedirs
-
-disp = "1.02 fb^{-1}"
 
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-a", "--all", action="store_true", help="make all histograms")
 parser.add_option("-d", "--data", action="append", default=[], help="data root file")
+parser.add_option("-l", "--latex", action="store_true", help="print as latex tables")
 parser.add_option("-o", "--output", default="", help="output directory for text files")
 parser.add_option("-p", "--histogram", action="append", default=[], help="histograms to print (specify multiple times)")
 (options, args) = parser.parse_args()
@@ -26,32 +19,17 @@ if options.output:
     except OSError:
         pass
 
-from ROOT import TFile
+from sys import exit
+from rooplot import make_page
+from rooplot import atlas_style, get_legend, get_lumi_label, set_styles, stack_1D, plot_1D, draw_preliminary
+from a4.messages import Results
 
-class ATFile:
-    def __init__(self, fn):
-        self.fn = fn
-        self.tfile = TFile(fn)
-        self.dir = {}
-        self.scan(self.tfile)
+from os import makedirs
+from uncertain import UncertainNumber, CertainNumber
 
-    def scan(self, dir, path=""):
-        for key in list(dir.GetListOfKeys()):
-            name = key.GetName()
-            cname = key.GetClassName()
-            if cname == "TDirectoryFile":
-                self.dir[pjoin(path,name)] = self.scan(dir.GetDirectory(name), pjoin(path, name))
-            else:
-                self.dir[pjoin(path,name)] = cname
+disp = "1.02 fb^{-1}"
 
-    def find_type(self, ttype, dir=None, path=""):
-        return [k for k, v in self.dir.iteritems() if v == ttype]
-
-    def get(self, h):
-        res = self.tfile.Get(h)
-        #if res:
-        #    res.SetTitle(self.fn)
-        return res
+from atfile import ATFile
 
 mc_files = [ATFile(fn) for fn in args]
 data_files = [ATFile(d) for d in options.data]
@@ -62,31 +40,6 @@ if not options.all:
 
 prefix = options.output
 histograms = []
-
-
-class UncertainNumber:
-    def __init__(self, n, e):
-        self.n = n
-        self.esq = e*e
-
-    def __add__(self, ucn):
-        self.n += ucn.n
-        self.esq += ucn.esq
-    
-    @property
-    def e(self):
-        print self.n, self.esq
-        if self.esq < 0:
-            print self.n, self.esq
-            assert self.esq >= 0
-        assert self.esq >= 0
-        if self.esq == 0:
-            return 0
-        return self.esq**0.5
-
-    def __str__(self):
-        return "%.2f +- %.2f" % (self.n, self.e)
-
 
 from ROOT import TCanvas, kRed, TH1D
 for hn in histos_1d:
@@ -106,22 +59,48 @@ for hn in histos_1d:
                 labels.append(labe)
 
     def get_cf(h):
-        data = {}
+        datad = {}
         for label in labels:
             oi = h.GetXaxis().FindBin(label)
-            data[label] = UncertainNumber(h.GetBinContent(oi), h.GetBinError(oi)) if oi != -1 else UncertainNumber(0.0,0.0)
-        return h.GetTitle(), data
+            if h in data:
+                datad[label] = CertainNumber(h.GetBinContent(oi)) if oi != -1 else CertainNumber(0)
+            else:
+                datad[label] = UncertainNumber(h.GetBinContent(oi), h.GetBinError(oi)) if oi != -1 else UncertainNumber(0.0,0.0)
+        return h.GetTitle(), datad
 
-    data = map(get_cf, data)
-    sg = map(get_cf, sg)
-    bg = map(get_cf, bg)
-    
-    # horizontal    
-    s = ["|".join("%30s"%label for label in labels), "\n"]
-    for title, numbers in (data+sg+bg):
-        print title
-        s.extend(("%30s|"%title, "|".join("%30s"%str(numbers[label]) for label in labels)))
-        s.append("\n")
+    tdata = map(get_cf, data+sg+bg)
+
+    table = []
+    table.append([""] + ["$%s$"%l for l in labels])
+    for (title, numbers) in tdata:
+        table.append([title] + [numbers[label].latex() for label in labels])
+
+
+    widths_h = [max(len(line[i]) for line in table) for i in range(len(table[0]))]
+    widths_v = [max(len(w) for w in line) for line in table]
+
+    # vertical
+    t = ["\\begin{tabular}{%s}" % ("|".join("r" for i in range(len(widths_h))))]
+    for l in table:
+        t.append(" & ".join(("%%%is"%w)%e for w, e in zip(widths_h, l)) + "\\\\")
+        if l == table[0]:
+            t.append("\hline")
+    t.append("\end{tabular}")
+    print "\n".join(t)
+
+    # horizontal
+    t = ["\\begin{tabular}{%s}" % ("|".join("r" for i in range(len(widths_v))))]
+
+    for i in range(len(table[0])):
+        ln = []
+        for w, e in zip(widths_v, (line[i] for line in table)):
+            ln.append(("%%%is"%w)%e)
+        t.append(" & ".join(ln) + "\\\\")
+        if i == 0:
+            t.append("\hline")
+    t.append("\end{tabular}")
+    print "\n".join(t)
+
 
 
     
