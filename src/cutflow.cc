@@ -18,6 +18,7 @@ using std::setiosflags;
 using std::setprecision;
 using std::endl;
 using std::map;
+using std::vector;
 
 int Cutflow::_fast_access_id = 0;
 
@@ -41,9 +42,12 @@ Cutflow & Cutflow::operator*=(const double & w) {
 
     for(uint32_t bin = 0, bins = _fast_access_bin.size(); bins > bin; ++bin)
         _fast_access_bin[bin] *= w;
-    if (_weights_squared)
-        for(uint32_t bin = 0, bins = _cut_names.size(); bins > bin; ++bin)
-            (*_weights_squared)[bin] *= w*w;
+    if (!_weights_squared) {
+        _weights_squared.reset(new vector<double>(_cut_names.size()));
+        for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _fast_access_bin[i];
+    }
+    for(uint32_t bin = 0, bins = _cut_names.size(); bins > bin; ++bin)
+        (*_weights_squared)[bin] *= w*w;
     return *this;
 }
 
@@ -51,15 +55,30 @@ void Cutflow::fill(const int & id, const std::string & name, const double w) {
     try {
         double & current_value = _fast_access_bin.at(id);
         if (current_value != 0) {
+            if (_weights_squared)
+                (*_weights_squared)[id] += w*w;
+            else if (w != 1.0) {
+                _weights_squared.reset(new vector<double>(_cut_names.size()));
+                for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _fast_access_bin[i];
+                (*_weights_squared)[id] += w*w;
+            }
             current_value += w;
-            return;                    
+            return;
         }
     } catch (std::out_of_range & oor) {
         _fast_access_bin.resize(id+1);
+        if (_weights_squared) _weights_squared->resize(id+1);
         _cut_names.resize(id+1);
     }
     // if we land here, we have to save the name
     _cut_names[id] = name;
+    if (_weights_squared)
+        (*_weights_squared)[id] += w*w;
+    else if (w != 1.0) {
+        _weights_squared.reset(new vector<double>(_cut_names.size()));
+        for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _fast_access_bin[i];
+        (*_weights_squared)[id] += w*w;
+    }
     _fast_access_bin[id] += w;
 }
 
@@ -97,6 +116,10 @@ void Cutflow::add(const Cutflow &source)
         if (_cut_names[i].size() != 0) 
             cut_name_index[_cut_names[i]] = i+1; // +1 so 0 (default) is invalid
     }
+    if (source._weights_squared && !_weights_squared) {
+        _weights_squared.reset(new vector<double>(_cut_names.size()));
+        for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _fast_access_bin[i];
+    }
 
     // Add all cuts
     for(uint32_t i = 0; i < source._cut_names.size(); i++) {
@@ -106,6 +129,14 @@ void Cutflow::add(const Cutflow &source)
         if (index == -1) {
             _cut_names.push_back(name);
             _fast_access_bin.push_back(count);
+            if (_weights_squared) {
+                if (source._weights_squared) {
+                    _weights_squared->push_back(source._weights_squared->operator[](i));
+                } else {
+                    _weights_squared->push_back(count);
+                }
+            }
+
         } else {
             _fast_access_bin[index] += count;
         }
@@ -119,6 +150,9 @@ MessagePtr Cutflow::get_message() {
         if (_cut_names[i].size() != 0) {
             cf->add_counts_double(_fast_access_bin[i]);
             cf->add_counts_double_names(_cut_names[i]);
+            if (_weights_squared) {
+                cf->add_weights_squared((*_weights_squared)[i]);
+            }
         }
     }
     return cf;
@@ -128,5 +162,9 @@ Cutflow::Cutflow(Message& m) {
     a4pb::Cutflow * msg = dynamic_cast<a4pb::Cutflow*>(&m);
     BOOST_FOREACH(double d, msg->counts_double()) _fast_access_bin.push_back(d);
     BOOST_FOREACH(string s, msg->counts_double_names()) _cut_names.push_back(s);    
+    if (msg->weights_squared_size() > 0) {
+        _weights_squared.reset(new vector<double>);
+        BOOST_FOREACH(double d, msg->weights_squared()) _weights_squared->push_back(d);
+    }
 }
 
