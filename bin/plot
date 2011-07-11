@@ -1,4 +1,23 @@
 #!/usr/bin/env python
+
+
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("-a", "--all", action="store_true", help="make all histograms")
+parser.add_option("-i", "--interactive", action="store_true", help="interactive plots")
+parser.add_option("-d", "--data", action="append", default=[], help="data root file")
+parser.add_option("-o", "--output", default="", help="output directory for plots")
+parser.add_option("-b", "--rebin", action="append", default=[], help="rebin factor")
+parser.add_option("-p", "--histogram", action="append", default=[], help="histograms to plot (specify multiple times)")
+parser.add_option("-x", "--xtitle", action="append", default=[], help="label of the x axis of the plot (specify multiple times)")
+parser.add_option("-r", "--range", action="append", default=[], help="range of x axis of the plot, format: <nbins>,<start>-<end> or <start>-<end> or only <nbins> (specify multiple times)")
+parser.add_option("-u", "--unit", action="append", default=[], help="units of the x axis of the plot")
+parser.add_option("-c", "--compare", action="store_true", help="generate comparison plot of data/mc")
+parser.add_option("-s", "--sigma", action="store_true", help="show significance plot (exclusive with compare)")
+(options, args) = parser.parse_args()
+import sys
+sys.argv = []
+
 from sys import exit
 from rooplot import make_page
 from rooplot import atlas_style, get_legend, get_lumi_label, set_styles, stack_1D, plot_1D, draw_preliminary
@@ -8,14 +27,10 @@ from os import makedirs
 
 disp = "1.02 fb^{-1}"
 
-from optparse import OptionParser
-parser = OptionParser()
-parser.add_option("-a", "--all", action="store_true", help="make all histograms")
-parser.add_option("-i", "--interactive", action="store_true", help="interactive plots")
-parser.add_option("-d", "--data", action="append", default=[], help="data root file")
-parser.add_option("-o", "--output", default="", help="output directory for plots")
-parser.add_option("-p", "--histogram", action="append", default=[], help="histograms to plot (specify multiple times)")
-(options, args) = parser.parse_args()
+xtitles = dict(zip(options.histogram, options.xtitle))
+xunits  = dict(zip(options.histogram, options.unit))
+xrebin  = dict(zip(options.histogram, options.rebin))
+x_range = dict(zip(options.histogram, options.range))
 
 if not options.data and len(args) == 0:
     parser.print_help()
@@ -63,25 +78,44 @@ if not options.all:
     histos_1d = [h for h in histos_1d if h in options.histogram]
     histos_2d = [h for h in histos_2d if h in options.histogram]
 
-def mydraw2(name, d, b, s):
-    def draw():
-        legend, stack, summc, hsave = plot_1D(name, d, b, s, lumi=disp, rebin_to=100)
-        if stack:
-            stack.GetXaxis().SetTitle(name)
-            stack.GetYaxis().SetTitle("events")
-        return legend, stack, summc, hsave
+def mydraw2(name, d, b, s, xtitle, ytitle, range=None, log=False):
+
     return draw 
 
 prefix = options.output
 histograms = []
 
 from ROOT import TCanvas, kRed, TH1D
-for h in histos_1d:
-    data = [f.get(h) for f in data_files if h in f.dir]
-    bg = [f.get(h) for f in mc_files if not "higgs" in f.fn and h in f.dir]
-    sg = [f.get(h) for f in mc_files if "higgs" in f.fn and h in f.dir]
+for hn in histos_1d:
+    data = [f.get(hn) for f in data_files if hn in f.dir]
+    bg = [f.get(hn) for f in mc_files if not "higgs" in f.fn and hn in f.dir]
+    sg = [f.get(hn) for f in mc_files if "higgs" in f.fn and hn in f.dir]
+
+    xtitle, ytitle = None, None
     for h in data+bg+sg:
         h.SetDirectory(0)
+        if xrebin.get(hn,1) != 1:
+            h.Rebin(int(xrebin[hn]))
+
+        if xtitle is None:
+            xtitle = xtitles.get(hn, "")
+            x = h.GetXaxis()
+            n, min, max = x.GetNbins(), x.GetBinLowEdge(x.GetFirst()), x.GetBinUpEdge(x.GetLast())
+            delta = (max-min)/n
+            if xunits.get(hn, ""):
+                per_str = " / %s"%xunits[hn] if delta == 1 else " / %g %s" % (delta, xunits[hn])
+                xtitle = "%s [%s]" % (xtitle, xunits[hn])
+            else:
+                if delta != 1:
+                    per_str = " / %g" % delta
+                else:
+                    per_str = ""
+            ytitle = "Entries%s" % per_str
+        if xtitle:
+            h.GetXaxis().SetTitle(xtitle)
+        if ytitle:
+            h.GetYaxis().SetTitle(ytitle)
+            
     assert not sg
 
     # Deal with cutflow histograms
@@ -106,15 +140,43 @@ for h in histos_1d:
 
 
     #set_styles(data, bg, sg)
+    range = None
+    rebin_to = None
+    if x_range.get(hn, None):
+        range = x_range[hn] 
+        if "," in range:
+            rebin_to, srange = range.split(",")
+            rebin_to = int(rebin_to)
+            range = map(float,srange.split("-"))
+        elif "-" in range:
+            rebin_to = None
+            range = map(float, x_range[hn].split("-"))
+        else:
+            rebin_to = int(range)
+            range = None
+
+    def get_draw(log):
+        def draw():
+            legend, stack, summc, hsave, save = plot_1D(hn,data,bg,sg,lumi=disp,rebin_to=rebin_to,range=range,compare=options.compare,sigma=options.sigma,log=log)
+            if stack:
+                if xtitle:
+                    stack.GetXaxis().SetTitle(xtitle)
+                if ytitle:
+                    stack.GetYaxis().SetTitle(ytitle)
+                #stack.GetXaxis().LabelsOption("v")
+            return legend, stack, summc, hsave, save
+        return draw
 
     if options.interactive:
-        histograms.append(TCanvas())
+        histograms.append(TCanvas(hn,hn))
         #histograms.append(plot_1D(h, data, bg, sg, lumi=disp, rebin_to=40, range=(20,100)))
-        histograms.append(plot_1D(h, data, bg, sg, lumi=disp))
-        raw_input("Press Enter to continue, CTRL+C to abort...")
+        histograms.append(get_draw(False)())
+
+        #raw_input("Press Enter to continue, CTRL+C to abort...")
     else:
-        make_page([mydraw2(h,data,bg,sg)], pjoin(prefix, h.replace("/","_")), h.replace("/","_"), landscape=True, split=(1,1), format="png", dpi=200)
-        make_page([mydraw2(h,data,bg,sg)], pjoin(prefix, h.replace("/","_")+"_log"), h.replace("/","_")+"_log", landscape=True, split=(1,1), format="png", dpi=200, log=True)
+        ghn = hn.replace("/","_")
+        make_page([get_draw(False)], pjoin(prefix, ghn), ghn, landscape=True, split=(1,1), format="png", dpi=200)
+        make_page([get_draw(True)], pjoin(prefix, ghn+"_log"), ghn+"_log", landscape=True, split=(1,1), format="png", dpi=200)
 
     #histograms[-1][1].GetXaxis().SetTitle(h)
     #make_pdf(histograms, h.replace("/","_"), h.replace("/","_"))

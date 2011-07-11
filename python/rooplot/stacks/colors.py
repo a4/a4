@@ -2,6 +2,7 @@ from ROOT import kAzure, kBlue, kWhite, kRed, kBlack, kGray, kGreen, kYellow, kT
 
 clrs = (kWhite, kRed, kBlack, kGray, kGreen, kYellow, kTeal, kCyan, kSpring, kBlue)
 clrs = (kWhite, kGray, kBlack, kBlue, kGreen, kTeal, kTeal, kRed, kSpring, kMagenta)
+clrs = (kGray, kBlack, kBlue, kGreen, kTeal, kRed, kSpring, kMagenta, kYellow, kCyan)
 
 #Suggested plot colours:
 def set_color_1D(h, name, cnum):
@@ -9,11 +10,13 @@ def set_color_1D(h, name, cnum):
     if name == "W+jets": 
         h.SetFillColor(kAzure+1)
     elif name == "Z+jets":
-        h.SetFillColor(kBlue+3)
-    elif name == "QCD":
+        h.SetFillColor(kBlue+1)
+    elif "Dijets" in name:
         h.SetFillColor(kWhite)
-    elif name == "ttbar":
+    elif "ttbar" in name or "t#bar{t}" in name:
         h.SetFillColor(kGreen-9)
+    elif "WW" in name:
+        h.SetFillColor(kBlue-2)
     else:
         h.SetFillColor(clrs[cnum % len(clrs)])
         

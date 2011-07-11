@@ -50,9 +50,10 @@ class AtlasStyle( ROOT.TStyle ):
         # Set the paper & margin sizes:
         self.SetPaperSize( 17.5, 25.5 )
         self.SetPadTopMargin( 0.05 )
-        #self.SetPadRightMargin( 0.2 )
-        self.SetPadRightMargin( 0.4 )
-        self.SetPadBottomMargin( 0.16 )
+        self.SetPadRightMargin( 0.05 )
+        #self.SetPadRightMargin( 0.2 ) # ORIG
+        #self.SetPadBottomMargin( 0.16 ) # ORIG
+        self.SetPadBottomMargin( 0.2 )
         self.SetPadLeftMargin( 0.12 )
 
         # Use large fonts:
@@ -88,4 +89,5 @@ class AtlasStyle( ROOT.TStyle ):
 
         # Put tick marks on RHS of plots:
         self.SetPadTickY( 1 )
+        self.SetPadTickX( 1 ) # JOHANNES
 
