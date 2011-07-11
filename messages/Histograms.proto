@@ -13,6 +13,7 @@ message Histogram1
     optional string name = 1;
     repeated double data = 2 [packed=true];
     required Axis x = 3;
+    repeated double weights_squared = 14 [packed=true];
     optional int64 entries = 15;
 }
 
@@ -22,5 +23,6 @@ message Histogram2
     repeated double data = 2 [packed=true];
     required Axis x = 3;
     required Axis y = 4;
+    repeated double weights_squared = 14 [packed=true];
     optional int64 entries = 15;
 }

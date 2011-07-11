@@ -27,6 +27,10 @@ Cutflow::Cutflow(const Cutflow & h):
     _fast_access_bin(h._fast_access_bin),
     _cut_names(h._cut_names)
 {
+    if (h._weights_squared) {
+        _weights_squared.reset(new std::vector<double>);
+        *_weights_squared = *h._weights_squared;
+    }
 }
 
 Cutflow::~Cutflow()
@@ -34,8 +38,12 @@ Cutflow::~Cutflow()
 }
 
 Cutflow & Cutflow::operator*=(const double & w) {
+
     for(uint32_t bin = 0, bins = _fast_access_bin.size(); bins > bin; ++bin)
         _fast_access_bin[bin] *= w;
+    if (_weights_squared)
+        for(uint32_t bin = 0, bins = _cut_names.size(); bins > bin; ++bin)
+            (*_weights_squared)[bin] *= w*w;
     return *this;
 }
 
@@ -58,7 +66,9 @@ void Cutflow::fill(const int & id, const std::string & name, const double w) {
 std::vector<Cutflow::CutNameCount> Cutflow::content() const {
     std::vector<Cutflow::CutNameCount> result;
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
-        result.push_back(Cutflow::CutNameCount(_cut_names[i], _fast_access_bin[i]));
+        double w = _fast_access_bin[i];
+        if (_weights_squared) w = (*_weights_squared)[i];
+        result.push_back(Cutflow::CutNameCount(_cut_names[i], _fast_access_bin[i], w));
     }
     return result;
 }

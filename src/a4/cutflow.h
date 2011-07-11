@@ -14,7 +14,12 @@ typedef boost::shared_ptr<Cutflow> CutflowPtr;
 class Cutflow : public streamable
 {
     public:
-        class CutNameCount { public: std::string name; double count; CutNameCount(std::string n, double c) : name(n), count(c) {};};
+        class CutNameCount { 
+            public: 
+                std::string name; 
+                double count, weights_squared; 
+                CutNameCount(std::string n, double c, double w2) : name(n), count(c), weights_squared(w2) {};
+        };
 
         Cutflow();
         Cutflow(const Cutflow &);
@@ -35,6 +40,7 @@ class Cutflow : public streamable
         Cutflow & operator*=(const double &);
     private:
         std::vector<double> _fast_access_bin;
+        boost::shared_ptr<std::vector<double> > _weights_squared;
         std::vector<std::string> _cut_names;
 };
 

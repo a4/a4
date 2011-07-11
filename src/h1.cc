@@ -27,6 +27,10 @@ H1::H1(const H1 & h):
     const uint32_t total_bins = h.bins() + 2;
     _data.reset(new double[total_bins]);
     memcpy(_data.get(), h._data.get(), total_bins * sizeof(double));
+    if (h._weights_squared) {
+        _weights_squared.reset(new double[total_bins]);
+        memcpy(_weights_squared.get(), h._weights_squared.get(), total_bins * sizeof(double));
+    }
 }
 
 H1::~H1()
@@ -37,6 +41,12 @@ H1 & H1::operator*=(const double & w) {
     const uint32_t total_bins = _axis.bins() + 2;
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) *= w;
+    if (!_weights_squared) {
+        _weights_squared.reset(new double[total_bins]);
+        for(uint32_t i = 0; i < total_bins; i++) _weights_squared[i] = _data[i];
+    }
+    for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
+        *(_weights_squared.get() + bin) *= w*w;
     _entries *= w;
     return *this;
 }
@@ -48,6 +58,8 @@ MessagePtr H1::get_message() {
     h1->mutable_x()->set_max(_axis.max());
     const uint32_t total_bins = _axis.bins() + 2;
     for(uint32_t i = 0; i < total_bins; i++) h1->add_data(_data[i]);
+    if (_weights_squared)
+        for(uint32_t i = 0; i < total_bins; i++) h1->add_weights_squared(_weights_squared[i]);
     h1->set_entries(_entries);
     return h1;
 }
@@ -59,6 +71,10 @@ H1::H1(Message& m) : _axis(0,0,0) {
     const uint32_t total_bins = _axis.bins() + 2;
     _data.reset(new double[total_bins]);
     for (int i = 0; i < total_bins; i++) _data[i] = msg->data(i);
+    if (msg->weights_squared_size() > 0) {
+        _weights_squared.reset(new double[total_bins]);
+        for (int i = 0; i < total_bins; i++) _weights_squared[i] = msg->weights_squared(i);
+    }
 }
 
 double H1::integral() const
@@ -72,11 +88,19 @@ double H1::integral() const
 
 void H1::fill(const double &x, const double &weight)
 {
-    if (!_data)
-        return;
-
-    *(_data.get() + _axis.find_bin(x)) += weight;
+    int bin = _axis.find_bin(x);
+    *(_data.get() + bin) += weight;
     ++_entries;
+
+    if (_weights_squared) {
+        *(_weights_squared.get() + bin) += weight*weight;
+    } else if (weight != 1.0) {
+        const uint32_t total_bins = _axis.bins() + 2;
+        _weights_squared.reset(new double[total_bins]);
+        for(uint32_t i = 0; i < total_bins; i++)
+            _weights_squared[i] = _data[i];
+        *(_weights_squared.get() + bin) += weight*weight;
+    }
 }
 
 void H1::print(std::ostream &out) const
@@ -99,6 +123,9 @@ void H1::add(const H1 &source)
 {
     for(uint32_t bin = 0, bins = _axis.bins() + 2; bins > bin; ++bin)
         *(_data.get() + bin) += *(source._data.get() + bin);
+    if (_weights_squared)
+        for(uint32_t bin = 0, bins = _axis.bins() + 2; bins > bin; ++bin)
+            *(_weights_squared.get() + bin) += *(source._weights_squared.get() + bin);
     _entries += source._entries;
 }
 

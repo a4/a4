@@ -27,6 +27,10 @@ H2::H2(const H2 & h):
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     _data.reset(new double[total_bins]);
     memcpy(_data.get(), h._data.get(), total_bins * sizeof(double));
+    if (h._weights_squared) {
+        _weights_squared.reset(new double[total_bins]);
+        memcpy(_weights_squared.get(), h._weights_squared.get(), total_bins * sizeof(double));
+    }
 }
 
 H2::~H2()
@@ -36,6 +40,12 @@ H2 & H2::operator*=(const double & w) {
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) *= w;
+    if (!_weights_squared) {
+        _weights_squared.reset(new double[total_bins]);
+        for(uint32_t i = 0; i < total_bins; i++) _weights_squared[i] = _data[i];
+    }
+    for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
+        *(_weights_squared.get() + bin) *= w*w;
     _entries *= w;
     return *this;
 }
@@ -49,6 +59,8 @@ MessagePtr H2::get_message() {
     h2->mutable_y()->set_max(_y_axis.max());
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     for(uint32_t i = 0; i < total_bins; i++) h2->add_data(_data[i]);
+    if (_weights_squared)
+        for(uint32_t i = 0; i < total_bins; i++) h2->add_weights_squared(_weights_squared[i]);
     h2->set_entries(_entries);
     return h2;
 }
@@ -61,6 +73,10 @@ H2::H2(Message& m) : _x_axis(0,0,0), _y_axis(0,0,0) {
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     _data.reset(new double[total_bins]);
     for (int i = 0; i < total_bins; i++) _data[i] = msg->data(i);
+    if (msg->weights_squared_size() > 0) {
+        _weights_squared.reset(new double[total_bins]);
+        for (int i = 0; i < total_bins; i++) _weights_squared[i] = msg->weights_squared(i);
+    }
 }
 
 double H2::integral() const
@@ -76,12 +92,22 @@ double H2::integral() const
 
 void H2::fill(const double &x, const double & y, const double &weight)
 {
-    if (!_data)
-        return;
+    int binx = _x_axis.find_bin(x);
+    int biny = _y_axis.find_bin(y);
 
     const int skip = _x_axis.bins() + 2;
-    *(_data.get() + _x_axis.find_bin(x) + _y_axis.find_bin(y)*skip) += weight;
+    *(_data.get() + binx + biny*skip) += weight;
     ++_entries;
+
+    if (_weights_squared) {
+        *(_weights_squared.get() + binx + biny*skip) += weight*weight;
+    } else if (weight != 1.0) {
+        const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
+        _weights_squared.reset(new double[total_bins]);
+        for(uint32_t i = 0; i < total_bins; i++)
+            _weights_squared[i] = _data[i];
+        *(_weights_squared.get() + binx + biny*skip) += weight*weight;
+    }
 }
 
 void H2::print(std::ostream &out) const
@@ -107,6 +133,9 @@ void H2::add(const H2 &source)
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) += *(source._data.get() + bin);
+    if (_weights_squared)
+        for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
+            *(_weights_squared.get() + bin) += *(source._weights_squared.get() + bin);
     _entries += source._entries;
 }
 

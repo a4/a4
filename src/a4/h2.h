@@ -32,6 +32,7 @@ class H2 : public streamable
 
         typedef boost::shared_array<double> DataPtr;
         const DataPtr data() const {return _data;}; //TODO: only for copyin into TH2D
+        const DataPtr weights_squared() const {return _weights_squared;}; //TODO: only for copyin into TH1D
 
         virtual MessagePtr get_message();
         H2 & operator*=(const double &);
@@ -42,6 +43,7 @@ class H2 : public streamable
         Axis _x_axis;
         Axis _y_axis;
         DataPtr _data;
+        DataPtr _weights_squared;
         uint64_t _entries;
 };
 
