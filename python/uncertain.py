@@ -9,6 +9,7 @@ class UncertainNumber:
     def __add__(self, ucn):
         self.n += ucn.n
         self.esq += ucn.esq
+        return self
     
     @property
     def e(self):

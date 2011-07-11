@@ -58,39 +58,56 @@ for hn in histos_1d:
             if not label in labels:
                 labels.append(labe)
 
-    def get_cf(h):
+    def get_cf_data(h):
         datad = {}
         for label in labels:
             oi = h.GetXaxis().FindBin(label)
-            if h in data:
-                datad[label] = CertainNumber(h.GetBinContent(oi)) if oi != -1 else CertainNumber(0)
-            else:
-                datad[label] = UncertainNumber(h.GetBinContent(oi), h.GetBinError(oi)) if oi != -1 else UncertainNumber(0.0,0.0)
+            datad[label] = CertainNumber(h.GetBinContent(oi)) if oi != -1 else CertainNumber(0)
+        return "Observed", datad
+
+    def get_cf_sg(h):
+        datad = {}
+        for label in labels:
+            oi = h.GetXaxis().FindBin(label)
+            datad[label] = UncertainNumber(h.GetBinContent(oi), h.GetBinError(oi)) if oi != -1 else UncertainNumber(0.0,0.0)
         return h.GetTitle(), datad
 
-    tdata = map(get_cf, data+sg+bg)
+    sumbg = {}
+    def get_cf_bg(h):
+        datad = {}
+        for label in labels:
+            oi = h.GetXaxis().FindBin(label)
+            datad[label] = UncertainNumber(h.GetBinContent(oi), h.GetBinError(oi)) if oi != -1 else UncertainNumber(0.0,0.0)
+            sumbg[label] = sumbg.get(label, UncertainNumber(0,0)) + datad[label]
+        return h.GetTitle(), datad
+
+    data = map(get_cf_data, data)
+    sg = map(get_cf_sg, sg)
+    bg = map(get_cf_bg, bg)
 
     table = []
     table.append([""] + ["$%s$"%l for l in labels])
-    for (title, numbers) in tdata:
+    for (title, numbers) in bg + [("Total SM",sumbg)] + data + sg:
         table.append([title] + [numbers[label].latex() for label in labels])
-
 
     widths_h = [max(len(line[i]) for line in table) for i in range(len(table[0]))]
     widths_v = [max(len(w) for w in line) for line in table]
 
     # vertical
-    t = ["\\begin{tabular}{%s}" % ("|".join("r" for i in range(len(widths_h))))]
+    t = ["\\begin{tabular}{c%s}" % ("|".join("r" for i in range(len(widths_h))))]
+    t.append("\hline\hline")
     for l in table:
         t.append(" & ".join(("%%%is"%w)%e for w, e in zip(widths_h, l)) + "\\\\")
         if l == table[0]:
             t.append("\hline")
+    t.append("\hline\hline")
     t.append("\end{tabular}")
+
     print "\n".join(t)
 
     # horizontal
-    t = ["\\begin{tabular}{%s}" % ("|".join("r" for i in range(len(widths_v))))]
-
+    t = ["\\begin{tabular}{c|%s%s%s}" % (("c"*(len(bg)+1)),("|c" if data else ""), ("|c"*len(sg)))]
+    t.append("\hline\hline")
     for i in range(len(table[0])):
         ln = []
         for w, e in zip(widths_v, (line[i] for line in table)):
@@ -98,6 +115,7 @@ for hn in histos_1d:
         t.append(" & ".join(ln) + "\\\\")
         if i == 0:
             t.append("\hline")
+    t.append("\hline\hline")
     t.append("\end{tabular}")
     print "\n".join(t)
 
