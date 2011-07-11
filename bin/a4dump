@@ -50,4 +50,6 @@ for fn in args:
             exit(0)
         else:
             print obj
+            if options.scan:
+                raw_input("Press Enter to continue, CTRL+C to abort...")
 
