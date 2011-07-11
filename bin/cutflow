@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+from sys import exit
+from rooplot import make_page
+from rooplot import atlas_style, get_legend, get_lumi_label, set_styles, stack_1D, plot_1D, draw_preliminary
+from a4.messages import Results
+from os.path import join as pjoin
+from os import makedirs
+
+disp = "1.02 fb^{-1}"
+
+from optparse import OptionParser
+parser = OptionParser()
+parser.add_option("-a", "--all", action="store_true", help="make all histograms")
+parser.add_option("-d", "--data", action="append", default=[], help="data root file")
+parser.add_option("-o", "--output", default="", help="output directory for text files")
+parser.add_option("-p", "--histogram", action="append", default=[], help="histograms to print (specify multiple times)")
+(options, args) = parser.parse_args()
+
+if not options.data and len(args) == 0:
+    parser.print_help()
+    exit(-1)
+
+if options.output:
+    try:
+        makedirs(options.output)
+    except OSError:
+        pass
+
+from ROOT import TFile
+
+class ATFile:
+    def __init__(self, fn):
+        self.fn = fn
+        self.tfile = TFile(fn)
+        self.dir = {}
+        self.scan(self.tfile)
+
+    def scan(self, dir, path=""):
+        for key in list(dir.GetListOfKeys()):
+            name = key.GetName()
+            cname = key.GetClassName()
+            if cname == "TDirectoryFile":
+                self.dir[pjoin(path,name)] = self.scan(dir.GetDirectory(name), pjoin(path, name))
+            else:
+                self.dir[pjoin(path,name)] = cname
+
+    def find_type(self, ttype, dir=None, path=""):
+        return [k for k, v in self.dir.iteritems() if v == ttype]
+
+    def get(self, h):
+        res = self.tfile.Get(h)
+        #if res:
+        #    res.SetTitle(self.fn)
+        return res
+
+mc_files = [ATFile(fn) for fn in args]
+data_files = [ATFile(d) for d in options.data]
+
+histos_1d = sorted(set(sum((f.find_type("TH1D") for f in data_files+mc_files), [])))
+if not options.all:
+    histos_1d = [h for h in histos_1d if h in options.histogram]
+
+prefix = options.output
+histograms = []
+
+
+class UncertainNumber:
+    def __init__(self, n, e):
+        self.n = n
+        self.esq = e*e
+
+    def __add__(self, ucn):
+        self.n += ucn.n
+        self.esq += ucn.esq
+    
+    @property
+    def e(self):
+        print self.n, self.esq
+        if self.esq < 0:
+            print self.n, self.esq
+            assert self.esq >= 0
+        assert self.esq >= 0
+        if self.esq == 0:
+            return 0
+        return self.esq**0.5
+
+    def __str__(self):
+        return "%.2f +- %.2f" % (self.n, self.e)
+
+
+from ROOT import TCanvas, kRed, TH1D
+for hn in histos_1d:
+    data = [f.get(hn) for f in data_files if hn in f.dir]
+    bg = [f.get(hn) for f in mc_files if not "higgs" in f.fn and hn in f.dir]
+    sg = [f.get(hn) for f in mc_files if "higgs" in f.fn and hn in f.dir]
+    if not (data+bg+sg)[0].GetXaxis().GetBinLabel(1):
+        continue
+    for h in data+bg+sg:
+        h.SetDirectory(0)
+
+    # Deal with cutflow histograms
+    labels = map(str, (data+sg+bg)[0].GetXaxis().GetLabels())
+    for h in data+sg+bg:
+        for label in map(str,h.GetXaxis().GetLabels()):
+            if not label in labels:
+                labels.append(labe)
+
+    def get_cf(h):
+        data = {}
+        for label in labels:
+            oi = h.GetXaxis().FindBin(label)
+            data[label] = UncertainNumber(h.GetBinContent(oi), h.GetBinError(oi)) if oi != -1 else UncertainNumber(0.0,0.0)
+        return h.GetTitle(), data
+
+    data = map(get_cf, data)
+    sg = map(get_cf, sg)
+    bg = map(get_cf, bg)
+    
+    # horizontal    
+    s = ["|".join("%30s"%label for label in labels), "\n"]
+    for title, numbers in (data+sg+bg):
+        print title
+        s.extend(("%30s|"%title, "|".join("%30s"%str(numbers[label]) for label in labels)))
+        s.append("\n")
+
+
+    
