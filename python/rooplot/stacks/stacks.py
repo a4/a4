@@ -111,7 +111,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
     # set up pads 
     cpad = gPad.func()
     if compare or sigma:
-        pad_fraction = 0.3
+        pad_fraction = 0.25
         cpad.Divide(1,2, 0.01, 0.01)
         cpad.cd(1).SetPad(0,pad_fraction,1,1.0)
         cpad.cd(1).SetBottomMargin(0.15)
@@ -239,7 +239,8 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
                 cmc.SetBinError(i, mcerr/sf)
                 cmc2.SetBinContent(i, 0.0)
                 cmc2.SetBinError(i, 0.0)
-                cmc2.GetYaxis().SetTitle("( Data - SM ) / #sigma_{stat,MC+Data} ")
+                #cmc2.GetYaxis().SetTitle("( Data - SM ) / #sigma_{stat,MC+Data} ")
+                cmc2.GetYaxis().SetTitle("( Data - SM ) / #sigma_{stat}")
         else:
             for i in xrange(Nbins + 2):
                 sf = cmc.GetBinContent(i)

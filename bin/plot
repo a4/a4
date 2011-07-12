@@ -85,6 +85,8 @@ def mydraw2(name, d, b, s, xtitle, ytitle, range=None, log=False):
 prefix = options.output
 histograms = []
 
+width, height = (800, 800) if options.compare or options.sigma else (800, 600)
+
 from ROOT import TCanvas, kRed, TH1D
 for hn in histos_1d:
     data = [f.get(hn) for f in data_files if hn in f.dir]
@@ -100,8 +102,8 @@ for hn in histos_1d:
         if xtitle is None:
             xtitle = xtitles.get(hn, "")
             x = h.GetXaxis()
-            n, min, max = x.GetNbins(), x.GetBinLowEdge(x.GetFirst()), x.GetBinUpEdge(x.GetLast())
-            delta = (max-min)/n
+            n, mn, mx = x.GetNbins(), x.GetBinLowEdge(x.GetFirst()), x.GetBinUpEdge(x.GetLast())
+            delta = (mx-mn)/n
             if xunits.get(hn, ""):
                 per_str = " / %s"%xunits[hn] if delta == 1 else " / %g %s" % (delta, xunits[hn])
                 xtitle = "%s [%s]" % (xtitle, xunits[hn])
@@ -168,15 +170,36 @@ for hn in histos_1d:
         return draw
 
     if options.interactive:
-        histograms.append(TCanvas(hn,hn))
+        histograms.append(TCanvas(hn,hn,width,height))
         #histograms.append(plot_1D(h, data, bg, sg, lumi=disp, rebin_to=40, range=(20,100)))
         histograms.append(get_draw(False)())
 
         #raw_input("Press Enter to continue, CTRL+C to abort...")
     else:
+        from rooplot import batch_mode
+        pix = 1000
+        width, height = int(width*pix*1.0/max(width,height)), int(height*pix*1.0/max(width,height))
+
         ghn = hn.replace("/","_")
-        make_page([get_draw(False)], pjoin(prefix, ghn), ghn, landscape=True, split=(1,1), format="png", dpi=200)
-        make_page([get_draw(True)], pjoin(prefix, ghn+"_log"), ghn+"_log", landscape=True, split=(1,1), format="png", dpi=200)
+        name = pjoin(prefix, ghn)
+        title = ghn
+
+        @batch_mode
+        def write():
+            c = TCanvas(name,title,width,height)
+            histograms.extend(get_draw(False)())
+            c.cd()
+            c.SaveAs("%s.%s" % (name,"png"))
+            histograms.append(c)
+
+            c = TCanvas(name+'_log',title+'_log',width,height)
+            histograms.extend(get_draw(True)())
+            c.cd()
+            c.SaveAs("%s_log.%s" % (name,"png"))
+            histograms.append(c)
+        write()
+        #make_page([get_draw(False)], pjoin(prefix, ghn), ghn, landscape=True, split=(1,1), format="png", dpi=200)
+        #make_page([get_draw(True)], pjoin(prefix, ghn+"_log"), ghn+"_log", landscape=True, split=(1,1), format="png", dpi=200)
 
     #histograms[-1][1].GetXaxis().SetTitle(h)
     #make_pdf(histograms, h.replace("/","_"), h.replace("/","_"))
