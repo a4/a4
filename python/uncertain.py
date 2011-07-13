@@ -29,7 +29,6 @@ class UncertainNumber:
 
         if n > 1e6:
             exponent = 6+((log10(n)-6)//3)*3
-            print prec, prec+exponent
             prec += exponent
             n /= 10**exponent
             e /= 10**exponent
@@ -67,7 +66,6 @@ class CertainNumber:
         decade_n = int(floor(log10(abs(n))))
         exponent = 6+((log10(n)-6)//3)*3
         prec = 1 - decade_n//2 + exponent
-        print exponent, decade_n, prec
         n /= 10**exponent
         if latex:
             s = "%%.%if " % max(prec,0)

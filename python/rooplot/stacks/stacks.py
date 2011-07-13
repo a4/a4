@@ -105,8 +105,6 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
     if rebin != 1:
         for histo in all_histos:
             histo.Rebin(rebin)
-
-
    
     # set up pads 
     cpad = gPad.func()
@@ -149,12 +147,12 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
 
     # set range
     if range:
-        original_nbins = all_histos[0].GetNbinsX()
-        first_bin = all_histos[0].FindBin(range[0])
-        last_bin = all_histos[0].FindBin(range[1])
+        h = all_histos[0]
+        xa = h.GetXaxis()
+        original_size = xa.GetBinLowEdge(xa.GetFirst()), xa.GetBinUpEdge(xa.GetLast())
         for histo in all_histos:
             xaxis = histo.GetXaxis()
-            xaxis.SetRangeUser(first_bin, last_bin)
+            xaxis.SetRangeUser(*range)
     
     # get min/max
     ymax = (max(h.GetMaximum() for h in all_histos) + 1) * (1.5 if not log else 100)
@@ -162,11 +160,9 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
 
     # unset range for mc
     if range:
-        first_bin = all_histos[0].FindBin(range[0])
-        last_bin = all_histos[0].FindBin(range[1])
         for histo in list_mc:
             xaxis = histo.GetXaxis()
-            xaxis.SetRangeUser(1, original_nbins)
+            xaxis.SetRangeUser(*original_size)
 
     # Draw everything
     axis = None
@@ -174,7 +170,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
         axis = mcstack
         mcstack.Draw("Hist")
         if range:
-            mcstack.GetXaxis().SetRangeUser(first_bin, last_bin)
+            mcstack.GetXaxis().SetRangeUser(*range)
         sum_mc.Draw("e2same")
         hsave.Draw("hist same")
     for signal in signals:

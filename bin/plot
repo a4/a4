@@ -6,6 +6,7 @@ parser = OptionParser()
 parser.add_option("-a", "--all", action="store_true", help="make all histograms")
 parser.add_option("-i", "--interactive", action="store_true", help="interactive plots")
 parser.add_option("-d", "--data", action="append", default=[], help="data root file")
+parser.add_option("-s", "--signal", action="append", default=[], help="signal root files")
 parser.add_option("-o", "--output", default="", help="output directory for plots")
 parser.add_option("-b", "--rebin", action="append", default=[], help="rebin factor")
 parser.add_option("-p", "--histogram", action="append", default=[], help="histograms to plot (specify multiple times)")
@@ -13,7 +14,9 @@ parser.add_option("-x", "--xtitle", action="append", default=[], help="label of 
 parser.add_option("-r", "--range", action="append", default=[], help="range of x axis of the plot, format: <nbins>,<start>-<end> or <start>-<end> or only <nbins> (specify multiple times)")
 parser.add_option("-u", "--unit", action="append", default=[], help="units of the x axis of the plot")
 parser.add_option("-c", "--compare", action="store_true", help="generate comparison plot of data/mc")
-parser.add_option("-s", "--sigma", action="store_true", help="show significance plot (exclusive with compare)")
+parser.add_option("-g", "--sigma", action="store_true", help="show significance plot (exclusive with compare)")
+
+parser.add_option("--roostats", default=False, help="write out roostats file of all inputs ddand quit")
 (options, args) = parser.parse_args()
 import sys
 sys.argv = []
@@ -22,7 +25,7 @@ from sys import exit
 from rooplot import make_page
 from rooplot import atlas_style, get_legend, get_lumi_label, set_styles, stack_1D, plot_1D, draw_preliminary
 from a4.messages import Results
-from os.path import join as pjoin
+from os.path import join as pjoin, basename, extsep
 from os import makedirs
 
 disp = "1.02 fb^{-1}"
@@ -42,56 +45,40 @@ if options.output:
     except OSError:
         pass
 
-from ROOT import TFile
+from atfile import ATFile
 
-class ATFile:
-    def __init__(self, fn):
-        self.fn = fn
-        self.tfile = TFile(fn)
-        self.dir = {}
-        self.scan(self.tfile)
-
-    def scan(self, dir, path=""):
-        for key in list(dir.GetListOfKeys()):
-            name = key.GetName()
-            cname = key.GetClassName()
-            if cname == "TDirectoryFile":
-                self.dir[pjoin(path,name)] = self.scan(dir.GetDirectory(name), pjoin(path, name))
-            else:
-                self.dir[pjoin(path,name)] = cname
-
-    def find_type(self, ttype, dir=None, path=""):
-        return [k for k, v in self.dir.iteritems() if v == ttype]
-
-    def get(self, h):
-        res = self.tfile.Get(h)
-        #if res:
-        #    res.SetTitle(self.fn)
-        return res
-
-mc_files = [ATFile(fn) for fn in args]
+bg_files = [ATFile(fn) for fn in args]
+sg_files = [ATFile(fn) for fn in options.signal]
 data_files = [ATFile(d) for d in options.data]
+all_files = data_files + bg_files + sg_files
 
-histos_1d = sorted(set(sum((f.find_type("TH1D") for f in data_files+mc_files), [])))
-histos_2d = sorted(set(sum((f.find_type("TH2D") for f in data_files+mc_files), [])))
+histos_1d = sorted(set(sum((f.find_type("TH1D") for f in all_files), [])))
+histos_2d = sorted(set(sum((f.find_type("TH2D") for f in all_files), [])))
 if not options.all:
     histos_1d = [h for h in histos_1d if h in options.histogram]
     histos_2d = [h for h in histos_2d if h in options.histogram]
-
-def mydraw2(name, d, b, s, xtitle, ytitle, range=None, log=False):
-
-    return draw 
 
 prefix = options.output
 histograms = []
 
 width, height = (800, 800) if options.compare or options.sigma else (800, 600)
 
+def base(fn):
+    return "_".join(basename(fn).split(extsep)[:-1])
+
 from ROOT import TCanvas, kRed, TH1D
+if options.roostats:
+    from ROOT import TFile
+    roostats_file = TFile(options.roostats, "RECREATE")
+
+
 for hn in histos_1d:
     data = [f.get(hn) for f in data_files if hn in f.dir]
-    bg = [f.get(hn) for f in mc_files if not "higgs" in f.fn and hn in f.dir]
-    sg = [f.get(hn) for f in mc_files if "higgs" in f.fn and hn in f.dir]
+    bg = [f.get(hn) for f in bg_files if hn in f.dir]
+    sg = [f.get(hn) for f in sg_files if hn in f.dir]
+    data_names = [base(f.fn) for f in data_files if hn in f.dir]
+    bg_names = [base(f.fn) for f in bg_files if hn in f.dir]
+    sg_names = [base(f.fn) for f in sg_files if hn in f.dir]
 
     xtitle, ytitle = None, None
     for h in data+bg+sg:
@@ -117,8 +104,6 @@ for hn in histos_1d:
             h.GetXaxis().SetTitle(xtitle)
         if ytitle:
             h.GetYaxis().SetTitle(ytitle)
-            
-    assert not sg
 
     # Deal with cutflow histograms
     if (data+sg+bg)[0].GetXaxis().GetBinLabel(1):
@@ -157,9 +142,9 @@ for hn in histos_1d:
             rebin_to = int(range)
             range = None
 
-    def get_draw(log):
+    def get_draw(log,cmp,sgm):
         def draw():
-            legend, stack, summc, hsave, save = plot_1D(hn,data,bg,sg,lumi=disp,rebin_to=rebin_to,range=range,compare=options.compare,sigma=options.sigma,log=log)
+            legend, stack, summc, hsave, save = plot_1D(hn,data,bg,sg,lumi=disp,rebin_to=rebin_to,range=range,compare=cmp,sigma=sgm,log=log)
             if stack:
                 if xtitle:
                     stack.GetXaxis().SetTitle(xtitle)
@@ -169,12 +154,17 @@ for hn in histos_1d:
             return legend, stack, summc, hsave, save
         return draw
 
-    if options.interactive:
-        histograms.append(TCanvas(hn,hn,width,height))
-        #histograms.append(plot_1D(h, data, bg, sg, lumi=disp, rebin_to=40, range=(20,100)))
-        histograms.append(get_draw(False)())
+    if options.roostats:
+        hist_base = hn.replace("/","_")
+        hist_alt = xtitles.get(hn, "")
+        if not " " in hist_alt:
+            hist_base = hist_alt 
+        for n, d in zip(data_names, data) + zip(bg_names, bg) + zip(sg_names, sg):
+            roostats_file.WriteObject(d, "%s_%s" % (n, hist_base))
 
-        #raw_input("Press Enter to continue, CTRL+C to abort...")
+    elif options.interactive:
+        histograms.append(TCanvas(hn,hn,width,height))
+        histograms.append(get_draw(False, options.compare, options.sigma)())
     else:
         from rooplot import batch_mode
         pix = 1000
@@ -187,23 +177,20 @@ for hn in histos_1d:
         @batch_mode
         def write():
             c = TCanvas(name,title,width,height)
-            histograms.extend(get_draw(False)())
+            histograms.extend(get_draw(False, options.compare, False)())
             c.cd()
             c.SaveAs("%s.%s" % (name,"png"))
             histograms.append(c)
 
             c = TCanvas(name+'_log',title+'_log',width,height)
-            histograms.extend(get_draw(True)())
+            histograms.extend(get_draw(True, False, options.sigma)())
             c.cd()
             c.SaveAs("%s_log.%s" % (name,"png"))
             histograms.append(c)
         write()
-        #make_page([get_draw(False)], pjoin(prefix, ghn), ghn, landscape=True, split=(1,1), format="png", dpi=200)
-        #make_page([get_draw(True)], pjoin(prefix, ghn+"_log"), ghn+"_log", landscape=True, split=(1,1), format="png", dpi=200)
 
-    #histograms[-1][1].GetXaxis().SetTitle(h)
-    #make_pdf(histograms, h.replace("/","_"), h.replace("/","_"))
-    #make_pdf(histograms, h.replace("/","_"), h.replace("/","_"))
+if options.roostats:
+    roostats_file.Close()
 
 if options.interactive:
     raw_input("Press Enter to finish.")
