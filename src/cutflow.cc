@@ -87,7 +87,16 @@ std::vector<Cutflow::CutNameCount> Cutflow::content() const {
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
         double w = _fast_access_bin[i];
         if (_weights_squared) w = (*_weights_squared)[i];
-        result.push_back(Cutflow::CutNameCount(_cut_names[i], _fast_access_bin[i], w));
+        bool doublet = false;
+        for(uint32_t j = 0; j < i; j++) {
+            if (_cut_names[i] == _cut_names[j]) {
+                result[j].count += _fast_access_bin[i];
+                result[j].weights_squared += w;
+                doublet = true;
+                break;
+            }
+        }
+        if (!doublet) result.push_back(Cutflow::CutNameCount(_cut_names[i], _fast_access_bin[i], w));
     }
     return result;
 }
