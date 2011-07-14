@@ -21,8 +21,8 @@ Processor::Processor():
     _results.reset(new Results());
 }
 
-void Processor::init_output(const fs::path &outfile) {
-    _writer.reset(new Writer(outfile, "Event", Event::kCLASSIDFieldNumber));
+void Processor::init_output(const string &outfile) {
+    _writer.reset(new Writer(outfile, "Event", Event::kCLASSIDFieldNumber, true));
 }
 
 void Processor::event_passed(Event & e) {
@@ -62,12 +62,10 @@ ProcessorPtr ProcessingJob::get_configured_processor() {
     if (_output.size() != 0) {
         if (_threaded) {
             string fn = (boost::format("%1%_%2%.tmp") % _output % _num_processors).str();
-            fs::path out_file_path(fn);
-            p->init_output(out_file_path);
+            p->init_output(fn);
             _output_files.push_back(fn);
         } else if (_num_processors == 1) { 
-            fs::path out_file_path(_output);
-            p->init_output(out_file_path);
+            p->init_output(_output);
         } else {
             throw std::runtime_error("More than one processor without threads? Madness!");
         }

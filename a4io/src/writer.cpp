@@ -1,6 +1,7 @@
 #include <string>
-
-#include <boost/shared_ptr.hpp>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/stubs/common.h>
@@ -14,30 +15,33 @@
 
 using std::string;
 
-
 const string START_MAGIC = "A4STREAM";
 const string END_MAGIC = "KTHXBYE4";
 const uint32_t HIGH_BIT = 1<<31;
 
 
-Writer::Writer(const string &output_file, const string description, uint32_t content_class_id, uint32_t metadata_class_id) :
-    _output(output_file.c_str(), std::ios::out | std::ios::trunc | std::ios::binary),
+Writer::Writer(const string &output_file, const string description, uint32_t content_class_id, uint32_t metadata_class_id, bool compression) :
+    _raw_out(0),
+    _compressed_out(0),
+    _coded_out(0),
+    _compression(compression),
     _content_count(0),
-    _bytes_written(0),
     _content_class_id(content_class_id),
     _metadata_class_id(metadata_class_id)
 {
-    _raw_out.reset(new ::google::protobuf::io::OstreamOutputStream(&_output));
-    _coded_out.reset(new ::google::protobuf::io::CodedOutputStream(_raw_out.get()));
+    _raw_out = new FileOutputStream(open(output_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT | O_DIRECT, S_IRUSR | S_IRGRP | S_IROTH));
+    _coded_out = new CodedOutputStream(_raw_out);
     write_header(description);
+    if (compression) start_compression();
 }
 
 Writer::~Writer()
 {
+    if (_compressed_out) stop_compression();
     write_footer();
-    _coded_out.reset();
-    _raw_out.reset();
-    _output.close();
+    delete _coded_out;
+    _raw_out->Close(); // return false on error
+    delete _raw_out;
 }
 
 bool Writer::write(Streamable &obj)
@@ -56,9 +60,30 @@ bool Writer::metadata(MetaData &msg)
     return write(msg);
 }
 
+bool Writer::start_compression() {
+    if (_compressed_out) return false;
+    A4StartCompressedSection cs_header;
+    cs_header.set_compression(A4StartCompressedSection_Compression_ZLIB);
+    write(cs_header);
+    delete _coded_out;
+    GzipOutputStream::Options o;
+    o.format = GzipOutputStream::ZLIB;
+    _compressed_out = new GzipOutputStream(_raw_out, o);
+    _coded_out = new CodedOutputStream(_compressed_out);
+};
+
+bool Writer::stop_compression() {
+    if (!_compressed_out) return false;
+    A4EndCompressedSection cs_footer;
+    write(cs_footer);
+    delete _coded_out;
+    _compressed_out->Close();
+    delete _compressed_out;
+    _coded_out = new CodedOutputStream(_raw_out);
+};
+
 bool Writer::write_header(string description) {
     _coded_out->WriteString(START_MAGIC);
-    _bytes_written += START_MAGIC.size();
 
     a4::io::A4StreamHeader header;
     header.set_a4_version(1);
@@ -72,20 +97,15 @@ bool Writer::write_header(string description) {
 }
 
 bool Writer::write_footer() {
-
     a4::io::A4StreamFooter footer;
-    footer.set_size(_bytes_written);
+    footer.set_size(_raw_out->ByteCount());
     if (_content_class_id != 0)
         footer.set_content_count(_content_count);
     write(a4::io::A4StreamFooter::kCLASSIDFieldNumber, footer);
-
     _coded_out->WriteLittleEndian32(footer.ByteSize());
     _coded_out->WriteString(END_MAGIC);
-    _bytes_written += END_MAGIC.size();
-
     return true;
 }
-
 
 bool Writer::write(uint32_t class_id, ::google::protobuf::Message &msg)
 {
@@ -97,15 +117,11 @@ bool Writer::write(uint32_t class_id, ::google::protobuf::Message &msg)
     if (class_id == _content_class_id) {
         _content_count++;
         _coded_out->WriteLittleEndian32(size);
-        _bytes_written += 4;
     } else {
         _coded_out->WriteLittleEndian32(size | HIGH_BIT );
         _coded_out->WriteLittleEndian32(class_id);
-        _bytes_written += 8;
     }
-
-    _coded_out->WriteString(message);
-    _bytes_written += size;
+    msg.SerializeWithCachedSizes(_coded_out);
     return true;
 }
 

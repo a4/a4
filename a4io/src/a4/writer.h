@@ -1,40 +1,38 @@
 #ifndef PROTOBUF_WRITER_H
 #define PROTOBUF_WRITER_H
 
-#include <fstream>
 #include <string>
 
-#include <boost/shared_ptr.hpp>
-
-#include <google/protobuf/message.h>
-
 #include "a4/interfaces.h"
+
+namespace google{ namespace protobuf{ namespace io{
+    class FileOutputStream;
+    class GzipOutputStream;
+    class CodedOutputStream;
+};};};
 
 class Writer
 {
     public:
-        Writer(const std::string &output_file, const std::string description="", uint32_t content_class_id=0, uint32_t metadata_class_id=0);
+        Writer(const std::string &output_file, const std::string description="", uint32_t content_class_id=0, uint32_t metadata_class_id=0, bool compression=true);
         ~Writer();
-        bool write(Streamable& m);
 
+        bool write(Streamable& m);
         bool metadata(MetaData& m);
 
     private:
-        std::fstream _output;
-
-        boost::shared_ptr< ::google::protobuf::io::ZeroCopyOutputStream>
-            _raw_out;
-
-        boost::shared_ptr< ::google::protobuf::io::ZeroCopyOutputStream>
-            _raw_compressed_out;
-
-        boost::shared_ptr< ::google::protobuf::io::CodedOutputStream>
-            _coded_out;
+        ::google::protobuf::io::FileOutputStream * _raw_out;
+        ::google::protobuf::io::GzipOutputStream * _compressed_out;
+        ::google::protobuf::io::CodedOutputStream * _coded_out;
 
         bool write(uint32_t class_id, ::google::protobuf::Message& m);
         bool write_header(std::string description);
         bool write_footer();
 
+        bool start_compression();
+        bool stop_compression();
+
+        bool _compression;
         uint32_t _content_count;
         uint32_t _bytes_written;
         uint32_t _content_class_id;

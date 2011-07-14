@@ -7,10 +7,7 @@
 using std::vector;
 using std::string;
 
-#include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
-
-namespace fs = boost::filesystem;
 
 #include "a4/worker.h"
 #include "a4/results.h"
@@ -41,7 +38,7 @@ class Processor : public Worker
         virtual void process_event(Event &event) {};
 
         // You should not need to touch the rest...
-        void init_output(const fs::path &outfile);
+        void init_output(const string &outfile);
         void event_passed(Event &);
 
         virtual uint32_t eventsRead() const {return _events_read;};
