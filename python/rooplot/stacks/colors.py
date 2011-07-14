@@ -11,12 +11,14 @@ def set_color_1D(h, name, cnum):
         h.SetFillColor(kAzure+1)
     elif name == "Z+jets":
         h.SetFillColor(kBlue+1)
-    elif "Dijets" in name:
+    elif "Dijet" in name:
         h.SetFillColor(kWhite)
     elif "ttbar" in name or "t#bar{t}" in name:
         h.SetFillColor(kGreen-9)
     elif "WW" in name:
-        h.SetFillColor(kBlue-2)
+        h.SetFillColor(kRed+1)
+    elif "Diboson" in name or "VV" in name:
+        h.SetFillColor(kMagenta-2)
     else:
         h.SetFillColor(clrs[cnum % len(clrs)])
         
