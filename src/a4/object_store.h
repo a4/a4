@@ -68,7 +68,7 @@ class ObjectStore {
     private:
         template <class T, typename N>
         T & get(const int & hint, const N & name, vector< vector< std::pair<N, boost::shared_ptr<STORE> > > > & cache) {
-            if (cache2.size() <= hint) cache.resize(hint+1);
+            if (cache.size() <= hint) cache.resize(hint+1);
             vector< std::pair<N, boost::shared_ptr<STORE> > > &hints = cache[hint];
             typedef typename vector< std::pair<N, boost::shared_ptr<STORE> > >::const_iterator hints_iterator;
             for (hints_iterator it = hints.begin(), end = hints.end(); it != end; it++)
