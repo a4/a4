@@ -10,13 +10,19 @@
 
 using namespace std;
 
-H2::H2(const uint32_t &xbins, const double &xmin, const double &xmax, const uint32_t &ybins, const double &ymin, const double &ymax):
-    _x_axis(xbins, xmin, xmax),
-    _y_axis(ybins, ymin, ymax),
+H2::H2() :
+    _x_axis(0, 0, 0),
+    _y_axis(0, 0, 0),
     _entries(0)
-{
+{}
+
+H2 & H2::operator()(const uint32_t &xbins, const double &xmin, const double &xmax, const uint32_t &ybins, const double &ymin, const double &ymax) {
+    _x_axis = Axis(xbins, xmin, xmax);
+    _y_axis = Axis(ybins, ymin, ymax);
+    _entries = 0;
     const uint32_t total_bins = (xbins + 2)*(ybins + 2);
     _data.reset(new double[total_bins]());
+    return *this;
 }
 
 H2::H2(const H2 & h): 
@@ -36,7 +42,8 @@ H2::H2(const H2 & h):
 H2::~H2()
 {
 }
-H2 & H2::operator*=(const double & w) {
+
+BinnedData & H2::__mul__(const double & w) {
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) *= w;
@@ -49,6 +56,7 @@ H2 & H2::operator*=(const double & w) {
     _entries *= w;
     return *this;
 }
+
 MessagePtr H2::get_message() {
     boost::shared_ptr<a4pb::Histogram2> h2(new a4pb::Histogram2);
     h2->mutable_x()->set_bins(_x_axis.bins());
@@ -128,8 +136,9 @@ void H2::print(std::ostream &out) const
             out << "[" << setw(3) << bin << "]: " << setiosflags(ios::fixed) << setprecision(3) << *(_data.get() + ybin*skip + bin) << endl;
 }
 
-void H2::add(const H2 &source)
+BinnedData & H2::__add__(const BinnedData &_source)
 {
+    const H2 & source = dynamic_cast<const H2&>(_source);
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) += *(source._data.get() + bin);
@@ -137,6 +146,7 @@ void H2::add(const H2 &source)
         for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
             *(_weights_squared.get() + bin) += *(source._weights_squared.get() + bin);
     _entries += source._entries;
+    return *this;
 }
 
 // Helpers

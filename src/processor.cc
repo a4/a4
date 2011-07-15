@@ -77,7 +77,7 @@ ProcessorPtr ProcessingJob::get_configured_processor() {
 
 void ProcessingJob::worker_finished(WorkerPtr w) {
     Processor * p = static_cast<Processor *>(w.get());
-    _results->add(*p->results());
+    *_results += *p->results();
 };
 
 using namespace std;

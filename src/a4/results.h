@@ -13,27 +13,27 @@
 #include "a4/h2.h"
 #include "a4/cutflow.h"
 #include "a4/streamable.h"
+#include "a4/object_store.h"
 
 #define TOKENPASTE(x, y) x ## y
 #define TOKENPASTE2(x, y) TOKENPASTE(x, y)      
 
-#define HIST1(NAME,NBIN,XMIN,XMAX) static int TOKENPASTE2(_H1ID, __LINE__) = ++Results::_fast_access_id_h1; _results->_fast_h1(TOKENPASTE2(_H1ID, __LINE__),NAME,NBIN,XMIN,XMAX)
-#define HIST1_AS(V,NAME,NBIN,XMIN,XMAX) H1Ptr V; {static int id = ++Results::_fast_access_id_h1; V = _results->_fast_h1(id,NAME,NBIN,XMIN,XMAX);};
-#define HIST1_FILL(NAME,NBIN,XMIN,XMAX,FV,W) {static int id = ++Results::_fast_access_id_h1; _results->_fast_h1(id,NAME,NBIN,XMIN,XMAX)->fill(FV,W);};
+#define HIST1(NAME,NBIN,XMIN,XMAX) _results->get<H1>(__LINE__, NAME)(NBIN,XMIN,XMAX)
+#define HIST1_AS(V,NAME,NBIN,XMIN,XMAX) H1Ptr V = _results->get<H1>(__LINE__, NAME)(NBIN,XMIN,XMAX);
+#define HIST1_FILL(NAME,NBIN,XMIN,XMAX,FV,W) _results->get<H1>(__LINE__,NAME)(NBIN,XMIN,XMAX).fill(FV,W);
+#define HIST2(NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX) _results->get<H2>(__LINE__, NAME)(NBIN,XMIN,XMAX,YBIN,YMIN,YMAX)
+#define HIST2_AS(V,NAME,NBIN,XMIN,XMAX) H2Ptr V = _results->get<H2>(__LINE__, NAME)(NBIN,XMIN,XMAX,YBIN,YMIN,YMAX);
+#define HIST2_FILL(NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX,FVX,FVY,W) _results->get<H2>(__LINE__,NAME)(NBIN,XMIN,XMAX,YBIN,YMIN,YMAX).fill(FVX,FVY,W);
 
-#define HIST2(NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX) static int TOKENPASTE2(_H2ID, __LINE__) = ++Results::_fast_access_id_h2; _results->_fast_h2(TOKENPASTE2(_H2ID, __LINE__),NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX)
-#define HIST2_AS(V,NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX) H2Ptr V; {static int id = ++Results::_fast_access_id_h2; V = _results->_fast_h2(TOKENPASTE2(_H2ID, __LINE__),NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX);};
-#define HIST2_FILL(NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX,FX,FY,W) {static int id = ++Results::_fast_access_id_h2; _results->_fast_h2(id,NAME,NBIN,XMIN,XMAX,YBIN,YMIN,YMAX)->fill(FX,FY,W);};
-
-#define CUTFLOW(V,NAME) CutflowPtr V; {static int id = ++Results::_fast_access_id_cf; V = _results->_fast_cf(id,NAME);};
-#define PASSED_CUT(cf,cut_name,w) {static int _CutID = ++Cutflow::_fast_access_id; cf->fill(_CutID, cut_name, w);}
+#define CUTFLOW(V,NAME) Cutflow & V = _results->get<Cutflow>(__LINE__, NAME);
+#define PASSED_CUT(cf,cut_name,w) {static int _CutID = ++Cutflow::_fast_access_id; cf.fill(_CutID, cut_name, w);}
 
 using std::string;
 
 class Results;
 typedef boost::shared_ptr<Results> ResultsPtr;
 
-class Results : public streamable
+class Results : public streamable, public ObjectStore<BinnedData>, public BinnedData
 {
     public:
         Results();
@@ -46,12 +46,15 @@ class Results : public streamable
         void to_file(std::string fn);
         static ResultsPtr from_file(std::string fn);
 
-        virtual void add(const Results &);
+        virtual BinnedData & __add__(const BinnedData &);
+        virtual BinnedData & __mul__(const double &);
+
         virtual void print(std::ostream &) const;
         virtual void print() const { print(std::cout); };
-        virtual std::vector<std::string> h1_names() const;
-        virtual std::vector<std::string> h2_names() const;
-        virtual std::vector<std::string> cf_names() const;
+
+        virtual std::vector<std::string> h1_names() const {return list<H1>();};
+        virtual std::vector<std::string> h2_names() const {return list<H2>();};;
+        virtual std::vector<std::string> cf_names() const {return list<Cutflow>();};;
 
         // Get Histograms or Cutflows
         H1Ptr h1(string name);
@@ -61,68 +64,9 @@ class Results : public streamable
         CutflowPtr cf(string name);
 
         virtual MessagePtr get_message();
-        Results & operator*=(const double &);
-
-        // Fast access to H1
-        static int _fast_access_id_h1;
-        std::vector<H1Ptr> _fast_access_h1;
-        inline H1Ptr _fast_h1(int id, const string name, int nbin, double xmin, double xmax) {
-            return _fast_h1(id, name.c_str(), nbin, xmin, xmax);
-        }
-        inline H1Ptr _fast_h1(int id, const char * name, int nbin, double xmin, double xmax) {
-            try {
-                H1Ptr & h = _fast_access_h1.at(id);
-                if (h.get() != NULL) return h;
-            } catch (std::out_of_range & oor) {
-                _fast_access_h1.resize(id+1);
-            }
-            H1Ptr h = h1(name, nbin, xmin, xmax);
-            _fast_access_h1[id] = h;
-            return h;
-        }
-
-        // Fast access to H2
-        static int _fast_access_id_h2;
-        std::vector<H2Ptr> _fast_access_h2;
-        inline H2Ptr _fast_h2(int id, const string name, 
-                const int &xnbin, const double &xmin, const double &xmax, 
-                const int &ynbin, const double &ymin, const double & ymax) {
-            return _fast_h2(id, name.c_str(), xnbin, xmin, xmax, ynbin, ymin, ymax);
-        }
-        inline H2Ptr _fast_h2(int id, const char * name,  
-                const int &xnbin, const double &xmin, const double &xmax, 
-                const int &ynbin, const double &ymin, const double & ymax) {
-            try {
-                H2Ptr & h = _fast_access_h2.at(id);
-                if (h.get() != NULL) return h;
-            } catch (std::out_of_range & oor) {
-                _fast_access_h2.resize(id+2);
-            }
-            H2Ptr h = h2(name, xnbin, xmin, xmax, ynbin, ymin, ymax);
-            _fast_access_h2[id] = h;
-            return h;
-        }
-
-        // Fast access to Cutflows
-        static int _fast_access_id_cf;
-        std::vector<CutflowPtr> _fast_access_cf;
-        inline CutflowPtr _fast_cf(int id, const char * name) {
-            try {
-                CutflowPtr & h = _fast_access_cf.at(id);
-                if (h.get() != NULL) return h;
-            } catch (std::out_of_range & oor) {
-                _fast_access_cf.resize(id+1);
-            }
-            CutflowPtr h = cf(name);
-            _fast_access_cf[id] = h;
-            return h;
-        }
 
     private:
         string title;
-        std::map<string, H1Ptr> _h1;
-        std::map<string, H2Ptr> _h2;
-        std::map<string, CutflowPtr> _cf;
 };
 typedef boost::shared_ptr<Results> ResultsPtr;
 

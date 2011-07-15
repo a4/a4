@@ -10,17 +10,22 @@
 #include <inttypes.h>
 #include <a4/axis.h>
 #include <a4/streamable.h>
+#include <a4/binned_data.h>
 
-class H1 : public streamable
+class H1 : public streamable, public BinnedData
 {
     public:
-        H1(const uint32_t &bins, const double &min, const double &max);
+        H1();
         H1(const H1 &);
         H1(Message &);
         ~H1();
 
+        H1 & operator()(const uint32_t &bins, const double &min, const double &max);
+
+
         void fill(const double &, const double &weight = 1);
-        void add(const H1 &);
+        BinnedData & __add__(const BinnedData &);
+        BinnedData & __mul__(const double &);
 
         uint64_t entries() const {return _entries;};
         uint64_t bins() const {return _axis.bins();};
@@ -36,7 +41,6 @@ class H1 : public streamable
 
         virtual MessagePtr get_message();
 
-        H1 & operator*=(const double &);
     private:
         // Prevent copying by assignment
         H1 &operator =(const H1 &);

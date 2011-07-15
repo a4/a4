@@ -8,27 +8,27 @@
 void Example::process_event(Event & event)
 {
     const int number_of_jets = event.jets_size();
-    HIST1("jets",20,0,20)->fill(number_of_jets);
+    HIST1("jets",20,0,20).fill(number_of_jets);
 
     for(int i = 0; i < number_of_jets; ++i)
     {
         const Jet &jet = event.jets(i);
-        HIST1("jet_e",100,0,100000)->fill(jet.p4().e());
-        HIST1("jet_px",100,0,100000)->fill(jet.p4().px());
-        HIST1("jet_py",100,0,100000)->fill(jet.p4().py());
-        HIST1("jet_pz",100,0,100000)->fill(jet.p4().pz());
+        HIST1("jet_e",100,0,100000).fill(jet.p4().e());
+        HIST1("jet_px",100,0,100000).fill(jet.p4().px());
+        HIST1("jet_py",100,0,100000).fill(jet.p4().py());
+        HIST1("jet_pz",100,0,100000).fill(jet.p4().pz());
     }
 
     const int number_of_muons = event.muons_size();
-    _results->h1("muons", 20, 0, 20)->fill(number_of_muons);
+    _results->get<H1>(__LINE__,"muons")(20, 0, 20).fill(number_of_muons);
 
     for(int i = 0; i < number_of_muons; ++i)
     {
         const Muon &muon = event.muons(i);
-        HIST1("muon_e",100,0,100000)->fill(muon.p4().e());
-        HIST1("muon_px",100,0,100000)->fill(muon.p4().px());
-        HIST1("muon_py",100,0,100000)->fill(muon.p4().py());
-        HIST1("muon_pz",100,0,100000)->fill(muon.p4().pz());
+        HIST1("muon_e",100,0,100000).fill(muon.p4().e());
+        HIST1("muon_px",100,0,100000).fill(muon.p4().px());
+        HIST1("muon_py",100,0,100000).fill(muon.p4().py());
+        HIST1("muon_pz",100,0,100000).fill(muon.p4().pz());
     }
 }
 

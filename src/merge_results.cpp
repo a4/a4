@@ -40,7 +40,7 @@ int main(int argc, char ** argv) {
     for (int i = 0; i < inputs.size(); i++) {
         ResultsPtr res = Results::from_file(inputs[i]);
         if (weight != 1.0) *res *= weight;
-        r.add(*res);
+        r += *res;
     };
     r.set_title(title);
     r.to_file(outs);

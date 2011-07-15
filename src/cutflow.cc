@@ -38,8 +38,7 @@ Cutflow::~Cutflow()
 {
 }
 
-Cutflow & Cutflow::operator*=(const double & w) {
-
+BinnedData & Cutflow::__mul__(const double & w) {
     for(uint32_t bin = 0, bins = _fast_access_bin.size(); bins > bin; ++bin)
         _fast_access_bin[bin] *= w;
     if (!_weights_squared) {
@@ -117,8 +116,8 @@ void Cutflow::print(std::ostream &out) const
     }
 }
 
-void Cutflow::add(const Cutflow &source)
-{
+BinnedData & Cutflow::__add__(const BinnedData & _source) {
+    const Cutflow & source = dynamic_cast<const Cutflow &>(_source);
     map<string, int> cut_name_index;
 
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
@@ -150,6 +149,7 @@ void Cutflow::add(const Cutflow &source)
             _fast_access_bin[index] += count;
         }
     }
+    return *this;
 }
 
 

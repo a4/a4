@@ -12,12 +12,14 @@
 
 using namespace std;
 
-H1::H1(const uint32_t &bins, const double &min, const double &max):
-    _axis(bins, min, max),
-    _entries(0)
-{
+H1::H1() : _axis(0, 0, 0), _entries(0) {}
+
+H1 & H1::operator()(const uint32_t &bins, const double &min, const double &max) {
+    _axis = Axis(bins, min, max);
+    _entries = 0;
     const uint32_t total_bins = bins + 2;
     _data.reset(new double[total_bins]());
+    return *this;
 }
 
 H1::H1(const H1 & h): 
@@ -37,7 +39,7 @@ H1::~H1()
 {
 }
 
-H1 & H1::operator*=(const double & w) {
+BinnedData & H1::__mul__(const double & w) {
     const uint32_t total_bins = _axis.bins() + 2;
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) *= w;
@@ -119,14 +121,16 @@ void H1::print(std::ostream &out) const
         out << "[" << setw(3) << bin << "]: " << setiosflags(ios::fixed) << setprecision(3) << *(_data.get() + bin) << endl;
 }
 
-void H1::add(const H1 &source)
+BinnedData & H1::__add__(const BinnedData &_source)
 {
+    const H1 & source = dynamic_cast<const H1&>(_source);
     for(uint32_t bin = 0, bins = _axis.bins() + 2; bins > bin; ++bin)
         *(_data.get() + bin) += *(source._data.get() + bin);
     if (_weights_squared)
         for(uint32_t bin = 0, bins = _axis.bins() + 2; bins > bin; ++bin)
             *(_weights_squared.get() + bin) += *(source._weights_squared.get() + bin);
     _entries += source._entries;
+    return *this;
 }
 
 // Helpers

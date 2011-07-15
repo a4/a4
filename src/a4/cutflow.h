@@ -7,11 +7,12 @@
 #include <boost/shared_ptr.hpp>
 
 #include <a4/streamable.h>
+#include <a4/binned_data.h>
 
 class Cutflow;
 typedef boost::shared_ptr<Cutflow> CutflowPtr;
 
-class Cutflow : public streamable
+class Cutflow : public streamable, public BinnedData
 {
     public:
         class CutNameCount { 
@@ -28,7 +29,9 @@ class Cutflow : public streamable
 
         std::vector<CutNameCount> content() const;
 
-        void add(const Cutflow &);
+        BinnedData & __add__(const BinnedData &);
+        BinnedData & __mul__(const double &);
+
         void print(std::ostream &) const;
 
         void fill(const int & id, const std::string & name, const double w = 1.0);
@@ -37,7 +40,6 @@ class Cutflow : public streamable
 
         virtual MessagePtr get_message();
 
-        Cutflow & operator*=(const double &);
     private:
         std::vector<double> _fast_access_bin;
         boost::shared_ptr<std::vector<double> > _weights_squared;
