@@ -50,7 +50,7 @@ class ObjectStore {
         vector<std::string> list() const {
             vector<std::string> res;
             for (typename std::map<std::string, boost::shared_ptr<STORE> >::const_iterator it = main_storage.begin(), end = main_storage.end(); it != end; it++) {
-                if (dynamic_cast<T*>((T*)it->second.get()))
+                if ((boost::dynamic_pointer_cast<T>(it->second)).get())
                     res.push_back(it->first);
             }
             return res;
