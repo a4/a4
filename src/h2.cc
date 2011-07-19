@@ -13,10 +13,13 @@ using namespace std;
 H2::H2() :
     _x_axis(0, 0, 0),
     _y_axis(0, 0, 0),
-    _entries(0)
+    _entries(0),
+    _initialized(false)
 {}
 
 H2 & H2::operator()(const uint32_t &xbins, const double &xmin, const double &xmax, const uint32_t &ybins, const double &ymin, const double &ymax) {
+    if (_initialized) return *this;
+    _initialized = true;
     _x_axis = Axis(xbins, xmin, xmax);
     _y_axis = Axis(ybins, ymin, ymax);
     _entries = 0;
@@ -28,7 +31,8 @@ H2 & H2::operator()(const uint32_t &xbins, const double &xmin, const double &xma
 H2::H2(const H2 & h): 
     _x_axis(h._x_axis),
     _y_axis(h._y_axis),
-    _entries(h._entries)
+    _entries(h._entries),
+    _initialized(true)
 {
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     _data.reset(new double[total_bins]);
