@@ -297,9 +297,9 @@ class AOD2A4(AOD2A4Base):
                 setattr(m.isolation, iso, mu.parameter(getattr(self.MuonParameters, iso)))
 
             m.tight = (mu.isTight() == 1)
-            if self.muon_algo == "Muid":
+            if muon_algo == "Muid":
                 m.combined = mu.isAuthor(self.MuonParameters.MuidCo)
-            elif self.muon_algo == "Staco":
+            elif muon_algo == "Staco":
                 m.combined = mu.isAuthor(self.MuonParameters.STACO) and mu.isCombinedMuon()
 
             trk = mu.inDetTrackParticle()
@@ -583,10 +583,5 @@ def myjets():
 # do autoconfiguration of input
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-def get_aod2a4(year, options):
-    a = AOD2A4("AOD2A4", year, options)
-    a.muon_algo = "Staco"
-    return a
-
-ana = get_aod2a4(options["year"], options)
+ana = AOD2A4("AOD2A4", year, options)
 topSequence += ana

@@ -113,14 +113,13 @@ class AOD2A4Base(PyAthena.Alg):
 
         event_weight = 1.0
         if self.is_mc:
-
             try:
                 truth = self.sg["GEN_AOD"]
                 try:
                     truth = truth[0]
                     weights = truth.weights()
                     event_weight = weights[0]
-                except IndexError, x:
+                except IndexError as x:
                     print("STRANGE: No MC Weight in this event - set to 1.0 (%s)" % x)
             except KeyError:
                 self.sg.dump()
