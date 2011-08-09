@@ -8,9 +8,8 @@
 #endif
 #define M_PI 3.141592653589793238462643383279502884197
 
-class ALorentzVector
+struct ALorentzVector
 {
-  public:
     double px, py, pz, E;
 
     ALorentzVector(): px(0), py(0), pz(0), E(0) {};

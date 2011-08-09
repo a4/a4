@@ -12,9 +12,11 @@
 
 using namespace std;
 
-H1::H1() : _axis(0, 0, 0), _entries(0) {}
+H1::H1() : _axis(0, 0, 0), _entries(0), _initialized(false) {}
 
 H1 & H1::operator()(const uint32_t &bins, const double &min, const double &max) {
+    if (_initialized) return *this;
+    _initialized = true;
     _axis = Axis(bins, min, max);
     _entries = 0;
     const uint32_t total_bins = bins + 2;
@@ -24,7 +26,8 @@ H1 & H1::operator()(const uint32_t &bins, const double &min, const double &max) 
 
 H1::H1(const H1 & h): 
     _axis(h._axis),
-    _entries(h._entries)
+    _entries(h._entries),
+    _initialized(true)
 {
     const uint32_t total_bins = h.bins() + 2;
     _data.reset(new double[total_bins]);

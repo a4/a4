@@ -49,6 +49,7 @@ class H2 : public streamable, public BinnedData
         DataPtr _data;
         DataPtr _weights_squared;
         uint64_t _entries;
+        bool _initialized;
 };
 
 typedef boost::shared_ptr<H2> H2Ptr;
