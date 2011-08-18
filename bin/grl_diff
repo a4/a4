@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+from os.path import exists, isfile
+
+def get_grl(run_infos):
+    lbcs = []
+    for run in sorted(run_infos): 
+        startlb = None
+        lastlb = None
+        for lb in sorted(run_infos[run]):
+            if startlb is None:
+                startlb = lb
+                lastlb = lb
+            elif lb == lastlb + 1:
+                lastlb = lb
+            else:
+                lbcs.append("%s %s %s" % (run, startlb, lastlb))
+                startlb = lb
+                lastlb = lb
+        if not startlb is None:
+            lbcs.append("%s %s %s" % (run, startlb, lastlb))
+    return "\n".join(lbcs)
+
+def get_run_info(grl):
+    run_infos = {}
+    for run, start, stop in grl:
+        run_infos.setdefault(run, []).extend(range(start, stop+1))
+    return run_infos
+
+if __name__ == "__main__":
+    import sys
+    ris = [get_run_info(map(int,map(str.strip,l.split())) for l in file(fn).readlines() if l.strip()) for fn in sys.argv[1:]]
+    assert len(ris)==2
+    ri1, ri2 = ris
+    d12 = set(ri1.keys()).difference(set(ri2.keys())) 
+    if d12:
+        print "Runs only in file 1: ", " ".join(map(str, sorted(d12)))
+    d21 = set(ri2.keys()).difference(set(ri1.keys())) 
+    if d21:
+        print "Runs only in file 2: ", " ".join(map(str, sorted(d21)))
+    
+    
