@@ -7,6 +7,7 @@ AM_INIT_AUTOMAKE([foreign -Wall -Werror]) #subdir-objects
 AC_PROG_CC
 AC_PROG_CXX
 AC_LANG([C++])
+AM_PATH_PYTHON([2.6])
 
 # use libtool
 LT_INIT

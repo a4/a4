@@ -1,6 +1,7 @@
 AC_INIT([a4],[0.1])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
+AM_PATH_PYTHON([2.6])
 
 # make sure to find google protobuf
 AC_ARG_WITH([protobuf], [AS_HELP_STRING([--with-protobuf=/sw/my_pb], [specify local protobuf installation])], [], [with_protobuf=no])
@@ -18,6 +19,9 @@ case $with_protobuf in
  /*) abs_with_protobuf=$with_protobuf ;;
  *)  abs_with_protobuf=$PWD/$with_protobuf ;;
 esac
+
+AC_SUBST([abs_with_protobuf])
+AC_SUBST([pythonsitedir],[$pythondir/a4])
 
 # find protoc compiler
 if test "x$with_protobuf" != "xno"; then
@@ -62,8 +66,9 @@ echo "PROTOC=$PROTOC"
 echo "$protobuf_LIBS"
 echo "$protobuf_CFLAGS"
 
+
 AC_CONFIG_SUBDIRS([a4io])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile a4env.sh.in:a4env.sh.am])
 AC_OUTPUT
 
