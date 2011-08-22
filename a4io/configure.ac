@@ -45,5 +45,5 @@ echo "$protobuf_LIBS"
 echo "$protobuf_CFLAGS"
 
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile])
 AC_OUTPUT

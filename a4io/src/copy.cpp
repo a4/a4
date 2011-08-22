@@ -1,8 +1,6 @@
-
 #include "copy.h"
 
 #include "a4/application.h"
-#include "a4/results.h"
 #include "a4/writer.h"
 #include "pb/Event.pb.h"
 

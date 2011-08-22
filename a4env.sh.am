@@ -4,6 +4,6 @@ if test "x@abs_with_protobuf@" != "x"; then
     export PYTHONPATH=$PYTHONPATH:@abs_with_protobuf@/python
 fi
 
-export PYTHONPATH=$PYTHONPATH:@pythonsitedir@
+export PYTHONPATH=$PYTHONPATH:@pythondir@
 export PATH=$PATH:${prefix}/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${prefix}/lib

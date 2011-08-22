@@ -6,10 +6,11 @@
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "pb/Event.pb.h"
 #include "pb/A4Stream.pb.h"
 
 namespace fs = boost::filesystem;
+
+class Event
 
 class Reader
 {

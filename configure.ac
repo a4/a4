@@ -20,10 +20,8 @@ case $with_protobuf in
  *)  abs_with_protobuf=$PWD/$with_protobuf ;;
 esac
 
-AC_SUBST([abs_with_protobuf])
-AC_SUBST([pythonsitedir],[$pythondir/a4])
-
 # find protoc compiler
+AC_SUBST([abs_with_protobuf])
 if test "x$with_protobuf" != "xno"; then
     AC_PATH_PROG([PROTOC], [protoc], [none], [$abs_with_protobuf/bin])
     if test "x$PROTOC" == "xnone"; then
@@ -66,8 +64,10 @@ echo "PROTOC=$PROTOC"
 echo "$protobuf_LIBS"
 echo "$protobuf_CFLAGS"
 
-
+# a4io
 AC_CONFIG_SUBDIRS([a4io])
+a4io_LIBS=["$protobuf_LIBS"]
+a4io_CFLAGS=["$protobuf_CFLAGS -I$abs_srcdir/a4io/src"]
 
 AC_CONFIG_FILES([Makefile a4env.sh.in:a4env.sh.am])
 AC_OUTPUT

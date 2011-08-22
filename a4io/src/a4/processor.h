@@ -17,7 +17,7 @@ namespace fs = boost::filesystem;
 #include "a4/reader.h"
 #include "a4/writer.h"
 
-#include "pb/Event.pb.h"
+class Event;
 
 /*
  * A Processor is a specialized Worker.
