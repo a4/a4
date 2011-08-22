@@ -1,11 +1,6 @@
-# Build the library in the hand subdirectory first.
+ACLOCAL_AMFLAGS = -I m4
 
-
-
-## Include hand's header when compiling this directory.
-AM_CPPFLAGS = -I$(srcdir)/protobuf/src
-
-SUBDIRS = a4io $(PROTOBUF_BUILD)
+SUBDIRS = $(PROTOBUF_BUILD) a4io
 
 #bin_PROGRAMS = arm
 #arm_SOURCES = arm.c

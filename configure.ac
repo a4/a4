@@ -1,32 +1,69 @@
 AC_INIT([a4],[0.1])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
-AC_PROG_CC
 
 # make sure to find google protobuf
-AC_CHECK_PROG([HAS_PROTOC], [protoc], [yes], [no])
-if test "x$HAS_PROTOC" = xno; then
-    if ! test -d "$srcdir/protobuf-2.4.1"; then
-        AC_MSG_WARN([Missing google protoc compiler. Try to download google protobuf...])
-        curl -f http://protobuf.googlecode.com/files/protobuf-2.4.1.tar.bz2 > $srcdir/protobuf-2.4.1.tar.bz2
-        if test $? != 0; then
-            AC_MSG_ERROR([Missing google protoc compiler. Failed to Use configure from the top-level a4 directory!])
-        fi
-        tar -xjv -C "$srcdir" -f "$srcdir/protobuf-2.4.1.tar.bz2"        
+AC_ARG_WITH([protobuf], [AS_HELP_STRING([--with-protobuf=/sw/my_pb], [specify local protobuf installation])], [], [with_protobuf=no])
+
+# find absolute paths
+case $srcdir in
+ /*) abs_srcdir=$srcdir ;;
+ *)  abs_srcdir=$PWD/$srcdir ;;
+esac
+case $builddir in
+ /*) abs_builddir=$builddir ;;
+ *)  abs_builddir=$PWD/$builddir ;;
+esac
+case $with_protobuf in
+ /*) abs_with_protobuf=$with_protobuf ;;
+ *)  abs_with_protobuf=$PWD/$with_protobuf ;;
+esac
+
+# find protoc compiler
+if test "x$with_protobuf" != "xno"; then
+    AC_PATH_PROG([PROTOC], [protoc], [none], [$abs_with_protobuf/bin])
+    if test "x$PROTOC" == "xnone"; then
+        AC_MSG_FAILURE([No protoc compiler found at $abs_with_protobuf/bin! Check your specified protobuf installation directory!])
     fi
 else
-    echo "PROTOC FOUND"
+    AC_PATH_PROG([PROTOC], [protoc], [download])
+    if test "x$PROTOC" == "xdownload"; then
+        if ! test -d "$srcdir/protobuf"; then
+            if ! test -e "$srcdir/protobuf-2.4.1.tar.bz2"; then
+                AC_MSG_WARN([Missing google protoc compiler. Trying download...])
+                curl -f http://protobuf.googlecode.com/files/protobuf-2.4.1.tar.bz2 > $srcdir/protobuf-2.4.1.tar.bz2
+                if test $? != 0; then
+                    AC_MSG_FAILURE([Missing google protoc compiler, download failed.])
+                fi
+            fi
+            tar -xj -C "$srcdir" -f "$srcdir/protobuf-2.4.1.tar.bz2"
+            mv "$srcdir/protobuf-2.4.1" "$srcdir/protobuf"
+        fi
+
+        AC_CONFIG_SUBDIRS([protobuf])
+        AC_SUBST([PROTOBUF_BUILD], ["protobuf"])
+        PROTOC=["$abs_builddir/protobuf/src/protoc"]
+        protobuf_LIBS=["-pthread -L$abs_builddir/protobuf/src/.libs -lprotobuf -lz -lpthread"]
+        protobuf_CFLAGS=["-pthread -I$abs_srcdir/protobuf/src"]
+    fi
 fi
 
-# recursively configure
-if test -d "$srcdir/protobuf-2.4.1"; then
-    AC_CONFIG_SUBDIRS([protobuf-2.4.1])
-    PROTOBUF_BUILD=protobuf-2.4.1
-else
-    PROTOBUF_BUILD=
+if test "x$protobuf_LIBS" == "x"; then
+    # check for library and set LIBS and CFLAGS
+    export PKG_CONFIG_PATH=$with_protobuf
+    echo $PKG_CONFIG_PATH
+    PKG_CHECK_MODULES([protobuf], [protobuf])
 fi
-AC_SUBST([PROTOBUF_BUILD])
+
+export PROTOC="$PROTOC"
+export protobuf_LIBS="$protobuf_LIBS"
+export protobuf_CFLAGS="$protobuf_CFLAGS"
+echo "PROTOC=$PROTOC"
+echo "$protobuf_LIBS"
+echo "$protobuf_CFLAGS"
+
 AC_CONFIG_SUBDIRS([a4io])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
+

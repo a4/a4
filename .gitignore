@@ -9,10 +9,5 @@
 *.eps
 *.ps
 setup.sh
-bin/
-obj/
-run/
 src/pb/
 python/a4/messages/
-external/
-
