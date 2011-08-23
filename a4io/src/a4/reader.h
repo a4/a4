@@ -2,26 +2,29 @@
 #define PROTOBUF_READER_H
 
 #include <fstream>
+#include <string>
 
-#include <boost/filesystem.hpp>
-#include <boost/shared_ptr.hpp>
+typedef enum {
+    READ_ITEM = 0,
+    NEW_METADATA = 1,
+    STREAM_END = 2,
+    FAIL = 3,
+} ReadResult;
 
-#include "pb/A4Stream.pb.h"
-
-namespace fs = boost::filesystem;
-
-class Event
-
+template <class Item, class MetaData>
 class Reader
 {
     public:
-        Reader(const fs::path &input_file);
+        Reader(const string & input_file);
         ~Reader() {};
 
-        bool good() const {return _is_good;};
-        uint32_t eventsRead() const {return _events_read;};
+        // read the next item
+        // returns ("got another item", "changed_metadata")
+        ReadResult read(Item &);
+        uint64_t items_read() const {return _items_read;};
 
-        bool read_event(Event &);
+        // returns last encountered MetaData
+        const MetaData * last_meta_data() {return _last_meta_data.get(); };
 
     private:
         std::fstream _input;
@@ -32,12 +35,11 @@ class Reader
         boost::shared_ptr< ::google::protobuf::io::CodedInputStream>
             _coded_in;
 
-        bool read_header();
+        int _read_header();
 
-        bool _is_good;
-        uint32_t _events_stored;
-        uint32_t _events_read;
-        uint32_t _content_type;
+        uint64_t _items_read;
+        uint64_t _content_type;
+        boost::shared_ptr<MetaData> _last_meta_data;
 };
 
 #endif

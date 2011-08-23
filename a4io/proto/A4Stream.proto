@@ -30,3 +30,16 @@ message A4EndCompressedSection
 {
     optional int32 CLASS_ID = 103;
 }
+
+
+message TestEvent
+{
+    optional int32 CLASS_ID = 110;
+    optional int32 event_number = 1;
+    optional int32 event_data = 2;
+}
+message TestMetaData
+{
+    optional int32 CLASS_ID = 111;
+    optional int32 meta_data = 1;
+}

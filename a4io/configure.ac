@@ -3,14 +3,12 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR(src/reader.cpp)
 AM_INIT_AUTOMAKE([foreign -Wall -Werror]) #subdir-objects
 
+
 # specify language
 AC_PROG_CC
 AC_PROG_CXX
 AC_LANG([C++])
 AM_PATH_PYTHON([2.6])
-
-# use libtool
-LT_INIT
 
 # allow specifying custom protobuf, but ignore it if the top-level configure already got it
 AC_ARG_WITH([protobuf], [AS_HELP_STRING([--with-protobuf=/sw/my_pb], [specify local protobuf installation])], [], [with_protobuf=no])
@@ -44,6 +42,18 @@ echo "PROTOC=$PROTOC"
 echo "$protobuf_LIBS"
 echo "$protobuf_CFLAGS"
 
+# Libtool and BOOST
+AC_PROG_LIBTOOL
+BOOST_REQUIRE([1.40])
+BOOST_FILESYSTEM
+BOOST_FOREACH
+BOOST_FORMAT
+BOOST_PROGRAM_OPTIONS
+BOOST_SMART_PTR
+BOOST_SYSTEM
+BOOST_THREADS
+
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile src/Makefile])
+
 AC_OUTPUT

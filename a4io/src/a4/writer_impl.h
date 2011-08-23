@@ -1,3 +1,6 @@
+#ifndef PROTOBUF_WRITER_IMPL_H
+#define PROTOBUF_WRITER_IMPL_H
+
 #include <string>
 
 #include <boost/shared_ptr.hpp>
@@ -11,15 +14,15 @@
 
 #include "a4/writer.h"
 
-using namespace std;
-
 const string START_MAGIC = "A4STREAM";
 const string END_MAGIC = "KTHXBYE4";
-const uint32_t HIGH_BIT = (1<<31);
 
-Writer::Writer(const fs::path &output_file, string content_name = "", uint32_t content_type = 0):
-    _output(output_file.string().c_str(),
-            ios::out | ios::trunc | ios::binary),
+#undef HIGH_BIT
+#define HIGH_BIT uint32_t(1<<31)
+
+Writer::Writer(const string &output_file, const string content_name = "", uint32_t content_type = 0):
+    _output(output_file.c_str(),
+            std::ios::out | std::ios::trunc | std::ios::binary),
     _content_count(0),
     _bytes_written(0),
     _content_type(content_type)
@@ -86,3 +89,11 @@ bool Writer::write(Message &msg)
     _bytes_written += size;
     return true;
 }
+
+bool Writer::write_metadata(Message &msg)
+{
+    // TODO: Add back-reference to metadata from footer
+    return write(msg);
+}
+
+#endif

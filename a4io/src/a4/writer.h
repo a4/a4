@@ -4,13 +4,10 @@
 #include <fstream>
 #include <string>
 
-#include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "pb/A4Stream.pb.h"
 
-
-namespace fs = boost::filesystem;
 using std::string;
 
 typedef boost::shared_ptr< ::google::protobuf::Message> MessagePtr;
@@ -19,9 +16,10 @@ using ::google::protobuf::Message;
 class Writer
 {
     public:
-        Writer(const fs::path &output_file, string content_name, uint32_t content_cls);
+        Writer(const string &output_file, const string content_name, uint32_t content_cls);
         ~Writer();
         bool write(Message& m);
+        bool write_metadata(Message& m);
 
     private:
         std::fstream _output;

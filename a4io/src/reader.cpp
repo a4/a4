@@ -62,7 +62,7 @@ bool Reader::read_header()
     if (h.has_content_class_id())
         _content_type = h.content_class_id();
     else
-        _content_type = Event::kCLASSIDFieldNumber;
+        return false;
 
     return true;
 }
