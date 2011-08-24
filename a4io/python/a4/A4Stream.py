@@ -1,10 +1,9 @@
 from struct import pack, unpack
 
 from messages.A4Stream_pb2 import A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection
-from messages import EventStreamInfo
 
 numbering = dict((cls.CLASS_ID_FIELD_NUMBER, cls) for cls in 
-                 (A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection, EventStreamInfo))
+                 (A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection))
 
 START_MAGIC = "A4STREAM"
 END_MAGIC = "KTHXBYE4"

@@ -6,8 +6,6 @@
 #include "a4/reader.h"
 #include "a4/reader_impl.h"
 
-#include "pb/A4Stream.pb.h"
-
 using namespace std;
 
 int main(int argc, char ** argv) {

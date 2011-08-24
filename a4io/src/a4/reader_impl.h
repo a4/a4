@@ -11,7 +11,9 @@
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
-#include "pb/A4Stream.pb.h"
+#include "a4/proto/io/A4Stream.pb.h"
+
+using namespace a4::io;
 
 #undef HIGH_BIT
 #define HIGH_BIT (uint32_t(1<<31))

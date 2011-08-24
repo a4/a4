@@ -1,8 +1,7 @@
 AC_INIT([a4io], [0.1], [johannes.ebke@physik.uni-muenchen.de])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_SRCDIR(src/reader.cpp)
-AM_INIT_AUTOMAKE([foreign -Wall -Werror]) #subdir-objects
-
+AC_CONFIG_SRCDIR(src/rwtest.cpp)
+AM_INIT_AUTOMAKE([foreign nostdinc -Wall -Werror]) #subdir-objects
 
 # specify language
 AC_PROG_CC
@@ -26,11 +25,10 @@ if test "x$PROTOC" == "x"; then
             AC_MSG_FAILURE([Missing google protoc compiler - run configure from a4 to download it])
         fi
     fi
-
 fi
 
+# only do pkg-config if we do not have a parent configure do it already
 if test "x$protobuf_LIBS" == "x"; then
-    # only do pkg-config if we do not have a parent configure do it already
     export PKG_CONFIG_PATH=$with_protobuf
     PKG_CHECK_MODULES([protobuf], [protobuf])
 fi
@@ -45,15 +43,16 @@ echo "$protobuf_CFLAGS"
 # Libtool and BOOST
 AC_PROG_LIBTOOL
 BOOST_REQUIRE([1.40])
-BOOST_FILESYSTEM
+#BOOST_FILESYSTEM
 BOOST_FOREACH
-BOOST_FORMAT
-BOOST_PROGRAM_OPTIONS
+#BOOST_FORMAT
+#BOOST_PROGRAM_OPTIONS
 BOOST_SMART_PTR
-BOOST_SYSTEM
-BOOST_THREADS
+#BOOST_THREADS
 
 AC_CONFIG_HEADERS([config.h])
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile])
+
+CPPFLAGS="$CPPFLAGS -I$srcdir/src -Isrc"
 
 AC_OUTPUT

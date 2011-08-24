@@ -14,6 +14,10 @@
 
 #include "a4/writer.h"
 
+#include "a4/proto/io/A4Stream.pb.h"
+
+using namespace a4::io;
+
 const string START_MAGIC = "A4STREAM";
 const string END_MAGIC = "KTHXBYE4";
 

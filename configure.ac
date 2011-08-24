@@ -3,6 +3,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AM_PATH_PYTHON([2.6])
 
+#------------ Find or Install Google protobuf ----------------
 # make sure to find google protobuf
 AC_ARG_WITH([protobuf], [AS_HELP_STRING([--with-protobuf=/sw/my_pb], [specify local protobuf installation])], [], [with_protobuf=no])
 
@@ -50,8 +51,8 @@ else
     fi
 fi
 
+# check for library and set LIBS and CFLAGS
 if test "x$protobuf_LIBS" == "x"; then
-    # check for library and set LIBS and CFLAGS
     export PKG_CONFIG_PATH=$with_protobuf
     echo $PKG_CONFIG_PATH
     PKG_CHECK_MODULES([protobuf], [protobuf])
@@ -64,10 +65,10 @@ echo "PROTOC=$PROTOC"
 echo "$protobuf_LIBS"
 echo "$protobuf_CFLAGS"
 
+#------------ End of Find or Install Google protobuf ----------------
+
 # a4io
 AC_CONFIG_SUBDIRS([a4io])
-a4io_LIBS=["$protobuf_LIBS"]
-a4io_CFLAGS=["$protobuf_CFLAGS -I$abs_srcdir/a4io/src"]
 
 AC_CONFIG_FILES([Makefile a4env.sh.in:a4env.sh.am])
 AC_OUTPUT
