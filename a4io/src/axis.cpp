@@ -1,8 +1,11 @@
 #include <iostream>
 
 #include "a4/axis.h"
+#include "a4/proto/io/Histograms.pb.h"
 
 using namespace std;
+
+Axis::Axis() {};
 
 Axis::Axis(const uint32_t &bins, const double &min, const double &max):
     _min(min),
@@ -20,8 +23,24 @@ Axis::Axis(const Axis & a):
 {
 }
 
-Axis::~Axis()
+Axis::~Axis() 
 {
+};
+
+void Axis::from_message(google::protobuf::Message & m) {
+    a4::io::Axis * msg = dynamic_cast<a4::io::Axis*>(&m);
+    _min = msg->min();
+    _max = msg->max();
+    _bins = msg->bins();
+    _delta = _bins == 0 ? 0 : (_max - _min)/_bins;
+};
+
+MessagePtr Axis::get_message() {
+    boost::shared_ptr<a4::io::Axis> axis(new a4::io::Axis);
+    axis->set_bins(_bins);
+    axis->set_min(_min);
+    axis->set_max(_max);
+    return axis;
 };
 
 bool Axis::sane() const

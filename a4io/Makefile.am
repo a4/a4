@@ -23,17 +23,22 @@ protoinclude_HEADERS = $(PROTOBUF_H)
 protopython_PYTHON = $(PROTOBUF_PY) $(PYDIR)/__init__.py
 
 lib_LTLIBRARIES=liba4_io.la
-liba4_io_la_SOURCES=$(PROTOBUF_CC)
+liba4_io_la_SOURCES=$(PROTOBUF_CC) src/axis.cpp src/h1.cpp src/h2.cpp src/cutflow.cpp
 liba4_io_la_LIBADD=$(protobuf_LIBS)
 liba4_io_la_CPPFLAGS=$(protobuf_CFLAGS)
 
-check_PROGRAMS = rwtest test_objstore
+## Test programs
+check_PROGRAMS = rwtest test_objstore test_results
 rwtest_SOURCES = src/rwtest.cpp
 rwtest_CPPFLAGS=$(protobuf_CFLAGS)
 rwtest_LDADD=liba4_io.la $(protobuf_LIBS) $(BOOST_SHARED_PTR_LIBS)
 
 test_objstore_SOURCES = src/test_objstore.cpp
 test_objstore_LDADD=$(BOOST_SHARED_PTR_LIBS)
+
+test_results_SOURCES = src/test_results.cpp
+test_results_CPPFLAGS=$(protobuf_CFLAGS)
+test_results_LDADD=liba4_io.la $(protobuf_LIBS) $(BOOST_SHARED_PTR_LIBS)
 
 TESTS=$(check_PROGRAMS)
 

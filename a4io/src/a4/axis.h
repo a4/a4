@@ -1,14 +1,17 @@
 #ifndef AXIS_H
 #define AXIS_H
-#include <iosfwd>
-#include <inttypes.h>
 
-class Axis
-{
+#include <a4/streamable.h>
+
+class Axis : public Streamable {
     public:
+        Axis();
         Axis(const uint32_t &bins, const double &min, const double &max);
         Axis(const Axis &);
         ~Axis();
+
+        virtual void from_message(google::protobuf::Message &);
+        virtual MessagePtr get_message();
 
         double min() const {return _min;};
         double max() const {return _max;};

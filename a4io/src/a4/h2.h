@@ -9,10 +9,9 @@
 
 #include <inttypes.h>
 #include <a4/axis.h>
-#include <a4/streamable.h>
-#include <a4/binned_data.h>
+#include <a4/result_type.h>
 
-class H2 : public streamable, public BinnedData
+class H2 : public ResultType
 {
     public:
         H2();
@@ -20,12 +19,15 @@ class H2 : public streamable, public BinnedData
         H2(Message &);
         ~H2();
 
+        virtual void from_message(google::protobuf::Message & m);
+        virtual MessagePtr get_message();
+
         H2 & operator()(const uint32_t &binsx, const double &minx, const double &maxx, const uint32_t &binsy, const double &miny, const double &maxy);
 
 
         void fill(const double &, const double &, const double &weight = 1);
-        BinnedData & __add__(const BinnedData &);
-        BinnedData & __mul__(const double &);
+        ResultType & __add__(const ResultType &);
+        ResultType & __mul__(const double &);
 
         uint64_t entries() const {return _entries;};
         double integral() const;
@@ -39,7 +41,7 @@ class H2 : public streamable, public BinnedData
         const DataPtr data() const {return _data;}; //TODO: only for copyin into TH2D
         const DataPtr weights_squared() const {return _weights_squared;}; //TODO: only for copyin into TH1D
 
-        virtual MessagePtr get_message();
+
     private:
         // Prevent copying by assignment
         H2 &operator =(const H2 &);

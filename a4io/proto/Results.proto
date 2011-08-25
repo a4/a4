@@ -1,4 +1,4 @@
-package a4pb;
+package a4.io;
 
 import "Cutflow.proto";
 import "Histograms.proto";
@@ -10,6 +10,8 @@ message Results
     repeated Cutflow cutflow = 11;
     repeated Histogram1 h1 = 12;
     repeated Histogram2 h2 = 13;
+
+    extensions 1000 to max;
 
 }
 

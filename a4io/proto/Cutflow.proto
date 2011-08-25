@@ -1,4 +1,4 @@
-package a4pb;
+package a4.io;
 
 message Cutflow
 {

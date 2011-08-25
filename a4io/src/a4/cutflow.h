@@ -7,12 +7,12 @@
 #include <boost/shared_ptr.hpp>
 
 #include <a4/streamable.h>
-#include <a4/binned_data.h>
+#include <a4/result_type.h>
 
 class Cutflow;
 typedef boost::shared_ptr<Cutflow> CutflowPtr;
 
-class Cutflow : public streamable, public BinnedData
+class Cutflow : public ResultType
 {
     public:
         class CutNameCount { 
@@ -27,10 +27,13 @@ class Cutflow : public streamable, public BinnedData
         Cutflow(Message &); 
         ~Cutflow();
 
+        virtual void from_message(google::protobuf::Message & m);
+        virtual MessagePtr get_message();
+
         std::vector<CutNameCount> content() const;
 
-        BinnedData & __add__(const BinnedData &);
-        BinnedData & __mul__(const double &);
+        ResultType & __add__(const ResultType &);
+        ResultType & __mul__(const double &);
 
         void print(std::ostream &) const;
 
@@ -38,7 +41,7 @@ class Cutflow : public streamable, public BinnedData
 
         static int _fast_access_id;
 
-        virtual MessagePtr get_message();
+
 
     private:
         std::vector<double> _fast_access_bin;

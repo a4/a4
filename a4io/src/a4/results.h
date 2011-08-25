@@ -12,8 +12,8 @@
 #include "a4/h1.h"
 #include "a4/h2.h"
 #include "a4/cutflow.h"
-#include "a4/streamable.h"
-#include "a4/object_store.h"
+#include "a4/result_type.h"
+#include "a4/objectstore.h"
 
 #define TOKENPASTE(x, y) x ## y
 #define TOKENPASTE2(x, y) TOKENPASTE(x, y)      
@@ -33,11 +33,12 @@ using std::string;
 class Results;
 typedef boost::shared_ptr<Results> ResultsPtr;
 
-class Results : public streamable, public ObjectStore<BinnedData>, public BinnedData
+class Results : public ResultType, public ObjectStore<ResultType>
 {
     public:
-        Results();
-        Results(Message &);
+        virtual void from_message(google::protobuf::Message &);
+        virtual MessagePtr get_message();
+
         virtual ~Results();
 
         const string get_title() {return title;};
@@ -46,8 +47,8 @@ class Results : public streamable, public ObjectStore<BinnedData>, public Binned
         void to_file(std::string fn);
         static ResultsPtr from_file(std::string fn);
 
-        virtual BinnedData & __add__(const BinnedData &);
-        virtual BinnedData & __mul__(const double &);
+        virtual ResultType & __add__(const ResultType &);
+        virtual ResultType & __mul__(const double &);
 
         virtual void print(std::ostream &) const;
         virtual void print() const { print(std::cout); };
@@ -62,8 +63,6 @@ class Results : public streamable, public ObjectStore<BinnedData>, public Binned
         H2Ptr h2(string name);
         H2Ptr h2(string name, const uint32_t &xbins, const double &xmin, const double &xmax, const uint32_t &ybins, const double &ymin, const double &ymax);
         CutflowPtr cf(string name);
-
-        virtual MessagePtr get_message();
 
     private:
         string title;

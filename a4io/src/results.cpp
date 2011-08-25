@@ -1,5 +1,5 @@
 #include "a4/results.h"
-#include "pb/Results.pb.h"
+#include "a4/proto/io/Results.pb.h"
 
 #include <boost/foreach.hpp>
 
@@ -11,10 +11,7 @@
 #include <fstream>
 
 using namespace std;
-
-Results::Results()
-{
-}
+using namespace a4::io;
 
 MessagePtr Results::get_message() {
     boost::shared_ptr<a4pb::Results> res(new a4pb::Results);

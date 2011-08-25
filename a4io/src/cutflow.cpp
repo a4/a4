@@ -2,7 +2,7 @@
 
 #include <google/protobuf/descriptor.h>
 
-#include <pb/Cutflow.pb.h>
+#include <a4/proto/io/Cutflow.pb.h>
 
 #include <boost/foreach.hpp>
 #include <stdexcept>
@@ -38,7 +38,7 @@ Cutflow::~Cutflow()
 {
 }
 
-BinnedData & Cutflow::__mul__(const double & w) {
+ResultType & Cutflow::__mul__(const double & w) {
     for(uint32_t bin = 0, bins = _fast_access_bin.size(); bins > bin; ++bin)
         _fast_access_bin[bin] *= w;
     if (!_weights_squared) {
@@ -116,9 +116,9 @@ void Cutflow::print(std::ostream &out) const
     }
 }
 
-BinnedData & Cutflow::__add__(const BinnedData & _source) {
+ResultType & Cutflow::__add__(const ResultType & _source) {
     const Cutflow & source = dynamic_cast<const Cutflow &>(_source);
-    map<string, int> cut_name_index;
+    map<std::string, int> cut_name_index;
 
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
         if (_cut_names[i].size() != 0) 
@@ -131,7 +131,7 @@ BinnedData & Cutflow::__add__(const BinnedData & _source) {
 
     // Add all cuts
     for(uint32_t i = 0; i < source._cut_names.size(); i++) {
-        string name = source._cut_names[i];
+        std::string name = source._cut_names[i];
         double count = source._fast_access_bin[i];
         int index = cut_name_index[name] - 1;
         if (index == -1) {
@@ -154,7 +154,7 @@ BinnedData & Cutflow::__add__(const BinnedData & _source) {
 
 
 MessagePtr Cutflow::get_message() {
-    boost::shared_ptr<a4pb::Cutflow> cf(new a4pb::Cutflow);
+    boost::shared_ptr<a4::io::Cutflow> cf(new a4::io::Cutflow);
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
         if (_cut_names[i].size() != 0) {
             cf->add_counts_double(_fast_access_bin[i]);
@@ -168,9 +168,9 @@ MessagePtr Cutflow::get_message() {
 }
 
 Cutflow::Cutflow(Message& m) {
-    a4pb::Cutflow * msg = dynamic_cast<a4pb::Cutflow*>(&m);
+    a4::io::Cutflow * msg = dynamic_cast<a4::io::Cutflow*>(&m);
     BOOST_FOREACH(double d, msg->counts_double()) _fast_access_bin.push_back(d);
-    BOOST_FOREACH(string s, msg->counts_double_names()) _cut_names.push_back(s);    
+    BOOST_FOREACH(std::string s, msg->counts_double_names()) _cut_names.push_back(s);    
     if (msg->weights_squared_size() > 0) {
         _weights_squared.reset(new vector<double>);
         BOOST_FOREACH(double d, msg->weights_squared()) _weights_squared->push_back(d);

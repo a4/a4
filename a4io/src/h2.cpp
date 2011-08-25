@@ -6,7 +6,7 @@
 #include "a4/axis.h"
 #include "a4/h2.h"
 
-#include "pb/Histograms.pb.h"
+#include "a4/proto/io/Histograms.pb.h"
 
 using namespace std;
 
@@ -45,9 +45,9 @@ H2::H2(const H2 & h):
 
 H2::~H2()
 {
-}
+};
 
-BinnedData & H2::__mul__(const double & w) {
+ResultType & H2::__mul__(const double & w) {
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) *= w;
@@ -62,7 +62,7 @@ BinnedData & H2::__mul__(const double & w) {
 }
 
 MessagePtr H2::get_message() {
-    boost::shared_ptr<a4pb::Histogram2> h2(new a4pb::Histogram2);
+    boost::shared_ptr<a4::io::Histogram2> h2(new a4::io::Histogram2);
     h2->mutable_x()->set_bins(_x_axis.bins());
     h2->mutable_x()->set_min(_x_axis.min());
     h2->mutable_x()->set_max(_x_axis.max());
@@ -78,7 +78,7 @@ MessagePtr H2::get_message() {
 }
 
 H2::H2(Message& m) : _x_axis(0,0,0), _y_axis(0,0,0) {
-    a4pb::Histogram2 * msg = dynamic_cast<a4pb::Histogram2*>(&m);
+    a4::io::Histogram2 * msg = dynamic_cast<a4::io::Histogram2*>(&m);
     _x_axis = Axis(msg->x().bins(), msg->x().min(), msg->x().max());
     _y_axis = Axis(msg->y().bins(), msg->y().min(), msg->y().max());
     _entries = msg->entries();
@@ -140,7 +140,7 @@ void H2::print(std::ostream &out) const
             out << "[" << setw(3) << bin << "]: " << setiosflags(ios::fixed) << setprecision(3) << *(_data.get() + ybin*skip + bin) << endl;
 }
 
-BinnedData & H2::__add__(const BinnedData &_source)
+ResultType & H2::__add__(const ResultType &_source)
 {
     const H2 & source = dynamic_cast<const H2&>(_source);
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
