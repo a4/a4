@@ -70,6 +70,6 @@ echo "$protobuf_CFLAGS"
 # a4io
 AC_CONFIG_SUBDIRS([a4io])
 
-AC_CONFIG_FILES([Makefile a4env.sh.in:a4env.sh.am])
+AC_CONFIG_FILES([Makefile this_a4.sh.in:this_a4.sh.am])
 AC_OUTPUT
 
