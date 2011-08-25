@@ -30,12 +30,15 @@ liba4_io_la_SOURCES=$(PROTOBUF_CC)
 liba4_io_la_LIBADD=$(protobuf_LIBS)
 liba4_io_la_CPPFLAGS=$(protobuf_CFLAGS)
 
-check_PROGRAMS = rwtest
+check_PROGRAMS = rwtest test_objstore
 rwtest_SOURCES = src/rwtest.cpp
 rwtest_CPPFLAGS=$(protobuf_CFLAGS)
 rwtest_LDADD=liba4_io.la $(protobuf_LIBS) $(BOOST_SHARED_PTR_LIBS)
 
-TESTS=rwtest
+test_objstore_SOURCES = src/test_objstore.cpp
+test_objstore_LDADD=$(BOOST_SHARED_PTR_LIBS)
+
+TESTS=$(check_PROGRAMS)
 
 # how to make protobuf objects
 $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: ${top_srcdir}/proto/%.proto

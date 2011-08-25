@@ -53,6 +53,6 @@ BOOST_SMART_PTR
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
 
-CPPFLAGS="$CPPFLAGS -I$srcdir/src -Isrc"
+CPPFLAGS="$CPPFLAGS -std=c++0x -I$srcdir/src -Isrc"
 
 AC_OUTPUT
