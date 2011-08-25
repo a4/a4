@@ -1,9 +1,14 @@
 alias protoc=@PROTOC@
+export PROTOC=@PROTOC@
 
 if test "x@abs_with_protobuf@" != "x"; then
     export PYTHONPATH=$PYTHONPATH:@abs_with_protobuf@/python
+    export CPPFLAGS="$CPPFLAGS -I@abs_with_protobuf@/include"
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:@abs_with_protobuf@/lib
 fi
 
 export PYTHONPATH=$PYTHONPATH:@pythondir@
 export PATH=$PATH:${prefix}/bin
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${prefix}/lib
+export CPPFLAGS="$CPPFLAGS -I${prefix}/include"
+export LDFLAGS="$LDFLAGS -L${prefix}/lib"

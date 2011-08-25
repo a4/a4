@@ -6,7 +6,7 @@ a4includedir=${includedir}/a4
 a4pythondir=${pythondir}/a4
 
 bin_SCRIPTS=bin/a4pool bin/a4dump bin/a4info
-a4include_HEADERS = src/a4/reader.h src/a4/writer.h src/a4/streamable.h
+a4include_HEADERS = src/a4/reader.h src/a4/reader_impl.h src/a4/writer.h src/a4/writer_impl.h
 a4python_PYTHON = python/a4/__init__.py python/a4/A4Stream.py python/a4/protopool.py
 
 protodir=${localstatedir}/a4/proto/$(A4PACK)

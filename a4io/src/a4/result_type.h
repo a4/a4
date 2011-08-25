@@ -1,13 +1,20 @@
-#ifndef _A4_STREAMABLE_H
-#define _A4_STREAMABLE_H
+#ifndef _A4_RESULTTYPE_H
+#define _A4_RESULTTYPE_H
 
-#include <a4/writer.h>
-#include <boost/shared_ptr.hpp>
+#include <google/protobuf/message.h>
 
-
-class streamable {
+class ResultType {
     public:
-        virtual MessagePtr get_message() = 0;
+        ResultType() = 0;
+
+        virtual void from_message(google::protobuf::Message &) = 0;
+        virtual google::protobuf::Message * get_message() = 0;
+
+        virtual ResultType & __add__(const ResultType &) = 0;
+        virtual ResultType & __mul__(const double &) { return *this; };
+
+        ResultType & operator*=(const double & rhs) { return __mul__(rhs); };
+        ResultType & operator+=(const ResultType & rhs) { return __add__(rhs); };
 };
 
 #endif
