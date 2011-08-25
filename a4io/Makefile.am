@@ -16,10 +16,7 @@ protopythondir=${pythondir}/a4/proto/$(A4PACK)
 PYDIR=python/a4/proto/$(A4PACK)
 CPPDIR=src/a4/proto/$(A4PACK)
 
-PROTOBUF_PY=$(PYDIR)/A4Stream_pb2.py
-PROTOBUF_H=$(CPPDIR)/A4Stream.pb.h
-PROTOBUF_CC=$(CPPDIR)/A4Stream.pb.cc
-PROTOBUF_PROTO=proto/A4Stream.proto
+include protobuf.make
 
 proto_DATA=$(PROTOBUF_PROTO)
 protoinclude_HEADERS = $(PROTOBUF_H)
