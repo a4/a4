@@ -16,6 +16,9 @@ protopythondir=${pythondir}/a4/proto/$(A4PACK)
 PYDIR=python/a4/proto/$(A4PACK)
 CPPDIR=src/a4/proto/$(A4PACK)
 
+protobuf.make:
+	./protobuf.make.sh proto
+
 include protobuf.make
 
 proto_DATA=$(PROTOBUF_PROTO)
