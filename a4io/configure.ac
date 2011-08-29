@@ -1,6 +1,6 @@
 AC_INIT([a4io], [0.1], [johannes.ebke@physik.uni-muenchen.de])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_SRCDIR(src/rwtest.cpp)
+AC_CONFIG_SRCDIR(src/test_rw.cpp)
 AM_INIT_AUTOMAKE([foreign nostdinc -Wall -Werror]) #subdir-objects
 
 # specify language

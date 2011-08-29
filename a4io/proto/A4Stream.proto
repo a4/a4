@@ -4,8 +4,9 @@ message A4StreamHeader
 {
     optional int32 CLASS_ID = 100;
     required int32 a4_version = 1;
-    optional string content = 2;
+    optional string description = 2;
     optional int32 content_class_id = 3;
+    optional int32 metadata_class_id = 4;
 }
 
 message A4StreamFooter
@@ -13,7 +14,7 @@ message A4StreamFooter
     optional int32 CLASS_ID = 101;
     required int64 size = 1; // number of bytes written before the footer
     optional int32 content_count = 2; // number of 'content' events
-    optional int32 metadata_offset = 3; // size of the metadata message before this footer
+    repeated int64 metadata_offset = 3; // size of the metadata message before this footer
 }
 
 message A4StartCompressedSection

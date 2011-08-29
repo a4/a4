@@ -6,7 +6,7 @@ a4includedir=${includedir}/a4
 a4pythondir=${pythondir}/a4
 
 bin_SCRIPTS=bin/a4pool bin/a4dump bin/a4info
-a4include_HEADERS = src/a4/reader.h src/a4/reader_impl.h src/a4/writer.h src/a4/writer_impl.h
+a4include_HEADERS = src/a4/reader.h src/a4/writer.h
 a4python_PYTHON = python/a4/__init__.py python/a4/A4Stream.py python/a4/protopool.py
 
 protodir=${localstatedir}/a4/proto/$(A4PACK)
@@ -26,15 +26,15 @@ protoinclude_HEADERS = $(PROTOBUF_H)
 protopython_PYTHON = $(PROTOBUF_PY) $(PYDIR)/__init__.py
 
 lib_LTLIBRARIES=liba4_io.la
-liba4_io_la_SOURCES=$(PROTOBUF_CC) src/axis.cpp src/h1.cpp src/h2.cpp src/cutflow.cpp
+liba4_io_la_SOURCES=$(PROTOBUF_CC) src/reader.cpp src/writer.cpp src/streamable.cpp src/results.cpp
 liba4_io_la_LIBADD=$(protobuf_LIBS)
 liba4_io_la_CPPFLAGS=$(protobuf_CFLAGS)
 
 ## Test programs
-check_PROGRAMS = rwtest test_objstore test_results
-rwtest_SOURCES = src/rwtest.cpp
-rwtest_CPPFLAGS=$(protobuf_CFLAGS)
-rwtest_LDADD=liba4_io.la $(protobuf_LIBS) $(BOOST_SHARED_PTR_LIBS)
+check_PROGRAMS = test_rw test_objstore test_results
+test_rw_SOURCES = src/test_rw.cpp
+test_rw_CPPFLAGS=$(protobuf_CFLAGS)
+test_rw_LDADD=liba4_io.la $(protobuf_LIBS) $(BOOST_SHARED_PTR_LIBS)
 
 test_objstore_SOURCES = src/test_objstore.cpp
 test_objstore_LDADD=$(BOOST_SHARED_PTR_LIBS)

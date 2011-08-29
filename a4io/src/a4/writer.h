@@ -8,18 +8,16 @@
 
 #include <google/protobuf/message.h>
 
-using std::string;
-
-typedef boost::shared_ptr< ::google::protobuf::Message> MessagePtr;
-using ::google::protobuf::Message;
+#include "a4/interfaces.h"
 
 class Writer
 {
     public:
-        Writer(const string &output_file, const string content_name, uint32_t content_cls);
+        Writer(const std::string &output_file, const std::string description="", uint32_t content_class_id=0, uint32_t metadata_class_id=0);
         ~Writer();
-        bool write(Message& m);
-        bool write_metadata(Message& m);
+        bool write(Streamable& m);
+
+        bool metadata(MetaData& m);
 
     private:
         std::fstream _output;
@@ -33,14 +31,14 @@ class Writer
         boost::shared_ptr< ::google::protobuf::io::CodedOutputStream>
             _coded_out;
 
-        bool write_header(string content_name);
+        bool write(uint32_t class_id, ::google::protobuf::Message& m);
+        bool write_header(std::string description);
         bool write_footer();
 
         uint32_t _content_count;
         uint32_t _bytes_written;
-        uint32_t _content_type;
-        uint32_t _previous_type;
-
+        uint32_t _content_class_id;
+        uint32_t _metadata_class_id;
 };
 
 #endif

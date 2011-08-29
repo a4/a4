@@ -9,10 +9,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "a4/h1.h"
-#include "a4/h2.h"
-#include "a4/cutflow.h"
-#include "a4/result_type.h"
+#include "a4/interfaces.h"
+#include "a4/streamable.h"
 #include "a4/objectstore.h"
 
 #define TOKENPASTE(x, y) x ## y
@@ -33,39 +31,18 @@ using std::string;
 class Results;
 typedef boost::shared_ptr<Results> ResultsPtr;
 
-class Results : public ResultType, public ObjectStore<ResultType>
+class Results : public Named, public Addable, public Scalable, public ObjectStore<Named>
 {
     public:
-        virtual void from_message(google::protobuf::Message &);
-        virtual MessagePtr get_message();
+        virtual Results & __add__(const Addable &);
+        virtual Results & __mul__(const double &);
+        virtual Results * clone() const;
+        std::string __repr__();
+        std::string __str__();
+        boost::shared_ptr<MetaData> metadata;
 
-        virtual ~Results();
-
-        const string get_title() {return title;};
-        void set_title(const string &t) { title = t;};
-        
         void to_file(std::string fn);
-        static ResultsPtr from_file(std::string fn);
-
-        virtual ResultType & __add__(const ResultType &);
-        virtual ResultType & __mul__(const double &);
-
-        virtual void print(std::ostream &) const;
-        virtual void print() const { print(std::cout); };
-
-        virtual std::vector<std::string> h1_names() const {return list<H1>();};
-        virtual std::vector<std::string> h2_names() const {return list<H2>();};;
-        virtual std::vector<std::string> cf_names() const {return list<Cutflow>();};;
-
-        // Get Histograms or Cutflows
-        H1Ptr h1(string name);
-        H1Ptr h1(string name, const uint32_t &bins, const double &min, const double &max);
-        H2Ptr h2(string name);
-        H2Ptr h2(string name, const uint32_t &xbins, const double &xmin, const double &xmax, const uint32_t &ybins, const double &ymin, const double &ymax);
-        CutflowPtr cf(string name);
-
-    private:
-        string title;
+        static Results * from_file(std::string fn);
 };
 typedef boost::shared_ptr<Results> ResultsPtr;
 
