@@ -2,6 +2,7 @@
 #define _A4_STREAMABLE_H_
 
 #include <google/protobuf/message.h>
+#include <google/protobuf/io/coded_stream.h>
 
 #include <boost/shared_ptr.hpp>
 
@@ -23,14 +24,14 @@ class Streamable {
 // Wizardry to automatically generate a list of classes
 // derived from StreamableTo<ProtoBufClass, MyClass>
 
-typedef boost::shared_ptr<Streamable> (*from_msg_func)(const std::string &);
+typedef boost::shared_ptr<Streamable> (*from_msg_func)(google::protobuf::io::CodedInputStream *);
 
 extern std::map<int, from_msg_func> all_class_ids;
 
 template <typename ProtoClass, typename MyStreamable>
-boost::shared_ptr<Streamable> from_msg(const std::string & msg) {
+boost::shared_ptr<Streamable> from_msg(google::protobuf::io::CodedInputStream * instr) {
     ProtoClass pc;
-    pc.ParseFromString(msg);
+    pc.ParseFromCodedStream(instr);
     return boost::shared_ptr<Streamable>(MyStreamable::from_message(pc));
 }
 

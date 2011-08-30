@@ -7,6 +7,14 @@
 
 #include "a4/interfaces.h"
 
+namespace google{ namespace protobuf{ namespace io{
+    class FileInputStream;
+    class GzipInputStream;
+    class CodedInputStream;
+};};};
+
+namespace a4{ namespace io{ class GzipInputStream; }; };
+
 typedef struct RR {
     RR(uint32_t cls, boost::shared_ptr<Streamable> obj) : class_id(cls), object(obj) {};
     uint32_t class_id; 
@@ -21,7 +29,7 @@ class Reader
 {
     public:
         Reader(const std::string & input_file);
-        ~Reader() {};
+        ~Reader();
 
         bool is_good() {return _is_good;};
         ReadResult read();
@@ -29,15 +37,14 @@ class Reader
         const boost::shared_ptr<MetaData> last_meta_data() {return _last_meta_data; };
 
     private:
-        std::fstream _input;
-
-        boost::shared_ptr< ::google::protobuf::io::ZeroCopyInputStream>
-            _raw_in;
-
-        boost::shared_ptr< ::google::protobuf::io::CodedInputStream>
-            _coded_in;
+        ::google::protobuf::io::FileInputStream * _raw_in;
+        ::a4::io::GzipInputStream * _compressed_in;
+        ::google::protobuf::io::CodedInputStream * _coded_in;
 
         int _read_header();
+
+        bool start_compression(uint32_t);
+        bool stop_compression(uint32_t);
     
         bool _is_good;
         uint64_t _items_read;

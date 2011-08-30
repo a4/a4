@@ -14,6 +14,7 @@
 #include "a4/proto/io/A4Stream.pb.h"
 
 using std::string;
+using namespace google::protobuf::io;
 
 const string START_MAGIC = "A4STREAM";
 const string END_MAGIC = "KTHXBYE4";
@@ -29,7 +30,7 @@ Writer::Writer(const string &output_file, const string description, uint32_t con
     _content_class_id(content_class_id),
     _metadata_class_id(metadata_class_id)
 {
-    _raw_out = new FileOutputStream(open(output_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT | O_DIRECT, S_IRUSR | S_IRGRP | S_IROTH));
+    _raw_out = new FileOutputStream(open(output_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT | O_DIRECT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH));
     _coded_out = new CodedOutputStream(_raw_out);
     write_header(description);
     if (compression) start_compression();
@@ -62,21 +63,23 @@ bool Writer::metadata(MetaData &msg)
 
 bool Writer::start_compression() {
     if (_compressed_out) return false;
-    A4StartCompressedSection cs_header;
-    cs_header.set_compression(A4StartCompressedSection_Compression_ZLIB);
-    write(cs_header);
+    a4::io::A4StartCompressedSection cs_header;
+    cs_header.set_compression(a4::io::A4StartCompressedSection_Compression_ZLIB);
+    write(a4::io::A4StartCompressedSection::kCLASSIDFieldNumber, cs_header);
     delete _coded_out;
     GzipOutputStream::Options o;
     o.format = GzipOutputStream::ZLIB;
+    o.compression_level = 9;
     _compressed_out = new GzipOutputStream(_raw_out, o);
     _coded_out = new CodedOutputStream(_compressed_out);
 };
 
 bool Writer::stop_compression() {
     if (!_compressed_out) return false;
-    A4EndCompressedSection cs_footer;
-    write(cs_footer);
+    a4::io::A4EndCompressedSection cs_footer;
+    write(a4::io::A4EndCompressedSection::kCLASSIDFieldNumber, cs_footer);
     delete _coded_out;
+    _compressed_out->Flush();
     _compressed_out->Close();
     delete _compressed_out;
     _coded_out = new CodedOutputStream(_raw_out);

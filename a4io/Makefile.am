@@ -26,7 +26,7 @@ protoinclude_HEADERS = $(PROTOBUF_H)
 protopython_PYTHON = $(PROTOBUF_PY) $(PYDIR)/__init__.py
 
 lib_LTLIBRARIES=liba4_io.la
-liba4_io_la_SOURCES=$(PROTOBUF_CC) src/reader.cpp src/writer.cpp src/streamable.cpp src/results.cpp
+liba4_io_la_SOURCES=$(PROTOBUF_CC) src/gzip_stream.cpp src/reader.cpp src/writer.cpp src/streamable.cpp src/results.cpp
 liba4_io_la_LIBADD=$(protobuf_LIBS)
 liba4_io_la_CPPFLAGS=$(protobuf_CFLAGS)
 

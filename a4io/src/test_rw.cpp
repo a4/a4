@@ -56,7 +56,8 @@ int main(int argc, char ** argv) {
 
     {
         uint32_t clsid = a4::io::TestEvent::kCLASSIDFieldNumber;
-        Writer w("test.a4", "TestEvent", clsid);
+        uint32_t clsid_m = a4::io::TestMetaData::kCLASSIDFieldNumber;
+        Writer w("test.a4", "TestEvent", clsid, clsid_m);
 
         const int N = 1000;
         TestEvent e;
