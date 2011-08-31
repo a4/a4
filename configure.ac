@@ -16,14 +16,13 @@ case $builddir in
  /*) abs_builddir=$builddir ;;
  *)  abs_builddir=$PWD/$builddir ;;
 esac
-case $with_protobuf in
- /*) abs_with_protobuf=$with_protobuf ;;
- *)  abs_with_protobuf=$PWD/$with_protobuf ;;
-esac
 
 # find protoc compiler
-AC_SUBST([abs_with_protobuf])
 if test "x$with_protobuf" != "xno"; then
+    case $with_protobuf in
+     /*) abs_with_protobuf=$with_protobuf ;;
+     *)  abs_with_protobuf=$PWD/$with_protobuf ;;
+    esac
     AC_PATH_PROG([PROTOC], [protoc], [none], [$abs_with_protobuf/bin])
     if test "x$PROTOC" == "xnone"; then
         AC_MSG_FAILURE([No protoc compiler found at $abs_with_protobuf/bin! Check your specified protobuf installation directory!])
@@ -50,6 +49,7 @@ else
         protobuf_CFLAGS=["-pthread -I$abs_srcdir/protobuf/src"]
     fi
 fi
+AC_SUBST([abs_with_protobuf])
 
 # check for library and set LIBS and CFLAGS
 if test "x$protobuf_LIBS" == "x"; then
