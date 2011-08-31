@@ -1,5 +1,3 @@
-#include <boost/foreach.hpp>
-
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/gzip_stream.h>
 #include <google/protobuf/io/zero_copy_stream.h>
@@ -24,10 +22,10 @@ using namespace std;
 
 void Results::to_file(std::string fn) {
     auto w = new Writer(fn, "Results");
-    BOOST_FOREACH(string n, list<Streamable>()) {
-        A4Key key(n);
+    for(auto l = list<Streamable>(), it = l.begin(), end = l.end(); it != end; it++) {
+        A4Key key(*it);
         w->write(key);
-        w->write(*get_checked<Streamable>(n));
+        w->write(*get_checked<Streamable>(*it));
     }
     if (metadata) w->metadata(*metadata);
     delete w;
@@ -60,11 +58,14 @@ std::vector<Results *> Results::from_file(std::string fn) {
 
 Results & Results::__add__(const Addable & _source) {
     const Results & source = dynamic_cast<const Results&>(_source);
-    BOOST_FOREACH(string n, list<Addable>()) {
+    for(auto l = list<Addable>(), it = l.begin(), end = l.end(); it != end; it++) {
+        string &n = *it;
         boost::shared_ptr<Addable> other = source.get_checked<Addable>(n);
         if (other) get_checked<Addable>(n)->__add__(*other);
     }
-    BOOST_FOREACH(string n, source.list<Addable>()) {
+
+    for(auto l = list<Addable>(), it = l.begin(), end = l.end(); it != end; it++) {
+        string &n = *it;
         boost::shared_ptr<Addable> self = get_checked<Addable>(n);
         if (!self) set(n, reinterpret_cast<Printable*>(source.get_checked<Cloneable>(n)->clone()));
     }
@@ -72,14 +73,17 @@ Results & Results::__add__(const Addable & _source) {
 }
 
 Results & Results::__mul__(const double & weight) {
-    BOOST_FOREACH(string n, list<Scalable>()) *get_checked<Scalable>(n) *= weight;
+    for(auto l = list<Scalable>(), it = l.begin(), end = l.end(); it != end; it++) {
+        *get_checked<Scalable>(*it) *= weight;
+    }
     return *this;
 }
 
 Results * Results::clone() const {
     Results * results = new Results();
-    BOOST_FOREACH(string n, list<Cloneable>())
-        results->set(n, reinterpret_cast<Printable*>(get_checked<Cloneable>(n)->clone()));
+    for(auto l = list<Cloneable>(), it = l.begin(), end = l.end(); it != end; it++) {
+        results->set(*it, reinterpret_cast<Printable*>(get_checked<Cloneable>(*it)->clone()));
+    }
     return results;
 };
 
@@ -92,8 +96,9 @@ std::string Results::__repr__() {
 std::string Results::__str__() {
     std::stringstream ss;
     ss << Printable::__str__() << std::endl;
-    BOOST_FOREACH(string n, list<Printable>())
-        ss << " * " << n << " : " << get_checked<Printable>(n)->__repr__() << std::endl;
+    for(auto l = list<Printable>(), it = l.begin(), end = l.end(); it != end; it++) {
+        ss << " * " << *it << " : " << get_checked<Printable>(*it)->__repr__() << std::endl;
+    }
     return ss.str();
 }
 

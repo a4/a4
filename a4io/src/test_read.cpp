@@ -5,8 +5,6 @@
 
 #include "a4/proto/io/A4Stream.pb.h"
 
-#include <boost/foreach.hpp>
-
 using namespace std;
 
 class TestEvent : public StreamableTo<a4::io::TestEvent, TestEvent> {

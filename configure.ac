@@ -2,6 +2,7 @@ AC_INIT([a4],[0.1])
 AC_CONFIG_MACRO_DIR([m4])
 AM_INIT_AUTOMAKE([foreign -Wall -Werror])
 AM_PATH_PYTHON([2.6])
+AC_PROG_LN_S
 
 #------------ Find or Install Google protobuf ----------------
 # make sure to find google protobuf

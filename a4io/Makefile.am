@@ -6,9 +6,9 @@ a4includedir=${includedir}/a4
 a4pythondir=${pythondir}/a4
 a4pythonprotodir=${pythondir}/a4/proto
 
-bin_SCRIPTS=bin/a4dump bin/a4info
-pkgdata_SCRIPTS=bin/test_rw
-a4include_HEADERS = src/a4/reader.h src/a4/writer.h
+dist_bin_SCRIPTS=bin/a4dump bin/a4info
+dist_pkgdata_SCRIPTS=bin/test_rw
+a4include_HEADERS = src/a4/reader.h src/a4/writer.h src/a4/results.h src/a4/streamable.h src/a4/interfaces.h
 a4python_PYTHON = python/a4/__init__.py python/a4/A4Stream.py
 a4pythonproto_PYTHON = python/a4/proto/__init__.py
 
@@ -24,14 +24,16 @@ LDADD=liba4_io.la $(protobuf_LIBS) $(BOOST_SHARED_PTR_LIBS)
 
 include protobuf.make
 
-proto_DATA=$(PROTOBUF_PROTO)
+dist_proto_DATA=$(PROTOBUF_PROTO)
 protoinclude_HEADERS = $(PROTOBUF_H)
 protopython_PYTHON = $(PROTOBUF_PY) $(PYDIR)/__init__.py
 
 lib_LTLIBRARIES=liba4_io.la
-liba4_io_la_SOURCES=$(PROTOBUF_CC) src/gzip_stream.cpp src/reader.cpp src/writer.cpp src/streamable.cpp src/results.cpp
+liba4_io_la_SOURCES=$(PROTOBUF_CC) src/a4/objectstore.h src/a4/objectstore_impl.h src/gzip_stream.h \
+                    src/gzip_stream.cpp src/reader.cpp src/writer.cpp src/streamable.cpp src/results.cpp
 liba4_io_la_LIBADD=$(protobuf_LIBS)
 liba4_io_la_CPPFLAGS=$(protobuf_CFLAGS)
+
 
 ## Test programs
 check_PROGRAMS = test_rw test_read test_write test_objstore test_results

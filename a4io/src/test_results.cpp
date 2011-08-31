@@ -9,7 +9,6 @@
 #include <stdarg.h>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/foreach.hpp>
 
 #include "a4/proto/io/A4Stream.pb.h"
 

@@ -5,9 +5,10 @@ AM_INIT_AUTOMAKE([foreign nostdinc -Wall -Werror]) #subdir-objects
 
 # specify language
 AC_PROG_CC
-AC_PROG_CXX
+AC_PROG_CXX([g++46 g++4.6 g++-4.6 g++45 g++4.5 g++-4.5 g++44 g++4.4 g++-4.4 g++ gcc cl KCC CC cxx cc++ xlC aCC c++])
 AC_LANG([C++])
 AM_PATH_PYTHON([2.6])
+
 
 # allow specifying custom protobuf, but ignore it if the top-level configure already got it
 AC_ARG_WITH([protobuf], [AS_HELP_STRING([--with-protobuf=/sw/my_pb], [specify local protobuf installation])], [], [with_protobuf=no])
@@ -42,13 +43,27 @@ echo "$protobuf_CFLAGS"
 
 # Libtool and BOOST
 AC_PROG_LIBTOOL
-BOOST_REQUIRE([1.40])
+BOOST_REQUIRE([1.33])
 #BOOST_FILESYSTEM
-BOOST_FOREACH
+#BOOST_FOREACH
 #BOOST_FORMAT
 #BOOST_PROGRAM_OPTIONS
 BOOST_SMART_PTR
 #BOOST_THREADS
+
+# C++0x
+AC_COMPILE_STDCXX_0X
+AC_HEADER_STDCXX_0X
+
+if test "x$ac_cv_cxx_compile_cxx0x_native" != "x"; then
+    : # do nothing
+elif test "x$ac_cv_cxx_compile_cxx0x_cxx" != "x"; then
+    CPPFLAGS="$CPPFLAGS -std=c++0x"
+elif test "x$ac_cv_cxx_compile_cxx0x_gxx" != "x"; then
+    CPPFLAGS="$CPPFLAGS -std=gnu++0x"
+else
+    AC_MSG_FAILURE([Compiler does not support C++0x. A4 requires g++ 4.4 or later.])
+fi
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])

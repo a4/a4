@@ -3,8 +3,6 @@
 #include "a4/writer.h"
 #include "a4/reader.h"
 
-#include <boost/foreach.hpp>
-
 using namespace std;
 
 class TestEvent : public StreamableTo<a4::io::TestEvent, TestEvent> {

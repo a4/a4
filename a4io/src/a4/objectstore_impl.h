@@ -99,7 +99,7 @@ void * & hash_lookup::lookup(uint32_t index, const Args& ...args) {
 
 
 std::string str_printf(const char * s) { return std::string (s); };
-template<typename T, typename... Args, int N = sizeof...(Args)>
+template<typename T, typename... Args>
 std::string str_printf(const char * s, const T& value, const Args&... args) {
     std::string res;
     while (*s) {
@@ -115,7 +115,7 @@ std::string str_printf(const char * s, const T& value, const Args&... args) {
 
 std::string str_cat() { return std::string(""); };
 
-template<typename T, typename... Args, int N = sizeof...(Args)>
+template<typename T, typename... Args>
 std::string str_cat(const T& s, const Args&... args) {
     std::stringstream ss;
     ss << s << str_cat(args...);

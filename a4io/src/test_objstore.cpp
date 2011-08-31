@@ -11,7 +11,6 @@
 #include <stdexcept>
 #include <stdarg.h>
 #include <boost/shared_ptr.hpp>
-#include <boost/foreach.hpp>
 
 using namespace std;
 
@@ -121,7 +120,8 @@ int main(int argv, char ** argc) {
         process(*r, "p10f_");
         process(*r, "p11f_");
     }
-    BOOST_FOREACH(string name, r->list<TestStringThing>()) {
+    for (auto l = r->list<TestStringThing>(), it = l.begin(), end = l.end(); it != end; it++) {
+        string & name = *it;
         int npro = r->get_checked<TestStringThing>(name)->n;
         if (npro != N) {
             std::cerr << "Uh oh: " << name << " has " << npro << " != " << N << std::endl;

@@ -30,7 +30,7 @@ class ZlibInputStream(object):
         self.dco = zlib.decompressobj()
         self.in_stream = in_stream
         self.reqsize = reqsize
-        self.decbuf = b""
+        self.decbuf = ""
 
     def read(self, bytes):
         while len(self.decbuf) < bytes:
@@ -55,8 +55,12 @@ class A4WriterStream(object):
         self.content_class_id = None
         self._raw_out_stream = out_stream
         self.out_stream = out_stream
-        self.content_class_id = None if not content_cls else content_cls.CLASS_ID_FIELD_NUMBER
-        self.metadata_class_id = None if not metadata_cls else metadata_cls.CLASS_ID_FIELD_NUMBER
+        self.content_class_id = None
+        self.metadata_class_id = None
+        if content_cls:
+            self.content_class_id = content_cls.CLASS_ID_FIELD_NUMBER
+        if metadata_cls:
+            self.metadata_class_id = metadata_cls.CLASS_ID_FIELD_NUMBER
         self.metadata_offsets = []
         self.write_header(description)
         self.start_compression()
