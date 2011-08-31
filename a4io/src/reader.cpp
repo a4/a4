@@ -29,13 +29,18 @@ Reader::Reader(const string &input_file):
     _coded_in(0)
 {
     _last_meta_data.reset();
-    _raw_in = new FileInputStream(open(input_file.c_str(), O_RDONLY | O_DIRECT));
+    _raw_in = new FileInputStream(open(input_file.c_str(), O_RDONLY));
     _coded_in = new CodedInputStream(_raw_in);
 
     // Push limit of read bytes
     _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
 
     int rh = _read_header();
+    if (_raw_in->GetErrno()) {
+        std::cerr << "ERROR - A4IO:Reader - Could not open '"<< input_file \
+                  << "' - error " << _raw_in->GetErrno() << std::endl;
+        throw _raw_in->GetErrno();
+    }
     if (rh == -2) {
         std::cerr << "ERROR - A4IO:Reader - File Empty!" << std::endl; 
     } else if (rh == -1) {

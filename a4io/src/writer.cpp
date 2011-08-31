@@ -31,10 +31,16 @@ Writer::Writer(const string &output_file, const string description, uint32_t con
     _content_class_id(content_class_id),
     _metadata_class_id(metadata_class_id)
 {
-    _raw_out = new FileOutputStream(open(output_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT | O_DIRECT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH));
+    _raw_out = new FileOutputStream(open(output_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH));
     _coded_out = new CodedOutputStream(_raw_out);
     write_header(description);
     if (compression) start_compression();
+    _raw_out->Flush(); // Force the underlying file to be opened
+    if (_raw_out->GetErrno()) {
+        std::cerr << "ERROR - A4IO:Writer - Could not open '" << output_file \
+                  << "' - error " << _raw_out->GetErrno() << std::endl;
+        throw _raw_out->GetErrno();
+    }
 }
 
 Writer::~Writer()
@@ -42,7 +48,10 @@ Writer::~Writer()
     if (_compressed_out) stop_compression();
     write_footer();
     delete _coded_out;
-    _raw_out->Close(); // return false on error
+    if (!_raw_out->Close()) {
+        std::cerr << "ERROR - A4IO:Writer - Error on closing: " << _raw_out->GetErrno() << std::endl;
+        throw _raw_out->GetErrno();
+    }; // return false on error
     delete _raw_out;
 }
 
