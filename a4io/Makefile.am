@@ -22,9 +22,6 @@ CPPDIR=src/a4/proto/$(A4PACK)
 AM_CPPFLAGS=$(protobuf_CFLAGS)
 LDADD=liba4_io.la $(protobuf_LIBS) $(BOOST_SHARED_PTR_LIBS)
 
-protobuf.make:
-	./protobuf.make.sh proto
-
 include protobuf.make
 
 proto_DATA=$(PROTOBUF_PROTO)
