@@ -95,7 +95,8 @@ void process(Results & r, const char * pf) {
 }
 
 
-const int N = 1*1000*1000;
+//const int N = 1*1000*1000;
+const int N = 100*1000;
 
 int main(int argv, char ** argc) {
 

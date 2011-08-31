@@ -134,10 +134,15 @@ boost::shared_ptr<T> ObjectStore<STORE>::get(const std::string &name) {
 
 // Map "name" to a pointer to T. Passes ownership of T to the Store.
 template <class STORE>
-template <class T>
-void ObjectStore<STORE>::set(const std::string &name, T* newly_created) {
-    boost::shared_ptr<T> p(newly_created);
-    main_storage[name] = boost::static_pointer_cast<STORE>(p);
+void ObjectStore<STORE>::set(const std::string &name, STORE* newly_created) {
+    boost::shared_ptr<STORE> p(newly_created);
+    main_storage[name] = p;
+}
+
+// Map "name" to a pointer
+template <class STORE>
+void ObjectStore<STORE>::set(const std::string &name, boost::shared_ptr<STORE> obj) {
+    main_storage[name] = obj;
 }
 
 // Retrieve a pointer to T from the store with type checked

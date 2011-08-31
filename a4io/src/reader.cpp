@@ -88,7 +88,7 @@ int Reader::_read_header()
     // check the main content type from the header
     if (h.has_content_class_id()) {
         _content_class_id = h.content_class_id();
-        _content_func = all_class_ids[_content_class_id];
+        _content_func = all_class_ids(_content_class_id);
         if (!_content_func) {
             std::cerr << "ERROR - A4IO:Reader - Content Class " << _content_class_id << " unknown!" << std::endl;
             assert(_content_func);
@@ -231,9 +231,9 @@ ReadResult Reader::read() {
             return READ_ERROR;
         }
         return read();
-    } else if (all_class_ids[message_type]) {
+    } else if (all_class_ids(message_type)) {
         google::protobuf::io::CodedInputStream::Limit lim = _coded_in->PushLimit(size);
-        boost::shared_ptr<Streamable> item = all_class_ids[message_type](_coded_in);
+        boost::shared_ptr<Streamable> item = all_class_ids(message_type)(_coded_in);
         _coded_in->PopLimit(lim);
         if (!item) {
             std::cerr << "ERROR - A4IO:Reader - Failure to parse object!" << std::endl;

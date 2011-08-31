@@ -1,43 +1,101 @@
 from struct import pack, unpack
+import zlib
 
-from messages.A4Stream_pb2 import A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection
-
-numbering = dict((cls.CLASS_ID_FIELD_NUMBER, cls) for cls in 
-                 (A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection))
+from a4.proto import class_ids
+from a4.proto.io import A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection
 
 START_MAGIC = "A4STREAM"
 END_MAGIC = "KTHXBYE4"
 HIGH_BIT = (1<<31)
 SEEK_END = 2
 
+class ZlibOutputStream(object):
+    def __init__(self, out_stream):
+        self.dco = zlib.compressobj(9)
+        self.out_stream = out_stream
+        self.bytes_written = 0
+
+    def write(self, data):
+        compressed = self.dco.compress(data)
+        self.bytes_written += len(compressed)
+        self.out_stream.write(compressed)
+
+    def close(self):
+        compressed = self.dco.flush()
+        self.bytes_written += len(compressed)
+        self.out_stream.write(compressed)
+
+class ZlibInputStream(object):
+    def __init__(self, in_stream, reqsize=64*1024):
+        self.dco = zlib.decompressobj()
+        self.in_stream = in_stream
+        self.reqsize = reqsize
+        self.decbuf = b""
+
+    def read(self, bytes):
+        while len(self.decbuf) < bytes:
+            assert self.dco.unused_data == ""
+            avail_bytes = self.in_stream.read(self.reqsize)
+            self.decbuf += self.dco.decompress(avail_bytes)
+        rv = self.decbuf[:bytes]
+        self.decbuf = self.decbuf[bytes:]
+        return rv
+
+    def close(self):
+        self.dco.flush()
+        if self.dco.unused_data:
+            self.in_stream.seek(-len(self.dco.unused_data), 1)
+
 class A4WriterStream(object):
-    def __init__(self, out_stream, content=None, content_cls=None):
+    def __init__(self, out_stream, description=None, content_cls=None, metadata_cls=None, compression=True):
+        self.compression = True
+        self.compressed = False
         self.bytes_written = 0
         self.content_count = 0
         self.content_class_id = None
+        self._raw_out_stream = out_stream
         self.out_stream = out_stream
-        self.write_header(content, content_cls)
+        self.content_class_id = None if not content_cls else content_cls.CLASS_ID_FIELD_NUMBER
+        self.metadata_class_id = None if not metadata_cls else metadata_cls.CLASS_ID_FIELD_NUMBER
+        self.metadata_offsets = []
+        self.write_header(description)
+        self.start_compression()
 
-    def write_header(self, content_name=None, content_cls=None):
+    def start_compression(self):
+        assert not self.compressed
+        sc = A4StartCompressedSection()
+        sc.compression = sc.ZLIB
+        self.write(sc)
+        self._pre_compress_bytes_written = self.bytes_written
+        self.out_stream = ZlibOutputStream(self._raw_out_stream)
+        self.compressed = True
+    
+    def stop_compression(self):
+        assert self.compressed
+        sc = A4EndCompressedSection()
+        self.write(sc)
+        self.out_stream.close()
+        self.bytes_written = self.out_stream.bytes_written + self._pre_compress_bytes_written
+        self.out_stream = self._raw_out_stream
+        self.compressed = False
+
+    def write_header(self, description=None):
         self.out_stream.write(START_MAGIC)
         self.bytes_written += len(START_MAGIC)
         header = A4StreamHeader()
         header.a4_version = 1
-        if content_name:
-            self.content_class_id = content_cls.CLASS_ID_FIELD_NUMBER
-            header.content = content_name
+        if description:
+            header.description = description
+        if self.content_class_id:
             header.content_class_id = self.content_class_id
-        else:
-            self.content_class_id = None
+        if self.metadata_class_id:
+            header.metadata_class_id = self.metadata_class_id
         self.write(header)
 
-    def write_footer(self, metadata=None):
+    def write_footer(self):
         footer = A4StreamFooter()
-        if metadata:
-            self.write(metadata)
-            meta_size = metadata.ByteSize()
-            footer.metadata_offset = meta_size
         footer.size = self.bytes_written
+        footer.metadata_offsets.extend(self.metadata_offsets)
         if self.content_class_id:
             footer.content_count = self.content_count
         self.write(footer)
@@ -51,18 +109,29 @@ class A4WriterStream(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.close()
 
-    def close(self, metadata):
-        self.write_footer(metadata)
+    def close(self):
+        if self.compressed:
+            self.stop_compression()
+        self.write_footer()
         return self.out_stream.close()
 
     def flush(self):
         return self.out_stream.flush()
     
+    def metadata(self, o):
+
+        self.write(o)
+
+
     def write(self, o):
         type = o.CLASS_ID_FIELD_NUMBER
         size = o.ByteSize()
         if type == self.content_class_id:
             self.content_count += 1
+        if type == self.metadata_class_id:
+            if self.compressed:
+                self.stop_compression()
+            self.metadata_offsets.append(self.bytes_written)
         assert 0 <= size < HIGH_BIT, "Message size not in range!"
         assert 0 < type < HIGH_BIT, "Type ID not in range!"
         if type != self.content_class_id:
@@ -74,11 +143,13 @@ class A4WriterStream(object):
             self.bytes_written += 4
         self.out_stream.write(o.SerializeToString())
         self.bytes_written += size
+        if type == self.metadata_class_id:
+            if self.compression:
+                self.start_compression()
 
 
 class A4ReaderStream(object):
     def __init__(self, in_stream):
-        self.numbering = dict(numbering)
         self.in_stream = in_stream
         self.size = 0
         self.headers = {}
@@ -102,8 +173,8 @@ class A4ReaderStream(object):
         assert header.a4_version == 1, "Incompatible stream version :( Upgrade your client?"
         if header.content_class_id:
             self.content_class_id = header.content_class_id
-        else:
-            self.content_class_id = 1001 # class id of Event for legacy files
+        if header.metadata_class_id:
+            self.metadata_class_id = header.metadata_class_id
         self.headers[header_position] = header
 
     def read_footer(self, neg_offset=0):
@@ -121,16 +192,13 @@ class A4ReaderStream(object):
         self.size += footer.size - footer_start - neg_offset
 
         # get metadata from footer
-        if footer.metadata_offset:
-            metadata_start = footer_start - footer.metadata_offset - 8
-            self.in_stream.seek(metadata_start, SEEK_END)
+        for metadata in footer.metadata_offsets:
+            metadata_start = metadata
+            self.in_stream.seek(metadata_start)
             cls, metadata = self.read_message()
             self.metadata[metadata_start] = metadata
 
         return True
-
-    def register(self, cls):
-        self.numbering[cls.CLASS_ID_FIELD_NUMBER] = cls
 
     def info(self):
         info = []
@@ -139,7 +207,7 @@ class A4ReaderStream(object):
         info.append("size: %s bytes" % self.size)
         hf = zip(self.headers.values(), self.footers.values())
         cccd = {}
-        for c, cc in ((h.content, f.content_count) for h, f in hf):
+        for c, cc in ((h.description, f.content_count) for h, f in hf):
             cccd[c] = cccd.get(c, 0) + cc
         for content in sorted(cccd.keys()):
             cc = cccd[content]
@@ -148,13 +216,6 @@ class A4ReaderStream(object):
             else:
                 ms = ""
             info.append("%i %s%s" % (cccd[content], content, ms))
-
-        #if self.metadata:
-        #    info.append("\n")
-        #for index in sorted(self.metadata):
-        #    info.append("Metadata at %s\n" % index)
-        #    info.append(str(self.metadata[index]))
-        #    info.append("\n")
         return ", ".join(info)
 
     def read_message(self):
@@ -164,14 +225,14 @@ class A4ReaderStream(object):
             type,  = unpack("<I", self.in_stream.read(4))
         else:
             type = self.content_class_id
-        cls = self.numbering[type]
+        cls = class_ids[type]
         return cls, cls.FromString(self.in_stream.read(size))
 
     def read(self):
         cls, message = self.read_message()
         if cls is A4StreamHeader:
             return self.read()
-        if cls is A4StreamFooter:
+        elif cls is A4StreamFooter:
             footer_size,  = unpack("<I", self.in_stream.read(4))
             if not END_MAGIC == self.in_stream.read(len(END_MAGIC)):
                 print("File seems to be not closed!")
@@ -179,6 +240,13 @@ class A4ReaderStream(object):
             if not START_MAGIC == self.in_stream.read(len(START_MAGIC)):
                 return None
             return self.read()
+        elif cls is A4StartCompressedSection:
+            self._orig_in_stream = self.in_stream
+            self.in_stream = ZlibInputStream(self._orig_in_stream)
+            return self.read()
+        elif cls is A4EndCompressedSection:
+            self.in_stream.close()
+            self.in_stream = self._orig_in_stream
         return message
 
     def close(self):
@@ -187,3 +255,23 @@ class A4ReaderStream(object):
     @property
     def closed(self):
         return self.in_stream.closed
+
+
+def test_rw():
+    from a4.proto.io import TestEvent, TestMetaData
+    fn = "pytest.a4"
+    w = A4WriterStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True)
+    e = TestEvent()
+    for i in range(100):
+        e.event_number = i
+        w.write(e)
+    m = TestMetaData()
+    m.meta_data = 1
+    w.write(m)
+    for i in range(100):
+        e.event_number = 200+i
+        w.write(e)
+    m.meta_data = 2
+    w.write(m)
+    w.close()
+

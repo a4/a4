@@ -26,7 +26,9 @@ class Streamable {
 
 typedef boost::shared_ptr<Streamable> (*from_msg_func)(google::protobuf::io::CodedInputStream *);
 
-extern std::map<int, from_msg_func> all_class_ids;
+
+//extern std::map<int, from_msg_func> all_class_ids;
+from_msg_func all_class_ids(int, from_msg_func f = NULL);
 
 template <typename ProtoClass, typename MyStreamable>
 boost::shared_ptr<Streamable> from_msg(google::protobuf::io::CodedInputStream * instr) {
@@ -37,7 +39,8 @@ boost::shared_ptr<Streamable> from_msg(google::protobuf::io::CodedInputStream * 
 
 template <typename ProtoClass, typename MyStreamable>
 int reg_class_id() {
-    all_class_ids[ProtoClass::kCLASSIDFieldNumber] = from_msg<ProtoClass, MyStreamable>;
+    //all_class_ids[ProtoClass::kCLASSIDFieldNumber] = from_msg<ProtoClass, MyStreamable>;
+    all_class_ids(ProtoClass::kCLASSIDFieldNumber, from_msg<ProtoClass, MyStreamable>);
     std::cerr << "registered class id " << ProtoClass::kCLASSIDFieldNumber << std::endl;
     return ProtoClass::kCLASSIDFieldNumber;
 }
@@ -52,6 +55,26 @@ class StreamableTo : virtual public Streamable {
             MessagePtr msg = get_message();
             return MyStreamable::from_message(*msg);
         };
+
+        virtual MessagePtr get_message() const {
+            if (!pb) pb.reset(new ProtoClass());
+            to_pb();
+            return pb;
+        }
+
+        static MyStreamable * from_message(Message &msg) {
+            auto o = new MyStreamable();
+            o->pb.reset(new ProtoClass());
+            o->pb->CopyFrom(dynamic_cast<ProtoClass&>(msg));
+            o->from_pb();
+            return o;
+        }
+
+        mutable boost::shared_ptr<ProtoClass> pb;
+
+    protected:
+        virtual void to_pb() const = 0;
+        virtual void from_pb() = 0;
 };
 
 template <typename ProtoClass, typename MyStreamable> 

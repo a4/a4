@@ -8,6 +8,10 @@ names = []
 walk(dir, lambda a,dn,fls : names.extend(join(dn,f) for f in fls if f.endswith(".proto")), None)
 names = [n[len(dir)+1:-len(".proto")] for n in names]
 
+subdirs = [sd for sd in ("/".join(n.split("/")[:-1]) for n in names) if sd]
+if subdirs:
+    raise Exception("No subdir support yet - subdirs will be flattened!")
+
 lines = []
 lines.append('PROTOBUF_PY=' + " ".join('$(PYDIR)/%s_pb2.py' % n for n in names))
 lines.append('PROTOBUF_H=' + " ".join('$(CPPDIR)/%s.pb.h' % n for n in names))

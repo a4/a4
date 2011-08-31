@@ -32,9 +32,11 @@ class Writer
         bool start_compression();
         bool stop_compression();
 
+        uint64_t get_bytes_written();
+
         bool _compression;
         uint32_t _content_count;
-        uint32_t _bytes_written;
+        uint64_t _bytes_written;
         uint32_t _content_class_id;
         uint32_t _metadata_class_id;
 };

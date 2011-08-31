@@ -14,7 +14,7 @@ message A4StreamFooter
     optional int32 CLASS_ID = 101;
     required int64 size = 1; // number of bytes written before the footer
     optional int32 content_count = 2; // number of 'content' events
-    repeated int64 metadata_offset = 3; // size of the metadata message before this footer
+    repeated int64 metadata_offsets = 3; // position of the metadata messages in this file
 }
 
 message A4StartCompressedSection
@@ -33,12 +33,17 @@ message A4EndCompressedSection
     optional int32 CLASS_ID = 103;
 }
 
+message A4Key
+{
+    optional int32 CLASS_ID = 104;
+    required string name = 1;
+}
 
 message TestEvent
 {
     optional int32 CLASS_ID = 110;
     optional int32 event_number = 1;
-    optional int32 event_data = 2;
+    optional double event_data = 2;
 }
 message TestMetaData
 {

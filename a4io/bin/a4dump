@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 from sys import argv, exit
 from a4 import A4ReaderStream
-from a4.messages import *
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -21,8 +20,6 @@ do_events = (len(events) > 0)
 
 for fn in args:
     r = A4ReaderStream(open(fn))
-    r.register(Event)
-    r.register(EventStreamInfo)
     print("%s: %s" % (fn, r.info()))
     while skip > 0:
         r.read()

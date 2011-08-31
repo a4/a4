@@ -31,7 +31,7 @@ using std::string;
 class Results;
 typedef boost::shared_ptr<Results> ResultsPtr;
 
-class Results : public Named, public Addable, public Scalable, public ObjectStore<Named>
+class Results : public Printable, public Addable, public Scalable, public ObjectStore<Printable>
 {
     public:
         virtual Results & __add__(const Addable &);
@@ -42,7 +42,7 @@ class Results : public Named, public Addable, public Scalable, public ObjectStor
         boost::shared_ptr<MetaData> metadata;
 
         void to_file(std::string fn);
-        static Results * from_file(std::string fn);
+        static std::vector<Results *> from_file(std::string fn);
 };
 typedef boost::shared_ptr<Results> ResultsPtr;
 

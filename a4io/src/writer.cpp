@@ -27,6 +27,7 @@ Writer::Writer(const string &output_file, const string description, uint32_t con
     _coded_out(0),
     _compression(compression),
     _content_count(0),
+    _bytes_written(0),
     _content_class_id(content_class_id),
     _metadata_class_id(metadata_class_id)
 {
@@ -43,6 +44,14 @@ Writer::~Writer()
     delete _coded_out;
     _raw_out->Close(); // return false on error
     delete _raw_out;
+}
+
+uint64_t Writer::get_bytes_written() {
+    assert(!_compressed_out);
+    delete _coded_out;
+    uint64_t size = _raw_out->ByteCount();
+    _coded_out = new CodedOutputStream(_raw_out);
+    return size;
 }
 
 bool Writer::write(Streamable &obj)
@@ -66,7 +75,10 @@ bool Writer::start_compression() {
     a4::io::A4StartCompressedSection cs_header;
     cs_header.set_compression(a4::io::A4StartCompressedSection_Compression_ZLIB);
     write(a4::io::A4StartCompressedSection::kCLASSIDFieldNumber, cs_header);
+    _bytes_written += _coded_out->ByteCount();
     delete _coded_out;
+    //_raw_out->Flush();
+
     GzipOutputStream::Options o;
     o.format = GzipOutputStream::ZLIB;
     o.compression_level = 9;
@@ -81,13 +93,15 @@ bool Writer::stop_compression() {
     delete _coded_out;
     _compressed_out->Flush();
     _compressed_out->Close();
+    _bytes_written += _compressed_out->ByteCount();
     delete _compressed_out;
+    _compressed_out = NULL;
+    _raw_out->Flush();
     _coded_out = new CodedOutputStream(_raw_out);
 };
 
 bool Writer::write_header(string description) {
     _coded_out->WriteString(START_MAGIC);
-
     a4::io::A4StreamHeader header;
     header.set_a4_version(1);
     header.set_description(description);
@@ -100,8 +114,9 @@ bool Writer::write_header(string description) {
 }
 
 bool Writer::write_footer() {
+    assert(!_compressed_out);
     a4::io::A4StreamFooter footer;
-    footer.set_size(_raw_out->ByteCount());
+    footer.set_size(get_bytes_written());
     if (_content_class_id != 0)
         footer.set_content_count(_content_count);
     write(a4::io::A4StreamFooter::kCLASSIDFieldNumber, footer);

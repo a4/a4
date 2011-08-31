@@ -21,15 +21,10 @@
 
 using namespace std;
 
-class TestEvent : public Named, public CallConstructible, public StreamableTo<a4::io::TestEvent, TestEvent> {
+class TestEvent : public Printable, public CallConstructible, public StreamableTo<a4::io::TestEvent, TestEvent> {
     public:
-        static TestEvent * from_message(Message & msg) {
-            a4::io::TestEvent& evt = dynamic_cast<a4::io::TestEvent&>(msg);
-            return new TestEvent();
-        };
-        virtual MessagePtr get_message() const {
-            return MessagePtr(new a4::io::TestEvent());
-        };
+        virtual void to_pb() const { pb->set_event_data(val); };
+        virtual void from_pb() { val = pb->event_data(); };
 
         virtual TestEvent & operator()(int _a, int _b, int _c) {
             a = _a;
@@ -98,7 +93,7 @@ void process(Results & r, const char * pf) {
 }
 
 
-const int N = 1*1000*1000;
+const int N = 100*1000;
 
 int main(int argv, char ** argc) {
 
@@ -122,12 +117,26 @@ int main(int argv, char ** argc) {
         process(*r, "p9f_");
         process(*r, "p10f_");
         process(*r, "p11f_");
-    }
+    };
 
-    auto w = new Writer("test.results");
-    w->write(*r->get_checked<TestEvent>("1p1f_"));
-    delete w;
-    
+    auto l1 = r->list();
+    //BOOST_FOREACH(string nm, r->list()) cout << nm << endl;
+
+    r->to_file("test.results");
+    delete r;
+
+    //cout << endl;
+    //cout << "List of items in read file: " << endl;
+    std::vector<Results *> rv = Results::from_file("test.results");
+    assert(rv.size() == 1);
+    auto rr = rv[0];
+
+    //BOOST_FOREACH(string nm, rr->list()) cout << nm << endl;
+    auto l2 = rr->list();
+
+    assert(l1.size() == l2.size());
+    for (int i = 0; i < l1.size(); i++) assert(l1[i].compare(l2[i]) == 0);
+        
     std::cout << "Test successful" << std::endl;
     return 0;
 }
