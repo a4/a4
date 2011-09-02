@@ -6,7 +6,7 @@ AC_PROG_LN_S
 
 AC_PROTOBUF_CHECK([],[AC_PROTOBUF_DOWNLOAD])
 
-AC_CONFIG_SUBDIRS([a4io])
+AC_CONFIG_SUBDIRS([a4io a4process])
 
 AC_CONFIG_FILES([Makefile this_a4.sh.in:this_a4.sh.am])
 AC_OUTPUT

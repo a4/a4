@@ -18,4 +18,4 @@ install-exec-hook:
 
 bin_SCRIPTS = this_a4.sh
 
-SUBDIRS+=a4io
+SUBDIRS+=a4io a4process
