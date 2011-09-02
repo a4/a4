@@ -3,11 +3,8 @@
 *.pyc
 *.datasets
 *.grl
-*.d
 *.root
 *.pdf
 *.eps
 *.ps
-setup.sh
-src/pb/
-python/a4/messages/
+ignore/
