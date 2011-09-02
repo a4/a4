@@ -27,12 +27,13 @@ class hash_lookup {
         hash_lookup * subdir[size];
 };
 
-std::string str_printf(const char * s);
 template<typename T, typename... Args>
 std::string str_printf(const char * s, const T& value, const Args&... args);
 
 template<typename T, typename... Args>
 std::string str_cat(const T& s, const Args&... args);
+
+bool is_writeable_pointer(const char * _p);
 
 template <typename STORE>
 class ObjectStore {

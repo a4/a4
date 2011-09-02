@@ -1,16 +1,14 @@
 #include <iostream>
+#include <fstream>
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "a4/application.h"
-#include "a4/processor.h"
 #include "a4/results.h"
 
-#include "pb/Event.pb.h"
-
-#include "instructor.h"
+//#include "instructor.h"
 
 using namespace std;
 
@@ -21,7 +19,7 @@ typedef vector<string> Inputs;
 
 int THREADS = 0;
 
-int a4_main(int argc, char *argv[], ProcessingJob &job) 
+int a4_main(int argc, char *argv[])
 try
 {
     // Verify that the version of the library that we linked against is
@@ -41,9 +39,11 @@ try
     positional_options.add("input", -1);
 
     po::variables_map arguments;
-    po::store(po::command_line_parser(argc, argv).
-            options(description).positional(positional_options).run(),
+    po::store(po::command_line_parser(argc, argv).options(description).positional(positional_options).run(),
             arguments);
+
+    std::ifstream config_file(string(argv[0]) + ".ini");
+    po::store(po::parse_config_file(config_file, description), arguments);
 
     if (2 > argc || arguments.count("help") || !arguments.count("input"))
     {
@@ -55,6 +55,8 @@ try
     if (arguments.count("threads"))
         THREADS = arguments["threads"].as<int>();
 
+    std::cout << "Threads = " << THREADS << std::endl;
+/*
     if (arguments.count("output"))
         job.set_output(arguments["output"].as<string>());
 
@@ -78,7 +80,7 @@ try
     if (arguments.count("results"))
         job.results()->to_file(arguments["results"].as<string>());
 
-
+*/
     // Clean Up any memory allocated by libprotobuf
     google::protobuf::ShutdownProtobufLibrary();
 

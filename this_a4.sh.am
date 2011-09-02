@@ -1,5 +1,5 @@
-alias protoc=@PROTOC@
-export PROTOC=@PROTOC@
+alias protoc=@PROTOBUF_PROTOC@
+export PROTOBUF_PROTOC=@PROTOBUF_PROTOC@
 
 if test "x@abs_with_protobuf@" != "x"; then
     export PYTHONPATH=@abs_with_protobuf@/python:$PYTHONPATH
