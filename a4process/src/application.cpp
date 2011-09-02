@@ -5,62 +5,75 @@
 #include <boost/program_options.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include <exception>
+
 #include "a4/application.h"
-#include "a4/results.h"
 
 //#include "instructor.h"
 
 using namespace std;
 
-namespace fs = boost::filesystem;
 namespace po = boost::program_options;
 
-typedef vector<string> Inputs;
-
-int THREADS = 0;
+typedef vector<string> FileList;
 
 int a4_main(int argc, char *argv[])
 try
 {
     // Verify that the version of the library that we linked against is
     // compatible with the version of the headers we compiled against
-    GOOGLE_PROTOBUF_VERIFY_VERSION;
+    //GOOGLE_PROTOBUF_VERIFY_VERSION;
+    string config_filename = string(argv[0]) + ".ini";
 
-    po::options_description description("Allowed options");
-    description.add_options()
+    po::options_description commandline_options;
+    po::options_description config_file_options;
+
+    po::options_description popt("Processing options");
+    popt.add_options()
         ("help", "produce help message")
-        ("threads", po::value<int>(), "run N multi-threads[0 for # of cores]")
-        ("output,o", po::value<string>(), "output file(s)")
-        ("results,r", po::value<string>(), "result file(s)")
-        ("input,i", po::value<Inputs>(), "input file(s)")
-    ;
+        ("input,i", po::value<FileList>(), "input file(s)")
+        ("output,o", po::value<string>(), "output file")
+        ("results,r", po::value<string>(), "result file")
+        ("config,c", po::value<string>(), (string("configuration file [") + config_filename + "]").c_str());
 
     po::positional_options_description positional_options;
     positional_options.add("input", -1);
 
-    po::variables_map arguments;
-    po::store(po::command_line_parser(argc, argv).options(description).positional(positional_options).run(),
-            arguments);
+    po::options_description cfgopt("Configuration:");
+    cfgopt.add_options()
+        ("threads", po::value<int>(), "run N multi-threads [# of cores]");
 
-    std::ifstream config_file(string(argv[0]) + ".ini");
-    po::store(po::parse_config_file(config_file, description), arguments);
+    commandline_options.add(popt);
+    commandline_options.add(cfgopt);
+
+    config_file_options.add(cfgopt);
+
+    // Parse command line first
+    po::variables_map arguments;
+    po::store(po::command_line_parser(argc, argv).options(commandline_options).positional(positional_options).run(), arguments);
 
     if (2 > argc || arguments.count("help") || !arguments.count("input"))
     {
         cout << "Usage: " << argv[0] << " [Options] input(s)" << endl;
-        cout << description << endl;
+        cout << commandline_options << endl;
         return 1;
     }
 
-    if (arguments.count("threads"))
-        THREADS = arguments["threads"].as<int>();
+    // Parse config file
+    if (arguments.count("config")) config_filename = arguments["config"].as<string>();
+    ifstream config_file(config_filename);
+    po::store(po::parse_config_file(config_file, config_file_options), arguments);
 
-    std::cout << "Threads = " << THREADS << std::endl;
+    int threads = 0;
+    if (arguments.count("threads"))
+        threads = arguments["threads"].as<int>();
+
+    std::cout << "Threads = " << threads << std::endl;
 /*
     if (arguments.count("output"))
         job.set_output(arguments["output"].as<string>());
 
-    Inputs inputs(arguments["input"].as<Inputs>());
+    FileList inputs(arguments["input"].as<FileList>());
 
     try
     {
@@ -82,16 +95,15 @@ try
 
 */
     // Clean Up any memory allocated by libprotobuf
-    google::protobuf::ShutdownProtobufLibrary();
+    //google::protobuf::ShutdownProtobufLibrary();
 
     return 0;
 }
-catch(...)
+catch(std::exception &x)
 {
     // Clean Up any memory allocated by libprotobuf
-    google::protobuf::ShutdownProtobufLibrary();
+    //google::protobuf::ShutdownProtobufLibrary();
 
-    cerr << "Unknown error" << endl;
-
+    cerr << "Exception: " << x.what() << endl;
     return 1;
 }

@@ -6,12 +6,13 @@ a4pythondir=${pythondir}/a4
 a4include_HEADERS = src/a4/application.h
 a4python_PYTHON = 
 
-LDADD=liba4_process.la
+LDADD=liba4_process.la $(BOOST_PROGRAM_OPTIONS_LIBS) $(BOOST_SYSTEM_LIBS)
+AM_CPPFLAGS=$(BOOST_PROGRAM_OPTIONS_CPPFLAGS) $(BOOST_SYSTEM_CPPFLAGS)
 
 lib_LTLIBRARIES=liba4_process.la
 liba4_process_la_SOURCES=src/application.cpp
-liba4_process_la_LIBADD=$(BOOST_PROGRAM_OPTIONS_LDFLAGS) $(BOOST_PROGRAM_OPTIONS_LIBS)
-liba4_process_la_CPPFLAGS=$(BOOST_PROGRAM_OPTIONS_CPPFLAGS)
+#liba4_process_la_LIBADD=$(BOOST_PROGRAM_OPTIONS_LIBS) $(BOOST_SYSTEM_LIBS)
+#liba4_process_la_CPPFLAGS=$(BOOST_PROGRAM_OPTIONS_CPPFLAGS) $(BOOST_SYSTEM_CPPFLAGS)
 
 ## Test programs
 check_PROGRAMS = test_app
