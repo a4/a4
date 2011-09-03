@@ -14,6 +14,9 @@ LT_INIT
 
 #AC_PROTOBUF_CHECK([:],[AC_MSG_ERROR("Requires google protobuf library!")])
 
+A4_INIT
+A4_REQUIRE([a4io], [results.h])
+
 BOOST_REQUIRE([1.33])
 BOOST_SMART_PTR
 BOOST_PROGRAM_OPTIONS
@@ -22,6 +25,6 @@ BOOST_SYSTEM
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
 
-CPPFLAGS+=" -I$srcdir/src -Isrc "
+CPPFLAGS+=" $A4_CPPFLAGS -I$srcdir/src -Isrc "
 
 AC_OUTPUT

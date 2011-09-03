@@ -6,7 +6,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <a4/proto/io/A4Stream.pb.h>
+
 #include <iostream>
 
 using google::protobuf::Message;

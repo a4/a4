@@ -20,7 +20,7 @@ PYDIR=python/a4/proto/$(A4PACK)
 CPPDIR=src/a4/proto/$(A4PACK)
 
 AM_CPPFLAGS=$(PROTOBUF_CFLAGS)
-LDADD=liba4_io.la $(PROTOBUF_LIBS)
+LDADD=liba4io.la $(PROTOBUF_LIBS)
 
 include protobuf.make
 
@@ -28,11 +28,11 @@ dist_proto_DATA=$(PROTOBUF_PROTO)
 protoinclude_HEADERS = $(PROTOBUF_H)
 protopython_PYTHON = $(PROTOBUF_PY) $(PYDIR)/__init__.py
 
-lib_LTLIBRARIES=liba4_io.la
-liba4_io_la_SOURCES=$(PROTOBUF_CC) src/objectstore.cpp src/a4/objectstore.h src/a4/objectstore_impl.h src/gzip_stream.h \
-                    src/gzip_stream.cpp src/reader.cpp src/writer.cpp src/streamable.cpp src/results.cpp
-liba4_io_la_LIBADD=$(PROTOBUF_LIBS) $(BOOST_PROGRAM_OPTIONS_LDFLAGS) $(BOOST_PROGRAM_OPTIONS_LIBS)
-liba4_io_la_CPPFLAGS=$(PROTOBUF_CFLAGS) $(BOOST_PROGRAM_OPTIONS_CPPFLAGS)
+lib_LTLIBRARIES=liba4io.la
+liba4io_la_SOURCES=$(PROTOBUF_CC) src/objectstore.cpp src/a4/objectstore.h src/a4/objectstore_impl.h src/gzip_stream.h \
+                   src/gzip_stream.cpp src/reader.cpp src/writer.cpp src/streamable.cpp src/results.cpp
+liba4io_la_LIBADD=$(PROTOBUF_LIBS) $(BOOST_PROGRAM_OPTIONS_LDFLAGS) $(BOOST_PROGRAM_OPTIONS_LIBS)
+liba4io_la_CPPFLAGS=$(PROTOBUF_CFLAGS) $(BOOST_PROGRAM_OPTIONS_CPPFLAGS)
 
 
 ## Test programs

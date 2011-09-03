@@ -8,6 +8,7 @@
 #include "a4/results.h"
 #include "a4/writer.h"
 #include "a4/reader.h"
+#include "a4/proto/io/A4Stream.pb.h"
 
 class A4Key : public StreamableTo<a4::io::A4Key, A4Key> {
     public:
@@ -22,7 +23,8 @@ using namespace std;
 
 void Results::to_file(std::string fn) {
     auto w = new Writer(fn, "Results");
-    for(auto l = list<Streamable>(), it = l.begin(), end = l.end(); it != end; it++) {
+    auto l = list<Streamable>();
+    for (auto it = l.begin(), end = l.end(); it != end; it++) {
         A4Key key(*it);
         w->write(key);
         w->write(*get_checked<Streamable>(*it));
@@ -58,13 +60,15 @@ std::vector<Results *> Results::from_file(std::string fn) {
 
 Results & Results::__add__(const Addable & _source) {
     const Results & source = dynamic_cast<const Results&>(_source);
-    for(auto l = list<Addable>(), it = l.begin(), end = l.end(); it != end; it++) {
+    auto l = list<Addable>(); 
+    for (auto it = l.begin(), end = l.end(); it != end; it++) {
         string &n = *it;
         boost::shared_ptr<Addable> other = source.get_checked<Addable>(n);
         if (other) get_checked<Addable>(n)->__add__(*other);
     }
 
-    for(auto l = list<Addable>(), it = l.begin(), end = l.end(); it != end; it++) {
+    l = source.list<Addable>();
+    for (auto it = l.begin(), end = l.end(); it != end; it++) {
         string &n = *it;
         boost::shared_ptr<Addable> self = get_checked<Addable>(n);
         if (!self) set(n, reinterpret_cast<Printable*>(source.get_checked<Cloneable>(n)->clone()));
@@ -73,7 +77,8 @@ Results & Results::__add__(const Addable & _source) {
 }
 
 Results & Results::__mul__(const double & weight) {
-    for(auto l = list<Scalable>(), it = l.begin(), end = l.end(); it != end; it++) {
+    auto l = list<Scalable>();
+    for (auto it = l.begin(), end = l.end(); it != end; it++) {
         *get_checked<Scalable>(*it) *= weight;
     }
     return *this;
@@ -81,7 +86,8 @@ Results & Results::__mul__(const double & weight) {
 
 Results * Results::clone() const {
     Results * results = new Results();
-    for(auto l = list<Cloneable>(), it = l.begin(), end = l.end(); it != end; it++) {
+    auto l = list<Cloneable>();
+    for (auto it = l.begin(), end = l.end(); it != end; it++) {
         results->set(*it, reinterpret_cast<Printable*>(get_checked<Cloneable>(*it)->clone()));
     }
     return results;
@@ -96,7 +102,8 @@ std::string Results::__repr__() {
 std::string Results::__str__() {
     std::stringstream ss;
     ss << Printable::__str__() << std::endl;
-    for(auto l = list<Printable>(), it = l.begin(), end = l.end(); it != end; it++) {
+    auto l = list<Printable>();
+    for (auto it = l.begin(), end = l.end(); it != end; it++) {
         ss << " * " << *it << " : " << get_checked<Printable>(*it)->__repr__() << std::endl;
     }
     return ss.str();
