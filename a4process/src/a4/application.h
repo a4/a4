@@ -1,13 +1,10 @@
 #ifndef A4_APPLICATION_H
 #define A4_APPLICATION_H
 
-//#include "a4/processor.h"
+#include "a4/processor.h"
 
-#define FACTORY(PROCESSOR) class MyProcessingJob : public ProcessingJob { public: virtual ProcessorPtr get_processor() { return ProcessorPtr(new PROCESSOR()); }; };
+#define a4_application(MyConfiguration) int main(int argc, char *argv[]) { return a4_main(argc, argv, new MyConfiguration()); };
 
-#define A4_MAIN(PROCESSOR) FACTORY(PROCESSOR) \
-                           int main(int argc, char ** argv) { return MyProcessingJob job; a4_main(argc, argv, job); };
-
-int a4_main(int argc, char *argv[]);
+int a4_main(int argc, char *argv[], JobConfiguration *);
 
 #endif

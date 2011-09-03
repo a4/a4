@@ -4,10 +4,8 @@
 #include <vector>
 #include <string>
 
-using std::vector;
-using std::string;
-
 #include <boost/shared_ptr.hpp>
+#include <boost/program_options.hpp>
 
 #include "a4/worker.h"
 #include "a4/results.h"
@@ -15,18 +13,15 @@ using std::string;
 #include "a4/writer.h"
 
 class Event;
+template <class MyProcessor> class JobConfiguration;
 
 /*
  * A Processor is a specialized Worker.
- * It reads Events from A4 files, and processes them one by one.
+ * It reads events from A4 files, and processes them one by one.
  * The results are kept by default in a "Results" object, which is 
- * merged by the ProcessingJob at the end of processing.
+ * merged by the JobConfiguration at the end of processing.
  *
  * Override Processor::process_event and put your analysis there.
- * You also have to override ProcessingJob::get_processor() so
- * that it returns your new object!
- * There you can also initialize tools and hand them to your 
- * Analysis Processor
  */
 class Processor : public Worker
 {
@@ -38,22 +33,22 @@ class Processor : public Worker
         virtual void process_event(Event &event) {};
 
         // You should not need to touch the rest...
-        void init_output(const string &outfile);
+        void init_output(const std::string &outfile);
         void event_passed(Event &);
 
         virtual uint32_t eventsRead() const {return _events_read;};
         virtual uint32_t eventsReadInLastFile() const {return _events_read_in_last_file;};
 
-        virtual void process_work_unit(string fn);
+        virtual void process_work_unit(std::string fn);
         virtual ResultsPtr results() const {return _results;};
 
     protected:
         void write_event(Event &event) {if(_writer) _writer->write(event);};
-        boost::shared_ptr<Results> _results;
-        string _current_file;
+        ResultsPtr _results;
+        std::string _current_file;
 
         static int _histogram_fast_access_id ;
-        vector<H1Ptr> _histogram_fast_access;
+        std::vector<H1Ptr> _histogram_fast_access;
         inline H1Ptr _hfast(int id, const char * name, int nbin, double xmin, double xmax) {
             try {
                 H1Ptr & h = _histogram_fast_access.at(id);
@@ -69,43 +64,59 @@ class Processor : public Worker
         }
 
     private:
+        JobConfiguration * const config;
         boost::shared_ptr<Writer> _writer;
         uint32_t _events_read;
         uint32_t _events_read_in_last_file;
+
+        friend class JobConfiguration;
 };
 typedef boost::shared_ptr<Processor> ProcessorPtr;
 
-class ProcessingJob : public WorkerAgency
+template <MyProcessor>
+class JobConfiguration : public WorkerAgency
 {
     public:
-        typedef vector<string> Inputs;
+        typedef std::vector<std::string> FileList;
+        typedef boost::program_options::variables_map ConfigArguments;
+        using boost::program_options::value;
 
-        ProcessingJob();
-        virtual ~ProcessingJob() {};
+        JobConfiguration();
+        virtual ~JobConfiguration() {};
+
+        
+        // Override these three for your analysis
+        virtual boost::program_options get_options();
+        virtual bool initialize(ConfigArguments &);
+        virtual bool configure(MyProcessor &);
 
         virtual WorkerPtr get_configured_worker() {return get_configured_processor();};
-        virtual ProcessorPtr get_configured_processor();
+
+        virtual ProcessorPtr get_configured_processor() {
+            MyProcessor * p = new MyProcessor();
+            p->set_shared(this);
+            assert(configure_processor(*p));
+            return ProcessorPtr(p)
+        };
 
         virtual void worker_finished(WorkerPtr);
 
-        bool process_files(Inputs inputs);
-
-        virtual ProcessorPtr get_processor() = 0;
+        bool process_files(FileList inputs);
 
         virtual ResultsPtr results() const {return _results;};
-        virtual void set_output(string output) {_output = output;};
+        virtual void set_output(std::string output) {_output = output;};
 
         virtual void finalize();
 
     private:
         int _num_processors;
-        Inputs _inputs;
-        Inputs _output_files;
-        string _output;
+        FileList _inputs;
+        FileList _output_files;
+        std::string _output;
         ResultsPtr _results;
 
 };
 
-typedef boost::shared_ptr<ProcessingJob> ProcessingJobPtr;
+typedef boost::shared_ptr<JobConfiguration> JobConfigurationPtr;
 
 #endif

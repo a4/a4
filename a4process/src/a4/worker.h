@@ -31,11 +31,11 @@ typedef boost::shared_ptr<Worker> WorkerPtr;
 
 /*
  * "WorkerAgency" is an interface.
- * This Agency should be able to provide skilled Workers on request.
+ * This class should be able to provide skilled Workers on request.
  * It should also get back and collate the results of the work being done,
  * as soon as a worker has finished.
  * process_work_units processes the given WorkUnits in threads
- * threads=-1 means "threads off", threads=0 means "# of cores"
+ * threads=0 means "# of cores"
  */
 class WorkerAgency {
     public:
