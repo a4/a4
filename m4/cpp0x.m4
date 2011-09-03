@@ -19,7 +19,7 @@ AC_DEFUN([AC_COMPILE_STDCXX_0X], [
 
     typedef check<int> check_type;
     check_type c;
-    check_type&& cr = c;],,
+    check_type&& cr = check_type();],,
   ac_cv_cxx_compile_cxx0x_native=yes, ac_cv_cxx_compile_cxx0x_native=no)
   AC_LANG_RESTORE
   ])
@@ -44,7 +44,7 @@ AC_DEFUN([AC_COMPILE_STDCXX_0X], [
 
     typedef check<int> check_type;
     check_type c;
-    check_type&& cr = c;],,
+    check_type&& cr = check_type();],,
   ac_cv_cxx_compile_cxx0x_cxx=yes, ac_cv_cxx_compile_cxx0x_cxx=no)
   CXXFLAGS="$ac_save_CXXFLAGS"
   AC_LANG_RESTORE
@@ -70,7 +70,7 @@ AC_DEFUN([AC_COMPILE_STDCXX_0X], [
 
     typedef check<int> check_type;
     check_type c;
-    check_type&& cr = c;],,
+    check_type&& cr = check_type();],,
   ac_cv_cxx_compile_cxx0x_gxx=yes, ac_cv_cxx_compile_cxx0x_gxx=no)
   CXXFLAGS="$ac_save_CXXFLAGS"
   AC_LANG_RESTORE
