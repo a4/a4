@@ -73,13 +73,11 @@ class StreamableTo : virtual public Streamable {
         mutable boost::shared_ptr<ProtoClass> pb;
 
     protected:
-        virtual void to_pb() const = 0;
-        virtual void from_pb() = 0;
+        virtual void to_pb() const {};
+        virtual void from_pb() {};
 };
 
 template <typename ProtoClass, typename MyStreamable> 
 int StreamableTo<ProtoClass, MyStreamable>::class_id = reg_class_id<ProtoClass, MyStreamable>();
-
-
 
 #endif
