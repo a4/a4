@@ -1,33 +1,10 @@
 #include <iostream>
 
-#include "a4/writer.h"
-#include "a4/reader.h"
+#include "a4/output_stream.h"
+#include "a4/proto/io/A4Stream.pb.h"
 
 using namespace std;
-
-class TestEvent : public StreamableTo<a4::io::TestEvent, TestEvent> {
-    public:
-        virtual void to_pb() const { pb->set_event_number(eno); };
-        virtual void from_pb() { eno = pb->event_number(); };
-        int eno;
-};
-
-class TestMetaData : public MetaData, public StreamableTo<a4::io::TestMetaData, TestMetaData> {
-    public:
-        virtual void to_pb() const { pb->set_meta_data(data); };
-        virtual void from_pb() { data = pb->meta_data(); };
-        int data;
-
-        TestMetaData & __add__(const Addable & a) {
-            data += dynamic_cast<const TestMetaData&>(a).data;
-        }
-
-        virtual MetaDataDifference difference(MetaData& a) {
-            return MetaData::IDENTICAL;
-        }
-
-        virtual Addable * clone() const {return clone_via_message();};
-};
+using namespace a4::io;
 
 int main(int argc, char ** argv) {
     std::string fn;
@@ -37,23 +14,23 @@ int main(int argc, char ** argv) {
         fn = argv[1];
     } else assert(argc <= 2);
 
-    uint32_t clsid = a4::io::TestEvent::kCLASSIDFieldNumber;
-    uint32_t clsid_m = a4::io::TestMetaData::kCLASSIDFieldNumber;
-    Writer w(fn, "TestEvent", clsid, clsid_m);
+    uint32_t clsid = TestEvent::kCLASSIDFieldNumber;
+    uint32_t clsid_m = TestMetaData::kCLASSIDFieldNumber;
+    A4OutputStream w(fn, "TestEvent", clsid, clsid_m);
 
     const int N = 1000;
     TestEvent e;
     for(int i = 0; i < N; i++) {
-        e.eno = i;
+        e.set_event_number(i);
         w.write(e);
     }
     TestMetaData m;
-    m.data = 1;
+    m.set_meta_data(1);
     w.metadata(m);
     for(int i = 0; i < N; i++) {
-        e.eno = N + i;
+        e.set_event_number(N + i);
         w.write(e);
     }
-    m.data = 2;
+    m.set_meta_data(2);
     w.metadata(m);
 }

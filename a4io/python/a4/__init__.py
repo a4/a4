@@ -1,1 +1,1 @@
-from A4Stream import A4ReaderStream, A4WriterStream
+from A4Stream import A4InputStream, A4OutputStream

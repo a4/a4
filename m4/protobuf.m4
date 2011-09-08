@@ -65,18 +65,18 @@ AC_DEFUN([AC_PROTOBUF_CHECK], [
     fi
   fi
 
-  if test x"$PROTOBUF_PROTOC" == x; then
-    # If PROTOBUF_ROOT is set and the user has not provided a value to
-    # --with-protobuf, then treat PROTOBUF_ROOT as if it the user supplied it.
-    if test x"$PROTOBUF_ROOT" != x; then
-      if test x"$with_protobuf" == x; then
-        AC_MSG_NOTICE([Detected PROTOBUF_ROOT; continuing with --with-protobuf=$PROTOBUF_ROOT])
-        with_protobuf=$PROTOBUF_ROOT
-      else
-        AC_MSG_NOTICE([Detected PROTOBUF_ROOT=$PROTOBUF_ROOT, but overridden by --with-protobuf=$with_protobuf])
-      fi
+  # If PROTOBUF_ROOT is set and the user has not provided a value to
+  # --with-protobuf, then treat PROTOBUF_ROOT as if it the user supplied it.
+  if test x"$PROTOBUF_ROOT" != x; then
+    if test x"$with_protobuf" == x; then
+      AC_MSG_NOTICE([Detected PROTOBUF_ROOT; continuing with --with-protobuf=$PROTOBUF_ROOT])
+      with_protobuf=$PROTOBUF_ROOT
+    else
+      AC_MSG_NOTICE([Detected PROTOBUF_ROOT=$PROTOBUF_ROOT, but overridden by --with-protobuf=$with_protobuf])
     fi
+  fi
 
+  if test x"$PROTOBUF_PROTOC" == x; then
     if test x"$with_protobuf" != x; then
       echo "checking for protoc in $with_protobuf/bin"
       AC_PATH_PROG([PROTOBUF_PROTOC], [protoc], [], [$with_protobuf/bin])
@@ -84,20 +84,19 @@ AC_DEFUN([AC_PROTOBUF_CHECK], [
       echo "checking for protoc in PATH"
       AC_PATH_PROG([PROTOBUF_PROTOC], [protoc], [])
     fi
-
-    if test x"$PROTOBUF_PROTOC" != x; then
-      export PKG_CONFIG_PATH=$with_protobuf
-      PKG_CHECK_MODULES([PROTOBUF], [protobuf], [
-        AC_SUBST([PROTOBUF_PROTOC])
-        AC_SUBST([PROTOBUF_LIBS])
-        AC_SUBST([PROTOBUF_CFLAGS])
-        AC_SUBST([PROTOBUF_ROOT], [$with_protobuf])
-        $1
-      ])
-    else
-      :
-      $2
-    fi
+  fi
+  if test x"$PROTOBUF_PROTOC" == x; then
+    :
+    $2
+  else
+    export PKG_CONFIG_PATH=$with_protobuf
+    PKG_CHECK_MODULES([PROTOBUF], [protobuf], [
+      AC_SUBST([PROTOBUF_PROTOC])
+      AC_SUBST([PROTOBUF_LIBS])
+      AC_SUBST([PROTOBUF_CFLAGS])
+      AC_SUBST([PROTOBUF_ROOT], [$with_protobuf])
+      $1
+    ])
   fi
 ])
 

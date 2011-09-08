@@ -46,7 +46,7 @@ class ZlibInputStream(object):
         if self.dco.unused_data:
             self.in_stream.seek(-len(self.dco.unused_data), 1)
 
-class A4WriterStream(object):
+class A4OutputStream(object):
     def __init__(self, out_stream, description=None, content_cls=None, metadata_cls=None, compression=True):
         self.compression = True
         self.compressed = False
@@ -152,7 +152,7 @@ class A4WriterStream(object):
                 self.start_compression()
 
 
-class A4ReaderStream(object):
+class A4InputStream(object):
     def __init__(self, in_stream):
         self.in_stream = in_stream
         self.size = 0
@@ -168,6 +168,9 @@ class A4ReaderStream(object):
             if self.in_stream.tell() == 0:
                 break
         self.in_stream.seek(len(START_MAGIC))
+
+    def __iter__(self):
+        return self
 
     def read_header(self):
         # get the beginning-of-stream information
@@ -232,22 +235,22 @@ class A4ReaderStream(object):
         cls = class_ids[type]
         return cls, cls.FromString(self.in_stream.read(size))
 
-    def read(self):
+    def next(self):
         cls, message = self.read_message()
         if cls is A4StreamHeader:
-            return self.read()
+            return self.next()
         elif cls is A4StreamFooter:
             footer_size,  = unpack("<I", self.in_stream.read(4))
             if not END_MAGIC == self.in_stream.read(len(END_MAGIC)):
                 print("File seems to be not closed!")
-                return None
+                raise StopIteration
             if not START_MAGIC == self.in_stream.read(len(START_MAGIC)):
-                return None
-            return self.read()
+                raise StopIteration
+            return self.next()
         elif cls is A4StartCompressedSection:
             self._orig_in_stream = self.in_stream
             self.in_stream = ZlibInputStream(self._orig_in_stream)
-            return self.read()
+            return self.next()
         elif cls is A4EndCompressedSection:
             self.in_stream.close()
             self.in_stream = self._orig_in_stream
@@ -264,7 +267,7 @@ class A4ReaderStream(object):
 def test_rw():
     from a4.proto.io import TestEvent, TestMetaData
     fn = "pytest.a4"
-    w = A4WriterStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True)
+    w = A4OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True)
     e = TestEvent()
     for i in range(100):
         e.event_number = i

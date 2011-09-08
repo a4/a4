@@ -1,26 +1,31 @@
 A4IO
 ----
 
-The A4IO package provides reading, writing and processing utilities.
+The A4IO package provides A4 Streams - reading and writing
 
 Concepts:
-    * Stream of independent <Events>, interleaved with <Metadata> 
-    * <Results>: which _must_ be addable (operator + / __add__)
-      (Results must also contain a metadata field)
-    * Processing: Analyzing events and producing Results and/or another Stream of Events
-      (Can be different Event class)
+    * Event Stream: list of <Event> objects, with <MetaData> objects following after groups of events
+    * Results: list of pairs (<Key>, <Result>), with <MetaData> following
 
-Streams of Events are saved in .a4 files.
-Streams of Results are saved in .results files (which are also in the "a4" format).
+ <Event> objects can have arbitrary format
+ <Result> objects _must_ be addable (operator + / __add__, can be a logical merge)
+ <MetaData> objects must be addable and can define a difference measure, which makes it
+    possibe to merge metadata depending on different factors,
+    e.g per lumiblock, per run or per stream
 
-Processing is done in executable files with the following syntax:
 
-./my_analysis --config config_hww.ini --results my.results --output skim.a4 --input events.a4
+Streams of Events should be saved in .a4 files.
+Results are saved in .results files (which are also a4 streams).
 
-To setup an analysis, one can use
+API:
 
-a4_init_analysis
+class A4Reader:
+    A4Reader(string filename)
+    A4Reader(ptr<ZeroCopyInputStream>)
 
-in an empty directory. An A4 Analysis project will be generated
+    read()
 
+class A4Writer:
+    A4Writer(string filename)
+    A4Writer(ptr<ZeroCopyOutputStream>)
 

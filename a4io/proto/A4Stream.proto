@@ -7,6 +7,7 @@ message A4StreamHeader
     optional string description = 2;
     optional int32 content_class_id = 3;
     optional int32 metadata_class_id = 4;
+    repeated int64 metadata_offsets = 5; // position of the 'forward-facing' metadata messages in this file
 }
 
 message A4StreamFooter
@@ -14,7 +15,7 @@ message A4StreamFooter
     optional int32 CLASS_ID = 101;
     required int64 size = 1; // number of bytes written before the footer
     optional int32 content_count = 2; // number of 'content' events
-    repeated int64 metadata_offsets = 3; // position of the metadata messages in this file
+    repeated int64 metadata_offsets = 3; // position of the 'backward-facing' metadata messages in this file
 }
 
 message A4StartCompressedSection
