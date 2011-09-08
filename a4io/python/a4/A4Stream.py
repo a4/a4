@@ -184,9 +184,9 @@ class A4InputStream(object):
         self.metadata = {}
         self.size = 0
         while self.read_footer(self.size, read_metadata=True):
-            print "SIZE IS ", self.size
+            #print "SIZE IS ", self.size
             self.in_stream.seek(-self.size, SEEK_END)
-            print "TELL IS ", self.in_stream.tell()
+            #print "TELL IS ", self.in_stream.tell()
             self.read_header()
             first = False
             self.in_stream.seek(-self.size, SEEK_END)
@@ -198,7 +198,7 @@ class A4InputStream(object):
     def get_header_at(self, position):
         hkeys = sorted(self.headers.keys())
         i = bisect(hkeys, position)
-        print "HEADER AT ", hkeys, position, i
+        #print "HEADER AT ", hkeys, position, i
         return self.headers[hkeys[i-1]]
 
     def get_metadata_at(self, position):
@@ -207,14 +207,14 @@ class A4InputStream(object):
             mkeys = sorted(self.metadata.keys())
             i = bisect(mkeys, position)
             if i == 0:
-                print "AAAh ", position, mkeys
+                #print "AAAh ", position, mkeys
 
                 return None
             return self.metadata[mkeys[i-1]]
         self.read_all_meta_info()
         mkeys = sorted(self.metadata.keys())
         i = bisect(mkeys, position)
-        print "bisect result: ", mkeys, position, i
+        #print "bisect result: ", mkeys, position, i
         if i == len(mkeys):
             return None
         return self.metadata[mkeys[i]]
@@ -237,7 +237,7 @@ class A4InputStream(object):
         if header.metadata_class_id:
             self.metadata_class_id = header.metadata_class_id
         self.headers[header_position] = header
-        print "header at ", header_position, " is ", header
+        #print "header at ", header_position, " is ", header
 
     def read_footer(self, neg_offset=0, read_metadata=True):
         self.in_stream.seek( - neg_offset - len(END_MAGIC), SEEK_END)
@@ -251,18 +251,18 @@ class A4InputStream(object):
         self.in_stream.seek(footer_start, SEEK_END)
         footer_abs_start = self.in_stream.tell()
         cls, footer = self.read_message()
-        print "FOOTER SIZE = 20 + ", footer_size
-        print "FOOTER START = ", footer_start
+        #print "FOOTER SIZE = 20 + ", footer_size
+        #print "FOOTER START = ", footer_start
         self.process_footer(footer, len(END_MAGIC) + 4 + footer_size + 8, self.in_stream.tell())
         # get metadata from footer
         if read_metadata:
             for metadata in footer.metadata_offsets:
                 metadata_start = footer_abs_start - footer.size + metadata
-                print "SEEKING TO ", metadata_start, footer_abs_start, footer.size, metadata
+                #print "SEEKING TO ", metadata_start, footer_abs_start, footer.size, metadata
                 self.in_stream.seek(metadata_start)
                 cls, metadata = self.read_message()
                 self.metadata[metadata_start] = metadata
-                print "metadata at ", metadata_start, " is ", metadata
+                #print "metadata at ", metadata_start, " is ", metadata
         return True
 
     def process_footer(self, footer, footer_size, footer_end):
@@ -270,7 +270,7 @@ class A4InputStream(object):
         if not footer_start in self.footers:
             self.size += footer.size + footer_size
         self.footers[footer_start] = footer
-        print "footer at ", footer_start, " is ", footer
+        #print "footer at ", footer_start, " is ", footer
 
     def info(self):
         self.read_all_meta_info()
@@ -303,7 +303,7 @@ class A4InputStream(object):
 
     def next(self):
         cls, message = self.read_message()
-        print "READ NEXT ", cls, message, " AT ", self.in_stream.tell()
+        #print "READ NEXT ", cls, message, " AT ", self.in_stream.tell()
         if cls is A4StreamHeader:
             self.process_header(message, self.in_stream.tell() - 8 - message.ByteSize())
             self.current_header = message
@@ -336,7 +336,7 @@ class A4InputStream(object):
                 self.current_metadata = message
             else:
                 self.current_metadata = self.get_metadata_at(self.in_stream.tell())
-            print "FOUND CURRENT METADATA"
+            #print "FOUND CURRENT METADATA"
             return self.next()
         if not self.current_metadata:
             self.current_metadata = self.get_metadata_at(self.in_stream.tell())
@@ -392,9 +392,9 @@ def test_read(fn, n_events):
     r = A4InputStream(file(fn))
     cnt = 0
     for e in r:
-        print "Event: ", e
+        #print "Event: ", e
         cnt += 1
-        print "Current Metadata: ", r.current_metadata
+        #print "Current Metadata: ", r.current_metadata
         assert r.current_metadata.meta_data == e.event_number//1000
     del r
     assert cnt == n_events
@@ -403,10 +403,10 @@ def test_read(fn, n_events):
     cnt = 0
     r = A4InputStream(file(fn))
     for md, events in r.itermetadata():
-        print "ITER METADATA: ", md
+        #print "ITER METADATA: ", md
         for e in events:
             cnt += 1
-            print "Event: ", e
+            #print "Event: ", e
             assert md.meta_data == e.event_number//1000
     assert cnt == n_events
 
@@ -416,8 +416,8 @@ def test_read(fn, n_events):
     cnt = 0
     for e in r:
         cnt += 1
-        print "Event: ", e
-        print "Current Metadata: ", r.current_metadata
+        #print "Event: ", e
+        #print "Current Metadata: ", r.current_metadata
         assert r.current_metadata.meta_data == e.event_number//1000
     del r
     assert cnt == n_events
@@ -427,9 +427,9 @@ def test_read(fn, n_events):
     r.info()
     cnt = 0
     for md, events in r.itermetadata():
-        print "ITER METADATA: ", md
+        #print "ITER METADATA: ", md
         for e in events:
-            print "Event: ", e
+            #print "Event: ", e
             cnt += 1
             assert md.meta_data == e.event_number//1000
 
