@@ -1,0 +1,7 @@
+message DataQuality
+{
+    optional double goodOQ = 1;
+    optional double OQ = 2;
+    optional double OQRecalc = 3;
+}
+

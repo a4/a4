@@ -1,0 +1,36 @@
+import "Physics.proto";
+
+message Jet
+{
+    required LorentzVector p4 = 1;
+    optional Vertex vertex = 2;
+    optional int32 index = 3;
+    optional double jet_vertex_fraction = 4;
+    optional bool bad = 5;
+    optional bool ugly = 6;
+
+    optional int32 vertex_index = 30;
+
+    optional LorentzVector p4_em = 101;
+    optional double EMJES = 100;
+    optional double SV0 = 102;
+    optional double BCH_CORR_CELL = 110;
+    optional double BCH_CORR_JET = 111;
+    optional double lar_quality = 112;
+    optional double hec_quality = 113;
+    optional double negative_e = 114;
+    optional double emf = 115;
+    optional double hecf = 116;
+    optional double timing = 117;
+    optional double fmax = 118;
+    optional double sum_pt_trk = 119;
+    
+    enum TruthFlavor {
+        Light = 0;
+        C = 1;
+        B = 2;
+        T = 3;
+    }
+    optional TruthFlavor truth_flavor = 103;
+
+}

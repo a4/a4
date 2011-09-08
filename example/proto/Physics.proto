@@ -1,0 +1,38 @@
+
+message LorentzVector
+{
+    required double e = 1;
+    required double px = 2;
+    required double py = 3;
+    required double pz = 4;
+}
+
+message Vertex
+{
+    optional double x = 1;
+    optional double y = 2;
+    optional double z = 3;
+    optional int32 index = 4;
+    optional int32 tracks = 5;
+}
+
+message MissingEnergy
+{
+    required double x = 1;
+    required double y = 2;
+    optional double sum = 3;
+    optional MissingEnergy met_central = 6;
+    optional MissingEnergy met_endcap = 7;
+    optional MissingEnergy met_forward = 8;
+
+}
+
+
+message Perigee
+{
+    optional double z0 = 1;
+    optional double z0err = 2;
+    optional double d0 = 3;
+    optional double d0err = 4;
+}
+

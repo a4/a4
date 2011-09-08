@@ -1,0 +1,43 @@
+
+message TriggerFeature 
+{
+    optional double eta = 1;
+    optional double phi = 2;
+    optional double pt = 3;
+}
+
+message Trigger
+{
+    enum TriggerName 
+    {
+        
+        L1_EM14 = 1; 
+        L1_MU10 = 2;
+        EF_e15_medium = 3;
+        EF_e20_medium = 5;
+        EF_mu10_MG = 6;
+        EF_mu13_MG = 7; 
+        EF_mu13_MG_tight = 8;
+        EF_mu18_MG = 9;
+        EF_mu20_MG = 10;
+        EF_e10_medium_mu6 = 11;
+        EF_2mu10 = 12;
+        EF_2e12_medium = 13;
+        EF_2g20_loose = 14;
+        EF_mu40_MSonly = 15;
+        EF_mu40_MSonly_barrel = 16;
+        EF_mu20_empty = 17;
+    }
+
+    required TriggerName name = 1;
+    required bool fired = 2;
+    repeated TriggerFeature features_trig_electron = 3;
+    repeated TriggerFeature features_trig_photon = 4;
+    repeated TriggerFeature features_trig_muon_ef = 5;
+    repeated TriggerFeature features_muon = 6;
+    repeated TriggerFeature features_muon_combined = 7;
+    repeated TriggerFeature features_trig_muon_efi_ms = 8;
+    repeated TriggerFeature features_trig_muon_efi_ex = 9;
+    repeated TriggerFeature features_trig_muon_efi_cb = 10;
+    repeated TriggerFeature features_trig_muon_efi_mg = 11;
+}

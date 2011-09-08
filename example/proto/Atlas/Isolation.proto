@@ -1,0 +1,26 @@
+message Isolation
+{
+    optional double etcone10 = 1;
+    optional double etcone20 = 2;
+    optional double etcone30 = 3;
+    optional double etcone40 = 4;
+    optional double etcone50 = 5;
+    optional double etcone60 = 6;
+
+    optional double ptcone10 = 10;
+    optional double ptcone20 = 11;
+    optional double ptcone30 = 12;
+    optional double ptcone40 = 13;
+    optional double ptcone50 = 14;
+    optional double ptcone60 = 15;
+}
+
+message CustomIsolation
+{
+    optional double etcone40Iso = 1001;
+    optional double etcone40_ED_corrected = 1002;
+    optional double etcone40_ED_corrected_new = 1003;
+    optional double etcone40_corrected = 1004;
+    optional double etcone40_corrected_new = 1005;
+    optional double etcone40_pt_corrected = 1006;
+}

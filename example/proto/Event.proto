@@ -1,0 +1,57 @@
+import "Physics.proto";
+
+import "Atlas/Trigger.proto";
+import "Atlas/EventStreamInfo.proto";
+
+import "Photon.proto";
+import "Electron.proto";
+import "Muon.proto";
+import "Jet.proto";
+
+
+message Event
+{
+    optional int32 CLASS_ID = 1001;
+    optional int32 run_number = 1;
+    optional int32 event_number = 2;
+    optional int32 lumi_block = 3;
+    optional int32 bunch_crossing_id = 12;
+    repeated Stream stream_tag = 13;
+
+    optional double mc_event_weight = 4 [default = 1.0];
+    optional double scale_factor = 15 [default = 1.0];
+
+    repeated Trigger triggers = 5;
+    repeated Vertex vertices = 6;
+    optional MissingEnergy met = 7;
+
+    repeated Jet jets = 8;
+    repeated Muon muons = 9;
+    repeated Electron electrons = 10;
+    repeated Photon photons = 11;
+
+    repeated Muon muons_staco = 20;
+    repeated Muon muons_muid = 21;
+
+    optional MissingEnergy met_lochadtopo = 30;
+    optional MissingEnergy met_reffinal = 31;
+    optional MissingEnergy met_reffinal45 = 32;
+    optional MissingEnergy met_muonboy = 33;
+    optional MissingEnergy met_muid = 34;
+    optional MissingEnergy met_refmuon_track = 35;
+
+    repeated Jet jets_antikt4h1topo = 40;
+    repeated Jet jets_antikt4h1topoem = 41;
+
+    optional int32 error_state_lar = 50;
+
+    enum HFORDecision {
+        None = 0;
+        isBB = 1;
+        isCC = 2;
+        isC = 3;
+        isLightFlavor = 4;
+        kill = 5;
+    }
+    optional HFORDecision hfor_decision = 60;
+}

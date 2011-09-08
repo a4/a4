@@ -1,0 +1,38 @@
+import "Physics.proto";
+
+import "Atlas/Isolation.proto";
+import "Atlas/ShowerShape.proto";
+import "Atlas/TrackHits.proto";
+import "Atlas/Trigger.proto";
+
+message Muon
+{
+    required LorentzVector p4 = 1;
+    optional int32 charge = 2;
+    optional Vertex vertex = 3;
+    optional int32 index = 4;
+    optional Isolation isolation = 5;
+    
+    optional bool combined = 16;
+    optional bool tight = 18;
+
+    optional LorentzVector p4_track = 7;
+    optional LorentzVector p4_ms = 9;
+
+    optional TrackHits track_hits = 10;
+    optional MuonTrackHits ms_hits = 11;
+
+    optional Perigee perigee_id = 12;
+    optional Perigee perigee_cmb = 13;
+
+    optional int32 vertex_index = 30;
+
+    repeated Trigger.TriggerName matched_trigger_cmf = 40;
+    repeated Trigger.TriggerName matched_trigger_ef = 42;
+    repeated Trigger.TriggerName matched_trigger_mf = 43;
+    repeated Trigger.TriggerName matched_trigger_efi_ms = 44;
+    repeated Trigger.TriggerName matched_trigger_efi_ex = 45;
+    repeated Trigger.TriggerName matched_trigger_efi_cb = 46;
+    repeated Trigger.TriggerName matched_trigger_efi_mg = 47;
+    repeated Trigger.TriggerName matched_trigger_efi_mgt = 48; // A17
+}
