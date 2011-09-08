@@ -26,7 +26,7 @@ AH_TOP([#define _CONFIG_H_])
 AH_BOTTOM([#include <boost/shared_ptr.hpp>])
 AH_BOTTOM([#endif // _CONFIG_H_])
 
-AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_HEADERS([src/a4/a4io_config.h])
 AC_CONFIG_FILES([Makefile this_a4.sh.in:this_a4.sh.ac])
 
 CPPFLAGS+=" -I$srcdir/src -Isrc "

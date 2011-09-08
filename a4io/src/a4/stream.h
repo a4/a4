@@ -1,7 +1,7 @@
 #ifndef _A4_STREAM_H_
 #define _A4_STREAM_H_
 
-#include <config.h>
+#include <a4/a4io_config.h>
 #include <google/protobuf/message.h>
 
 namespace a4{ namespace io{

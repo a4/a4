@@ -10,7 +10,7 @@ a4pythonprotodir=${pythondir}/a4/proto
 
 dist_bin_SCRIPTS = bin/a4dump bin/a4info
 dist_pkgdata_SCRIPTS=test_rw test_read test_write bin/test_pyrw
-a4include_HEADERS = src/a4/stream.h src/a4/input_stream.h src/a4/output_stream.h
+a4include_HEADERS = src/a4/stream.h src/a4/input_stream.h src/a4/output_stream.h src/a4/a4io_config.h
 a4python_PYTHON = python/a4/__init__.py python/a4/A4Stream.py
 a4pythonproto_PYTHON = python/a4/proto/__init__.py
 

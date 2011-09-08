@@ -87,7 +87,7 @@ AC_DEFUN([AC_PROTOBUF_CHECK], [
   fi
   if test x"$PROTOBUF_PROTOC" == x; then
     :
-    $2
+    protobuf_not_there=yes
   else
     export PKG_CONFIG_PATH=$with_protobuf
     PKG_CHECK_MODULES([PROTOBUF], [protobuf], [
@@ -95,8 +95,11 @@ AC_DEFUN([AC_PROTOBUF_CHECK], [
       AC_SUBST([PROTOBUF_LIBS])
       AC_SUBST([PROTOBUF_CFLAGS])
       AC_SUBST([PROTOBUF_ROOT], [$with_protobuf])
-      $1
-    ])
+    ], [protobuf_not_there=yes])
+  fi
+  if test x$protobuf_not_there == xyes; then
+    :
+    $2
   fi
 ])
 
