@@ -45,12 +45,19 @@ TESTS=$(check_PROGRAMS)
 
 installcheck-local: bin/test_pyrw
 	source $(bindir)/this_a4.sh && $(pkgdatadir)/test_pyrw
-	source $(bindir)/this_a4.sh && a4info -m pytest.a4 > /dev/null
-	source $(bindir)/this_a4.sh && a4dump -a pytest.a4 > /dev/null
-	./test_read pytest.a4 > /dev/null
+	source $(bindir)/this_a4.sh && a4info -m pytest_fw.a4 > /dev/null
+	source $(bindir)/this_a4.sh && a4info -m pytest_bw.a4 > /dev/null
+	source $(bindir)/this_a4.sh && a4dump -a pytest_fw.a4 > /dev/null
+	source $(bindir)/this_a4.sh && a4dump -a pytest_bw.a4 > /dev/null
+	./test_read pytest_fw.a4 > /dev/null
+	./test_read pytest_bw.a4 > /dev/null
+	./test_read pytest_fwfw.a4 > /dev/null
+	./test_read pytest_bwfw.a4 > /dev/null
+	./test_read pytest_fwbw.a4 > /dev/null
+	./test_read pytest_bwbw.a4 > /dev/null
 	./test_write wtest.a4 > /dev/null
 	source $(bindir)/this_a4.sh && a4info -m wtest.a4 > /dev/null
 	source $(bindir)/this_a4.sh && a4dump -a wtest.a4 > /dev/null
-	rm test.a4 pytest.a4 wtest.a4
+	rm test.a4 pytest*.a4 wtest.a4
 
 

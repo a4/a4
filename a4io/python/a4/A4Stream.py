@@ -1,4 +1,5 @@
 from struct import pack, unpack
+from bisect import bisect_right as bisect
 import zlib
 
 from a4.proto import class_ids
@@ -31,6 +32,8 @@ class ZlibInputStream(object):
         self.in_stream = in_stream
         self.reqsize = reqsize
         self.decbuf = ""
+        tell = self.in_stream.tell()
+        self.tell = lambda : tell
 
     def read(self, bytes):
         while len(self.decbuf) < bytes:
@@ -47,7 +50,7 @@ class ZlibInputStream(object):
             self.in_stream.seek(-len(self.dco.unused_data), 1)
 
 class A4OutputStream(object):
-    def __init__(self, out_stream, description=None, content_cls=None, metadata_cls=None, compression=True):
+    def __init__(self, out_stream, description=None, content_cls=None, metadata_cls=None, compression=True, metadata_refers_forward=False):
         self.compression = True
         self.compressed = False
         self.bytes_written = 0
@@ -57,6 +60,7 @@ class A4OutputStream(object):
         self.out_stream = out_stream
         self.content_class_id = None
         self.metadata_class_id = None
+        self.metadata_refers_forward = metadata_refers_forward
         if content_cls:
             self.content_class_id = content_cls.CLASS_ID_FIELD_NUMBER
         if metadata_cls:
@@ -88,6 +92,7 @@ class A4OutputStream(object):
         self.bytes_written += len(START_MAGIC)
         header = A4StreamHeader()
         header.a4_version = 1
+        header.metadata_refers_forward = self.metadata_refers_forward
         if description:
             header.description = description
         if self.content_class_id:
@@ -100,6 +105,7 @@ class A4OutputStream(object):
         footer = A4StreamFooter()
         footer.size = self.bytes_written
         footer.metadata_offsets.extend(self.metadata_offsets)
+        footer.metadata_refers_forward = self.metadata_refers_forward
         if self.content_class_id:
             footer.content_count = self.content_count
         self.write(footer)
@@ -155,37 +161,86 @@ class A4OutputStream(object):
 class A4InputStream(object):
     def __init__(self, in_stream):
         self.in_stream = in_stream
+        self._orig_in_stream = in_stream
+        self._eof = False
         self.size = 0
         self.headers = {}
         self.footers = {}
         self.metadata = {}
         self.read_header()
-        while self.read_footer(self.size):
+        self.current_header = self.headers.values()[0]
+        self._read_all_meta_info = False
+        self._metadata_change = True
+        self.current_metadata = None
+
+
+    def read_all_meta_info(self):
+        if self._read_all_meta_info:
+            return
+        cached_state = self._orig_in_stream.tell(), self.in_stream
+        self.in_stream = self._orig_in_stream
+        self.headers = {}
+        self.footers = {}
+        self.metadata = {}
+        self.size = 0
+        while self.read_footer(self.size, read_metadata=True):
+            print "SIZE IS ", self.size
             self.in_stream.seek(-self.size, SEEK_END)
+            print "TELL IS ", self.in_stream.tell()
             self.read_header()
             first = False
             self.in_stream.seek(-self.size, SEEK_END)
             if self.in_stream.tell() == 0:
                 break
-        self.in_stream.seek(len(START_MAGIC))
+        pos, self.in_stream = cached_state
+        self._orig_in_stream.seek(pos)
+
+    def get_header_at(self, position):
+        hkeys = sorted(self.headers.keys())
+        i = bisect(hkeys, position)
+        print "HEADER AT ", hkeys, position, i
+        return self.headers[hkeys[i-1]]
+
+    def get_metadata_at(self, position):
+        fw = self.get_header_at(position).metadata_refers_forward
+        if fw:
+            mkeys = sorted(self.metadata.keys())
+            i = bisect(mkeys, position)
+            if i == 0:
+                print "AAAh ", position, mkeys
+
+                return None
+            return self.metadata[mkeys[i-1]]
+        self.read_all_meta_info()
+        mkeys = sorted(self.metadata.keys())
+        i = bisect(mkeys, position)
+        print "bisect result: ", mkeys, position, i
+        if i == len(mkeys):
+            return None
+        return self.metadata[mkeys[i]]
 
     def __iter__(self):
         return self
 
     def read_header(self):
         # get the beginning-of-stream information
+        magic = self.in_stream.read(len(START_MAGIC))
+        assert START_MAGIC == magic, "Not an A4 file: Magic %s!" % magic
         header_position = self.in_stream.tell()
-        assert START_MAGIC == self.in_stream.read(len(START_MAGIC)), "Not an A4 file!"
         cls, header = self.read_message()
+        self.process_header(header, header_position)
+
+    def process_header(self, header, header_position):
         assert header.a4_version == 1, "Incompatible stream version :( Upgrade your client?"
         if header.content_class_id:
             self.content_class_id = header.content_class_id
         if header.metadata_class_id:
             self.metadata_class_id = header.metadata_class_id
         self.headers[header_position] = header
+        print "header at ", header_position, " is ", header
 
-    def read_footer(self, neg_offset=0):
-        self.in_stream.seek(-neg_offset - len(END_MAGIC), SEEK_END)
+    def read_footer(self, neg_offset=0, read_metadata=True):
+        self.in_stream.seek( - neg_offset - len(END_MAGIC), SEEK_END)
         if not END_MAGIC == self.in_stream.read(len(END_MAGIC)):
             print("File seems to be not closed!")
             self.in_stream.seek(0)
@@ -194,20 +249,31 @@ class A4InputStream(object):
         footer_size, = unpack("<I", self.in_stream.read(4))
         footer_start = - neg_offset - len(END_MAGIC) - 4 - footer_size - 8
         self.in_stream.seek(footer_start, SEEK_END)
+        footer_abs_start = self.in_stream.tell()
         cls, footer = self.read_message()
-        self.footers[footer_start] = footer
-        self.size += footer.size - footer_start - neg_offset
-
+        print "FOOTER SIZE = 20 + ", footer_size
+        print "FOOTER START = ", footer_start
+        self.process_footer(footer, len(END_MAGIC) + 4 + footer_size + 8, self.in_stream.tell())
         # get metadata from footer
-        for metadata in footer.metadata_offsets:
-            metadata_start = metadata
-            self.in_stream.seek(metadata_start)
-            cls, metadata = self.read_message()
-            self.metadata[metadata_start] = metadata
-
+        if read_metadata:
+            for metadata in footer.metadata_offsets:
+                metadata_start = footer_abs_start - footer.size + metadata
+                print "SEEKING TO ", metadata_start, footer_abs_start, footer.size, metadata
+                self.in_stream.seek(metadata_start)
+                cls, metadata = self.read_message()
+                self.metadata[metadata_start] = metadata
+                print "metadata at ", metadata_start, " is ", metadata
         return True
 
+    def process_footer(self, footer, footer_size, footer_end):
+        footer_start = footer_end - footer_size
+        if not footer_start in self.footers:
+            self.size += footer.size + footer_size
+        self.footers[footer_start] = footer
+        print "footer at ", footer_start, " is ", footer
+
     def info(self):
+        self.read_all_meta_info()
         info = []
         version = [h.a4_version for h in self.headers.values()]
         info.append("A4 file v%i" % version[0])
@@ -237,14 +303,22 @@ class A4InputStream(object):
 
     def next(self):
         cls, message = self.read_message()
+        print "READ NEXT ", cls, message, " AT ", self.in_stream.tell()
         if cls is A4StreamHeader:
+            self.process_header(message, self.in_stream.tell() - 8 - message.ByteSize())
+            self.current_header = message
             return self.next()
         elif cls is A4StreamFooter:
+            self.process_footer(message, len(END_MAGIC) + 4 + message.ByteSize() + 8, self.in_stream.tell())
             footer_size,  = unpack("<I", self.in_stream.read(4))
             if not END_MAGIC == self.in_stream.read(len(END_MAGIC)):
                 print("File seems to be not closed!")
+                self._eof = True
                 raise StopIteration
+            self.current_metadata = None
+            self._metadata_change = True
             if not START_MAGIC == self.in_stream.read(len(START_MAGIC)):
+                self._eof = True
                 raise StopIteration
             return self.next()
         elif cls is A4StartCompressedSection:
@@ -254,7 +328,52 @@ class A4InputStream(object):
         elif cls is A4EndCompressedSection:
             self.in_stream.close()
             self.in_stream = self._orig_in_stream
+            return self.next()
+        elif cls.CLASS_ID_FIELD_NUMBER == self.current_header.metadata_class_id:
+            self.metadata[self.in_stream.tell() - message.ByteSize() - 8] = message
+            self._metadata_change = True
+            if self.current_header.metadata_refers_forward:
+                self.current_metadata = message
+            else:
+                self.current_metadata = self.get_metadata_at(self.in_stream.tell())
+            print "FOUND CURRENT METADATA"
+            return self.next()
+        if not self.current_metadata:
+            self.current_metadata = self.get_metadata_at(self.in_stream.tell())
         return message
+
+    def itermetadata(self):
+        class eventiter(object):
+            def __init__(it, first, meta):
+                it.first = first
+                it.meta = meta
+            def __iter__(it):
+                return it
+            def next(it):
+                if it.first:
+                    f = it.first
+                    it.first = None
+                    return f
+                n = self.next()
+                if self._metadata_change:
+                    it.meta.next_first = n
+                    raise StopIteration
+                return n
+
+        class metaiter(object):
+            def __init__(it):
+                it.next_first = None
+            def __iter__(it):
+                return it
+            def next(it):
+                if self._eof:
+                    raise StopIteration
+                assert self._metadata_change, "Cannot skip events in iteration over metadata!"
+                if not it.next_first:
+                    it.next_first = self.next()
+                self._metadata_change = False
+                return self.current_metadata, eventiter(it.next_first, it)
+        return metaiter()
 
     def close(self):
         return self.in_stream.close()
@@ -263,22 +382,126 @@ class A4InputStream(object):
     def closed(self):
         return self.in_stream.closed
 
+def test_read(fn, n_events):
+    """
+    Test different modes of reading events
+    assert that n_events
+    """
 
-def test_rw():
+    print "READ TEST NOSEEK"
+    r = A4InputStream(file(fn))
+    cnt = 0
+    for e in r:
+        print "Event: ", e
+        cnt += 1
+        print "Current Metadata: ", r.current_metadata
+        assert r.current_metadata.meta_data == e.event_number//1000
+    del r
+    assert cnt == n_events
+
+    print "READ TEST NOSEEK BY METADATA"
+    cnt = 0
+    r = A4InputStream(file(fn))
+    for md, events in r.itermetadata():
+        print "ITER METADATA: ", md
+        for e in events:
+            cnt += 1
+            print "Event: ", e
+            assert md.meta_data == e.event_number//1000
+    assert cnt == n_events
+
+    print "READ TEST SEEK"
+    r = A4InputStream(file(fn))
+    r.info()
+    cnt = 0
+    for e in r:
+        cnt += 1
+        print "Event: ", e
+        print "Current Metadata: ", r.current_metadata
+        assert r.current_metadata.meta_data == e.event_number//1000
+    del r
+    assert cnt == n_events
+
+    print "READ TEST SEEK BY METADATA"
+    r = A4InputStream(file(fn))
+    r.info()
+    cnt = 0
+    for md, events in r.itermetadata():
+        print "ITER METADATA: ", md
+        for e in events:
+            print "Event: ", e
+            cnt += 1
+            assert md.meta_data == e.event_number//1000
+
+    assert cnt == n_events
+
+def test_rw_forward(fn):
     from a4.proto.io import TestEvent, TestMetaData
-    fn = "pytest.a4"
+    w = A4OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True, metadata_refers_forward=True)
+    e = TestEvent()
+    m = TestMetaData()
+    m.meta_data = 1
+    w.write(m)
+    for i in range(500):
+        e.event_number = 1000+i
+        w.write(e)
+    m.meta_data = 2
+    w.write(m)
+    for i in range(500):
+        e.event_number = 2000+i
+        w.write(e)
+    w.close()
+
+
+def test_rw_backward(fn):
+    from a4.proto.io import TestEvent, TestMetaData
     w = A4OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True)
     e = TestEvent()
-    for i in range(100):
-        e.event_number = i
+    for i in range(500):
+        e.event_number = 1000+i
         w.write(e)
     m = TestMetaData()
     m.meta_data = 1
     w.write(m)
-    for i in range(100):
-        e.event_number = 200+i
+    for i in range(500):
+        e.event_number = 2000+i
         w.write(e)
     m.meta_data = 2
     w.write(m)
     w.close()
+
+
+def test_rw():
+    from os import system
+    print "-"*50
+    print "Test Forward"
+    print "-"*50
+    test_rw_forward("pytest_fw.a4")
+    test_read("pytest_fw.a4", 1000)
+    print "-"*50
+    print "Test Backward"
+    print "-"*50
+    test_rw_backward("pytest_bw.a4")
+    test_read("pytest_bw.a4", 1000)
+    system("cat pytest_fw.a4 pytest_fw.a4 > pytest_fwfw.a4")
+    system("cat pytest_fw.a4 pytest_bw.a4 > pytest_fwbw.a4")
+    system("cat pytest_bw.a4 pytest_bw.a4 > pytest_bwbw.a4")
+    system("cat pytest_bw.a4 pytest_fw.a4 > pytest_bwfw.a4")
+    print "-"*50
+    print "Test Forward-Forward"
+    print "-"*50
+    test_read("pytest_fwfw.a4", 2000)
+    print "-"*50
+    print "Test Forward-Backward"
+    print "-"*50
+    test_read("pytest_fwbw.a4", 2000)
+    print "-"*50
+    print "Test Backward-Forward"
+    print "-"*50
+    test_read("pytest_bwfw.a4", 2000)
+    print "-"*50
+    print "Test Backward-Backward"
+    print "-"*50
+    test_read("pytest_bwbw.a4", 2000)
+
 
