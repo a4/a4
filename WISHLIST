@@ -1,0 +1,17 @@
+
+
+* Consistenly repeat analysis (repeat analysis)
+   -vs-
+* Exploratory data analysis
+
+* slice up phase space:
+    - (ee em mm) x (os ss) x ( #systematics )
+    - (fakeable)
+
+Maybe 
+
+preselection -r presel.hist input.a4 | analysis --higgs 170 -r h170.hist -
+
+
+* different phase space channels
+* systematics & scale systematics
