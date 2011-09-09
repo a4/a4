@@ -1,4 +1,11 @@
 
+Template Event:
+
+- A4TemplateEvent class means: the following message is a template - only the fields
+  set there are available in the following!
+
+------------
+
 
 * Consistenly repeat analysis (repeat analysis)
    -vs-
