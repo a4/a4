@@ -51,6 +51,8 @@ namespace a4{ namespace io{
 
             void startup();
             int read_header();
+            void reset_coded_stream();
+            bool seek(int64_t position, int whence);
 
             bool start_compression(const a4::io::A4StartCompressedSection& cs);
             bool stop_compression(const a4::io::A4EndCompressedSection& cs);

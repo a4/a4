@@ -29,10 +29,12 @@ A4InputStream::A4InputStream(const string &input_file):
     _items_read(0),
     _compressed_in(0),
     _coded_in(0),
+    _fileno(0),
     _inputname(input_file)
 {
     _last_meta_data.reset();
-    _file_in.reset(new FileInputStream(open(input_file.c_str(), O_RDONLY)));
+    _fileno = open(input_file.c_str(), O_RDONLY);
+    _file_in.reset(new FileInputStream(_fileno));
     _raw_in = _file_in;
     startup();
 }
@@ -127,6 +129,19 @@ int A4InputStream::read_header()
     return 0;
 }
 
+bool A4InputStream::seek(int64_t position, int whence) {
+    assert(_fileno != 0);
+    assert(!_compressed_in);
+    delete _coded_in;
+    _file_in.reset();
+    _raw_in.reset();
+    if (lseek(_fileno, position, whence) == (off_t)-1) return false;
+    _file_in.reset(new FileInputStream(_fileno));
+    _raw_in = _file_in;
+    _coded_in = new CodedInputStream(_raw_in.get());
+    _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
+};
+
 bool A4InputStream::start_compression(const A4StartCompressedSection& cs) {
     assert(!_compressed_in);
     delete _coded_in;
@@ -159,7 +174,19 @@ bool A4InputStream::stop_compression(const A4EndCompressedSection& cs) {
     return true;
 }
 
+void A4InputStream::reset_coded_stream() {
+    delete _coded_in;
+    if (_compressed_in) 
+        _coded_in = new CodedInputStream(_compressed_in);
+    else
+        _coded_in = new CodedInputStream(_raw_in.get());
+}
+
 ReadResult A4InputStream::next() {
+
+    static int i = 0;
+    if (i++ % 1000 == 0) reset_coded_stream();
+
     uint32_t size = 0;
     if (!_coded_in->ReadLittleEndian32(&size)) {
         if (_compressed_in && _compressed_in->ByteCount() == 0) {
