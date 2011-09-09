@@ -25,12 +25,14 @@ namespace a4{ namespace io{
                            const std::string description="", 
                            uint32_t content_class_id=0, 
                            uint32_t metadata_class_id=0, 
+                           bool metadata_refers_forward=false,
                            bool compression=true);
             A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream>,
                            const std::string outname="<stream>",
                            const std::string description="", 
                            uint32_t content_class_id=0,
                            uint32_t metadata_class_id=0, 
+                           bool metadata_refers_forward=false,
                            bool compression=true);
             ~A4OutputStream();
 
@@ -55,10 +57,13 @@ namespace a4{ namespace io{
 
             std::string _output_name;
             bool _compression;
+            bool _metadata_refers_forward;
             uint32_t _content_count;
             uint64_t _bytes_written;
             uint32_t _content_class_id;
             uint32_t _metadata_class_id;
+            std::vector<uint64_t> metadata_positions;
+
     };
 
 };};

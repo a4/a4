@@ -29,6 +29,7 @@ A4OutputStream::A4OutputStream(const string &output_file,
                                const string description, 
                                uint32_t content_class_id, 
                                uint32_t metadata_class_id, 
+                               bool metadata_refers_forward,
                                bool compression) :
     _compressed_out(0),
     _coded_out(0),
@@ -37,6 +38,7 @@ A4OutputStream::A4OutputStream(const string &output_file,
     _bytes_written(0),
     _content_class_id(content_class_id),
     _metadata_class_id(metadata_class_id),
+    _metadata_refers_forward(metadata_refers_forward),
     _output_name(output_file)
 {
     _file_out.reset();
@@ -49,6 +51,7 @@ A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream
                            const std::string description, 
                            uint32_t content_class_id,
                            uint32_t metadata_class_id, 
+                           bool metadata_refers_forward,
                            bool compression) :
     _compressed_out(0),
     _coded_out(0),
@@ -57,6 +60,7 @@ A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream
     _bytes_written(0),
     _content_class_id(content_class_id),
     _metadata_class_id(metadata_class_id),
+    _metadata_refers_forward(metadata_refers_forward),
     _output_name(outname)
 {
     _file_out.reset();
@@ -109,7 +113,16 @@ bool A4OutputStream::write(Message &msg)
 bool A4OutputStream::metadata(Message &msg)
 {
     // TODO: Add back-reference to metadata from footer
-    return write(msg);
+    if (_compressed_out) {
+        stop_compression();
+        metadata_positions.push_back(get_bytes_written());
+        bool res = write(msg);
+        start_compression();
+        return res;
+    } else {
+        metadata_positions.push_back(get_bytes_written());
+        return write(msg);
+    }
 }
 
 bool A4OutputStream::start_compression() {
@@ -146,6 +159,7 @@ bool A4OutputStream::write_header(string description) {
     A4StreamHeader header;
     header.set_a4_version(1);
     header.set_description(description);
+    header.set_metadata_refers_forward(_metadata_refers_forward);
     if (_content_class_id != 0)
         header.set_content_class_id(_content_class_id);
     if (_metadata_class_id != 0)
@@ -158,6 +172,9 @@ bool A4OutputStream::write_footer() {
     assert(!_compressed_out);
     A4StreamFooter footer;
     footer.set_size(get_bytes_written());
+    footer.set_metadata_refers_forward(_metadata_refers_forward);
+    for (int i = 0; i < metadata_positions.size(); i++)
+        footer.add_metadata_offsets(metadata_positions[i]);
     if (_content_class_id != 0)
         footer.set_content_count(_content_count);
     write(A4StreamFooter::kCLASSIDFieldNumber, footer);
