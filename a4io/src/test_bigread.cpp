@@ -15,7 +15,9 @@ int main(int argc, char ** argv) {
         bool running = true;
 
         int cnt = 0;
+        uint64_t i = 0;
         while (r.is_good()) {
+            if (i++ % mod == 0) cout << "..."<< i << endl;
             ReadResult rr = r.next();
             if (rr.class_id == TestEvent::kCLASSIDFieldNumber) {
                 auto te = dynamic_shared_cast<TestEvent>(rr.object);
