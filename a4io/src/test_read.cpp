@@ -16,14 +16,17 @@ int main(int argc, char ** argv) {
 
     A4InputStream r(fn);
 
+    int cnt = 0;
     while (r.is_good()) {
         ReadResult rr = r.next();
         if (rr.class_id == TestEvent::kCLASSIDFieldNumber) {
             auto te = static_shared_cast<TestEvent>(rr.object);
-            std::cout << "TestEvent: " << te->event_number() << std::endl;
-        } else if (rr.class_id == TestMetaData::kCLASSIDFieldNumber) {
-            auto meta = static_shared_cast<TestMetaData>(rr.object);
-            std::cout << "TestMetaData: " << meta->meta_data() << std::endl;
+            assert(r.current_metadata());
+            auto md = static_shared_cast<TestMetaData>(r.current_metadata());
+            assert(te->event_number() / 1000 == md->meta_data());
+            //std::cout << "TestEvent: " << te->event_number() << std::endl;
+            cnt++;
         } else if (rr == READ_ERROR) throw "up";
     }
+    return 0;
 }

@@ -40,7 +40,7 @@ namespace a4{ namespace io{
             A4InputStream(const std::string & input_file);
             ~A4InputStream();
 
-            ReadResult next();
+            ReadResult next(bool internal=false);
             bool is_good() {return _is_good;};
             bool new_metadata() { if (_new_metadata) { _new_metadata = false; return true; } else return false;};
             uint64_t items_read() const {return _items_read;};
