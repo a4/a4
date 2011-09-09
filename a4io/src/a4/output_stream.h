@@ -54,6 +54,7 @@ namespace a4{ namespace io{
             bool stop_compression();
 
             uint64_t get_bytes_written();
+            void reset_coded_stream();
 
             std::string _output_name;
             bool _compression;

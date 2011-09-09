@@ -125,6 +125,15 @@ bool A4OutputStream::metadata(Message &msg)
     }
 }
 
+void A4OutputStream::reset_coded_stream() {
+    _bytes_written += _coded_out->ByteCount();
+    delete _coded_out;
+    if (_compressed_out) 
+        _coded_out = new CodedOutputStream(_compressed_out);
+    else
+        _coded_out = new CodedOutputStream(_raw_out.get());
+}
+
 bool A4OutputStream::start_compression() {
     if (_compressed_out) return false;
     A4StartCompressedSection cs_header;
@@ -185,6 +194,8 @@ bool A4OutputStream::write_footer() {
 
 bool A4OutputStream::write(uint32_t class_id, Message &msg)
 {
+    if (_coded_out->ByteCount() > 100000000) reset_coded_stream();
+
     string message;
     if (!msg.SerializeToString(&message))
         return false;
