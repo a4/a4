@@ -1,7 +1,7 @@
 #ifndef _A4_STREAM_H_
 #define _A4_STREAM_H_
 
-#define _FILE_OFFSET_BITS 64
+
 
 #include <a4/a4io_config.h>
 #include <google/protobuf/message.h>

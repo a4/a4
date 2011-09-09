@@ -1,9 +1,11 @@
+#define _FILE_OFFSET_BITS 64
+
 #include <math.h>
 #include <iostream>
 #include <sys/types.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/io/coded_stream.h>
@@ -15,8 +17,6 @@
 #include "a4/input_stream.h"
 #include "gzip_stream.h"
 
-const uint32_t HIGH_BIT = 1<<31;
-
 using std::string;
 using std::cerr;
 using std::endl;
@@ -25,14 +25,20 @@ using google::protobuf::io::FileInputStream;
 using google::protobuf::io::CodedInputStream;
 using namespace a4::io;
 
+const string START_MAGIC = "A4STREAM";
+const string END_MAGIC = "KTHXBYE4";
+const uint32_t HIGH_BIT = 1<<31;
+
+
 A4InputStream::A4InputStream(const string &input_file):
     _items_read(0),
     _compressed_in(0),
     _coded_in(0),
     _fileno(0),
-    _inputname(input_file)
+    _inputname(input_file),
+    _new_metadata(false)
 {
-    _last_meta_data.reset();
+    _current_metadata.reset();
     _fileno = open(input_file.c_str(), O_RDONLY);
     _file_in.reset(new FileInputStream(_fileno));
     _raw_in = _file_in;
@@ -43,15 +49,18 @@ A4InputStream::A4InputStream(shared<ZeroCopyInputStream> in, std::string name):
     _items_read(0),
     _compressed_in(0),
     _coded_in(0),
-    _inputname(name)
+    _inputname(name),
+    _new_metadata(false)
 {
     _file_in.reset();
     _raw_in = in;
-    _last_meta_data.reset();
+    _current_metadata.reset();
     startup();
 }
 
 void A4InputStream::startup() {
+    _current_metadata_refers_forward = false;
+
     _coded_in = new CodedInputStream(_raw_in.get());
 
     // Push limit of read bytes
@@ -68,6 +77,7 @@ void A4InputStream::startup() {
     } else if (rh == -1) {
         std::cerr << "ERROR - a4::io:A4InputStream - Header corrupted!" << std::endl; 
     } else _is_good = true;
+    _current_header_index = 0;
 }
 
 A4InputStream::~A4InputStream() {
@@ -79,13 +89,11 @@ A4InputStream::~A4InputStream() {
 
 int A4InputStream::read_header()
 {
-    //uint64_t header_position = _coded_in->tell();
-
     string magic;
     if (!_coded_in->ReadString(&magic, 8))
         return -2;
 
-    if (0 != magic.compare("A4STREAM"))
+    if (0 != magic.compare(START_MAGIC))
         return -1;
 
     uint32_t size = 0;
@@ -126,20 +134,82 @@ int A4InputStream::read_header()
         _content_class_id = 0;
     };
 
+    _current_metadata_refers_forward = h.metadata_refers_forward();
+    if (!_current_metadata_refers_forward && !_discovery_complete) {
+        if (!_file_in) {
+            std::cerr << "ERROR - a4::io:A4InputStream - Cannot read reverse metadata from non-seekable stream!" << std::endl;
+            _is_good = false;
+        } else if (!discover_all_metadata()) {
+            std::cerr << "ERROR - a4::io:A4InputStream - Failed to discover metadata - file corrupted?" << std::endl;
+            _is_good = false;
+        }
+    }
     return 0;
 }
 
-bool A4InputStream::seek(int64_t position, int whence) {
+bool A4InputStream::discover_all_metadata() {
+    assert(_metadata_per_header.size() == 0);
+
+    int64_t size = 0;
+
+    while (true) {
+        if (seek(-size - sizeof(END_MAGIC), SEEK_END) == -1) return false;
+        string magic;
+        if (!_coded_in->ReadString(&magic, 8)) {
+            std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file during scan!" << std::endl; 
+            return false;
+        }
+        if (seek(-size - sizeof(END_MAGIC) - 4, SEEK_END) == -1) return false;
+
+        uint32_t footer_size = 0;
+        if (!_coded_in->ReadLittleEndian32(&footer_size)) return false;
+        uint32_t footer_msgsize  = sizeof(END_MAGIC) + 4 + footer_size + 8;
+        uint64_t footer_start = - size - footer_msgsize;
+        uint64_t footer_abs_start = seek(footer_start, SEEK_END);
+        if (footer_abs_start == -1) return false;
+        ReadResult rr = next();
+        if (rr.class_id != A4StreamFooter::kCLASSIDFieldNumber) {
+            std::cerr << "ERROR - a4::io:A4InputStream - Unknown footer class_id " << rr.class_id << std::endl;
+            return false;
+        }
+        auto footer = static_shared_cast<A4StreamFooter>(rr.object);
+        size += footer->size() + footer_msgsize;
+
+        std::vector<shared<Message>> _this_headers_metadata;
+        auto offsets = footer->metadata_offsets();
+        for (auto offset = offsets.begin(), end = offsets.end(); offset != end; offset++) {
+            uint64_t metadata_start = footer_abs_start - footer->size() + *offset;
+            seek(metadata_start, SEEK_SET);
+            ReadResult rr = next();
+            if (rr.class_id != _metadata_class_id) {
+                std::cerr << "ERROR - a4::io:A4InputStream - class_id is not metadata class_id: "
+                          << rr.class_id << " != " << _metadata_class_id << std::endl;
+                return false;
+            }
+            _this_headers_metadata.push_back(rr.object);
+        }
+        _metadata_per_header.push_front(_this_headers_metadata);
+
+        uint64_t tell = seek(-size, SEEK_END);
+        if (tell == -1) return false;
+        if (tell == 0) break;
+    }
+    _discovery_complete = true;
+}
+
+int64_t A4InputStream::seek(int64_t position, int whence) {
     assert(_fileno != 0);
     assert(!_compressed_in);
     delete _coded_in;
     _file_in.reset();
     _raw_in.reset();
-    if (lseek(_fileno, position, whence) == (off_t)-1) return false;
+    int64_t pos = lseek(_fileno, position, whence);
+    if (pos != (off_t)-1) return -1;
     _file_in.reset(new FileInputStream(_fileno));
     _raw_in = _file_in;
     _coded_in = new CodedInputStream(_raw_in.get());
     _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
+    return pos;
 };
 
 bool A4InputStream::start_compression(const A4StartCompressedSection& cs) {
@@ -261,7 +331,7 @@ ReadResult A4InputStream::next() {
             _is_good = false;
             return READ_ERROR;
         }
-        if (0 != magic.compare("KTHXBYE4")) {
+        if (0 != magic.compare(END_MAGIC)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Corrupt footer! Read: "<< magic << std::endl; 
             _is_good = false;
             return READ_ERROR;
@@ -278,6 +348,13 @@ ReadResult A4InputStream::next() {
             std::cerr << "ERROR - a4::io:A4InputStream - Corrupt header!" << std::endl; 
             _is_good = false;
             return READ_ERROR;
+        }
+        _current_header_index++;
+        _current_metadata.reset();
+        if (!_current_metadata_refers_forward) {
+            _current_metadata_index = 0;
+            if (_metadata_per_header[_current_header_index].size() > 0)
+                _current_metadata = _metadata_per_header[_current_header_index][0];
         }
         return next();
     } else if (message_type == A4StreamHeader::kCLASSIDFieldNumber) {
@@ -299,7 +376,16 @@ ReadResult A4InputStream::next() {
         }
         return next();
     } else if (message_type == _metadata_class_id) {
-        _last_meta_data = item;
+        if (_current_metadata_refers_forward) {
+            _current_metadata = item;
+        } else {
+            _current_metadata_index++;
+            _current_metadata.reset();
+            if (_metadata_per_header[_current_header_index].size() > _current_metadata_index)
+                _current_metadata = _metadata_per_header[_current_header_index][_current_metadata_index];
+        }
+        _new_metadata = true;
+        return next();
     }
     return ReadResult(message_type, item);
 }
