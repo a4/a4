@@ -361,6 +361,7 @@ ReadResult A4InputStream::next(bool internal) {
             _is_good = false;
             return END_OF_STREAM;
         }
+        _current_header_index++;
         rh = read_header();
         if (rh == -2) {
             _is_good = false;
@@ -370,7 +371,7 @@ ReadResult A4InputStream::next(bool internal) {
             _is_good = false;
             return READ_ERROR;
         }
-        _current_header_index++;
+
         _current_metadata.reset();
         if (!_current_metadata_refers_forward) {
             _current_metadata_index = 0;
