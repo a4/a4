@@ -289,7 +289,7 @@ ReadResult A4InputStream::next(bool internal) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file or corruption [0]!" << std::endl; 
         }
         _is_good = false;
-        return READ_ERROR;
+        return ReadResult(true); // read error;
     }
 
     uint32_t message_type = _content_class_id;
@@ -298,12 +298,12 @@ ReadResult A4InputStream::next(bool internal) {
         if (!_coded_in->ReadLittleEndian32(&message_type)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [1]!" << std::endl; 
             _is_good = false;
-            return READ_ERROR;
+            return ReadResult(true); // read error;
         }
     } else if (message_type == 0) {
         std::cerr << "ERROR - a4::io:A4InputStream - Default Object found while no default type is set!" << std::endl; 
         _is_good = false;
-        return READ_ERROR;
+        return ReadResult(true); // read error;
     }
 
     string magic;
@@ -316,7 +316,7 @@ ReadResult A4InputStream::next(bool internal) {
         if (!item) {
             std::cerr << "ERROR - a4::io:A4InputStream - Failure to parse Item!" << std::endl;
             _is_good = false;
-            return READ_ERROR;
+            return ReadResult(true); // read error;
         }
         ++_items_read;
         return ReadResult(message_type, item);
@@ -328,7 +328,7 @@ ReadResult A4InputStream::next(bool internal) {
         if (!_coded_in->Skip(size)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Read error while skipping unknown message!"  << std::endl;
             _is_good = false;
-            return READ_ERROR;
+            return ReadResult(true); // read error;
         }
         return next();
     }
@@ -338,7 +338,7 @@ ReadResult A4InputStream::next(bool internal) {
     if (!item) {
         std::cerr << "ERROR - a4::io:A4InputStream - Failure to parse object!" << std::endl;
         _is_good = false;
-        return READ_ERROR;
+        return ReadResult(true); // read error;
     }
     
     if (internal) return ReadResult(message_type, item);
@@ -350,31 +350,31 @@ ReadResult A4InputStream::next(bool internal) {
         if (!_coded_in->ReadLittleEndian32(&size)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [3]!" << std::endl; 
             _is_good = false;
-            return READ_ERROR;
+            return ReadResult(true); // read error;
         }
         if (!_coded_in->ReadString(&magic, 8)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [4]!" << std::endl; 
             _is_good = false;
-            return READ_ERROR;
+            return ReadResult(true); // read error;
         }
         if (0 != magic.compare(END_MAGIC)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Corrupt footer! Read: "<< magic << std::endl; 
             _is_good = false;
-            return READ_ERROR;
+            return ReadResult(true); // read error;
         }
         if (_coded_in->ExpectAtEnd()) {
             _is_good = false;
-            return END_OF_STREAM;
+            return ReadResult();
         }
         _current_header_index++;
         rh = read_header();
         if (rh == -2) {
             _is_good = false;
-            return END_OF_STREAM;
+            return ReadResult();
         } else if (rh == -1) {
             std::cerr << "ERROR - a4::io:A4InputStream - Corrupt header!" << std::endl; 
             _is_good = false;
-            return READ_ERROR;
+            return ReadResult(true); // read error;
         }
 
         _current_metadata.reset();
@@ -388,18 +388,18 @@ ReadResult A4InputStream::next(bool internal) {
         // should not happen???
         std::cerr << "ERROR - a4::io:A4InputStream - Unexpected header!" << std::endl; 
         _is_good = false;
-        return READ_ERROR;
+        return ReadResult(true); // read error;
         //return read_item(item);
     } else if (message_type == A4StartCompressedSection::kCLASSIDFieldNumber) {
         if (!start_compression(*static_cast<A4StartCompressedSection*>(item.get()))) {
             _is_good = false;
-            return READ_ERROR;
+            return ReadResult(true); // read error;
         }
         return next();
     } else if (message_type == A4EndCompressedSection::kCLASSIDFieldNumber) {
         if (!stop_compression(*static_cast<A4EndCompressedSection*>(item.get()))) {
             _is_good = false;
-            return READ_ERROR;
+            return ReadResult(true); // read error;
         }
         return next();
     } else if (message_type == _metadata_class_id) {

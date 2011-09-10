@@ -24,15 +24,33 @@ namespace a4{ namespace io{
     class A4StartCompressedSection;
     class A4EndCompressedSection;
 
-    typedef struct RR {
-        RR(uint32_t cls, shared<Message> obj) : class_id(cls), object(obj) {};
-        uint32_t class_id;
-        shared<Message> object;
-        bool operator==(const RR & rhs) {return rhs.class_id==class_id && rhs.object==object;}
-    } ReadResult;
-    const ReadResult END_OF_STREAM = {0, shared<Message>()};
-    const ReadResult READ_ERROR = {1, shared<Message>()};
 
+    /// Return structure for the InputStream
+
+    /// If rr.error() is true the stream broke, if
+    /// rr.end() the stream has terminated correctly.
+    /// Contains a tuple (class_id, shared protobuf message)
+    typedef struct ReadResult {
+        /// Construct ReadResult that signifies end of stream or stream error
+        ReadResult(bool error=false) { if (error) class_id = 1; else class_id = 0; object.reset(); };
+        /// Construct normal ReadResult with class_id and protobuf Message
+        ReadResult(uint32_t cls, shared<Message> obj) : class_id(cls), object(obj) {};
+        /// Class ID of the message read
+        uint32_t class_id;
+        /// shared protobuf message 
+        shared<Message> object;
+        /// true if an error occurred
+        bool error() const {return class_id == 1; };
+        /// true if the stream has terminated correctly
+        bool end() const {return class_id == 0; };
+    } ReadResult;
+
+
+    /// A4 Input Stream - reads protobuf messages from file
+
+    /// A stream has "content objects" (aka events) and metadata.
+    /// Get the next non-metadata object by calling next(),
+    /// after that you can get the current_metadata()
     class A4InputStream
     {
         public:

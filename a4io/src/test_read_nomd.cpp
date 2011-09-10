@@ -23,7 +23,7 @@ int main(int argc, char ** argv) {
             auto te = static_shared_cast<TestEvent>(rr.object);
             //std::cout << "TestEvent: " << te->event_number() << std::endl;
             cnt++;
-        } else if (rr == READ_ERROR) throw "up";
+        } else if (rr.error()) throw "up";
     }
     return 0;
 }

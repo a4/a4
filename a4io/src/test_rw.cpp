@@ -31,7 +31,7 @@ int main(int argc, char ** argv) {
             if (rr.class_id == TestEvent::kCLASSIDFieldNumber) {
                 auto te = dynamic_shared_cast<TestEvent>(rr.object);
                 assert(cnt++ == te->event_number());
-            } else if (rr == READ_ERROR) throw "AJS";
+            } else if (rr.error()) throw "AJS";
         }
     }
 }
