@@ -83,9 +83,10 @@ installcheck-local: python/test_pyrw test_read test_write_fw test_write_bw
 	source $(bindir)/this_a4.sh && $(PYTHON) -c 'from a4.A4Stream import test_read; import sys; sys.exit(test_read("test_fwbw.a4",2000))'
 	source $(bindir)/this_a4.sh && $(PYTHON) -c 'from a4.A4Stream import test_read; import sys; sys.exit(test_read("test_bwfw.a4",2000))'
 	source $(bindir)/this_a4.sh && $(PYTHON) -c 'from a4.A4Stream import test_read; import sys; sys.exit(test_read("test_bwbw.a4",2000))'
-	rm test_fw.a4 test_bw.a4 test_fwfw.a4 test_bwfw.a4 test_fwbw.a4 test_bwbw.a4
-	rm pytest_fw.a4 pytest_bw.a4 pytest_fwfw.a4 pytest_bwfw.a4 pytest_fwbw.a4 pytest_bwbw.a4
-	rm test_rw.a4
+	rm -f test_fw.a4 test_bw.a4 test_fwfw.a4 test_bwfw.a4 test_fwbw.a4 test_bwbw.a4
+	rm -f pytest_fw.a4 pytest_bw.a4 pytest_fwfw.a4 pytest_bwfw.a4 pytest_fwbw.a4 pytest_bwbw.a4
+	rm -f test_rw.a4
+	rm -f test_nomd_fw.a4 test_nomd_bw.a4
 
 
 
