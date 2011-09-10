@@ -32,36 +32,38 @@ const int END_MAGIC_len = 8;
 const uint32_t HIGH_BIT = 1<<31;
 
 
-A4InputStream::A4InputStream(const string &input_file):
-    _items_read(0),
-    _compressed_in(0),
-    _coded_in(0),
-    _fileno(0),
-    _inputname(input_file),
-    _new_metadata(false)
-{
-    _current_metadata.reset();
+A4InputStream::A4InputStream(const string &input_file) {
     _fileno = open(input_file.c_str(), O_RDONLY);
     _file_in.reset(new FileInputStream(_fileno));
     _raw_in = _file_in;
+    _inputname = input_file;
     startup();
 }
 
-A4InputStream::A4InputStream(shared<ZeroCopyInputStream> in, std::string name):
-    _items_read(0),
-    _compressed_in(0),
-    _coded_in(0),
-    _inputname(name),
-    _new_metadata(false)
-{
+A4InputStream::A4InputStream(shared<ZeroCopyInputStream> in, std::string name) {
+    _fileno = 0;
     _file_in.reset();
     _raw_in = in;
-    _current_metadata.reset();
+    _inputname = name;
     startup();
 }
 
 void A4InputStream::startup() {
+    // Initialize to defined state
+    _compressed_in = NULL;
+    _coded_in = NULL;
+    _is_good = false;
+    _new_metadata = false;
+    _discovery_complete = false;
+    _items_read = 0;
+    _content_class_id = 0;
+    _metadata_class_id = 0;
+    _content_func = NULL;
+    _current_metadata.reset();
     _current_metadata_refers_forward = false;
+    _current_header_index = 0;
+    _current_metadata_index = 0;
+
 
     _coded_in = new CodedInputStream(_raw_in.get());
 
@@ -154,9 +156,12 @@ int A4InputStream::read_header()
             _is_good = false;
         }
         _current_metadata_index = 0;
-        if (_metadata_per_header[_current_header_index].size() > 0)
+        if (_metadata_per_header[_current_header_index].size() > 0) {
             _current_metadata = _metadata_per_header[_current_header_index][0];
+            _new_metadata = true;
+        }
     }
+
     return 0;
 }
 

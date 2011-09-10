@@ -31,18 +31,14 @@ A4OutputStream::A4OutputStream(const string &output_file,
                                uint32_t metadata_class_id, 
                                bool metadata_refers_forward,
                                bool compression) :
-    _compressed_out(0),
-    _coded_out(0),
-    _compression(compression),
-    _content_count(0),
-    _bytes_written(0),
     _content_class_id(content_class_id),
     _metadata_class_id(metadata_class_id),
     _metadata_refers_forward(metadata_refers_forward),
+    _compression(compression),
     _output_name(output_file)
 {
-    _file_out.reset();
-    _raw_out.reset(new FileOutputStream(open(output_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)));
+    _file_out.reset(new FileOutputStream(open(output_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)));
+    _raw_out = _file_out;
     startup(description);
 }
 
@@ -53,14 +49,10 @@ A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream
                            uint32_t metadata_class_id, 
                            bool metadata_refers_forward,
                            bool compression) :
-    _compressed_out(0),
-    _coded_out(0),
-    _compression(compression),
-    _content_count(0),
-    _bytes_written(0),
     _content_class_id(content_class_id),
     _metadata_class_id(metadata_class_id),
     _metadata_refers_forward(metadata_refers_forward),
+    _compression(compression),
     _output_name(outname)
 {
     _file_out.reset();
@@ -82,6 +74,10 @@ A4OutputStream::~A4OutputStream()
 }
 
 void A4OutputStream::startup(std::string description) {
+    _compressed_out = NULL;
+    _content_count = 0;
+    _bytes_written = 0;
+
     _coded_out = new CodedOutputStream(_raw_out.get());
     write_header(description);
     if (_compression) start_compression();
