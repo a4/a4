@@ -16,8 +16,6 @@ namespace google{ namespace protobuf{
 
 namespace a4{ namespace io{
 
-    using google::protobuf::Message;
-
     class A4OutputStream
     {
         public:
@@ -36,8 +34,8 @@ namespace a4{ namespace io{
                            bool compression=true);
             ~A4OutputStream();
 
-            bool write(Message& m);
-            bool metadata(Message& m);
+            bool write(google::protobuf::Message& m);
+            bool metadata(google::protobuf::Message& m);
 
         private:
             shared<google::protobuf::io::ZeroCopyOutputStream> _raw_out;

@@ -100,13 +100,13 @@ uint64_t A4OutputStream::get_bytes_written() {
     return size;
 }
 
-bool A4OutputStream::write(Message &msg)
+bool A4OutputStream::write(google::protobuf::Message &msg)
 {
     uint32_t class_id = msg.GetDescriptor()->FindFieldByName("CLASS_ID")->number();
     return write(class_id, msg);
 }
 
-bool A4OutputStream::metadata(Message &msg)
+bool A4OutputStream::metadata(google::protobuf::Message &msg)
 {
     // TODO: Add back-reference to metadata from footer
     if (_compressed_out) {
@@ -188,7 +188,7 @@ bool A4OutputStream::write_footer() {
     return true;
 }
 
-bool A4OutputStream::write(uint32_t class_id, Message &msg)
+bool A4OutputStream::write(uint32_t class_id, google::protobuf::Message &msg)
 {
     if (_coded_out->ByteCount() > 100000000) reset_coded_stream();
 

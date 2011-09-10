@@ -24,7 +24,6 @@ namespace a4{ namespace io{
     class A4StartCompressedSection;
     class A4EndCompressedSection;
 
-
     /// Return structure for the InputStream
 
     /// If rr.error() is true the stream broke, if
@@ -55,13 +54,18 @@ namespace a4{ namespace io{
     {
         public:
             A4InputStream(shared<google::protobuf::io::ZeroCopyInputStream>, std::string name);
+            /// Open the file @input_file for reading
             A4InputStream(const std::string & input_file);
             ~A4InputStream();
 
+            /// Read the next message from the stream
             ReadResult next(bool internal=false);
+            /// True if the stream can be read from
             bool is_good() {return _is_good;};
+            /// True if new metadata has appeared since the last call to this function
             bool new_metadata() { if (_new_metadata) { _new_metadata = false; return true; } else return false;};
             uint64_t items_read() const {return _items_read;};
+            /// Return a shared pointer to the current metadata message
             const shared<Message> current_metadata() {return _current_metadata; };
 
         private:

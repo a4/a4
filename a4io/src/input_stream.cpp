@@ -40,7 +40,7 @@ A4InputStream::A4InputStream(const string &input_file) {
     startup();
 }
 
-A4InputStream::A4InputStream(shared<ZeroCopyInputStream> in, std::string name) {
+A4InputStream::A4InputStream(shared< google::protobuf::io::ZeroCopyInputStream> in, std::string name) {
     _fileno = 0;
     _file_in.reset();
     _raw_in = in;
