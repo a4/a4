@@ -9,11 +9,11 @@ SUBDIRS+=a4io a4process
 
 doxygen-user:
 	mkdir -p doc
-	srcdir=$(srcdir) builddir=$(builddir) doxygen $(srcdir)/doc/a4_user.doxygen
+	srcdir=$(srcdir) builddir=$(builddir) doxygen $(srcdir)/doc/user.doxygen
 
 doxygen-dev:
 	mkdir -p doc
-	srcdir=$(srcdir) builddir=$(builddir) doxygen $(srcdir)/doc/a4_dev.doxygen
+	srcdir=$(srcdir) builddir=$(builddir) doxygen $(srcdir)/doc/dev.doxygen
 
 doc: doxygen-user doxygen-dev
 	echo "generated user and developer docs"
