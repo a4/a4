@@ -5,7 +5,7 @@ SUBDIRS=
 include $(srcdir)/m4/protobuf.am
 include $(srcdir)/m4/a4.am
 
-SUBDIRS+=a4io a4process
+SUBDIRS+=a4io
 
 doxygen-user:
 	mkdir -p doc
