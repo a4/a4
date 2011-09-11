@@ -9,7 +9,7 @@ this_a4.sh: this_a4.sh.in
 
 install-exec-hook:
 	cd $(DESTDIR)$(bindir) && \
-	$(LN_S) `which $(PYTHON)` python || true
+	if ! test -e python; then $(LN_S) `which $(PYTHON)` python; fi
 
 bin_SCRIPTS = this_a4.sh
 EXTRA_DIST = this_a4.sh.in
