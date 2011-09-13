@@ -59,7 +59,6 @@ void A4InputStream::startup() {
     _content_class_id = 0;
     _metadata_class_id = 0;
     _content_func = NULL;
-    _current_metadata.reset();
     _current_metadata_refers_forward = false;
     _current_header_index = 0;
     _current_metadata_index = 0;
@@ -187,26 +186,26 @@ bool A4InputStream::discover_all_metadata() {
         uint64_t footer_start = - size - footer_msgsize;
         uint64_t footer_abs_start = seek(footer_start, SEEK_END);
         if (footer_abs_start == -1) return false;
-        ReadResult rr = next(true);
-        if (rr.class_id != A4StreamFooter::kCLASSIDFieldNumber) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Unknown footer class_id " << rr.class_id << std::endl;
+        A4Message msg = next(true);
+        if (!msg.is<A4StreamFooter>) {
+            std::cerr << "ERROR - a4::io:A4InputStream - Unknown footer class_id " << msg.class_id << std::endl;
             return false;
         }
-        auto footer = static_shared_cast<A4StreamFooter>(rr.object);
+        auto footer = msg.as<A4StreamFooter>();
         size += footer->size() + footer_msgsize;
 
-        std::vector<shared<Message>> _this_headers_metadata;
+        std::vector<A4Message> _this_headers_metadata;
         auto offsets = footer->metadata_offsets();
         for (auto offset = offsets.begin(), end = offsets.end(); offset != end; offset++) {
             uint64_t metadata_start = footer_abs_start - footer->size() + *offset;
             if (seek(metadata_start, SEEK_SET) == -1) return false;
-            ReadResult rr = next(true);
-            if (rr.class_id != _metadata_class_id) {
+            A4Message msg = next(true);
+            if (msg.class_id != _metadata_class_id) {
                 std::cerr << "ERROR - a4::io:A4InputStream - class_id is not metadata class_id: "
-                          << rr.class_id << " != " << _metadata_class_id << std::endl;
+                          << msg.class_id << " != " << _metadata_class_id << std::endl;
                 return false;
             }
-            _this_headers_metadata.push_back(rr.object);
+            _this_headers_metadata.push_back(msg);
         }
         _metadata_per_header.push_front(_this_headers_metadata);
 
@@ -276,7 +275,7 @@ void A4InputStream::reset_coded_stream() {
         _coded_in = new CodedInputStream(_raw_in.get());
 }
 
-ReadResult A4InputStream::next(bool internal) {
+A4Message A4InputStream::next(bool internal) {
 
     static int i = 0;
     if (i++ % 1000 == 0) reset_coded_stream();
@@ -289,7 +288,7 @@ ReadResult A4InputStream::next(bool internal) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file or corruption [0]!" << std::endl; 
         }
         _is_good = false;
-        return ReadResult(true); // read error;
+        return A4Message(true); // read error;
     }
 
     uint32_t message_type = _content_class_id;
@@ -298,12 +297,12 @@ ReadResult A4InputStream::next(bool internal) {
         if (!_coded_in->ReadLittleEndian32(&message_type)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [1]!" << std::endl; 
             _is_good = false;
-            return ReadResult(true); // read error;
+            return A4Message(true); // read error;
         }
     } else if (message_type == 0) {
         std::cerr << "ERROR - a4::io:A4InputStream - Default Object found while no default type is set!" << std::endl; 
         _is_good = false;
-        return ReadResult(true); // read error;
+        return A4Message(true); // read error;
     }
 
     string magic;
@@ -316,10 +315,10 @@ ReadResult A4InputStream::next(bool internal) {
         if (!item) {
             std::cerr << "ERROR - a4::io:A4InputStream - Failure to parse Item!" << std::endl;
             _is_good = false;
-            return ReadResult(true); // read error;
+            return A4Message(true); // read error;
         }
         ++_items_read;
-        return ReadResult(message_type, item);
+        return A4Message(message_type, item);
     }
 
     internal::from_stream_func from_stream = internal::all_class_ids(message_type);
@@ -328,7 +327,7 @@ ReadResult A4InputStream::next(bool internal) {
         if (!_coded_in->Skip(size)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Read error while skipping unknown message!"  << std::endl;
             _is_good = false;
-            return ReadResult(true); // read error;
+            return A4Message(true); // read error;
         }
         return next();
     }
@@ -338,10 +337,10 @@ ReadResult A4InputStream::next(bool internal) {
     if (!item) {
         std::cerr << "ERROR - a4::io:A4InputStream - Failure to parse object!" << std::endl;
         _is_good = false;
-        return ReadResult(true); // read error;
+        return A4Message(true); // read error;
     }
     
-    if (internal) return ReadResult(message_type, item);
+    if (internal) return A4Message(message_type, item);
         
     if (message_type == A4StreamFooter::kCLASSIDFieldNumber) {
         // TODO: Process footer
@@ -350,31 +349,31 @@ ReadResult A4InputStream::next(bool internal) {
         if (!_coded_in->ReadLittleEndian32(&size)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [3]!" << std::endl; 
             _is_good = false;
-            return ReadResult(true); // read error;
+            return A4Message(true); // read error;
         }
         if (!_coded_in->ReadString(&magic, 8)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [4]!" << std::endl; 
             _is_good = false;
-            return ReadResult(true); // read error;
+            return A4Message(true); // read error;
         }
         if (0 != magic.compare(END_MAGIC)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Corrupt footer! Read: "<< magic << std::endl; 
             _is_good = false;
-            return ReadResult(true); // read error;
+            return A4Message(true); // read error;
         }
         if (_coded_in->ExpectAtEnd()) {
             _is_good = false;
-            return ReadResult();
+            return A4Message();
         }
         _current_header_index++;
         rh = read_header();
         if (rh == -2) {
             _is_good = false;
-            return ReadResult();
+            return A4Message();
         } else if (rh == -1) {
             std::cerr << "ERROR - a4::io:A4InputStream - Corrupt header!" << std::endl; 
             _is_good = false;
-            return ReadResult(true); // read error;
+            return A4Message(true); // read error;
         }
 
         _current_metadata.reset();
@@ -388,23 +387,23 @@ ReadResult A4InputStream::next(bool internal) {
         // should not happen???
         std::cerr << "ERROR - a4::io:A4InputStream - Unexpected header!" << std::endl; 
         _is_good = false;
-        return ReadResult(true); // read error;
+        return A4Message(true); // read error;
         //return read_item(item);
     } else if (message_type == A4StartCompressedSection::kCLASSIDFieldNumber) {
         if (!start_compression(*static_cast<A4StartCompressedSection*>(item.get()))) {
             _is_good = false;
-            return ReadResult(true); // read error;
+            return A4Message(true); // read error;
         }
         return next();
     } else if (message_type == A4EndCompressedSection::kCLASSIDFieldNumber) {
         if (!stop_compression(*static_cast<A4EndCompressedSection*>(item.get()))) {
             _is_good = false;
-            return ReadResult(true); // read error;
+            return A4Message(true); // read error;
         }
         return next();
     } else if (message_type == _metadata_class_id) {
         if (_current_metadata_refers_forward) {
-            _current_metadata = item;
+            _current_metadata = A4Message(_metadata_class_id, item);
         } else {
             _current_metadata_index++;
             _current_metadata.reset();
@@ -414,6 +413,6 @@ ReadResult A4InputStream::next(bool internal) {
         _new_metadata = true;
         return next();
     }
-    return ReadResult(message_type, item);
+    return A4Message(message_type, item);
 }
 

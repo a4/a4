@@ -24,32 +24,44 @@ namespace a4{ namespace io{
     class A4StartCompressedSection;
     class A4EndCompressedSection;
 
-    /// Return structure for the InputStream
+    /// Wrapped message returned from the InputStream
 
     /// If rr.error() is true the stream broke, if
     /// rr.end() the stream has terminated correctly.
     /// Contains a tuple (class_id, shared protobuf message)
-    typedef struct ReadResult {
-        /// Construct ReadResult that signifies end of stream or stream error
-        ReadResult(bool error=false) { if (error) class_id = 1; else class_id = 0; object.reset(); };
-        /// Construct normal ReadResult with class_id and protobuf Message
-        ReadResult(uint32_t cls, shared<Message> obj) : class_id(cls), object(obj) {};
+    typedef struct A4Message {
+        /// Construct A4Message that signifies end of stream or stream error
+        A4Message(bool error=false) { if (error) class_id = 1; else class_id = 0; message.reset(); };
+        /// Construct normal A4Message with class_id and protobuf Message
+        A4Message(uint32_t cls, shared<Message> msg) : class_id(cls), message(msg) {};
         /// Class ID of the message read
         uint32_t class_id;
         /// shared protobuf message 
-        shared<Message> object;
+        shared<Message> message;
         /// true if an error occurred
         bool error() const {return class_id == 1; };
         /// true if the stream has terminated correctly
         bool end() const {return class_id == 0; };
-    } ReadResult;
+        /// Check if the class ID matches
+        /** example: if (result.is<TestEvent>()) ... */
+        template <class T>
+        bool is() const { return T::kCLASSIDFieldNumber == class_id; };
+        /// Check if the class ID matches and return the message, otherwise NULL
+        /** example: auto event = result.as<MyEvent>() */
+        template <class T>
+        shared<T> as() const {
+            if (not is<T>()) return shared<T>(); 
+            else return static_shared_cast<T>(message);
+        }
+    } A4Message;
 
 
     /// A4 Input Stream - reads protobuf messages from file
 
-    /// A stream has "content objects" (aka events) and metadata.
-    /// Get the next non-metadata object by calling next(),
-    /// after that you can get the current_metadata()
+    /// A stream has "content message" (aka events) and metadata.
+    /// Get the next non-metadata message by calling next(),
+    /// after that you can get the current_metadata().
+    /// 
     class A4InputStream
     {
         public:
@@ -59,7 +71,8 @@ namespace a4{ namespace io{
             ~A4InputStream();
 
             /// Read the next message from the stream
-            ReadResult next(bool internal=false);
+            A4Message next(bool internal=false);
+            const A4Message current_metadata() {return _current_metadata; };
             /// True if the stream can be read from
             bool is_good() {return _is_good;};
             /// True if new metadata has appeared since the last call to this function
@@ -90,13 +103,13 @@ namespace a4{ namespace io{
             uint32_t _content_class_id;
             uint32_t _metadata_class_id;
             internal::from_stream_func _content_func;
-            shared<Message> _current_metadata;
+            A4Message _current_metadata;
 
             bool _current_metadata_refers_forward;
 
             int _current_header_index;
             int _current_metadata_index;
-            std::deque<std::vector<shared<Message>>> _metadata_per_header;
+            std::deque<std::vector<A4Message>> _metadata_per_header;
 
     };
 };};

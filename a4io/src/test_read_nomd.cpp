@@ -18,7 +18,7 @@ int main(int argc, char ** argv) {
 
     int cnt = 0;
     while (r.is_good()) {
-        ReadResult rr = r.next();
+        A4Message rr = r.next();
         if (rr.class_id == TestEvent::kCLASSIDFieldNumber) {
             auto te = static_shared_cast<TestEvent>(rr.object);
             //std::cout << "TestEvent: " << te->event_number() << std::endl;

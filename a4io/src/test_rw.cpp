@@ -27,7 +27,7 @@ int main(int argc, char ** argv) {
         A4InputStream r("test_rw.a4");
         int cnt = 0;
         while (r.is_good()) {
-            ReadResult rr = r.next();
+            A4Message rr = r.next();
             if (rr.class_id == TestEvent::kCLASSIDFieldNumber) {
                 auto te = dynamic_shared_cast<TestEvent>(rr.object);
                 assert(cnt++ == te->event_number());
