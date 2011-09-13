@@ -22,16 +22,17 @@ int main(int argc, char ** argv) {
         TestMetaData m;
         m.set_meta_data(N);
         w.metadata(m);
+
     }
     {
         A4InputStream r("test_rw.a4");
         int cnt = 0;
-        while (r.is_good()) {
-            A4Message rr = r.next();
-            if (rr.class_id == TestEvent::kCLASSIDFieldNumber) {
-                auto te = dynamic_shared_cast<TestEvent>(rr.object);
+        while (auto rr = r.next()) {
+            if (auto te = rr.as<TestEvent>()) {
                 assert(cnt++ == te->event_number());
-            } else if (rr.error()) throw "AJS";
+            }
         }
+        if (r.error()) throw "AJS";
     }
+    return 0;
 }

@@ -24,17 +24,16 @@ int main(int argc, char ** argv) {
         w.metadata(m);
     }
     {
-        A4InputStream r("test.a4");
+        A4InputStream stream("test.a4");
 
         int cnt = 0;
-        while (r.is_good()) {
-            A4Message rr = r.next();
-            if (rr.is<TestEvent>()) {
-                auto te = rr.dynamic_shared_cast<TestEvent>(rr.object);
-                auto me = dynamic_shared_cast<TestMetaData>(r.current_metadata());
+        while (A4Message msg = stream.next()) {
+            if (auto te = msg.as<TestEvent>()) {
+                auto me = stream.current_metadata().as<TestMetaData>();
                 assert(cnt++ == te->event_number());
                 assert(me->meta_data() == N);
-            } else if (rr.error()) throw "AJS";
+            }
         }
+        if (stream.error()) throw "AJS";
     }
 }

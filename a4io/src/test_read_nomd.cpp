@@ -17,13 +17,9 @@ int main(int argc, char ** argv) {
     A4InputStream r(fn);
 
     int cnt = 0;
-    while (r.is_good()) {
-        A4Message rr = r.next();
-        if (rr.class_id == TestEvent::kCLASSIDFieldNumber) {
-            auto te = static_shared_cast<TestEvent>(rr.object);
-            //std::cout << "TestEvent: " << te->event_number() << std::endl;
-            cnt++;
-        } else if (rr.error()) throw "up";
+    while (A4Message rr = r.next()) {
+        if (auto te = rr.as<TestEvent>()) cnt++;
     }
+    if (r.error()) throw "up";
     return 0;
 }

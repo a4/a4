@@ -42,8 +42,11 @@ namespace a4{ namespace io{
         bool error() const {return class_id == 1; };
         /// true if the stream has terminated correctly
         bool end() const {return class_id == 0; };
-        /// Check if the class ID matches
-        /** example: if (result.is<TestEvent>()) ... */
+        /// true if the message pointer is None (end, unknown or no metadata)
+        bool null() const {return message.get() == NULL; };
+        explicit operator bool() { return !null(); }
+        /// Check if the class ID matches.
+        /// example: if (result.is<TestEvent>())
         template <class T>
         bool is() const { return T::kCLASSIDFieldNumber == class_id; };
         /// Check if the class ID matches and return the message, otherwise NULL
@@ -70,16 +73,19 @@ namespace a4{ namespace io{
             A4InputStream(const std::string & input_file);
             ~A4InputStream();
 
-            /// Read the next message from the stream
+            /// Read the next message from the stream.
+
             A4Message next(bool internal=false);
+            /// Return the current metadata message.
             const A4Message current_metadata() {return _current_metadata; };
-            /// True if the stream can be read from
-            bool is_good() {return _is_good;};
-            /// True if new metadata has appeared since the last call to this function
+            /// True if the stream has not ended or encountered an error.
+            bool good() {return _good;};
+            /// True if the stream has encountered an error.
+            bool error() {return _error;};
+            /// True if new metadata has appeared since the last call to this function.
             bool new_metadata() { if (_new_metadata) { _new_metadata = false; return true; } else return false;};
+            /// Returns number of items (messages with default message class) read so far.
             uint64_t items_read() const {return _items_read;};
-            /// Return a shared pointer to the current metadata message
-            const shared<Message> current_metadata() {return _current_metadata; };
 
         private:
             int _fileno;
@@ -97,8 +103,11 @@ namespace a4{ namespace io{
             bool stop_compression(const a4::io::A4EndCompressedSection& cs);
             bool discover_all_metadata();
         
+            A4Message set_error();
+            A4Message set_end();
+
             std::string _inputname;
-            bool _is_good, _new_metadata, _discovery_complete;
+            bool _good, _error, _new_metadata, _discovery_complete;
             uint64_t _items_read;
             uint32_t _content_class_id;
             uint32_t _metadata_class_id;

@@ -48,11 +48,23 @@ A4InputStream::A4InputStream(shared< google::protobuf::io::ZeroCopyInputStream> 
     startup();
 }
 
+A4Message A4InputStream::set_error() {
+    _error = true;
+    _good = false;
+    return A4Message(true);
+}
+
+A4Message A4InputStream::set_end() {
+    _good = false;
+    return A4Message();
+}
+
 void A4InputStream::startup() {
     // Initialize to defined state
     _compressed_in = NULL;
     _coded_in = NULL;
-    _is_good = false;
+    _good = false;
+    _error = false;
     _new_metadata = false;
     _discovery_complete = false;
     _items_read = 0;
@@ -79,7 +91,7 @@ void A4InputStream::startup() {
         std::cerr << "ERROR - a4::io:A4InputStream - File Empty!" << std::endl; 
     } else if (rh == -1) {
         std::cerr << "ERROR - a4::io:A4InputStream - Header corrupted!" << std::endl; 
-    } else _is_good = true;
+    } else _good = true;
     _current_header_index = 0;
 }
 
@@ -149,10 +161,12 @@ int A4InputStream::read_header()
     if (!_current_metadata_refers_forward && !_discovery_complete) {
         if (!_file_in) {
             std::cerr << "ERROR - a4::io:A4InputStream - Cannot read reverse metadata from non-seekable stream!" << std::endl;
-            _is_good = false;
+            set_error();
+            return -1;
         } else if (!discover_all_metadata()) {
             std::cerr << "ERROR - a4::io:A4InputStream - Failed to discover metadata - file corrupted?" << std::endl;
-            _is_good = false;
+            set_error();
+            return -1;
         }
         _current_metadata_index = 0;
         if (_metadata_per_header[_current_header_index].size() > 0) {
@@ -187,7 +201,7 @@ bool A4InputStream::discover_all_metadata() {
         uint64_t footer_abs_start = seek(footer_start, SEEK_END);
         if (footer_abs_start == -1) return false;
         A4Message msg = next(true);
-        if (!msg.is<A4StreamFooter>) {
+        if (!msg.is<A4StreamFooter>()) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unknown footer class_id " << msg.class_id << std::endl;
             return false;
         }
@@ -257,7 +271,6 @@ bool A4InputStream::stop_compression(const A4EndCompressedSection& cs) {
     delete _coded_in;
     if (!_compressed_in->ExpectAtEnd()) {
         std::cerr << "ERROR - a4::io:A4InputStream - Compressed section did not end where it should!" << std::endl;
-        _is_good = false;
         return false;
     }
     delete _compressed_in;
@@ -274,6 +287,9 @@ void A4InputStream::reset_coded_stream() {
         _coded_in = new CodedInputStream(_raw_in.get());
 }
 
+/// \internal
+/// Do not do any processing on the message if internal=true
+/// \endinternal
 A4Message A4InputStream::next(bool internal) {
 
     static int i = 0;
@@ -286,8 +302,7 @@ A4Message A4InputStream::next(bool internal) {
         } else {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file or corruption [0]!" << std::endl; 
         }
-        _is_good = false;
-        return A4Message(true); // read error;
+        return set_error();
     }
 
     uint32_t message_type = _content_class_id;
@@ -295,13 +310,11 @@ A4Message A4InputStream::next(bool internal) {
         size = size & (HIGH_BIT - 1);
         if (!_coded_in->ReadLittleEndian32(&message_type)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [1]!" << std::endl; 
-            _is_good = false;
-            return A4Message(true); // read error;
+            return set_error();
         }
     } else if (message_type == 0) {
         std::cerr << "ERROR - a4::io:A4InputStream - Default Object found while no default type is set!" << std::endl; 
-        _is_good = false;
-        return A4Message(true); // read error;
+        return set_error();
     }
 
     string magic;
@@ -313,8 +326,7 @@ A4Message A4InputStream::next(bool internal) {
         _coded_in->PopLimit(lim);
         if (!item) {
             std::cerr << "ERROR - a4::io:A4InputStream - Failure to parse Item!" << std::endl;
-            _is_good = false;
-            return A4Message(true); // read error;
+            return set_error();
         }
         ++_items_read;
         return A4Message(message_type, item);
@@ -325,8 +337,7 @@ A4Message A4InputStream::next(bool internal) {
         std::cerr << "WARNING - a4::io:A4InputStream - Unknown message type: " << message_type << std::endl;
         if (!_coded_in->Skip(size)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Read error while skipping unknown message!"  << std::endl;
-            _is_good = false;
-            return A4Message(true); // read error;
+            return set_error();
         }
         return next();
     }
@@ -335,8 +346,7 @@ A4Message A4InputStream::next(bool internal) {
     _coded_in->PopLimit(lim);
     if (!item) {
         std::cerr << "ERROR - a4::io:A4InputStream - Failure to parse object!" << std::endl;
-        _is_good = false;
-        return A4Message(true); // read error;
+        return set_error();
     }
     
     if (internal) return A4Message(message_type, item);
@@ -347,35 +357,29 @@ A4Message A4InputStream::next(bool internal) {
 
         if (!_coded_in->ReadLittleEndian32(&size)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [3]!" << std::endl; 
-            _is_good = false;
-            return A4Message(true); // read error;
+            return set_error();
         }
         if (!_coded_in->ReadString(&magic, 8)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [4]!" << std::endl; 
-            _is_good = false;
-            return A4Message(true); // read error;
+            return set_error();
         }
         if (0 != magic.compare(END_MAGIC)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Corrupt footer! Read: "<< magic << std::endl; 
-            _is_good = false;
-            return A4Message(true); // read error;
+            return set_error();
         }
         if (_coded_in->ExpectAtEnd()) {
-            _is_good = false;
-            return A4Message();
+            return set_end();
         }
         _current_header_index++;
         rh = read_header();
         if (rh == -2) {
-            _is_good = false;
-            return A4Message();
+            return set_end();
         } else if (rh == -1) {
             std::cerr << "ERROR - a4::io:A4InputStream - Corrupt header!" << std::endl; 
-            _is_good = false;
-            return A4Message(true); // read error;
+            return set_error();
         }
 
-        _current_metadata.reset();
+        _current_metadata = A4Message();
         if (!_current_metadata_refers_forward) {
             _current_metadata_index = 0;
             if (_metadata_per_header[_current_header_index].size() > 0)
@@ -385,19 +389,15 @@ A4Message A4InputStream::next(bool internal) {
     } else if (message_type == A4StreamHeader::kCLASSIDFieldNumber) {
         // should not happen???
         std::cerr << "ERROR - a4::io:A4InputStream - Unexpected header!" << std::endl; 
-        _is_good = false;
-        return A4Message(true); // read error;
-        //return read_item(item);
+        return set_error();
     } else if (message_type == A4StartCompressedSection::kCLASSIDFieldNumber) {
         if (!start_compression(*static_cast<A4StartCompressedSection*>(item.get()))) {
-            _is_good = false;
-            return A4Message(true); // read error;
+            return set_error();
         }
         return next();
     } else if (message_type == A4EndCompressedSection::kCLASSIDFieldNumber) {
-        if (!stop_compression(*static_cast<A4EndCompressedSection*>(item.get()))) {
-            _is_good = false;
-            return A4Message(true); // read error;
+        if(!stop_compression(*static_cast<A4EndCompressedSection*>(item.get()))) {
+            return set_error(); // read error;
         }
         return next();
     } else if (message_type == _metadata_class_id) {
@@ -405,7 +405,7 @@ A4Message A4InputStream::next(bool internal) {
             _current_metadata = A4Message(_metadata_class_id, item);
         } else {
             _current_metadata_index++;
-            _current_metadata.reset();
+            _current_metadata = A4Message();
             if (_metadata_per_header[_current_header_index].size() > _current_metadata_index)
                 _current_metadata = _metadata_per_header[_current_header_index][_current_metadata_index];
         }
