@@ -9,9 +9,6 @@
 #include "a4/results.h"
 #include "a4/reader.h"
 
-#include "pb/Event.pb.h"
-
-
 
 Processor::Processor():
     _current_file(""),

@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-namespace boost{template<class> class shared_ptr;}
-
 /*
  * Note to Developers:
  * These interfaces exist to make it easy to write thread-safe code,

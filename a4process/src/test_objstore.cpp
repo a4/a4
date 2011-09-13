@@ -1,4 +1,3 @@
-
 #include "a4/objectstore.h"
 
 #include <stdlib.h>

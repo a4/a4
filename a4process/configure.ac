@@ -22,7 +22,17 @@ BOOST_SMART_PTR
 BOOST_PROGRAM_OPTIONS
 BOOST_SYSTEM
 
-AC_CONFIG_HEADERS([config.h])
+AC_DEFINE([shared], [boost::shared_ptr], [Define default shared_ptr class])
+AC_DEFINE([static_shared_cast], [boost::static_pointer_cast], [Define static cast of shared ptr class])
+AC_DEFINE([dynamic_shared_cast], [boost::dynamic_pointer_cast], [Define dynamic cast of shared ptr class])
+AC_DEFINE([reinterpret_shared_cast], [boost::reinterpret_pointer_cast], [Define reinterpret cast of shared ptr class])
+
+AH_TOP([#ifndef _CONFIG_H_])
+AH_TOP([#define _CONFIG_H_])
+AH_BOTTOM([#include <boost/shared_ptr.hpp>])
+AH_BOTTOM([#endif // _CONFIG_H_])
+
+AC_CONFIG_HEADERS([src/a4/a4process_config.h])
 AC_CONFIG_FILES([Makefile])
 
 CPPFLAGS+=" $A4_CPPFLAGS -I$srcdir/src -Isrc "
