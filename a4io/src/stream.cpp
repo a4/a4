@@ -10,13 +10,14 @@ from_stream_func a4::io::internal::all_class_ids(int i, from_stream_func func) {
     return all_class_ids[i];
 }
 
-using namespace a4::io;
+namespace a4{ namespace io{
 
-template class UseClassID<A4StreamHeader>;
-template class UseClassID<A4StreamFooter>;
-template class UseClassID<A4StartCompressedSection>;
-template class UseClassID<A4EndCompressedSection>;
-template class UseClassID<A4Key>;
-template class UseClassID<TestEvent>;
-template class UseClassID<TestMetaData>;
+    template class UseClassID<A4StreamHeader>;
+    template class UseClassID<A4StreamFooter>;
+    template class UseClassID<A4StartCompressedSection>;
+    template class UseClassID<A4EndCompressedSection>;
+    template class UseClassID<A4Key>;
+    template class UseClassID<TestEvent>;
+    template class UseClassID<TestMetaData>;
 
+}}
