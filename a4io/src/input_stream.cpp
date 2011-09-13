@@ -227,7 +227,6 @@ int64_t A4InputStream::seek(int64_t position, int whence) {
     _file_in.reset();
     _raw_in.reset();
     int64_t pos = lseek(_fileno, position, whence);
-    if (pos == (off_t)-1) return -1;
     _file_in.reset(new FileInputStream(_fileno));
     _raw_in = _file_in;
     _coded_in = new CodedInputStream(_raw_in.get());
