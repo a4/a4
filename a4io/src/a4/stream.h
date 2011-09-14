@@ -1,14 +1,9 @@
 #ifndef _A4_STREAM_H_
 #define _A4_STREAM_H_
 
-
-
-#include <a4/a4io_config.h>
-#include <google/protobuf/message.h>
+#include <a4/a4io.h>
 
 namespace a4{ namespace io{
-
-    using google::protobuf::Message;
 
     namespace internal {
 

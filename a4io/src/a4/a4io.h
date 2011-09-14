@@ -1,8 +1,17 @@
 #ifndef HAVE_A4IO
 #define HAVE_A4IO
 
-namespace a4{
+#ifndef shared
+#include <memory>
+#define shared std::shared_ptr
+#define static_shared_cast std::static_pointer_cast
+#define dynamic_shared_cast std::dynamic_pointer_cast
+#define reinterpret_shared_cast std::reinterpret_pointer_cast
+#endif
 
+#include <google/protobuf/message.h>
+
+namespace a4{
     /// A4IO
 
     ///   The A4IO package provides A4 Streams - reading and writing
@@ -22,12 +31,16 @@ namespace a4{
     ///    Results are saved in .results files (which are also a4 streams).
     ///
     namespace io{
+
+        class A4Message;
         class A4Input;
         class A4Output;
         class A4InputStream;
         class A4OutputStream;
+
         template <typename ProtoClass> class UseClassID;
 
+        using google::protobuf::Message;
     }
 }
 

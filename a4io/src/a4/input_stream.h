@@ -6,29 +6,22 @@
 #include <vector>
 #include <deque>
 
-namespace google{ namespace protobuf{
-    class Message;
-    namespace io{
+// used internally
+namespace google{ namespace protobuf{ namespace io{
         class ZeroCopyInputStream;
         class FileInputStream;
         class GzipInputStream;
         class CodedInputStream;
-    };
-};};
+};};};
 
 namespace a4{ namespace io{
 
-    using google::protobuf::Message;
-
+    // used internally
     class GzipInputStream;
     class A4StartCompressedSection;
     class A4EndCompressedSection;
 
     /// Wrapped message returned from the InputStream
-
-    /// If rr.error() is true the stream broke, if
-    /// rr.end() the stream has terminated correctly.
-    /// Contains a tuple (class_id, shared protobuf message)
     typedef struct A4Message {
         /// Construct A4Message that signifies end of stream or stream error
         A4Message(bool error=false) { if (error) class_id = 1; else class_id = 0; message.reset(); };
@@ -38,19 +31,21 @@ namespace a4{ namespace io{
         uint32_t class_id;
         /// shared protobuf message 
         shared<Message> message;
+
         /// true if an error occurred
         bool error() const {return class_id == 1; };
         /// true if the stream has terminated correctly
         bool end() const {return class_id == 0; };
         /// true if the message pointer is None (end, unknown or no metadata)
         bool null() const {return message.get() == NULL; };
+        /// this object can be used in if() expressions, it will be true if it contains a message
         operator bool() { return !null(); }
         /// Check if the class ID matches.
         /// example: if (result.is<TestEvent>())
         template <class T>
         bool is() const { return T::kCLASSIDFieldNumber == class_id; };
-        /// Check if the class ID matches and return the message, otherwise NULL
-        /** example: auto event = result.as<MyEvent>() */
+        /// Check if the class ID matches and return the message, otherwise NULL.
+        /// example: auto event = result.as<MyEvent>()
         template <class T>
         shared<T> as() const {
             if (not is<T>()) return shared<T>(); 
@@ -64,7 +59,6 @@ namespace a4{ namespace io{
     /// A stream has "content message" (aka events) and metadata.
     /// Get the next non-metadata message by calling next(),
     /// after that you can get the current_metadata().
-    /// 
     class A4InputStream
     {
         public:
