@@ -88,7 +88,7 @@ void A4InputStream::startup() {
 
     if (!read_header()) {
         if(_error) std::cerr << "ERROR - a4::io:A4InputStream - Header corrupted!" << std::endl;
-        else std::cerr << "ERROR - a4::io:A4InputStream - File Empty!" << std::endl;
+        else std::cerr << "ERROR - a4::io:A4InputStream - File empty!" << std::endl;
         set_error();
         return;
     }
@@ -180,7 +180,7 @@ bool A4InputStream::read_header()
             _new_metadata = true;
         }
     }
-    return 0;
+    return true;
 }
 
 bool A4InputStream::discover_all_metadata() {

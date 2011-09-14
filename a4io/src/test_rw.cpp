@@ -9,9 +9,8 @@ using namespace a4::io;
 
 int main(int argc, char ** argv) {
     {
-        uint32_t clsid = TestEvent::kCLASSIDFieldNumber;
-        uint32_t clsid_m = TestMetaData::kCLASSIDFieldNumber;
-        A4OutputStream w("test_rw.a4", "TestEvent", clsid, clsid_m);
+        A4OutputStream w("test_rw.a4", "TestEvent");
+        w.content_cls<TestEvent>().metadata_cls<TestMetaData>();
 
         const int N = 1000;
         TestEvent e;

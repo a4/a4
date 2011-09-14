@@ -16,7 +16,7 @@ A4Input::A4Input(std::string name) {};
 /// Add a stream to be processed, Returns this object again.
 A4Input & A4Input::add_stream(shared<A4InputStream>) {};
 /// Add a file to be processed, Returns this object again.
-A4Input & A4Input::add_file(std::string & filename) {};
+A4Input & A4Input::add_file(const std::string & filename) {};
 
 void A4Input::report_finished(A4Input * input, A4InputStream* _s) {
     Lock l2(input->_mutex);

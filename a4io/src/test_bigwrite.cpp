@@ -19,10 +19,10 @@ int main(int argc, char ** argv) {
     const bool forward = atoi(argv[1]) == 1;
     const bool compression = atoi(argv[2]) == 1;
     {
-        uint32_t clsid = TestEvent::kCLASSIDFieldNumber;
-        uint32_t clsid_m = TestMetaData::kCLASSIDFieldNumber;
-
-        A4OutputStream w(argv[3], "TestEvent", clsid, clsid_m, forward, false);
+        A4OutputStream w(argv[3], "TestEvent");
+        w.content_cls<TestEvent>().metadata_cls<TestMetaData>();
+        w.set_compression(false);
+        if (forward) w.set_forward_metadata();
 
         const uint64_t N = 800*1000*1000L;
         //const uint64_t N = 5*1024;

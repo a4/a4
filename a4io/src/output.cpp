@@ -1,9 +1,9 @@
 #include <iostream>
+#include <cstdlib>
 #include <fstream>
 
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
 
 #include <a4/output.h>
 
@@ -12,47 +12,56 @@ using std::ios;
 
 A4Output::A4Output(std::string output_file, std::string description) :
     output_file(output_file),
-    description(description)
+    description(description),
+    _closed(false)
 {
-
 };
 
+A4Output::~A4Output() {
+    if (!_closed) close();
+}
 
-shared<A4OutputStream> A4Output::get_stream(
-        uint32_t content_class_id,
-        uint32_t metadata_class_id,
-        bool metadata_refers_forward=false,
-        bool compression=true) 
-{
+shared<A4OutputStream> A4Output::get_stream() {
     int count = _filenames.size() + 1;
     std::string fn = output_file + "." + boost::lexical_cast<std::string>(count);
-    shared<A4OutputStream> os(new A4OutputStream(
-                fn,
-                description, 
-                content_class_id, 
-                metadata_class_id, 
-                metadata_refers_forward, 
-                compression));
+    shared<A4OutputStream> os(new A4OutputStream(fn, description));
     _out_streams.push_back(os);
     _filenames.push_back(fn);
     return os;
 }
 
 bool A4Output::close() {
+    _closed = true;
     for (auto s = _out_streams.begin(), end = _out_streams.end(); s != end; s++) {
         (*s)->close();
     }
     if (_out_streams.size() == 1) {
-        auto from = boost::filesystem::path(_filenames[0]);
-        auto to = boost::filesystem::path(output_file);
-        boost::filesystem::rename(from, to);
+        auto from = _filenames[0].c_str();
+        auto to = output_file.c_str();
+        unlink(to);
+        if (rename(from, to) == -1) {
+            std::cerr << "ERROR - a4::io:A4Output - Can not rename " << from << " to " << to << "!" << std::endl;
+            return false;
+        };
     } else if (_out_streams.size() > 1) {
         // concatenate all output files
         std::fstream out(output_file.c_str(), ios::out | ios::trunc | ios::binary);
-        for (auto fn = _filenames.begin(), end = _filenames.end(); fn != end; fn++) {
-            std::fstream in((*fn).c_str(), ios::in | ios::binary);
+        if (!out) {
+            std::cerr << "ERROR - a4::io:A4Output - Could not open " << output_file << " for writing!" << std::endl;
+            return false;
+        }
+        for (int i = 0; i < _filenames.size(); i++) {
+            std::string fn = _filenames[i];
+            auto ostream = _out_streams[i];
+            if (!ostream->opened()) continue; // maybe threads did not use their output
+            std::fstream in(fn.c_str(), ios::in | ios::binary);
+            if (!in) {
+                std::cerr << "ERROR - a4::io:A4Output - Could not open " << fn << "! Maybe some threads failed?" << std::endl;
+                return false;
+            }
             out << in.rdbuf();
-            boost::filesystem::remove(boost::filesystem::path(*fn));
+            unlink(fn.c_str());
         }
     }
+    return true;
 }

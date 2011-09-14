@@ -17,16 +17,13 @@ namespace a4{ namespace io{
         public:
             /// Eventually write to output file
             A4Output(std::string output_file, std::string description);
+            ~A4Output();
             /// Make sure all output is written and merge files
             bool close();
             /// Get a stream to write to (threadsafe).
-            /// Accepts most of the same parameters as A4OutputStream
-            shared<A4OutputStream> get_stream(
-                uint32_t content_class_id,
-                uint32_t metadata_class_id,
-                bool metadata_refers_forward,
-                bool compression);
+            shared<A4OutputStream> get_stream();
         private:
+            bool _closed;
             std::string output_file;
             std::string description;
             std::vector<shared<A4OutputStream>> _out_streams;

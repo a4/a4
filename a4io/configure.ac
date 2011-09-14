@@ -12,7 +12,6 @@ AM_PATH_PYTHON([2.6])
 LT_INIT
 
 BOOST_REQUIRE([1.33])
-BOOST_FILESYSTEM
 
 AC_PROTOBUF_CHECK([:],[AC_MSG_ERROR("Requires google protobuf library!")])
 

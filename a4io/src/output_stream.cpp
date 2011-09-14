@@ -28,39 +28,33 @@ const uint32_t HIGH_BIT = 1<<31;
 A4OutputStream::A4OutputStream(const string &output_file, 
                                const string description, 
                                uint32_t content_class_id, 
-                               uint32_t metadata_class_id, 
-                               bool metadata_refers_forward,
-                               bool compression) :
+                               uint32_t metadata_class_id) : 
     _content_class_id(content_class_id),
     _metadata_class_id(metadata_class_id),
-    _metadata_refers_forward(metadata_refers_forward),
-    _compression(compression),
+    _metadata_refers_forward(false),
+    _compression(true),
     _output_name(output_file),
     _description(description),
     _opened(false),
     _closed(false)
 {
-    _file_out.reset(new FileOutputStream(::open(output_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)));
-    _raw_out = _file_out;
+    _fileno = -1;
 }
 
 A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream> out,
                            const std::string outname,
                            const std::string description, 
                            uint32_t content_class_id,
-                           uint32_t metadata_class_id, 
-                           bool metadata_refers_forward,
-                           bool compression) :
+                           uint32_t metadata_class_id) : 
     _content_class_id(content_class_id),
     _metadata_class_id(metadata_class_id),
-    _metadata_refers_forward(metadata_refers_forward),
-    _compression(compression),
+    _metadata_refers_forward(false),
+    _compression(true),
     _output_name(outname),
     _description(description),
     _opened(false),
     _closed(false)
 {
-    _file_out.reset();
     _raw_out = out;
 }
 
@@ -69,12 +63,19 @@ A4OutputStream::~A4OutputStream()
     if (!_closed && _opened) close();
 }
 
-void A4OutputStream::open() {
-    assert(!_opened);
+bool A4OutputStream::open() {
+    if (_opened) return false;
     _opened = true;
     _compressed_out = NULL;
     _content_count = 0;
     _bytes_written = 0;
+
+    if (_fileno == -1) {
+        _file_out.reset(new FileOutputStream(::open(_output_name.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)));
+        _raw_out = _file_out;
+    } else {
+        _file_out.reset();
+    }
 
     _coded_out = new CodedOutputStream(_raw_out.get());
     write_header(_description);
@@ -114,13 +115,15 @@ uint64_t A4OutputStream::get_bytes_written() {
 
 bool A4OutputStream::write(google::protobuf::Message &msg)
 {
+    if (!_opened) open();
     uint32_t class_id = msg.GetDescriptor()->FindFieldByName("CLASS_ID")->number();
     return write(class_id, msg);
 }
 
 bool A4OutputStream::metadata(google::protobuf::Message &msg)
 {
-    // TODO: Add back-reference to metadata from footer
+    if (!_opened) open();
+
     if (_compressed_out) {
         stop_compression();
         metadata_positions.push_back(get_bytes_written());

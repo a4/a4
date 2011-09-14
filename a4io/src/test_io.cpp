@@ -8,35 +8,37 @@ using namespace std;
 using namespace a4::io;
 
 int main(int argc, char ** argv) {
+    const int N = 1000;
     {
-        uint32_t clsid = TestEvent::kCLASSIDFieldNumber;
-        uint32_t clsid_m = TestMetaData::kCLASSIDFieldNumber;
-        A4Output a4o("test_io.a4");
+        A4Output a4o("test_io.a4", "TestEvent");
 
-        auto w = a4o.get_stream("TestEvent", clsid, clsid_m);
+        auto stream = a4o.get_stream();
+        stream->content_cls<TestEvent>();
+        stream->metadata_cls<TestMetaData>();
 
-        const int N = 1000;
         TestEvent e;
         for(int i = 0; i < N; i++) {
             e.set_event_number(i);
-            w.write(e);
+            stream->write(e);
         }
         TestMetaData m;
         m.set_meta_data(N);
-        w.metadata(m);
+        stream->metadata(m);
     }
     {
         A4Input in;
         in.add_file("test_io.a4");
         in.add_file("test_io.a4");
-        while (shared<A4InputStream> & stream = in.get_stream()) {
-            int cnt = 0;
-            while (auto rr = r.next()) {
-                if (auto te = rr.as<TestEvent>()) {
-                    assert(cnt++ == te->event_number());
+        int cnt = 0;
+        while (shared<A4InputStream> stream = in.get_stream()) {
+            while (auto msg = stream->next()) {
+                if (auto te = msg.as<TestEvent>()) {
+                    assert(cnt++ == (te->event_number()%N));
                 }
             }
-            if (r.error()) throw "AJS";
+            if (stream->error()) throw "AJS";
         }
+        std::cout << "cnt = " << cnt << std::endl;
+        assert(cnt == 2*N);
     }
 }

@@ -14,9 +14,8 @@ int main(int argc, char ** argv) {
         fn = argv[1];
     } else assert(argc <= 2);
 
-    uint32_t clsid = TestEvent::kCLASSIDFieldNumber;
-    uint32_t clsid_m = TestMetaData::kCLASSIDFieldNumber;
-    A4OutputStream w(fn, "TestEvent", clsid, 0, false, true);
+    A4OutputStream w(fn, "TestEvent");
+    w.content_cls<TestEvent>().metadata_cls<TestMetaData>();
 
     const int N = 500;
     TestEvent e;
