@@ -35,11 +35,13 @@ A4OutputStream::A4OutputStream(const string &output_file,
     _metadata_class_id(metadata_class_id),
     _metadata_refers_forward(metadata_refers_forward),
     _compression(compression),
-    _output_name(output_file)
+    _output_name(output_file),
+    _description(description),
+    _opened(false),
+    _closed(false)
 {
-    _file_out.reset(new FileOutputStream(open(output_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)));
+    _file_out.reset(new FileOutputStream(::open(output_file.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)));
     _raw_out = _file_out;
-    startup(description);
 }
 
 A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream> out,
@@ -53,33 +55,29 @@ A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream
     _metadata_class_id(metadata_class_id),
     _metadata_refers_forward(metadata_refers_forward),
     _compression(compression),
-    _output_name(outname)
+    _output_name(outname),
+    _description(description),
+    _opened(false),
+    _closed(false)
 {
     _file_out.reset();
     _raw_out = out;
-    startup(description);
 }
 
 A4OutputStream::~A4OutputStream()
 {
-    if (_compressed_out) stop_compression();
-    write_footer();
-    delete _coded_out;
-    if (_file_out && !_file_out->Close()) {
-        std::cerr << "ERROR - A4IO:A4OutputStream - Error on closing: " << _file_out->GetErrno() << std::endl;
-        throw _file_out->GetErrno();
-    }; // return false on error
-    _file_out.reset();
-    _raw_out.reset();
+    if (!_closed && _opened) close();
 }
 
-void A4OutputStream::startup(std::string description) {
+void A4OutputStream::open() {
+    assert(!_opened);
+    _opened = true;
     _compressed_out = NULL;
     _content_count = 0;
     _bytes_written = 0;
 
     _coded_out = new CodedOutputStream(_raw_out.get());
-    write_header(description);
+    write_header(_description);
     if (_compression) start_compression();
     if (_file_out) {
         _file_out->Flush(); // Force the underlying file to be opened
@@ -89,6 +87,20 @@ void A4OutputStream::startup(std::string description) {
             throw _file_out->GetErrno();
         }
     }
+}
+
+void A4OutputStream::close() {
+    assert(!_closed);
+    _closed = true;
+    if (_compressed_out) stop_compression();
+    write_footer();
+    delete _coded_out;
+    if (_file_out && !_file_out->Close()) {
+        std::cerr << "ERROR - A4IO:A4OutputStream - Error on closing: " << _file_out->GetErrno() << std::endl;
+        throw _file_out->GetErrno();
+    }; // return false on error
+    _file_out.reset();
+    _raw_out.reset();
 }
 
 
@@ -137,7 +149,6 @@ bool A4OutputStream::start_compression() {
     write(A4StartCompressedSection::kCLASSIDFieldNumber, cs_header);
     _bytes_written += _coded_out->ByteCount();
     delete _coded_out;
-
     GzipOutputStream::Options o;
     o.format = GzipOutputStream::ZLIB;
     o.compression_level = 9;

@@ -34,6 +34,11 @@ namespace a4{ namespace io{
                            bool compression=true);
             ~A4OutputStream();
 
+            void open();
+            void close();
+            bool opened() { return _opened; };
+            bool closed() { return _closed; };
+
             bool write(google::protobuf::Message& m);
             bool metadata(google::protobuf::Message& m);
 
@@ -47,15 +52,16 @@ namespace a4{ namespace io{
             bool write_header(std::string description);
             bool write_footer();
 
-            void startup(std::string description);
+
             bool start_compression();
             bool stop_compression();
 
             uint64_t get_bytes_written();
             void reset_coded_stream();
 
-            std::string _output_name;
+            std::string _output_name, _description;
             bool _compression;
+            bool _opened, _closed;
             bool _metadata_refers_forward;
             uint32_t _content_count;
             uint64_t _bytes_written;

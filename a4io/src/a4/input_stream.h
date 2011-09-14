@@ -44,7 +44,7 @@ namespace a4{ namespace io{
         bool end() const {return class_id == 0; };
         /// true if the message pointer is None (end, unknown or no metadata)
         bool null() const {return message.get() == NULL; };
-        explicit operator bool() { return !null(); }
+        operator bool() { return !null(); }
         /// Check if the class ID matches.
         /// example: if (result.is<TestEvent>())
         template <class T>
@@ -82,12 +82,15 @@ namespace a4{ namespace io{
             bool good() {return _good;};
             /// True if the stream has encountered an error.
             bool error() {return _error;};
+            /// True if the stream has finished without error.
+            bool end() {return !_error && !_good;};
             /// True if new metadata has appeared since the last call to this function.
             bool new_metadata() { if (_new_metadata) { _new_metadata = false; return true; } else return false;};
             /// Returns number of items (messages with default message class) read so far.
             uint64_t items_read() const {return _items_read;};
 
         private:
+
             int _fileno;
             shared<google::protobuf::io::ZeroCopyInputStream> _raw_in;
             shared<google::protobuf::io::FileInputStream> _file_in;

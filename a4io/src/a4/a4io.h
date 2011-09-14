@@ -22,9 +22,12 @@ namespace a4{
     ///    Results are saved in .results files (which are also a4 streams).
     ///
     namespace io{
+        class A4Input;
+        class A4Output;
         class A4InputStream;
         class A4OutputStream;
         template <typename ProtoClass> class UseClassID;
+
     }
 }
 
