@@ -68,55 +68,55 @@ namespace a4{ namespace io{
             ~A4InputStream();
 
             /// Read the next message from the stream.
-
             A4Message next(bool internal=false);
             /// Return the current metadata message.
             const A4Message current_metadata() {return _current_metadata; };
+            /// True if new metadata has appeared since the last call to this function.
+            bool new_metadata() { if (_new_metadata) { _new_metadata = false; return true; } else return false;};
+
             /// True if the stream has not ended or encountered an error.
-            bool good() {return _good;};
+            operator bool() { return _good; };
             /// True if the stream has encountered an error.
             bool error() {return _error;};
             /// True if the stream has finished without error.
             bool end() {return !_error && !_good;};
-            /// True if new metadata has appeared since the last call to this function.
-            bool new_metadata() { if (_new_metadata) { _new_metadata = false; return true; } else return false;};
-            /// Returns number of items (messages with default message class) read so far.
-            uint64_t items_read() const {return _items_read;};
 
         private:
-
-            int _fileno;
             shared<google::protobuf::io::ZeroCopyInputStream> _raw_in;
             shared<google::protobuf::io::FileInputStream> _file_in;
-            GzipInputStream * _compressed_in;
-            google::protobuf::io::CodedInputStream * _coded_in;
+            shared<GzipInputStream> _compressed_in;
+            shared<google::protobuf::io::CodedInputStream> _coded_in;
 
-            void startup();
-            int read_header();
-            void reset_coded_stream();
-            int64_t seek(int64_t position, int whence);
-
-            bool start_compression(const a4::io::A4StartCompressedSection& cs);
-            bool stop_compression(const a4::io::A4EndCompressedSection& cs);
-            bool discover_all_metadata();
-        
-            A4Message set_error();
-            A4Message set_end();
-
+            // variables set at construction time
             std::string _inputname;
-            bool _good, _error, _new_metadata, _discovery_complete;
-            uint64_t _items_read;
             uint32_t _content_class_id;
             uint32_t _metadata_class_id;
             internal::from_stream_func _content_func;
-            A4Message _current_metadata;
 
-            bool _current_metadata_refers_forward;
-
+            // status variables
+            bool _good, _error, _started,_discovery_complete;
+            uint64_t _items_read;
             int _current_header_index;
             int _current_metadata_index;
-            std::deque<std::vector<A4Message>> _metadata_per_header;
+            int _fileno;
 
+            // metadata-related status
+            bool _new_metadata, _current_metadata_refers_forward;
+            A4Message _current_metadata;
+            std::deque<std::vector<A4Message>> _metadata_per_header;
+    
+            // internal functions
+            void startup();
+            void reset_coded_stream();
+            bool discover_all_metadata();
+            bool start_compression(const a4::io::A4StartCompressedSection& cs);
+            bool stop_compression(const a4::io::A4EndCompressedSection& cs);
+            bool read_header();
+            int64_t seek(int64_t position, int whence);
+
+            // set error/end status and return A4Message        
+            A4Message set_error();
+            A4Message set_end();
     };
 };};
 

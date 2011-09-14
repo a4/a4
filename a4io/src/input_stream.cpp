@@ -33,21 +33,17 @@ const int START_MAGIC_len = 8;
 const int END_MAGIC_len = 8;
 const uint32_t HIGH_BIT = 1<<31;
 
-
 A4InputStream::A4InputStream(const string &input_file) {
-    _fileno = open(input_file.c_str(), O_RDONLY);
-    _file_in.reset(new FileInputStream(_fileno));
-    _raw_in = _file_in;
+    _started = false;
+    _fileno = -1;
     _inputname = input_file;
-    startup();
 }
 
-A4InputStream::A4InputStream(shared< google::protobuf::io::ZeroCopyInputStream> in, std::string name) {
+A4InputStream::A4InputStream(shared<ZeroCopyInputStream> in, std::string name) {
+    _started = false;
     _fileno = 0;
-    _file_in.reset();
     _raw_in = in;
     _inputname = name;
-    startup();
 }
 
 A4Message A4InputStream::set_error() {
@@ -63,9 +59,10 @@ A4Message A4InputStream::set_end() {
 
 void A4InputStream::startup() {
     // Initialize to defined state
-    _compressed_in = NULL;
-    _coded_in = NULL;
-    _good = false;
+    _started = true;
+    _compressed_in.reset();
+    _coded_in.reset();
+    _good = true;
     _error = false;
     _new_metadata = false;
     _discovery_complete = false;
@@ -77,65 +74,74 @@ void A4InputStream::startup() {
     _current_header_index = 0;
     _current_metadata_index = 0;
 
-
-    _coded_in = new CodedInputStream(_raw_in.get());
+    if (_fileno == -1) {
+        _fileno = open(_inputname.c_str(), O_RDONLY);
+        _file_in.reset(new FileInputStream(_fileno));
+        _raw_in = _file_in;
+    } else {
+        _file_in.reset();
+    }
+    _coded_in.reset(new CodedInputStream(_raw_in.get()));
 
     // Push limit of read bytes
     _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
 
-    int rh = read_header();
+    if (!read_header()) {
+        if(_error) std::cerr << "ERROR - a4::io:A4InputStream - Header corrupted!" << std::endl;
+        else std::cerr << "ERROR - a4::io:A4InputStream - File Empty!" << std::endl;
+        set_error();
+        return;
+    }
     if (_file_in && _file_in->GetErrno()) {
         std::cerr << "ERROR - a4::io:A4InputStream - Could not open '"<< _inputname \
                   << "' - error " << _file_in->GetErrno() << std::endl;
-        throw _file_in->GetErrno();
+        set_error();
+        return;
     }
-    if (rh == -2) {
-        std::cerr << "ERROR - a4::io:A4InputStream - File Empty!" << std::endl; 
-    } else if (rh == -1) {
-        std::cerr << "ERROR - a4::io:A4InputStream - Header corrupted!" << std::endl; 
-    } else _good = true;
     _current_header_index = 0;
 }
 
 A4InputStream::~A4InputStream() {
-    delete _coded_in;
-    if (_compressed_in) delete _compressed_in;
+    _coded_in.reset();
+    _compressed_in.reset();
     _raw_in.reset();
     _file_in.reset();
 }
 
-int A4InputStream::read_header()
+bool A4InputStream::read_header()
 {
+    // Note: in the following i use that bool(set_end()) == false 
+    // && bool(set_error()) == false
     string magic;
     if (!_coded_in->ReadString(&magic, 8))
-        return -2;
+        return set_end();
 
     if (0 != magic.compare(START_MAGIC))
-        return -1;
+        return set_error();
 
     uint32_t size = 0;
     if (!_coded_in->ReadLittleEndian32(&size))
-        return -1;
+        return set_error();
 
     uint32_t message_type = 0;
     if (size & HIGH_BIT) {
         size = size & (HIGH_BIT - 1);
         if (!_coded_in->ReadLittleEndian32(&message_type))
-            return -1;
+            return set_error();
     }
     if (!message_type == A4StreamHeader::kCLASSIDFieldNumber)
-        return -1;
+        return set_error();
 
     A4StreamHeader h;
     CodedInputStream::Limit lim = _coded_in->PushLimit(size);
-    if (!h.ParseFromCodedStream(_coded_in))
-        return -1;
+    if (!h.ParseFromCodedStream(_coded_in.get()))
+        return set_error();
     _coded_in->PopLimit(lim);
 
     if (h.a4_version() != 1) {
         std::cerr << "ERROR - a4::io:A4InputStream - Unknown A4 stream version (";
         std::cerr << h.a4_version() << ")" << std::endl;
-        return -1;
+        return set_error();
     }
 
     // check the main content type from the header
@@ -144,9 +150,8 @@ int A4InputStream::read_header()
         _content_func = internal::all_class_ids(_content_class_id);
         if (!_content_func) {
             std::cerr << "ERROR - a4::io:A4InputStream - Content Class " << _content_class_id << " unknown!" << std::endl;
-            assert(_content_func);
+            return set_error();
         }
-
     } else {
         _content_class_id = 0;
     };
@@ -154,6 +159,7 @@ int A4InputStream::read_header()
         _metadata_class_id = h.metadata_class_id();
         if (!internal::all_class_ids(_metadata_class_id)) {
             std::cerr << "ERROR - a4::io:A4InputStream - metadata Class " << _metadata_class_id << " unknown!" << std::endl;
+            return set_error();
         }
     } else {
         _metadata_class_id = 0;
@@ -163,12 +169,10 @@ int A4InputStream::read_header()
     if (!_current_metadata_refers_forward && !_discovery_complete) {
         if (!_file_in) {
             std::cerr << "ERROR - a4::io:A4InputStream - Cannot read reverse metadata from non-seekable stream!" << std::endl;
-            set_error();
-            return -1;
+            return set_error();
         } else if (!discover_all_metadata()) {
             std::cerr << "ERROR - a4::io:A4InputStream - Failed to discover metadata - file corrupted?" << std::endl;
-            set_error();
-            return -1;
+            return set_error();
         }
         _current_metadata_index = 0;
         if (_metadata_per_header[_current_header_index].size() > 0) {
@@ -176,7 +180,6 @@ int A4InputStream::read_header()
             _new_metadata = true;
         }
     }
-
     return 0;
 }
 
@@ -239,60 +242,63 @@ bool A4InputStream::discover_all_metadata() {
 int64_t A4InputStream::seek(int64_t position, int whence) {
     assert(_fileno != 0);
     assert(!_compressed_in);
-    delete _coded_in;
+    _coded_in.reset();
     _file_in.reset();
     _raw_in.reset();
     int64_t pos = lseek(_fileno, position, whence);
     _file_in.reset(new FileInputStream(_fileno));
     _raw_in = _file_in;
-    _coded_in = new CodedInputStream(_raw_in.get());
+    _coded_in.reset(new CodedInputStream(_raw_in.get()));
     _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
     return pos;
 };
 
 bool A4InputStream::start_compression(const A4StartCompressedSection& cs) {
     assert(!_compressed_in);
-    delete _coded_in;
+    _coded_in.reset();
 
     if (cs.compression() == A4StartCompressedSection_Compression_ZLIB) {
-        _compressed_in = new GzipInputStream(_raw_in.get(), GzipInputStream::ZLIB);
+        _compressed_in.reset(new GzipInputStream(_raw_in.get(), GzipInputStream::ZLIB));
     } else if (cs.compression() == A4StartCompressedSection_Compression_GZIP) {
-        _compressed_in = new GzipInputStream(_raw_in.get(), GzipInputStream::GZIP);
+        _compressed_in.reset(new GzipInputStream(_raw_in.get(), GzipInputStream::GZIP));
     } else {
         std::cerr << "ERROR - a4::io:A4InputStream - Unknown compression type " << cs.compression() << std::endl;
         return false;
     }
 
-    _coded_in = new CodedInputStream(_compressed_in);
+    _coded_in.reset(new CodedInputStream(_compressed_in.get()));
     _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
     return true;
 }
 
 bool A4InputStream::stop_compression(const A4EndCompressedSection& cs) {
     assert(_compressed_in);
-    delete _coded_in;
+    _coded_in.reset();
     if (!_compressed_in->ExpectAtEnd()) {
         std::cerr << "ERROR - a4::io:A4InputStream - Compressed section did not end where it should!" << std::endl;
         return false;
     }
-    delete _compressed_in;
-    _compressed_in = NULL;
-    _coded_in = new CodedInputStream(_raw_in.get());
+    _compressed_in.reset();
+    _coded_in.reset(new CodedInputStream(_raw_in.get()));
     return true;
 }
 
 void A4InputStream::reset_coded_stream() {
-    delete _coded_in;
+    _coded_in.reset();
     if (_compressed_in) 
-        _coded_in = new CodedInputStream(_compressed_in);
+        _coded_in.reset(new CodedInputStream(_compressed_in.get()));
     else
-        _coded_in = new CodedInputStream(_raw_in.get());
+        _coded_in.reset(new CodedInputStream(_raw_in.get()));
 }
 
 /// \internal
 /// Do not do any processing on the message if internal=true
 /// \endinternal
 A4Message A4InputStream::next(bool internal) {
+    
+    if (!_started) startup();
+
+    if (!_good) return A4Message(_error);
 
     static int i = 0;
     if (i++ % 1000 == 0) reset_coded_stream();
@@ -324,7 +330,7 @@ A4Message A4InputStream::next(bool internal) {
 
     if (message_type == _content_class_id) {
         CodedInputStream::Limit lim = _coded_in->PushLimit(size);
-        shared<Message> item = _content_func(_coded_in);
+        shared<Message> item = _content_func(_coded_in.get());
         _coded_in->PopLimit(lim);
         if (!item) {
             std::cerr << "ERROR - a4::io:A4InputStream - Failure to parse Item!" << std::endl;
@@ -344,7 +350,7 @@ A4Message A4InputStream::next(bool internal) {
         return next();
     }
     CodedInputStream::Limit lim = _coded_in->PushLimit(size);
-    shared<Message> item = from_stream(_coded_in);
+    shared<Message> item = from_stream(_coded_in.get());
     _coded_in->PopLimit(lim);
     if (!item) {
         std::cerr << "ERROR - a4::io:A4InputStream - Failure to parse object!" << std::endl;
@@ -373,14 +379,12 @@ A4Message A4InputStream::next(bool internal) {
             return set_end();
         }
         _current_header_index++;
-        rh = read_header();
-        if (rh == -2) {
-            return set_end();
-        } else if (rh == -1) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Corrupt header!" << std::endl; 
-            return set_error();
+        if (!read_header()) {
+            if (_error) {
+                std::cerr << "ERROR - a4::io:A4InputStream - Corrupt header!" << std::endl;
+            }
+            return A4Message(_error);
         }
-
         _current_metadata = A4Message();
         if (!_current_metadata_refers_forward) {
             _current_metadata_index = 0;
