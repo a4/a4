@@ -1,5 +1,6 @@
 #include <functional>
 #include <thread>
+#include <iostream>
 
 #include <boost/thread.hpp>
 #include <boost/thread/locks.hpp>
@@ -31,6 +32,13 @@ void A4Input::report_finished(A4Input * input, A4InputStream* _s) {
     if (_s->end()) {
         assert(input->_processing.erase(_s) == 1);
         input->_finished.insert(_s);
+    } else if (_s->error() || input->_resched_count[_s] > 0) {
+        std::cerr << "ERROR - a4::io::A4Input - '" << _s->str() << "' encountered an error during reading!" << std::endl;
+        input->_error.insert(_s);
+    } else {
+        std::cerr << "Stream " << _s->str() << " came back incompletely processed! Rescheduling..." << std::endl;
+        input->_ready.push_front(_s);
+        input->_resched_count[_s]++;
     }
 }
 
@@ -47,6 +55,7 @@ shared<A4InputStream> A4Input::get_stream() {
     //auto ret = shared<A4InputStream>(s, (new Callback(this))->Call);
     std::function<void (A4InputStream*)> cb = std::bind(&A4Input::report_finished, this, std::placeholders::_1);
     auto ret = shared<A4InputStream>(s, cb);
+    //std::cerr << "Input requested, returning " << s->str() << std::endl;
     return ret;
 }
 

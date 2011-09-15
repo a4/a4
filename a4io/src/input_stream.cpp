@@ -37,6 +37,7 @@ A4InputStream::A4InputStream(const string &input_file) {
     _started = false;
     _fileno = -1;
     _inputname = input_file;
+    init();
 }
 
 A4InputStream::A4InputStream(shared<ZeroCopyInputStream> in, std::string name) {
@@ -44,6 +45,7 @@ A4InputStream::A4InputStream(shared<ZeroCopyInputStream> in, std::string name) {
     _fileno = 0;
     _raw_in = in;
     _inputname = name;
+    init();
 }
 
 A4Message A4InputStream::set_error() {
@@ -57,9 +59,8 @@ A4Message A4InputStream::set_end() {
     return A4Message();
 }
 
-void A4InputStream::startup() {
-    // Initialize to defined state
-    _started = true;
+void A4InputStream::init() {
+    _started = false;
     _compressed_in.reset();
     _coded_in.reset();
     _good = true;
@@ -73,6 +74,11 @@ void A4InputStream::startup() {
     _current_metadata_refers_forward = false;
     _current_header_index = 0;
     _current_metadata_index = 0;
+}
+
+void A4InputStream::startup() {
+    // Initialize to defined state
+    _started = true;
 
     if (_fileno == -1) {
         _fileno = open(_inputname.c_str(), O_RDONLY);

@@ -39,6 +39,8 @@ namespace a4{ namespace io{
             std::deque<A4InputStream*> _ready;
             std::set<A4InputStream*> _processing;
             std::set<A4InputStream*> _finished;
+            std::set<A4InputStream*> _error;
+            std::map<A4InputStream*,int> _resched_count;
             mutable std::mutex _mutex;
     };
 }; };

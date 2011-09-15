@@ -85,23 +85,26 @@ bool A4OutputStream::open() {
         if (_file_out->GetErrno()) {
             std::cerr << "ERROR - A4IO:A4OutputStream - Could not open '" << _output_name \
                       << "' - error " << _file_out->GetErrno() << std::endl;
-            throw _file_out->GetErrno();
+            return false;
         }
     }
+    return true;
 }
 
-void A4OutputStream::close() {
+bool A4OutputStream::close() {
     assert(!_closed);
+    assert(_opened);
     _closed = true;
     if (_compressed_out) stop_compression();
     write_footer();
     delete _coded_out;
     if (_file_out && !_file_out->Close()) {
         std::cerr << "ERROR - A4IO:A4OutputStream - Error on closing: " << _file_out->GetErrno() << std::endl;
-        throw _file_out->GetErrno();
+        return false;
     }; // return false on error
     _file_out.reset();
     _raw_out.reset();
+    return true;
 }
 
 
@@ -115,14 +118,14 @@ uint64_t A4OutputStream::get_bytes_written() {
 
 bool A4OutputStream::write(google::protobuf::Message &msg)
 {
-    if (!_opened) open();
+    if (!_opened) if(!open()) { return false; };
     uint32_t class_id = msg.GetDescriptor()->FindFieldByName("CLASS_ID")->number();
     return write(class_id, msg);
 }
 
 bool A4OutputStream::metadata(google::protobuf::Message &msg)
 {
-    if (!_opened) open();
+    if (!_opened) if (!open()) { return false; };
 
     if (_compressed_out) {
         stop_compression();

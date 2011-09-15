@@ -43,10 +43,11 @@ liba4io_la_LIBADD=$(PROTOBUF_LIBS)
 liba4io_la_CPPFLAGS=$(PROTOBUF_CFLAGS)
 
 ## Test programs
-check_PROGRAMS = test_rw test_io
+check_PROGRAMS = test_rw test_io test_thread
 test_bigwrite_SOURCES = $(PROTOBUF_H) src/test_bigwrite.cpp
 test_rw_SOURCES = $(PROTOBUF_H) src/test_rw.cpp
 test_io_SOURCES = $(PROTOBUF_H) src/test_io.cpp
+test_thread_SOURCES = $(PROTOBUF_H) src/test_thread.cpp
 test_read_SOURCES = $(PROTOBUF_H) src/test_read.cpp
 test_read_nomd_SOURCES = $(PROTOBUF_H) src/test_read_nomd.cpp
 test_write_fw_SOURCES = $(PROTOBUF_H) src/test_write_fw.cpp
