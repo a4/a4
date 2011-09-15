@@ -28,19 +28,16 @@ namespace a4{ namespace io{
 
             /// Get a stream resource for processing,
             /// returns NULL if none are left (threadsafe).
-            /// Optionally give your "name" (for debugging)
             /// To return the resource just let this shared pointer go 
             /// out of scope, the stream will be returned and processed more
             /// if it is needed.
-            shared<A4InputStream> get_stream(std::string me="");
+            shared<A4InputStream> get_stream();
         private:
             static void report_finished(A4Input *, A4InputStream* _s);
             std::vector<shared<A4InputStream>> _streams;
             std::vector<A4InputStream*> _ready;
             std::set<A4InputStream*> _processing;
             std::set<A4InputStream*> _finished;
-            std::map<A4InputStream*, std::string> _names;
-
             mutable std::mutex _mutex;
     };
 }; };

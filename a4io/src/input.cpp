@@ -28,14 +28,13 @@ void A4Input::report_finished(A4Input * input, A4InputStream* _s) {
 
 /// Get a stream for processing, returns NULL if none are left (threadsafe).
 /// Optionally give your "name" (for debugging)
-shared<A4InputStream> A4Input::get_stream(std::string me) {
+shared<A4InputStream> A4Input::get_stream() {
     Lock lock(_mutex);
     if (_ready.empty()) return shared<A4InputStream>();
     A4InputStream * s = _ready.back();
     _ready.pop_back();
 
     _processing.insert(s);
-    _names[s] = me;
 
     //auto ret = shared<A4InputStream>(s, (new Callback(this))->Call);
     std::function<void (A4InputStream*)> cb = std::bind(&A4Input::report_finished, this, std::placeholders::_1);
