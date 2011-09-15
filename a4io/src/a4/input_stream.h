@@ -81,6 +81,9 @@ namespace a4{ namespace io{
             /// True if the stream has finished without error.
             bool end() {return !_error && !_good;};
 
+            /// String representation of this stream for user output
+            std::string str() { return std::string("A4InputStream(\"") + _inputname + "\")"; };
+
         private:
             shared<google::protobuf::io::ZeroCopyInputStream> _raw_in;
             shared<google::protobuf::io::FileInputStream> _file_in;
