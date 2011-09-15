@@ -14,6 +14,7 @@ SORT_BY_SCOPE_NAME     = YES
 RECURSIVE              = YES
 SOURCE_BROWSER         = YES
 REFERENCED_BY_RELATION = YES
+HAVE_DOT               = YES
 
 # Developer documentation
 
