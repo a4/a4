@@ -142,9 +142,9 @@ class AJet {
 typedef boost::shared_ptr<AJet> AJetPtr;
 
 
-class HWWAnalysis : public Processor {
+class HWWAnalysis : public ProcessorOf<AtlasEvent, AtlasMetaData> {
     public: 
-        virtual void process_event(Event &event);
+        virtual void process(const AtlasEvent &event);
 
         void plot_kinematics(const char * tag, ALorentzVector l0, ALorentzVector l1) {
             plot_kinematics_1p(tag "/l0_", l0);
@@ -152,7 +152,8 @@ class HWWAnalysis : public Processor {
             plot_kinematics_2p(tag "/ll_", l0, l1);
         };
 
-        void plot_kinematics_1p(const char * prefix, const ALorentzVector &v) {
+        template<typename ...Args>
+        void plot_kinematics_1p(const Args& ...args, const ALorentzVector &v) {
             S<H1>(prefix, "m")(400, 0, 400).fill(v.m()/GeV);
             S<H1>(prefix, "pt")(400, 0, 400).fill(v.pt()/GeV);
             S<H1>(prefix, "phi")(100, -M_PI, M_PI).fill(v.phi());
@@ -928,7 +929,7 @@ void HWWAnalysis::process_event(const Event &event) {
 };
 
 
-class HWWAnalysisConfiguration : public JobConfiguration<HWWAnalysis> {
+class HWWAnalysisConfiguration : public ConfigurationOf<HWWAnalysis> {
   public:
     GRLPtr grl;
     string grl_name;
