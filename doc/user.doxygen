@@ -3,7 +3,7 @@
 
 PROJECT_NAME           = A4
 PROJECT_BRIEF          = "Another Attempt At Analysis"
-OUTPUT_DIRECTORY       = $(builddir)/doc/dev
+OUTPUT_DIRECTORY       = $(builddir)/doc/user
 STRIP_FROM_INC_PATH    = $(srcdir)/a4io/src $(builddir)/a4io/src
 INPUT                  = $(srcdir)/a4io $(builddir)/a4io $(srcdir)/doc/doxygen
 FILE_PATTERNS          = *.cpp *.h
