@@ -19,25 +19,25 @@ int main(int argc, char ** argv) {
         TestEvent e;
         for(int i = 0; i < N; i++) {
             e.set_event_number(i);
-            w.write(e);
+            stream->write(e);
         }
         TestMetaData m;
         m.set_meta_data(N);
-        w.metadata(m);
+        stream->metadata(m);
     }
     {
         A4Input in;
         in.add_file("test_io.a4");
         while (shared<A4InputStream> stream = in.get_stream()) {
             int cnt = 0;
-            while (A4Message msg = stream.next()) {
+            while (A4Message msg = stream->next()) {
                 if (auto te = msg.as<TestEvent>()) {
-                    auto me = stream.current_metadata().as<TestMetaData>();
+                    auto me = stream->current_metadata().as<TestMetaData>();
                     assert(cnt++ == te->event_number());
                     assert(me->meta_data() == N);
                 }
             }
-            if (stream.error()) throw "AJS";
+            if (stream->error()) throw "AJS";
         }
     }
 }

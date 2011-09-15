@@ -75,7 +75,7 @@ namespace a4{ namespace io{
             bool new_metadata() { if (_new_metadata) { _new_metadata = false; return true; } else return false;};
 
             /// True if the stream has not ended or encountered an error.
-            operator bool() { return _good; };
+            bool good() { return _good; };
             /// True if the stream has encountered an error.
             bool error() {return _error;};
             /// True if the stream has finished without error.
@@ -109,6 +109,7 @@ namespace a4{ namespace io{
             std::deque<std::vector<A4Message>> _metadata_per_header;
     
             // internal functions
+            void init();
             void startup();
             void reset_coded_stream();
             bool discover_all_metadata();

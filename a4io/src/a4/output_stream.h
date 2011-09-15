@@ -34,20 +34,34 @@ namespace a4{ namespace io{
                            uint32_t metadata_class_id=0);
             ~A4OutputStream();
 
+            /// Write a message to the stream
             bool write(google::protobuf::Message& m);
+            /// Write a metadata message to the stream. 
+            /// Take care to respect the metadata direction - forward means the events following
+            /// the metadata are described, otherwise the previous events are referred to.
             bool metadata(google::protobuf::Message& m);
 
-            void close();
+            /// \internal Explicitly close the file. \endinternal
+            bool close();
             bool opened() { return _opened; };
             bool closed() { return _closed; };
             
+            /// Set compression flag [default=true]
             A4OutputStream & set_compression(bool c) { _compression = c; return *this; };
+            /// If called, metadata will refer to the events following the metadata, instead of events before.
+            /// Has to be called before writing is begun.
             A4OutputStream & set_forward_metadata() { assert(!_opened); _metadata_refers_forward = true; return *this; };
+            /// Set the content message object ( s->content_cls<TestEvent>(); ).
+            /// Has to be called before writing is begun.
             template<class ProtoClass>
             A4OutputStream & content_cls() { assert(!_opened); _content_class_id = ProtoClass::kCLASSIDFieldNumber; return *this; };
+            /// Set the metadata message object ( s->metadata_cls<TestEvent>(); ).
+            /// Has to be called before writing is begun.
             template<class ProtoClass>
             A4OutputStream & metadata_cls() { assert(!_opened); _metadata_class_id = ProtoClass::kCLASSIDFieldNumber; return *this; };
 
+            /// String representation of this stream for user output
+            std::string str() { return std::string("A4OutputStream(\"") + _output_name + "\", \"" + _description + "\")"; };
         private:
             shared<google::protobuf::io::ZeroCopyOutputStream> _raw_out;
             shared<google::protobuf::io::FileOutputStream> _file_out;

@@ -37,7 +37,7 @@ bool A4Output::close() {
     Lock lock(_mutex);
     _closed = true;
     for (auto s = _out_streams.begin(), end = _out_streams.end(); s != end; s++) {
-        (*s)->close();
+        if ((*s)->opened()) (*s)->close();
     }
     if (_out_streams.size() == 1) {
         auto from = _filenames[0].c_str();
