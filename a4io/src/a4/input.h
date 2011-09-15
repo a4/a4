@@ -3,6 +3,7 @@
 
 #include <set>
 #include <map>
+#include <deque>
 #include <mutex>
 
 #include <a4/input_stream.h>
@@ -35,7 +36,7 @@ namespace a4{ namespace io{
         private:
             static void report_finished(A4Input *, A4InputStream* _s);
             std::vector<shared<A4InputStream>> _streams;
-            std::vector<A4InputStream*> _ready;
+            std::deque<A4InputStream*> _ready;
             std::set<A4InputStream*> _processing;
             std::set<A4InputStream*> _finished;
             mutable std::mutex _mutex;

@@ -33,12 +33,11 @@ int main(int argc, char ** argv) {
         while (shared<A4InputStream> stream = in.get_stream()) {
             while (auto msg = stream->next()) {
                 if (auto te = msg.as<TestEvent>()) {
-                    assert(cnt++ == (te->event_number()%N));
+                    assert((cnt++%N) == te->event_number());
                 }
             }
             if (stream->error()) throw "AJS";
         }
-        std::cout << "cnt = " << cnt << std::endl;
         assert(cnt == 2*N);
     }
 }

@@ -14,9 +14,17 @@ typedef std::unique_lock<std::mutex> Lock;
 A4Input::A4Input(std::string name) {};
 
 /// Add a stream to be processed, Returns this object again.
-A4Input & A4Input::add_stream(shared<A4InputStream>) {};
+A4Input & A4Input::add_stream(shared<A4InputStream> s) {
+    _streams.push_back(s);
+    _ready.push_front(s.get());
+};
+
 /// Add a file to be processed, Returns this object again.
-A4Input & A4Input::add_file(const std::string & filename) {};
+A4Input & A4Input::add_file(const std::string & filename) {
+    auto s = shared<A4InputStream>(new A4InputStream(filename));
+    _streams.push_back(s);
+    _ready.push_front(s.get());
+};
 
 void A4Input::report_finished(A4Input * input, A4InputStream* _s) {
     Lock l2(input->_mutex);
