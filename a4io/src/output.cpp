@@ -10,6 +10,8 @@
 using namespace a4::io;
 using std::ios;
 
+typedef std::unique_lock<std::mutex> Lock;
+
 A4Output::A4Output(std::string output_file, std::string description) :
     output_file(output_file),
     description(description),
@@ -22,6 +24,7 @@ A4Output::~A4Output() {
 }
 
 shared<A4OutputStream> A4Output::get_stream() {
+    Lock lock(_mutex);
     int count = _filenames.size() + 1;
     std::string fn = output_file + "." + boost::lexical_cast<std::string>(count);
     shared<A4OutputStream> os(new A4OutputStream(fn, description));
@@ -31,6 +34,7 @@ shared<A4OutputStream> A4Output::get_stream() {
 }
 
 bool A4Output::close() {
+    Lock lock(_mutex);
     _closed = true;
     for (auto s = _out_streams.begin(), end = _out_streams.end(); s != end; s++) {
         (*s)->close();
