@@ -6,7 +6,16 @@
 #include <a4/a4io.h>
 
 namespace a4{
-    /// Processing utilities for A4
+    /// Processing utilities for A4.
+    ///
+    /// To implement an Analysis that processes MyEvents, and has MyMetaData,
+    /// derive a class from ProcessorOf<MyEvent, MyMetaData>.
+    /// If you want to process more than one type of Events, or a4 files 
+    /// containing histograms, derive directly from Processor.
+    ///
+    /// If your analysis needs configuration or setup (command-line options, external
+    /// smearing classes, ...) 
+    /// 
     namespace process{
         using a4::io::A4Message;
 
@@ -19,14 +28,6 @@ namespace a4{
                 const A4Message & metadata_message();
         }
 
-        template<class ProtoMessage, class ProtoMetaData>
-        class ProcessorOf {
-            public:
-                /// Override this to proces only your requested messages
-                bool process(const ProtoMessage &);
-                bool process_message(const A4Message &msg) {...};
-                const ProtoMetaData & metadata();
-        }
 
         class Configuration {
             public:
@@ -37,6 +38,15 @@ namespace a4{
 
                 virtual bool setup_processor(Processor &g) { return true; };
                 virtual Processor * new_processor() = 0;
+        }
+
+        template<class ProtoMessage, class ProtoMetaData>
+        class ProcessorOf {
+            public:
+                /// Override this to proces only your requested messages
+                bool process(const ProtoMessage &);
+                bool process_message(const A4Message &msg) {...};
+                const ProtoMetaData & metadata();
         }
 
         template<class MyProcessor>
