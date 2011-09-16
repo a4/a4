@@ -35,7 +35,7 @@ with_a4_is_setup=yes
 # Otherwise aborts with an error message.
 AC_DEFUN([A4_REQUIRE], [
     if test x$with_a4_is_setup == x; then
-        AC_MSG_ERROR([Put WITH_A4 before any A4\_REQUIRE macros!]);
+        AC_MSG_ERROR([Put A4_INIT before any A4\_REQUIRE macros!]);
     fi
     AC_LANG_ASSERT([C++])
     if test x"$with_a4" != x; then
