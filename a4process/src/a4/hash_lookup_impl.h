@@ -10,7 +10,7 @@ void * & hash_lookup::lookup(const char * const index, const Args& ...args) {
     while (idx != idx0) {
         hash_lookup * & sd = _subhash[idx];
         if (sd == NULL) {
-            sd = new hash_lookup(); 
+            sd = new hash_lookup(str_cat(path, index));
             sd->cc_key = index;
             if (is_writeable_pointer(index)) {
                 throw std::runtime_error("ERROR: Detected dynamically generated string in object lookup!\
@@ -30,7 +30,7 @@ void * & hash_lookup::lookup(uint32_t index, const Args& ...args) {
     uintptr_t idx0 = (idx - 1) % size;
     while (idx != idx0) {
         hash_lookup * & sd = _subhash[idx];
-        if (sd == NULL) { sd = new hash_lookup(); sd->ui_key = index; return sd->lookup(args...); };
+        if (sd == NULL) { sd = new hash_lookup(str_cat(path, index)); sd->ui_key = index; return sd->lookup(args...); };
         if (sd->ui_key == index && sd->cc_key == NULL) return sd->lookup(args...);
         idx = (idx+1) % size;
     }
@@ -44,7 +44,7 @@ hash_lookup * hash_lookup::subhash(const char * const index, const Args& ...args
     while (idx != idx0) {
         hash_lookup * & sd = _subhash[idx];
         if (sd == NULL) {
-            sd = new hash_lookup(); 
+            sd = new hash_lookup(str_cat(path, index));
             sd->cc_key = index;
             if (is_writeable_pointer(index)) {
                 throw std::runtime_error("ERROR: Detected dynamically generated string in object lookup!\
@@ -64,7 +64,7 @@ hash_lookup * hash_lookup::subhash(uint32_t index, const Args& ...args) {
     uintptr_t idx0 = (idx - 1) % size;
     while (idx != idx0) {
         hash_lookup * & sd = _subhash[idx];
-        if (sd == NULL) { sd = new hash_lookup(); sd->ui_key = index; return sd->subhash(args...); };
+        if (sd == NULL) { sd = new hash_lookup(str_cat(path, index)); sd->ui_key = index; return sd->subhash(args...); };
         if (sd->ui_key == index && sd->cc_key == NULL) return sd->subhash(args...);
         idx = (idx+1) % size;
     }

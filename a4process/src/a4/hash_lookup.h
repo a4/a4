@@ -19,8 +19,8 @@
 /// There are ways to reduce this dramatically, but this is not a priority right now.
 class hash_lookup {
     public:
-        /// Create an empty hash table
-        hash_lookup();
+        /// Create an empty hash table with the @path prefix.
+        hash_lookup(std::string path="");
 
         /// Lookup a piece of _data_ by const char * index
         void * & lookup(const char * index);
@@ -41,7 +41,11 @@ class hash_lookup {
         hash_lookup * subhash(uint32_t index, const Args& ...args);
         hash_lookup * subhash();
 
+        const std::string & get_path() const {return path;};
+
     private:
+        void zero();
+        std::string path;
         const static uintptr_t size = 1<<16;
         typedef struct { const char * cc_key; uint32_t ui_key; void * value; } hash_lookup_data;
         const char * cc_key;

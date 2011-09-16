@@ -17,7 +17,9 @@ bool is_writeable_pointer(const char * _p) {
     return true;
 };
 
-hash_lookup::hash_lookup() {
+hash_lookup::hash_lookup(std::string path) : path(path) {};
+
+void hash_lookup::zero() {
     cc_key = NULL;
     ui_key = 0;
     for (int i = 0; i < size; i++) {
@@ -37,6 +39,7 @@ void * & hash_lookup::lookup(const char * const index) {
         hash_lookup::hash_lookup_data & d = _data[idx];
         if (d.cc_key == index && d.ui_key == 0) return d.value;
         if (d.value == NULL) { 
+            // Item not found, inserting
             d.ui_key = 0;
             d.cc_key = index; 
             if (is_writeable_pointer(index)) {
@@ -56,7 +59,12 @@ void * & hash_lookup::lookup(uint32_t index) {
     while (idx != idx0) {
         hash_lookup::hash_lookup_data & d = _data[idx];
         if (d.ui_key == index && d.cc_key == NULL) return d.value;
-        if (d.value == NULL) { d.ui_key = index; d.cc_key = NULL; return d.value; };
+        if (d.value == NULL) {
+            // Item not found, inserting
+            d.ui_key = index; 
+            d.cc_key = NULL; 
+            return d.value;
+        };
         idx = (idx+1) % size;
     }
     throw std::runtime_error("ERROR: Hash table full - check your code or increase hash_lookup.size.");
