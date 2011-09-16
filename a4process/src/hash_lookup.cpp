@@ -28,9 +28,11 @@ hash_lookup::hash_lookup() {
     };
 }
 
+hash_lookup * hash_lookup::subhash() { return this; };
+
 void * & hash_lookup::lookup(const char * const index) {
     uintptr_t idx = reinterpret_cast<uintptr_t>(index) % size;
-    uintptr_t idx0 = idx - 1;
+    uintptr_t idx0 = (idx - 1) % size;
     while (idx != idx0) {
         hash_lookup::hash_lookup_data & d = _data[idx];
         if (d.cc_key == index && d.ui_key == 0) return d.value;
@@ -45,19 +47,19 @@ void * & hash_lookup::lookup(const char * const index) {
         };
         idx = (idx+1) % size;
     }
-    throw std::runtime_error("ERROR: Hash table of strings full - what are you doing???");
+    throw std::runtime_error("ERROR: Hash table full - check your code or increase hash_lookup.size.");
 }
 
 void * & hash_lookup::lookup(uint32_t index) {
     uintptr_t idx = index % size;
-    uintptr_t idx0 = idx - 1;
+    uintptr_t idx0 = (idx - 1) % size;
     while (idx != idx0) {
         hash_lookup::hash_lookup_data & d = _data[idx];
         if (d.ui_key == index && d.cc_key == NULL) return d.value;
         if (d.value == NULL) { d.ui_key = index; d.cc_key = NULL; return d.value; };
         idx = (idx+1) % size;
     }
-    throw std::runtime_error("ERROR: Hash table of strings full - what are you doing???");
+    throw std::runtime_error("ERROR: Hash table full - check your code or increase hash_lookup.size.");
 }
 
 

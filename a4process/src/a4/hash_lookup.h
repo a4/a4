@@ -13,6 +13,10 @@
 /// The implemtation uses "variadic templates", a very useful C++11 feature
 /// On insertion, it asserts that the const char * used is in a read-only
 /// section of memory to make sure no accidental overwriting takes place.
+///
+/// This class currently heavily trades memory against speed, so there may be
+/// as much as 64k consumed per entry (usually less).
+/// There are ways to reduce this dramatically, but this is not a priority right now.
 class hash_lookup {
     public:
         /// Create an empty hash table
@@ -35,6 +39,7 @@ class hash_lookup {
         /// Lookup a _subhash_ uint32_t index
         template <typename... Args>
         hash_lookup * subhash(uint32_t index, const Args& ...args);
+        hash_lookup * subhash();
 
     private:
         const static uintptr_t size = 1<<16;

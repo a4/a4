@@ -9,18 +9,17 @@ AC_PROG_CXX([g++44 g++4.4 g++-4.4 g++46 g++4.6 g++-4.6 g++45 g++4.5 g++-4.5 g++ 
 AC_LANG([C++])
 AC_LANG_CXX_0X
 AM_PATH_PYTHON([2.6])
-
 LT_INIT
-
-A4_INIT
-A4_REQUIRE([a4io], [a4io.h])
 
 BOOST_REQUIRE([1.33])
 BOOST_PROGRAM_OPTIONS
 BOOST_SYSTEM
 
+A4_INIT
+A4_REQUIRE([a4io], [a4io.h])
+
 AC_CONFIG_HEADERS([src/config.h])
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile this_a4.sh.in:this_a4.sh.ac])
 
 CPPFLAGS+=" $A4_CPPFLAGS -I$srcdir/src -Isrc "
 

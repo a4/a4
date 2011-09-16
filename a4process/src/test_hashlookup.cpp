@@ -7,24 +7,31 @@
 #include <string.h>
 #include <stdexcept>
 #include <stdarg.h>
-#include <assert.h>
+#include <cassert>
 #include <a4/hash_lookup.h>
 
 using namespace std;
 
 std::vector<std::string> items;
 
+template <typename... Args>
+void test_set(hash_lookup * h, const Args& ...args) {
+    string * & res = (string*&)h->lookup(args...);
+    assert(res == NULL);
+    res = new string(str_cat(args...));
+}
 
 template <typename... Args>
-bool check_set(hash_lookup * h, std::string s, const Args& ...args) {
+void check_set(hash_lookup * h, const Args& ...args) {
     string * & res = (string*&)h->lookup(args...);
-    if (res == NULL) {
-        res = new string(s);
-    } else if (*res!=s) {
-        cerr << "Uh-oh: " << res << " != " << s << endl;
-        return false;
-    }
-    return true;
+    assert(res != NULL);
+    assert(*res == str_cat(args...));
+}
+
+template <typename... Args>
+void test_check_set(hash_lookup * h, const Args& ...args) {
+    test_set(h, args...);
+    check_set(h, args...);
 }
 
 int main(int argv, char ** argc) {
@@ -38,6 +45,11 @@ int main(int argv, char ** argc) {
 
     hash_lookup * hl = new hash_lookup();
 
-    check_set(hl, "test", "test");
+    // Test the hash lookup for consistency
+    test_check_set(hl, "test");
+    test_check_set(hl, "test", 1);
+    test_check_set(hl, "test", 1, "A");
+    for (int i = 0; i < (1<<16); i++) test_check_set(hl, "test", 1, "A", i);
+    for (int i = 0; i < (1<<16); i++) test_check_set(hl, "test", 2, "A", i);
     return 0;
 }
