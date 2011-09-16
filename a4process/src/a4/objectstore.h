@@ -4,36 +4,9 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <boost/shared_ptr.hpp>
 #include <iostream>
 
-class hash_lookup {
-    public:
-        hash_lookup();
-
-        void * & lookup(const char * index);
-        void * & lookup(uint32_t index);
-        template <typename... Args>
-        void * & lookup(const char * index, const Args& ...args);
-        template <typename... Args>
-        void * & lookup(uint32_t index, const Args& ...args);
-
-    private:
-        const static uintptr_t size = 1<<16;
-        typedef struct { const char * cc_key; uint32_t ui_key; void * value; } hash_lookup_data;
-        const char * cc_key;
-        uint32_t ui_key;
-        hash_lookup_data data[size];
-        hash_lookup * subdir[size];
-};
-
-template<typename T, typename... Args>
-std::string str_printf(const char * s, const T& value, const Args&... args);
-
-template<typename T, typename... Args>
-std::string str_cat(const T& s, const Args&... args);
-
-bool is_writeable_pointer(const char * _p);
+#include <a4/a4process.h>
 
 template <typename STORE>
 class ObjectStore {

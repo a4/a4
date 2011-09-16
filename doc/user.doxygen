@@ -4,8 +4,8 @@
 PROJECT_NAME           = A4
 PROJECT_BRIEF          = "Another Attempt At Analysis"
 OUTPUT_DIRECTORY       = $(builddir)/doc/user
-STRIP_FROM_INC_PATH    = $(srcdir)/a4io/src $(builddir)/a4io/src
-INPUT                  = $(srcdir)/a4io $(builddir)/a4io $(srcdir)/doc/doxygen
+STRIP_FROM_INC_PATH    = $(srcdir)/a4io/src $(builddir)/a4io/src $(srcdir)/a4process/src $(builddir)/a4process/src
+INPUT                  = $(srcdir)/a4io $(builddir)/a4io $(srcdir)/a4process $(builddir)/a4process $(srcdir)/doc/doxygen
 FILE_PATTERNS          = *.cpp *.h
 EXCLUDE_SYMBOLS        = google boost
 JAVADOC_AUTOBRIEF      = YES
