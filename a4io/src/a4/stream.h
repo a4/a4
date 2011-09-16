@@ -3,6 +3,9 @@
 
 #include <a4/a4io.h>
 
+
+namespace google{ namespace protobuf{ namespace io{ class CodedInputStream; };};};
+
 namespace a4{ namespace io{
 
     namespace internal {
@@ -13,7 +16,7 @@ namespace a4{ namespace io{
 
         template <typename ProtoClass>
         shared<Message> from_stream(google::protobuf::io::CodedInputStream * instr) {
-            auto msg = shared<Message>(new ProtoClass());
+            auto msg = shared<ProtoClass>(new ProtoClass());
             msg->ParseFromCodedStream(instr);
             return msg;
         }

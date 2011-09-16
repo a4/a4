@@ -1,10 +1,12 @@
 #ifndef _A4_INPUT_STREAM_H_
 #define _A4_INPUT_STREAM_H_
 
-#include <a4/stream.h>
 #include <string>
 #include <vector>
 #include <deque>
+
+#include <a4/stream.h>
+
 
 // used internally
 namespace google{ namespace protobuf{ namespace io{

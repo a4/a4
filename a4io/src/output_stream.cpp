@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <iostream>
 
+#include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/io/coded_stream.h>

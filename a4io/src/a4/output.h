@@ -1,9 +1,11 @@
 #ifndef _A4_OUTPUT_H_
 #define _A4_OUTPUT_H_
 
-#include <a4/output_stream.h>
 #include <vector>
 #include <mutex>
+
+#include <a4/output_stream.h>
+
 
 namespace a4{ namespace io{
 

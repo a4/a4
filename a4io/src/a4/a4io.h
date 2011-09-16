@@ -8,8 +8,9 @@
 #define dynamic_shared_cast std::dynamic_pointer_cast
 #define reinterpret_shared_cast std::reinterpret_pointer_cast
 #endif
+#include <cstdint>
 
-#include <google/protobuf/message.h>
+namespace google{namespace protobuf{ class Message; };};
 
 namespace a4{
     /// A4IO

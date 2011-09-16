@@ -1,8 +1,12 @@
 #ifndef _A4_OUTPUT_STREAM_H_
 #define _A4_OUTPUT_STREAM_H_
 
-#include <a4/stream.h>
 #include <string>
+#include <vector>
+#include <cassert>
+
+#include <a4/stream.h>
+
 
 namespace google{ namespace protobuf{ 
     namespace io{
