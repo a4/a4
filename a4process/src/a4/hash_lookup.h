@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <iostream>
+#include <stdexcept>
 
 /// \internal
 /// hash_lookup accelerates lookup of concatenated strings and numbers
@@ -53,6 +53,6 @@ std::string str_printf(const char * s, const T& value, const Args&... args);
 template<typename T, typename... Args>
 std::string str_cat(const T& s, const Args&... args);
 
-#include "a4/hash_lookup_impl.h"
+#include <a4/hash_lookup_impl.h>
 
 #endif
