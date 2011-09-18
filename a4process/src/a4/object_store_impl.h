@@ -34,15 +34,15 @@ template <typename ...Args> CheckedObjectStore<Base> CheckedObjectStore<Base>::o
     return CheckedObjectStore(hl->subhash(args...), backstore);
 }
 
-BackObjectStore::BackObjectStore() {};
-BackObjectStore::~BackObjectStore() {};
+ObjectBackStore::ObjectBackStore() {};
+ObjectBackStore::~ObjectBackStore() {};
 
-ObjectStore BackObjectStore::store() { return ObjectStore(&hl, this); };
+ObjectStore ObjectBackStore::store() { return ObjectStore(&hl, this); };
 
 template <class Base>
-CheckedObjectStore<Base> BackObjectStore::checked_store() { return CheckedObjectStore<Base>(&hl, this); };
+CheckedObjectStore<Base> ObjectBackStore::checked_store() { return CheckedObjectStore<Base>(&hl, this); };
 
-template <class C, typename ...Args> C * BackObjectStore::find(const Args & ...args) {
+template <class C, typename ...Args> C * ObjectBackStore::find(const Args & ...args) {
     std::string name = str_cat(args...);
     void * & res = _store[name];
     if (res) return static_cast<C*>(res);

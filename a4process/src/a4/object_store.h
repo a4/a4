@@ -3,19 +3,21 @@
 
 #include <a4/hash_lookup.h>
 
-class BackObjectStore;
+class ObjectBackStore;
 
+extern void compile_error(std::string);
 
 class ObjectStore {
     public:
         template <class C, typename ...Args> C & T(const Args & ...args);
+        template <typename ...Args> void T(const Args & ...args) { compile_error("Call T with a template parameter: S.T<H1>(\"my histogram\")"); };
         template <class C, typename ...Args> C & slow(const Args & ...args);
         template <typename ...Args> ObjectStore operator()(const Args & ...args);
     protected:
-        ObjectStore(hash_lookup * hl, BackObjectStore* bs) : hl(hl), backstore(bs) {};
-        BackObjectStore * backstore;
+        ObjectStore(hash_lookup * hl, ObjectBackStore* bs) : hl(hl), backstore(bs) {};
+        ObjectBackStore * backstore;
         hash_lookup * hl;
-        friend class BackObjectStore;
+        friend class ObjectBackStore;
 };
 
 template <class Base>
@@ -25,16 +27,16 @@ class CheckedObjectStore {
         template <class C, typename ...Args> C & slow(const Args & ...args);
         template <typename ...Args> CheckedObjectStore operator()(const Args & ...args);
     protected:
-        CheckedObjectStore(hash_lookup * hl, BackObjectStore* bs) : hl(hl), backstore(bs) {};
-        BackObjectStore * backstore;
+        CheckedObjectStore(hash_lookup * hl, ObjectBackStore* bs) : hl(hl), backstore(bs) {};
+        ObjectBackStore * backstore;
         hash_lookup * hl;
-        friend class BackObjectStore;
+        friend class ObjectBackStore;
 };
 
-class BackObjectStore {
+class ObjectBackStore {
     public:
-        BackObjectStore();
-        ~BackObjectStore();
+        ObjectBackStore();
+        ~ObjectBackStore();
         ObjectStore store();
         template <class Base>
         CheckedObjectStore<Base> checked_store();
