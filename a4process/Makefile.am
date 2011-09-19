@@ -10,8 +10,8 @@ a4include_HEADERS = \
 
 a4python_PYTHON = 
 
-LDADD=liba4process.la $(BOOST_PROGRAM_OPTIONS_LIBS) $(BOOST_SYSTEM_LIBS)
-AM_CPPFLAGS=$(BOOST_PROGRAM_OPTIONS_CPPFLAGS) $(BOOST_SYSTEM_CPPFLAGS)
+LDADD=liba4process.la $(A4_LIBS) $(BOOST_PROGRAM_OPTIONS_LIBS) $(BOOST_SYSTEM_LIBS)
+AM_CPPFLAGS=$(A4_CPPFLAGS) $(BOOST_PROGRAM_OPTIONS_CPPFLAGS) $(BOOST_SYSTEM_CPPFLAGS)
 
 lib_LTLIBRARIES=liba4process.la
 liba4process_la_SOURCES= \
@@ -29,7 +29,8 @@ test_hashlookup_SOURCES = src/test_hashlookup.cpp
 test_hashlookup_speed_SOURCES = src/test_hashlookup_speed.cpp
 test_objstore_speed_SOURCES = src/test_objstore_speed.cpp
 test_app_SOURCES = src/test_app.cpp
-test_app_CPPFLAGS = $(AM_CPPFLAGS) $(PROTOBUF_CFLAGS) -I$(builddir)/../a4io/src
+test_app_CPPFLAGS = $(AM_CPPFLAGS) $(A4_CPPFLAGS) $(PROTOBUF_CFLAGS) -I$(builddir)/../a4io/src
+test_app_LDADD=$(LDADD) $(A4_LIBS)
 
 TESTS=$(check_PROGRAMS)
 

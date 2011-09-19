@@ -27,12 +27,13 @@ namespace a4{
         class Processor {
             public:
                 /// Override this to proces raw A4 Messages without type checking
-                virtual bool process_message(const A4Message &) = 0;
+                virtual bool process_message(const A4Message) = 0;
                 /// This function is called if new metadata is available
                 virtual bool new_metadata() {};
-                const A4Message & metadata_message();
-            private:
-                shared<Driver> _driver;
+                const A4Message metadata_message();
+            protected:
+                shared<a4::io::A4InputStream> _instream;
+                friend class a4::process::Driver;
         };
 
         class Configuration {
@@ -44,8 +45,6 @@ namespace a4{
 
                 virtual bool setup_processor(Processor &g) { return true; };
                 virtual Processor * new_processor() = 0;
-            private:
-                shared<Driver> _driver;
         };
 
         template<class ProtoMessage, class ProtoMetaData>
@@ -53,7 +52,7 @@ namespace a4{
             public:
                 /// Override this to proces only your requested messages
                 virtual bool process(const ProtoMessage &) = 0;
-                bool process_message(const A4Message &msg) { return process(*msg.as<ProtoMessage>()); };
+                bool process_message(const A4Message msg) { return process(*msg.as<ProtoMessage>()); };
                 const ProtoMetaData & metadata() {
                     A4Message & msg = metadata_message();
                     ProtoMetaData & md = msg.as<ProtoMetaData>();

@@ -6,8 +6,8 @@
 namespace a4{ namespace process{
 
 class Driver {
-    public:
-        virtual a4::io::A4Message & metadata() = 0;
+    protected:
+        void set_instream(Processor* p, shared<a4::io::A4InputStream> instream) { p->_instream = instream; };
 };
 
 };}; // namespace a4::process
