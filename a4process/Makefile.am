@@ -4,8 +4,10 @@ a4includedir=${includedir}/a4
 a4pythondir=${pythondir}/a4
 
 a4include_HEADERS = \
+    src/a4/a4process.h \
     src/a4/hash_lookup.h src/a4/hash_lookup_impl.h\
     src/a4/object_store.h src/a4/object_store_impl.h
+
 a4python_PYTHON = 
 
 LDADD=liba4process.la $(BOOST_PROGRAM_OPTIONS_LIBS) $(BOOST_SYSTEM_LIBS)
@@ -13,6 +15,7 @@ AM_CPPFLAGS=$(BOOST_PROGRAM_OPTIONS_CPPFLAGS) $(BOOST_SYSTEM_CPPFLAGS)
 
 lib_LTLIBRARIES=liba4process.la
 liba4process_la_SOURCES= \
+    src/a4/a4process.h src/a4process.cpp \
     src/a4/hash_lookup.h src/a4/hash_lookup_impl.h src/hash_lookup.cpp \
     src/a4/object_store.h src/a4/object_store_impl.h src/object_store.cpp
 

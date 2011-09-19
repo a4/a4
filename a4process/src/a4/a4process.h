@@ -4,6 +4,9 @@
 #include <boost/program_options.hpp>
 
 #include <a4/a4io.h>
+#include <a4/message.h>
+
+namespace po = ::boost::program_options;
 
 namespace a4{
     /// Processing utilities for A4.
@@ -19,6 +22,8 @@ namespace a4{
     namespace process{
         using a4::io::A4Message;
 
+        class Driver;
+
         class Processor {
             public:
                 /// Override this to proces raw A4 Messages without type checking
@@ -26,28 +31,35 @@ namespace a4{
                 /// This function is called if new metadata is available
                 virtual bool new_metadata();
                 const A4Message & metadata_message();
-        }
-
+            private:
+                shared<Driver> _driver;
+        };
 
         class Configuration {
             public:
                 /// Override this to add options to the command line and configuration file
-                virtual boost::program_options get_options() { return boost::program_options(); };
+                virtual po::options_description get_options() { return po::options_description(); };
                 /// Override this to do further processing of the options from the command line or config file
-                virtual bool read_arguments(ConfigArguments &arguments) {};
+                virtual bool read_arguments(po::variables_map &arguments) {};
 
                 virtual bool setup_processor(Processor &g) { return true; };
                 virtual Processor * new_processor() = 0;
-        }
+            private:
+                shared<Driver> _driver;
+        };
 
         template<class ProtoMessage, class ProtoMetaData>
-        class ProcessorOf {
+        class ProcessorOf : public Processor {
             public:
                 /// Override this to proces only your requested messages
                 bool process(const ProtoMessage &);
-                bool process_message(const A4Message &msg) {...};
-                const ProtoMetaData & metadata();
-        }
+                bool process_message(const A4Message &msg) { return process(msg.as<ProtoMessage>()); };
+                const ProtoMetaData & metadata() {
+                    A4Message & msg = metadata_message();
+                    ProtoMetaData & md = msg.as<ProtoMetaData>();
+                    return md;
+                };
+        };
 
         template<class MyProcessor>
         class ConfigurationOf : public Configuration {
@@ -57,8 +69,8 @@ namespace a4{
 
                 virtual bool setup_processor(Processor &g) { return setup_processor(dynamic_cast<MyProcessor&>(g)); };
                 virtual Processor * new_processor() { return new MyProcessor(); };
-        }
-    }
-}
+        };
+    };
+};
 
 #endif
