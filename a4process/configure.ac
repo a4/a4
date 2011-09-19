@@ -15,6 +15,8 @@ BOOST_REQUIRE([1.33])
 BOOST_PROGRAM_OPTIONS
 BOOST_SYSTEM
 
+AC_PROTOBUF_CHECK([:],[AC_MSG_ERROR("Requires google protobuf library!")])
+
 A4_INIT
 A4_REQUIRE([a4io], [a4io.h])
 

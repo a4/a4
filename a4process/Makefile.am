@@ -4,7 +4,7 @@ a4includedir=${includedir}/a4
 a4pythondir=${pythondir}/a4
 
 a4include_HEADERS = \
-    src/a4/a4process.h \
+    src/a4/a4process.h src/a4/driver.h src/a4/appdrivers.h \
     src/a4/hash_lookup.h src/a4/hash_lookup_impl.h\
     src/a4/object_store.h src/a4/object_store_impl.h
 
@@ -17,7 +17,8 @@ lib_LTLIBRARIES=liba4process.la
 liba4process_la_SOURCES= \
     src/a4/a4process.h src/a4process.cpp \
     src/a4/hash_lookup.h src/a4/hash_lookup_impl.h src/hash_lookup.cpp \
-    src/a4/object_store.h src/a4/object_store_impl.h src/object_store.cpp
+    src/a4/object_store.h src/a4/object_store_impl.h src/object_store.cpp \
+    src/a4/driver.h src/a4/appdrivers.h src/driver.cpp
 
 #liba4process_la_LIBADD=$(BOOST_PROGRAM_OPTIONS_LIBS) $(BOOST_SYSTEM_LIBS)
 #liba4process_la_CPPFLAGS=$(BOOST_PROGRAM_OPTIONS_CPPFLAGS) $(BOOST_SYSTEM_CPPFLAGS)
@@ -28,6 +29,7 @@ test_hashlookup_SOURCES = src/test_hashlookup.cpp
 test_hashlookup_speed_SOURCES = src/test_hashlookup_speed.cpp
 test_objstore_speed_SOURCES = src/test_objstore_speed.cpp
 test_app_SOURCES = src/test_app.cpp
+test_app_CPPFLAGS = $(AM_CPPFLAGS) $(PROTOBUF_CFLAGS) -I$(builddir)/../a4io/src
 
 TESTS=$(check_PROGRAMS)
 

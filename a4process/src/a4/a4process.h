@@ -17,7 +17,7 @@ namespace a4{
     /// containing histograms, derive directly from Processor.
     ///
     /// If your analysis needs configuration or setup (command-line options, external
-    /// smearing classes, ...) 
+    /// smearing classes, ...) derive a configuration class from Configuration
     /// 
     namespace process{
         using a4::io::A4Message;
@@ -27,9 +27,9 @@ namespace a4{
         class Processor {
             public:
                 /// Override this to proces raw A4 Messages without type checking
-                virtual bool process_message(const A4Message &);
+                virtual bool process_message(const A4Message &) = 0;
                 /// This function is called if new metadata is available
-                virtual bool new_metadata();
+                virtual bool new_metadata() {};
                 const A4Message & metadata_message();
             private:
                 shared<Driver> _driver;
@@ -52,8 +52,8 @@ namespace a4{
         class ProcessorOf : public Processor {
             public:
                 /// Override this to proces only your requested messages
-                bool process(const ProtoMessage &);
-                bool process_message(const A4Message &msg) { return process(msg.as<ProtoMessage>()); };
+                virtual bool process(const ProtoMessage &) = 0;
+                bool process_message(const A4Message &msg) { return process(*msg.as<ProtoMessage>()); };
                 const ProtoMetaData & metadata() {
                     A4Message & msg = metadata_message();
                     ProtoMetaData & md = msg.as<ProtoMetaData>();
