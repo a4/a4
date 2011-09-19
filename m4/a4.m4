@@ -47,7 +47,7 @@ AC_DEFUN([A4_REQUIRE], [
                 A4_LIBS+=" -L$with_a4/$1/libs -l$1 "
             else
                 A4_CPPFLAGS+=" -I$with_a4/$1 -I$with_a4/$1/src "
-                A4_LIBS+=" -L$builddir/$1/.libs -L$builddir/$1/src/.libs -l$1 "
+                A4_LIBS+=' -L${builddir}/../$1/.libs -l$1 '
             fi
         fi
     fi
@@ -58,4 +58,6 @@ AC_DEFUN([A4_REQUIRE], [
         [AC_MSG_FAILURE([Did not find header files for $1!])])
     # We cannot check the linker since the other pack might not be compiled yet
     CPPFLAGS=$a4_cppflags_save
+    AC_SUBST([A4_CPPFLAGS],[$A4_CPPFLAGS])
+    AC_SUBST([A4_LIBS],[$A4_LIBS])
 ])# A4_REQUIRE_PACKAGE
