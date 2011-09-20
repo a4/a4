@@ -17,6 +17,7 @@ lines.append("protopythondir=${pythondir}/a4/proto/$(A4PACK)")
 lines.append("")
 lines.append("PYDIR=python/a4/proto/$(A4PACK)")
 lines.append("CPPDIR=src/a4/proto/$(A4PACK)")
+lines.append("PROTOBUF_CFLAGS += -I$(top_builddir)/$(CPPDIR)")
 lines.append("")
 lines.append('PROTOBUF_PY=' + " ".join('$(PYDIR)/%s_pb2.py' % n for n in names))
 lines.append('PROTOBUF_H=' + " ".join('$(CPPDIR)/%s.pb.h' % n for n in names))
@@ -29,6 +30,10 @@ for subdir in set(subdirs.values()):
         lines.append("proto%sdir=${protodir}/%s" % (subdir.replace("/",""), subdir))
         lines.append("protoinclude%sdir=${protoincludedir}/%s" % (subdir.replace("/",""), subdir))
         lines.append("protopython%sdir=${protopythondir}/%s" % (subdir.replace("/",""), subdir))
+        lines.append("")
+        lines.append("$(PYDIR)/%s/__init__.py:\n\ttouch $@" % subdir)
+        lines.append("")
+    lines.append(("CLEANFILES += $(PYDIR)/%s/__init__.py" % subdir).replace("//","/"))
 
 lines.append("")
 
@@ -37,8 +42,9 @@ for subdir in set(subdirs.values()):
     nms_h = " ".join('$(CPPDIR)/%s.pb.h' % n for n, sd in subdirs.iteritems() if sd == subdir)
     nms_py = " ".join('$(PYDIR)/%s_pb2.py' % n for n, sd in subdirs.iteritems() if sd == subdir)
     lines.append("dist_proto%s_DATA=%s" % (subdir.replace("/",""), nms_pr))
-    lines.append("protoinclude%s_HEADERS=%s" % (subdir.replace("/",""), nms_h))
-    lines.append("protopython%s_PYTHON=%s $(PYDIR)/%s/__init__.py" % (subdir.replace("/",""), nms_py, subdir))
+    lines.append("nodist_protoinclude%s_HEADERS=%s" % (subdir.replace("/",""), nms_h))
+    lines.append("nodist_protopython%s_PYTHON=%s $(PYDIR)/%s/__init__.py" % (subdir.replace("/",""), nms_py, subdir))
+    lines[-1] = lines[-1].replace("//","/") # for subdir == ""
     lines.append("")
 
 lines.append("""
@@ -53,8 +59,9 @@ $(PYDIR)/__init__.py: $(PROTOBUF_PY)
 	grep -Ho 'class [A-Za-z0-9]*' $^ | sed 's/.py:class/ import/' | sed "s/python\/a4\/proto\/$(A4PACK)\//from ./" | sed 's/\//./g' > $@
 
 # make sure all protobuf are generated before they are built!
-$(PROTOBUF_CPP): $(PROTOBUF_H)
+$(PROTOBUF_CC): $(PROTOBUF_H)
 
+CLEANFILES += $(PROTOBUF_H) $(PROTOBUF_CC) $(PROTOBUF_PY)
 
 """)
 lines.append("")
