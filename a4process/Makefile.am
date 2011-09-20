@@ -32,10 +32,7 @@ test_app_SOURCES = src/test_app.cpp
 test_app_CPPFLAGS = $(AM_CPPFLAGS) $(A4_CPPFLAGS) $(PROTOBUF_CFLAGS) -I$(builddir)/../a4io/src
 test_app_LDADD=$(LDADD) $(A4_LIBS)
 
-check_SCRIPTS = src/test_app.sh
+dist_check_SCRIPTS = src/test_app.sh
 
 TESTS=test_hashlookup test_hashlookup_speed test_objstore_speed src/test_app.sh
-
-installcheck-local: bin/test_rw
-	source $(bindir)/this_a4.sh && $(pkgdatadir)/test_app
 
