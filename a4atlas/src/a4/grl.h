@@ -1,19 +1,29 @@
-#include <boost/shared_ptr.hpp>
-#include <inttypes.h>
+#ifndef _A4ATLAS_GRL_H_
+#define _A4ATLAS_GRL_H_
 
-#include <map>
+#include <cstdint>
 #include <set>
+#include <string>
+#include <map>
 #include <utility>
 
-class GRL {
-    public:
-        GRL(const std::string & fn);
-        bool pass(const uint32_t &run, const uint32_t &lb) const;
+namespace a4{
+    /// Namespace for ATLAS-specific utilities and helper classes
+    namespace atlas{
 
-    private:
-        typedef std::pair<uint32_t,uint32_t> LBRange; // <end lb, start lb>
-        std::map<uint32_t, std::set<LBRange> > _data;
+        /// Helper class for ATLAS Good Run Lists in (run, lumiblock) format.
+        /// WARNING: This class cannot be used for reading standard XML GRLS!
+        class GRL {
+            public:
+                GRL(const std::string & fn);
+                bool pass(const uint32_t &run, const uint32_t &lb) const;
 
+            private:
+                typedef std::pair<uint32_t,uint32_t> LBRange; // <end lb, start lb>
+                std::map<uint32_t, std::set<LBRange> > _data;
+
+        };
+    };
 };
 
-typedef boost::shared_ptr<GRL> GRLPtr;
+#endif

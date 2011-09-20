@@ -1,16 +1,14 @@
-#include "a4/application.h"
-#include "a4/grl.h"
-
 #include <iostream>
-#include <map>
-#include <set>
-#include <utility>
+
+#include <a4/grl.h>
 
 using namespace std;
+using namespace a4::atlas;
 
 int main(int argc, char ** argv) {
     if (argc != 2) {
         cout << "Usage: test_grl <test.grl file>" << endl;
+        return 0;
     }
     GRL test(argv[1]);
     cout << test.pass(8888880, 699) << endl;

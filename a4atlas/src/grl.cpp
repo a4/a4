@@ -1,18 +1,30 @@
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 
 #include <a4/grl.h>
 
-#include <stdexcept>
-
 using namespace std;
+
+namespace a4{ namespace atlas{
 
 GRL::GRL(const string & fn) {
     ifstream in(fn.c_str(), ios::in);
-    if (!in) throw runtime_error("Could not open GRL file!");
+    if (!in) {
+        cerr << "ERROR - a4::atlas::GRL::GRL - Can not open '" << fn << "'!" << endl;
+        throw runtime_error("Can not open GRL file!");
+    }
     uint32_t run, start, end;
     while(in >> run >> start >> end) {
         _data[run].insert(LBRange(end, start));
+    }
+    if (in.bad()) {
+        cerr << "ERROR - a4::atlas::GRL::GRL - Reading data from '" << fn << "' failed! Is it really in (run, lb) format?" << endl;
+        throw runtime_error("Can not read GRL file!");
+    }
+    if (_data.size() == 0) {
+        cerr << "ERROR - a4::atlas::GRL::GRL - Cowardly refusing to use empty GRL from '" << fn << "'. Is it really in (run, lb) format?" << endl;
+        throw runtime_error("Empty GRL file!");
     }
 };
 
@@ -30,3 +42,5 @@ bool GRL::pass(const uint32_t &run, const uint32_t &lb) const {
     if (block->second <= lb) return true;
     return false;
 }
+
+};}; // namespace atlas::a4;
