@@ -16,8 +16,6 @@ BOOST_REQUIRE([1.33])
 
 AC_PROTOBUF_CHECK([:],[AC_MSG_ERROR("Requires google protobuf library!")])
 
-AH_BOTTOM([])
-
 AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_FILES([Makefile this_a4.sh.in:this_a4.sh.ac])
 
