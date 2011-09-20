@@ -20,6 +20,23 @@ using a4::io::A4OutputStream;
 
 typedef std::vector<string> FileList;
 
+// Write the function ourselves since gcc stl just returns 0 every time
+int hardware_concurrency() {
+    int num_cores = std::thread::hardware_concurrency();
+    if (num_cores >= 1) return num_cores;
+    // Yeah, thought so. Let's get it from cpuinfo since i'm on the train and have no net.
+    num_cores = 0;
+
+    // just count the lines starting with "processor "
+    std::ifstream cpuinfo("/proc/cpuinfo");
+    std::string line;
+    while(getline(cpuinfo,line)) {
+        std::string subst(line, 0, std::min((size_t)10, line.size()));
+        if (subst == "processor " || subst == "processor\t") num_cores++;
+    }
+    return num_cores;
+};
+
 namespace a4{ namespace process{
 
 SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) : configuration(cfg) {
@@ -61,6 +78,7 @@ try
     // compatible with the version of the headers we compiled against
     //GOOGLE_PROTOBUF_VERIFY_VERSION;
     int n_threads;
+    int hw_threads = hardware_concurrency();
     FileList inputs;
     po::options_description commandline_options;
     po::options_description config_file_options;
@@ -81,7 +99,7 @@ try
 
     po::options_description cfgopt("Configuration: (section [config] in configuration file)");
     cfgopt.add_options()
-        ("config.threads,t", po::value<int>(&n_threads)->default_value(std::thread::hardware_concurrency()), "run N multi-threads [# of cores]");
+        ("config.threads,t", po::value<int>(&n_threads)->default_value(hw_threads), "run N multi-threads [# of cores]");
 
     po::options_description useropt = configuration->get_options();
 
