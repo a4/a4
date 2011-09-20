@@ -2,8 +2,6 @@ ACLOCAL_AMFLAGS = -I m4
 
 include $(srcdir)/m4/a4.am
 
-A4PACK=io
-
 a4includedir=${includedir}/a4
 a4pythondir=${pythondir}/a4
 a4pythonprotodir=${pythondir}/a4/proto
@@ -15,24 +13,13 @@ a4include_HEADERS = src/a4/a4io.h src/a4/stream.h src/a4/message.h src/a4/input_
 a4python_PYTHON = python/a4/__init__.py python/a4/A4Stream.py
 a4pythonproto_PYTHON = python/a4/proto/__init__.py
 
-protodir=${localstatedir}/a4/proto/$(A4PACK)
-protoincludedir=${includedir}/a4/proto/$(A4PACK)
-protopythondir=${pythondir}/a4/proto/$(A4PACK)
-
-PYDIR=python/a4/proto/$(A4PACK)
-CPPDIR=src/a4/proto/$(A4PACK)
+A4PACK=io
+include protobuf.make
 
 AM_CPPFLAGS=$(PROTOBUF_CFLAGS)
 LDADD=liba4io.la $(PROTOBUF_LIBS)
 
-include protobuf.make
-
-dist_proto_DATA=$(PROTOBUF_PROTO)
-protoinclude_HEADERS = $(PROTOBUF_H)
-protopython_PYTHON = $(PROTOBUF_PY) $(PYDIR)/__init__.py
-
-lib_LTLIBRARIES=liba4io.la
-liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H) \
+LIBRARY_SOURCES=\
     src/gzip_stream.h src/gzip_stream.cpp \
     src/a4/message.h \
     src/a4/input_stream.h src/input_stream.cpp \
@@ -40,6 +27,11 @@ liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H) \
     src/a4/stream.h src/stream.cpp \
     src/a4/input.h src/input.cpp \
     src/a4/output.h src/output.cpp
+
+lib_LTLIBRARIES=liba4io.la
+nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H) $(LIBRARY_SOURCES)
+EXTRA_DIST+=$(LIBRARY_SOURCES)
+
 liba4io_la_LIBADD=$(PROTOBUF_LIBS)
 liba4io_la_CPPFLAGS=$(PROTOBUF_CFLAGS)
 
@@ -96,6 +88,7 @@ installcheck-local: python/test_pyrw test_read test_write_fw test_write_bw
 	rm -f pytest_fw.a4 pytest_bw.a4 pytest_fwfw.a4 pytest_bwfw.a4 pytest_fwbw.a4 pytest_bwbw.a4
 	rm -f test_rw.a4
 	rm -f test_nomd_fw.a4 test_nomd_bw.a4
+	rm -f test_thread.a4 test_io.a4
 
 
 
