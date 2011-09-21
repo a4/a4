@@ -9,8 +9,7 @@ export A4_ROOT=$(cd $srcdir && pwd)
 A4_INIT
 A4_REQUIRE([a4io], [a4io.h])
 
-AC_CONFIG_HEADERS([a4io/src/config.h])
-AC_CONFIG_HEADERS([a4process/src/config.h])
+AC_CONFIG_HEADERS([config.h])
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([a4io/Makefile])
