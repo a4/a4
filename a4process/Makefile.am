@@ -1,27 +1,24 @@
 ACLOCAL_AMFLAGS = -I m4
 
-a4includedir=${includedir}/a4
-a4pythondir=${pythondir}/a4
+include m4/a4.am
 
+# Files to distribute
 a4include_HEADERS = \
     src/a4/a4process.h src/a4/driver.h src/a4/appdrivers.h \
     src/a4/hash_lookup.h src/a4/hash_lookup_impl.h\
     src/a4/object_store.h src/a4/object_store_impl.h
 
-a4python_PYTHON = 
-
+# Compilation options
 LDADD=liba4process.la $(A4_LIBS) $(BOOST_PROGRAM_OPTIONS_LIBS) $(BOOST_SYSTEM_LIBS)
 AM_CPPFLAGS=$(A4_CPPFLAGS) $(BOOST_PROGRAM_OPTIONS_CPPFLAGS) $(BOOST_SYSTEM_CPPFLAGS)
 
+# Main a4process library
 lib_LTLIBRARIES=liba4process.la
 liba4process_la_SOURCES= \
     src/a4/a4process.h src/a4process.cpp \
     src/a4/hash_lookup.h src/a4/hash_lookup_impl.h src/hash_lookup.cpp \
     src/a4/object_store.h src/a4/object_store_impl.h src/object_store.cpp \
     src/a4/driver.h src/a4/appdrivers.h src/driver.cpp
-
-#liba4process_la_LIBADD=$(BOOST_PROGRAM_OPTIONS_LIBS) $(BOOST_SYSTEM_LIBS)
-#liba4process_la_CPPFLAGS=$(BOOST_PROGRAM_OPTIONS_CPPFLAGS) $(BOOST_SYSTEM_CPPFLAGS)
 
 ## Test programs
 check_PROGRAMS = test_hashlookup test_hashlookup_speed test_objstore_speed test_app

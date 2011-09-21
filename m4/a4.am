@@ -1,4 +1,8 @@
 
+a4includedir=${includedir}/a4
+a4pythondir=${pythondir}/a4
+a4pythonprotodir=${pythondir}/a4/proto
+
 edit = sed -e 's|$${prefix}|$(prefix)|g'
  
 this_a4.sh: this_a4.sh.in
