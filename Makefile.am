@@ -7,7 +7,8 @@ include m4/a4.am
 
 SUBDIRS+=a4atlas a4io a4process
 
-bin_SCRIPTS = this_a4.sh
+bin_SCRIPTS += this_a4.sh
+CLEANFILES += this_a4.sh
 
 doxygen-user:
 	mkdir -p doc

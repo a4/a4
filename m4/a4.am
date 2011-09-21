@@ -18,6 +18,6 @@ install-exec-hook:
 	if ! test -e python; then $(LN_S) `which $(PYTHON)` python; fi
 
 EXTRA_SCRIPTS = this_a4.sh
-EXTRA_DIST = this_a4.sh.in
-CLEANFILES = this_a4.sh
-# bin_SCRIPTS = ${A4_THIS_SCRIPT}
+EXTRA_DIST = ${A4_THIS_SCRIPT_IN}
+CLEANFILES = ${A4_THIS_SCRIPT}
+bin_SCRIPTS = ${A4_THIS_SCRIPT}

@@ -55,7 +55,7 @@ AC_DEFUN([A4_REQUIRE], [
     CPPFLAGS+=$A4_CPPFLAGS
     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <a4/$2>]])],
         [:],
-        [AC_MSG_FAILURE([Did not find header files for $1!])])
+        [AC_MSG_FAILURE([Could not compile program with $1 headers (a4/$2)!])])
     # We cannot check the linker since the other pack might not be compiled yet
     CPPFLAGS=$a4_cppflags_save
     AC_SUBST([A4_CPPFLAGS],[$A4_CPPFLAGS])

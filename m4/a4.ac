@@ -24,7 +24,7 @@ AC_CONFIG_FILES([this_a4.sh.in:this_a4.sh.ac])
 # only set the following variables if we configure an a4 package separately
 if test x$A4PACK != x; then
     CPPFLAGS+=" -I$srcdir/src -I$builddir/src "
-else
     AC_SUBST([A4_THIS_SCRIPT],[this_a4.sh])
+    AC_SUBST([A4_THIS_SCRIPT_IN],[this_a4.sh.in])
 fi
 
