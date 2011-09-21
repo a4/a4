@@ -14,7 +14,7 @@ a4python_PYTHON = python/a4/__init__.py python/a4/A4Stream.py
 a4pythonproto_PYTHON = python/a4/proto/__init__.py
 
 # Configuration options
-AM_CPPFLAGS=$(PROTOBUF_CFLAGS)
+AM_CPPFLAGS+=$(PROTOBUF_CFLAGS)
 LDADD=liba4io.la $(PROTOBUF_LIBS)
 
 # Main a4io library
@@ -27,10 +27,9 @@ LIBRARY_SOURCES=\
     src/a4/input.h src/input.cpp \
     src/a4/output.h src/output.cpp
 lib_LTLIBRARIES=liba4io.la
-nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H) $(LIBRARY_SOURCES)
-EXTRA_DIST+=$(LIBRARY_SOURCES) # split up like this to maintain build order (protobuf first)
+nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
+dist_liba4io_la_SOURCES=$(LIBRARY_SOURCES)
 liba4io_la_LIBADD=$(PROTOBUF_LIBS)
-liba4io_la_CPPFLAGS=$(PROTOBUF_CFLAGS)
 
 ## Test programs
 check_PROGRAMS = test_rw test_io test_thread

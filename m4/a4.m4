@@ -1,10 +1,3 @@
-# A4_PACKAGE()
-# Set up configure.ac defaults for an A4 Pack
-AC_DEFUN([A4_PACKAGE], 
-
-)
-
-
 # A4_INIT()
 # -----------------------------------------------
 # Set up --with-a4

@@ -15,5 +15,10 @@ AC_PROTOBUF_CHECK([:],[AC_MSG_ERROR("Requires google protobuf library!")])
 
 AC_CONFIG_FILES([this_a4.sh.in:this_a4.sh.ac])
 
-CPPFLAGS+=" -I$srcdir/src -Isrc "
+# only set the following variables if we configure an a4 package separately
+if test x$A4PACK != x; then
+    CPPFLAGS+=" -I$srcdir/src -I$builddir/src "
+else
+    AC_SUBST([A4_THIS_SCRIPT],[this_a4.sh])
+fi
 

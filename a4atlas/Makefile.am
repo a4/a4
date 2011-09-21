@@ -12,7 +12,7 @@ a4include_HEADERS = src/a4/grl.h
 a4python_PYTHON = python/root2a4.py
 
 ## Compilation flags
-AM_CPPFLAGS=$(PROTOBUF_CFLAGS)
+AM_CPPFLAGS+=$(PROTOBUF_CFLAGS)
 LDADD=liba4atlas.la $(PROTOBUF_LIBS)
 
 ## Main a4atlas library
