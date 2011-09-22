@@ -14,12 +14,12 @@ if test x"$A4_ROOT" != x; then
     AC_MSG_NOTICE([Detected A4_ROOT; continuing with --with-a4=$A4_ROOT])
     with_a4=$A4_ROOT
   else
-    AC_MSG_NOTICE([Detected A4_ROOT=$A4_ROOT, but overridden by --with-a4=$with_a4])
+    AC_MSG_NOTICE([Detected A4_ROOT=$A4_ROOT, but overridden by --with-a4=${with_a4}])
   fi
 fi
 
 AC_SUBST([DISTCHECK_CONFIGURE_FLAGS],
-         ["$DISTCHECK_CONFIGURE_FLAGS '--with-a4=$with_a4'"])dnl
+         ["$DISTCHECK_CONFIGURE_FLAGS '--with-a4=${with_a4}'"])dnl
 
 A4_CPPFLAGS=""
 A4_LIBS=""
@@ -34,21 +34,21 @@ with_a4_is_setup=yes
 # ACTION-IF-NOT-FOUND action if one was supplied.
 # Otherwise aborts with an error message.
 AC_DEFUN([A4_REQUIRE], [
-    if test x$with_a4_is_setup == x; then
+    if test x"$with_a4_is_setup" == x; then
         AC_MSG_ERROR([Put A4\_INIT before any A4\_REQUIRE macros!]);
     fi
     AC_LANG_ASSERT([C++])
     if test x"$with_a4" != x; then
-        if ! test -d $with_a4/$1; then
-            AC_MSG_ERROR([Directory $with_a4 does not contain package $1!])
-        else 
-            if test -d "$with_a4/$1/include"; then
-                A4_CPPFLAGS+=" -I$with_a4/$1/include "
-                A4_LIBS+=" -L$with_a4/$1/libs -l$1 "
-            else
-                A4_CPPFLAGS+=" -I$with_a4/$1 -I$with_a4/$1/src "
-                A4_LIBS+=' -L${builddir}/../$1/.libs -l$1 '
-            fi
+        if test -d ${with_a4}/include; then
+            # Installation directory
+            A4_CPPFLAGS+=" -I${with_a4}/include "
+            A4_LIBS+=" -L${with_a4}/lib -l$1 "
+        else
+            # Source directory
+            AC_MSG_WARN([A4 is not installed in ${with_a4}! Trying to use compiled libraries in-place. Take care to compile dependent packages in order.])
+            # Try to use either this directory or that build directory
+            A4_CPPFLAGS+=" -I${with_a4}/$1/src -I${builddir}/../$1/src "
+            A4_LIBS+=' -L${with_a4}/$1/.libs -L${builddir}/../$1/.libs -l$1 '
         fi
     fi
     a4_cppflags_save=$CPPFLAGS
