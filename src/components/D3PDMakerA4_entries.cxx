@@ -1,0 +1,10 @@
+#include "../A4D3PDSvc.h"
+#include "GaudiKernel/DeclareFactoryEntries.h"
+
+
+DECLARE_NAMESPACE_SERVICE_FACTORY   (D3PD, A4D3PDSvc)
+
+
+DECLARE_FACTORY_ENTRIES(D3PDMakerA4) {
+  DECLARE_NAMESPACE_SERVICE   (D3PD, A4D3PDSvc)
+}
