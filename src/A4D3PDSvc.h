@@ -23,6 +23,7 @@ namespace D3PD {
 
 
 class A4D3PD;
+class ID3PD;
 
 
 /**
@@ -70,6 +71,8 @@ private:
   /// Make sure all files are closed before exiting, to prevent crashes.
   static void cleanup();
 
+  /// Property: If true, then we're in format dumping mode
+  bool m_format_dumping;
 
   /// Property: If true, then add BranchRef info to the tuple.
   bool m_doBranchRef;
@@ -102,7 +105,7 @@ private:
   ServiceHandle<ITHistSvc> m_histSvc;
 
   /// Remember all the tuples we've made.
-  std::vector<A4D3PD*> m_d3pds;
+  std::vector<ID3PD*> m_d3pds;
 
   // Disallow copying.
   A4D3PDSvc (const A4D3PDSvc&);

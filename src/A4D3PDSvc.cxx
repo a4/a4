@@ -1,5 +1,6 @@
 #include "A4D3PDSvc.h"
 #include "A4D3PD.h"
+#include "A4ProtoDumpD3PD.h"
 #include "AnalysisTools/AANTupleParams.h"
 #include "AthenaKernel/errorcheck.h"
 #include "TTree.h"
@@ -24,7 +25,8 @@ A4D3PDSvc::A4D3PDSvc (const std::string& name,
 {
   // See comments on cleanup().
   std::atexit (cleanup);
-
+  
+  declareProperty ("FormatDumping",  m_format_dumping = false);
   declareProperty ("HistSvc",        m_histSvc);
   declareProperty ("DoBranchRef",    m_doBranchRef = true);
   declareProperty ("MasterTree",     m_masterTree = AANTupleParams::c_treeName);
@@ -76,7 +78,7 @@ void A4D3PDSvc::cleanup ()
 StatusCode A4D3PDSvc::initialize()
 {
   CHECK( Service::initialize() );
-  CHECK( m_histSvc.retrieve() );
+  
   return StatusCode::SUCCESS;
 }
 
@@ -86,6 +88,8 @@ StatusCode A4D3PDSvc::initialize()
  */
 StatusCode A4D3PDSvc::finalize()
 {
+
+#if 0
   // Run through all the trees we've made.
   for (size_t i = 0; i < m_d3pds.size(); i++) {
     A4D3PD* d3pd = m_d3pds[i];
@@ -117,6 +121,7 @@ StatusCode A4D3PDSvc::finalize()
     // (Doesn't delete the A4 tree itself.)
     delete d3pd;
   }
+#endif
   return StatusCode::SUCCESS;
 }
 
@@ -133,6 +138,7 @@ StatusCode A4D3PDSvc::finalize()
  */
 StatusCode A4D3PDSvc::make (const std::string& name, ID3PD* & d3pd)
 {
+
   std::string tname = name;
   std::string::size_type ipos = name.rfind ('/');
   std::string master = m_masterTree;
@@ -146,6 +152,15 @@ StatusCode A4D3PDSvc::make (const std::string& name, ID3PD* & d3pd)
       master = sname + master;
     }
   }
+  
+  // Format dumping mode
+  if (m_format_dumping)
+  {
+    d3pd = new A4ProtoDumpD3PD();
+    m_d3pds.push_back(d3pd);
+    return StatusCode::SUCCESS;
+  }
+  
   TTree* tree = new TTree (tname.c_str(), tname.c_str());
   CHECK( m_histSvc->regTree (name, tree) );
   if (m_doBranchRef)
