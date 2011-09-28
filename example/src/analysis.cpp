@@ -1,7 +1,5 @@
 #include <iostream>
-
 #include <a4/application.h>
-
 #include "a4/proto/mya4/Event.pb.h"
 
 using namespace std;
