@@ -13,3 +13,4 @@ end_private
 library D3PDMakerA4 *.cxx components/*.cxx
 apply_pattern component_library
 
+apply_pattern declare_python_modules files=*.py

@@ -1,12 +1,10 @@
-# $Id: MultiReaderAlg.py 25092 2010-12-14 10:51:40Z krasznaa $
-
 from D3PDMakerCoreComps.D3PDObject import D3PDObject
 import D3PDMakerCoreComps
 
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 from AthenaPython import PyAthena
 
-from D3PDMakerReader.D3PDMakerReaderConf import D3PD__MultiReaderAlg
+from D3PDMakerA4.D3PDMakerA4Conf import D3PD__A4DumpAlg
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import AlgSequence
@@ -14,9 +12,9 @@ topSequence = AlgSequence()
 
 ##
 # A class very similar to D3PDMakerCoreComps.MakerAlg, but it creates a configured
-# version of the D3PD::MultiReaderAlg. Can be used directly as if it were a MakerAlg
+# version of the D3PD::A4DumpAlg. Can be used directly as if it were a MakerAlg
 # object.
-class MultiReaderAlg( D3PD__MultiReaderAlg ):
+class A4DumpAlg( D3PD__A4DumpAlg ):
 
     def __init__( self,
                   name,
@@ -25,7 +23,7 @@ class MultiReaderAlg( D3PD__MultiReaderAlg ):
                   preD3PDAlgSeqName = D3PDMakerFlags.PreD3PDAlgSeqName(),
                   **kwargs ):
 
-        self.__logger = logging.getLogger( "MultiReaderAlg" )
+        self.__logger = logging.getLogger( "A4DumpAlg" )
 
         # Work around initialization order issue.
         seq.__iadd__( D3PDMakerCoreComps.DummyInitAlg( name + 'DummyInit' ),
@@ -36,7 +34,7 @@ class MultiReaderAlg( D3PD__MultiReaderAlg ):
             tuplename = name
 
         # Create the algorithm Configurable.
-        D3PD__MultiReaderAlg.__init__ ( self, name,
+        D3PD__A4DumpAlg.__init__ ( self, name,
                                         TupleName = tuplename,
                                         **kwargs )
 
@@ -89,16 +87,29 @@ class MultiReaderAlg( D3PD__MultiReaderAlg ):
 
         nchild = len( self )
         if type( config ) != type( [] ):
-            self.__logger.info( "Adding D3PDObject with name \"" + config.ObjectName +
-                                "\" and prefix \"" + config.Prefix + "\"" )
-            self.Tools      += [ config ]
-            self.Prefixes   += [ config.Prefix ]
-            self.ClassNames += [ config.ObjectName ]
             config = [ config ]
-        else:
-            self.__logger.warning( "Should only add single D3PDObject-s to the algorithm!" )
+            
+        for c in config:
+            
+            try:
+                self.Tools[c.getName()]
+            except IndexError:
+                in_tools = False
+            else:
+                # Skip those which already exist
+                in_tools = True
 
-        super( MultiReaderAlg, self ).__iadd__( config )
+            self.__logger.info("Adding D3PDObject with name '{0}' '{1}' '{2}'"
+                               .format(c.Prefix, c.ObjectName, c.getName()))
+            
+            if in_tools:
+                continue
+                                          
+            self.Tools      += [ c ]
+            self.Prefixes   += [ c.Prefix ]
+            self.ClassNames += [ c.ObjectName ]
+
+        super( A4DumpAlg, self ).__iadd__( config )
 
         # Rescan all children to set the proper collection getter registry.
         self._setRegistry( self )
