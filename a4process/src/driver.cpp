@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <thread>
 
-#include <a4/appdrivers.h>
+#include <a4/application.h>
 #include <a4/input.h>
 #include <a4/output.h>
 
