@@ -14,7 +14,7 @@ if len(args) == 0:
     parser.print_help()
     exit(-1)
 
-skip = options.index-1
+skip = int(options.index)-1
 events = map(int, options.event)
 do_events = (len(events) > 0)
 
