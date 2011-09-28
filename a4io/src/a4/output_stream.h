@@ -5,7 +5,7 @@
 #include <vector>
 #include <cassert>
 
-#include <a4/stream.h>
+#include <a4/register.h>
 
 
 namespace google{ namespace protobuf{ 

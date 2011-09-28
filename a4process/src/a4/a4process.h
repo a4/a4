@@ -5,6 +5,7 @@
 
 #include <a4/a4io.h>
 #include <a4/message.h>
+#include <a4/register.h>
 
 namespace po = ::boost::program_options;
 
@@ -50,13 +51,13 @@ namespace a4{
         template<class ProtoMessage, class ProtoMetaData>
         class ProcessorOf : public Processor {
             public:
+                ProcessorOf() { a4::io::RegisterClassID<ProtoMessage> _e; a4::io::RegisterClassID<ProtoMetaData> _m; };
                 /// Override this to proces only your requested messages
                 virtual bool process(const ProtoMessage &) = 0;
                 bool process_message(const A4Message msg) { return process(*msg.as<ProtoMessage>()); };
                 const ProtoMetaData & metadata() {
-                    A4Message & msg = metadata_message();
-                    ProtoMetaData & md = msg.as<ProtoMetaData>();
-                    return md;
+                    const A4Message msg = metadata_message();
+                    return *msg.as<ProtoMetaData>().get();
                 };
         };
 

@@ -29,15 +29,17 @@ namespace a4{ namespace io{
     }
 
     template <typename ProtoClass>
-    class UseClassID {
+    class RegisterClassID {
         public:
             static int class_id;
             virtual uint32_t get_class_id() { return class_id; } // forces class_id to be inited
     };
 
     template <typename ProtoClass>
-    int UseClassID<ProtoClass>::class_id = internal::reg_protoclass_id<ProtoClass>();
+    int RegisterClassID<ProtoClass>::class_id = internal::reg_protoclass_id<ProtoClass>();
 
 };};
+
+#define A4RegisterClass(X) template class a4::io::RegisterClassID<X>;
 
 #endif

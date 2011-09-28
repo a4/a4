@@ -5,7 +5,7 @@
 #include <vector>
 #include <deque>
 
-#include <a4/stream.h>
+#include <a4/register.h>
 #include <a4/message.h>
 
 // used internally
