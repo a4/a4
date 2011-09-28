@@ -6,6 +6,8 @@
 
 using std::endl;
 
+#include <boost/foreach.hpp>
+
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/System.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -56,6 +58,18 @@ char find_typecode(const std::type_info& ti)
 
 namespace D3PD {
 
+    class Variable
+    {
+        friend class A4ProtoDumpD3PD;
+        
+        std::string type; ///< Full type name of the variable
+        std::string fullname; ///< Full name of the variable in the D3PD
+        std::string doc; ///< Variable documentation string
+        std::string name; ///< Variable name without prefix
+        std::string varname; ///< Variable name without prefix and whitespaces
+        bool primitive; ///< Flag showing whether variable is a primitive
+        TClass* cls;
+    };
 
 StatusCode A4ProtoDumpD3PD::recordInfo(
     std::ofstream&          output, 
@@ -63,11 +77,26 @@ StatusCode A4ProtoDumpD3PD::recordInfo(
     const std::string&      classname, 
     const ToolHandle<IObjFillerTool>&   tool) const
 {
-    output << prefix << endl
-           << classname << endl
-           << "TOOL!" << tool->name() << endl
-           << tool->isContainerFiller() << endl
-           << endl;
+    output << "---" << endl
+           << "prefix: " << prefix << endl
+           << "classname: " << classname << endl
+           << "tool: " << tool->name() << endl
+           << "is_container: " << tool->isContainerFiller() << endl
+           << "variables: " << endl;
+    
+    BOOST_FOREACH( const Variable& v, m_variables ) {
+        output << "  - ["
+               << "'" << v.type << "', "
+               << "'" << v.fullname.substr(prefix.length()) << "', "
+               //<< "'" << v.name << "', "
+               //<< "'" << v.varname << "', "
+               //<< "'" << v.doc << "', "
+               << "" << (v.primitive ? "True" : "False") << ", "
+               << "" << (v.cls ? "True" : "False")
+               << "]"
+               << endl;
+    }
+    
     return StatusCode::SUCCESS;
 }
 
@@ -81,6 +110,27 @@ StatusCode A4ProtoDumpD3PD::addVariable(
     REPORT_MESSAGE (MSG::INFO) << "Added variable " << name << " " << ti.name() << " " 
                                << ptr << " " << docstring << " " << defval;
 
+    // Store the full description of the variable:
+    A4ProtoDumpD3PD::Variable var;
+    var.fullname = name;
+    var.name = name;
+    var.varname = name;
+    var.doc = docstring;  
+    
+    char typecode = find_typecode(ti);
+    if (typecode != '\0') {
+        // Let's use the ROOT native types for the primitives:
+        var.type = typecode;
+        var.primitive = true;
+        var.cls = NULL;
+    } else {
+        // When we'll read the object, we'll have to use a pointer:
+        var.type = System::typeinfoName( ti.name() ) + "*";
+        var.primitive = false;
+        var.cls = getClass(ti);
+    }
+
+    /*
     // docstring.
     docstring.c_str();
 
@@ -102,6 +152,9 @@ StatusCode A4ProtoDumpD3PD::addVariable(
         // A class type.  Try to find the class.
         TClass* cls = getClass(ti);
     }
+    */
+
+    m_variables.push_back(var);
 
     return StatusCode::SUCCESS;
 }

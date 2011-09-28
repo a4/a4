@@ -5,6 +5,8 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include <TClass.h>
+
 #include "D3PDMakerInterfaces/ID3PD.h"
 #include "IA4D3PD.h"
 
@@ -16,6 +18,19 @@ namespace D3PD {
 
 class A4ProtoDumpD3PD : public IA4D3PD
 {
+    class Variable
+    {
+        friend class A4ProtoDumpD3PD;
+        
+        std::string type; ///< Full type name of the variable
+        std::string fullname; ///< Full name of the variable in the D3PD
+        std::string doc; ///< Variable documentation string
+        std::string name; ///< Variable name without prefix
+        std::string varname; ///< Variable name without prefix and whitespaces
+        bool primitive; ///< Flag showing whether variable is a primitive
+        TClass* cls;
+    };
+
 public:
 
     A4ProtoDumpD3PD() {};
@@ -52,6 +67,7 @@ public:
 
 private:
     TClass* getClass (const std::type_info& ti);
+    std::vector<Variable> m_variables;
 };
 
 
