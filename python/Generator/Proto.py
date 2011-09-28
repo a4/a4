@@ -101,6 +101,7 @@ TYPE_MAP = {
     "short": "int32",
     "unsigned int": "uint32",
     "unsigned short": "uint32",
+    "std::string": "string",
 }
 
 def is_vector(t):
@@ -111,7 +112,7 @@ def is_vector(t):
 
 def type_name(t):
     if len(t) == 1:
-        return TYPECODE_MAP.get(t, "unk-{0}".format(t))
+        return 'optional', TYPECODE_MAP.get(t, "unk-{0}".format(t))
     
     vector, subtype = is_vector(t)
     ALL_TYPES_SEEN.add(subtype)
@@ -119,8 +120,8 @@ def type_name(t):
     if vector:
         subvector, subsubtype = is_vector(subtype)
         if subvector:
-            return "SUBVECTOR[{0}]".format(subsubtype)
-        return TYPE_MAP[subtype]
+            return 'repeated', TYPE_MAP[subsubtype]
+        return 'optional', TYPE_MAP[subtype]
         
     assert False, "I don't know how to convert things which aren't vectors."
     
@@ -130,8 +131,8 @@ class VariablePlain(VariableBase):
     """
     def __init__(self, var):
         self.name = var.name
-        self.type = type_name(var.typecode)
-        self.comment = '[root_branch="{0}{1}"]'.format(var.prefix, var.name)
+        self.arity, self.type = type_name(var.typecode)
+        self.comment = '// [root_branch="{0}{1}"]'.format(var.prefix, var.name)
         
 class VariableMessage(VariableBase):
     """
@@ -154,7 +155,7 @@ class VariableMessage(VariableBase):
             else:
                 self.name += "s"
             self.arity = "repeated"
-            self.comment = '[root_branch_prefix="{0}"]'.format(obj.prefix)
+            self.comment = '// [root_branch_prefix="{0}"]'.format(obj.prefix)
         self.type = obj.classname
 
 class ProtoFile(object):
@@ -208,7 +209,7 @@ class ProtoFile(object):
     @property
     def content(self):
         PROTO_INCLUDES = dedent("""
-            #include <{0}>
+            import "{0}";
         """).strip()
 
         PROTO_MESSAGE = dedent("""
