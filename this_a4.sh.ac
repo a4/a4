@@ -1,19 +1,12 @@
 alias protoc=@PROTOBUF_PROTOC@
 export PROTOBUF_PROTOC=@PROTOBUF_PROTOC@
 
-if test "x@PROTOBUF_LIBS@" != "x"; then
-    export LDFLAGS="$LDFLAGS @PROTOBUF_LIBS@ "
-fi
-if test "x@PROTOBUF_CFLAGS@" != "x"; then
-    export CPPFLAGS="$CPPFLAGS @PROTOBUF_CFLAGS@ "
-fi
 if test "x@PROTOBUF_ROOT@" != "x"; then
     export PYTHONPATH=@PROTOBUF_ROOT@/python:$PYTHONPATH
-    export LD_LIBRARY_PATH=@PROTOBUF_ROOT@/lib:$LD_LIBRARY_PATH
+    export PROTOBUF_RPATH="-Wl,-rpath @PROTOBUF_ROOT@/lib"
 fi
 
 export PYTHONPATH=:@pythondir@:$PYTHONPATH
 export PATH=${prefix}/bin:$PATH
-export LD_LIBRARY_PATH=${prefix}/lib:$LD_LIBRARY_PATH
-export CPPFLAGS="$CPPFLAGS -std=c++0x -I${prefix}/include"
-export LDFLAGS="$LDFLAGS -L${prefix}/lib"
+export CPPFLAGS="$CPPFLAGS @PROTOBUF_CFLAGS@ -std=c++0x -I${prefix}/include"
+export LDFLAGS="$LDFLAGS @PROTOBUF_LIBS@ -L${prefix}/lib -Wl,-rpath ${prefix}/lib $PROTOBUF_RPATH"

@@ -6,15 +6,20 @@ CPPDIR=src/a4/proto/$(A4PACK)
 PROTOBUF_PROTO=$(shell find proto/ -name '*.proto')
 PROTOBUF_PY=$(patsubst proto/%.proto,$(PYDIR)/%_pb2.py,$(PROTOBUF_PROTO))
 PROTOBUF_CC=$(patsubst proto/%.proto,$(CPPDIR)/%.pb.cc,$(PROTOBUF_PROTO))
+PROTOBUF_O=$(patsubst %.cc,%.o,$(PROTOBUF_CC))
 
 SOURCES=$(wildcard src/*.cpp)
 
 CPPFLAGS+=-I$(CPPDIR)
 
-analyze: $(patsubst %.cpp,%.o,$(SOURCES)) $(patsubst %.cc,%.o,$(PROTOBUF_CC))
-	$(CXX) $(LDFLAGS) -la4io -o $@ $^
+.PHONY: all $(PROTOBUF_PY)
+.SECONDARY: $(PROTOBUF_CC) $(PROTOBUF_O)
 
-$(SOURCES): $(PROTOBUF_CC)
+all: analysis rwtest
+
+# Make your binary from the compiled sources and protobuf objects
+%: $(PROTOBUF_O) src/%.o
+	$(CXX) $(LDFLAGS) -la4 -o $@ $^
 
 # how to make protobuf objects
 $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(PROTOBUF_PROTO)
@@ -24,5 +29,10 @@ $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(PROTOBUF_PROTO)
 # how to make the python __init__.py
 $(PYDIR)/__init__.py: $(PROTOBUF_PY)
 	grep -Ho "class [A-Za-z0-9]*" $^ | sed 's/.py:class/ import/' | sed 's/python\/a4\/messages\//from ./' | sed 's/\//./g' > $@
+
+
+clean:
+	rm -rf $(PYDIR) $(CPPDIR)
+	rm -f $(patsubst %.cpp,%.o,$(SOURCES))
 
 
