@@ -9,8 +9,7 @@ AC_PROG_CXX([g++44 g++4.4 g++-4.4 g++46 g++4.6 g++-4.6 g++45 g++4.5 g++-4.5 g++ 
 AC_LANG([C++])
 AC_LANG_CXX_0X
 AM_PATH_PYTHON([2.6])
-AC_PROG_LIBTOOL
-#LT_INIT
+m4_ifdef([LT_INIT], [LT_INIT], [AC_PROG_LIBTOOL])
 
 AC_PROTOBUF_CHECK([:],[
     if test x$PACKAGE_NAME != xa4; then
