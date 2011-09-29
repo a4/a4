@@ -9,8 +9,8 @@ a4include_HEADERS = \
     src/a4/object_store.h src/a4/object_store_impl.h
 
 # Compilation options
-LDADD=liba4process.la $(A4_LIBS) $(BOOST_PROGRAM_OPTIONS_LIBS) $(BOOST_SYSTEM_LIBS)
-AM_CPPFLAGS+=$(A4_CPPFLAGS) $(BOOST_PROGRAM_OPTIONS_CPPFLAGS) $(BOOST_SYSTEM_CPPFLAGS)
+LDADD=liba4process.la $(A4_LIBS) $(BOOST_LIBS) -lboost_program_options
+AM_CPPFLAGS+=$(A4_CPPFLAGS) $(BOOST_CPPFLAGS)
 
 # Main a4process library
 lib_LTLIBRARIES=liba4process.la
@@ -28,7 +28,7 @@ test_hashlookup_speed_SOURCES = src/test_hashlookup_speed.cpp
 test_objstore_speed_SOURCES = src/test_objstore_speed.cpp
 test_app_SOURCES = src/test_app.cpp
 test_app_CPPFLAGS = $(AM_CPPFLAGS) $(A4_CPPFLAGS) $(PROTOBUF_CFLAGS) -I$(builddir)/../a4io/src
-test_app_LDADD=$(LDADD) $(A4_LIBS)
+test_app_LDADD=$(LDADD) $(A4_LIBS) $(PROTOBUF_LIBS)
 
 dist_check_SCRIPTS = src/test_app.sh
 
