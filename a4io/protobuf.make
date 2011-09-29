@@ -2,9 +2,9 @@ protodir=${localstatedir}/a4/proto/$(A4PACK)
 protoincludedir=${includedir}/a4/proto/$(A4PACK)
 protopythondir=${pythondir}/a4/proto/$(A4PACK)
 
-PYDIR=$(builddir)/python/a4/proto/$(A4PACK)
-CPPDIR=$(builddir)/src/a4/proto/$(A4PACK)
-PROTOBUF_CFLAGS += -I$(builddir)/$(CPPDIR)
+PYDIR=$(top_builddir)/python/a4/proto/$(A4PACK)
+CPPDIR=$(top_builddir)/src/a4/proto/$(A4PACK)
+PROTOBUF_CFLAGS += -I$(top_builddir)/$(CPPDIR)
 
 PROTOBUF_PY=$(PYDIR)/A4Stream_pb2.py
 PROTOBUF_H=$(CPPDIR)/A4Stream.pb.h
