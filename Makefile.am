@@ -5,7 +5,7 @@ SUBDIRS=
 include m4/protobuf.am
 include m4/a4.am
 
-SUBDIRS+=a4atlas a4io a4process
+SUBDIRS+=a4io a4process a4atlas
 
 bin_SCRIPTS += this_a4.sh
 CLEANFILES += this_a4.sh
