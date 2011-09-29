@@ -47,8 +47,8 @@ AC_DEFUN([A4_REQUIRE], [
             # Source directory
             AC_MSG_WARN([A4 is not installed in ${with_a4}! Trying to use compiled libraries in-place. Take care to compile dependent packages in order.])
             # Try to use either this directory or that build directory
-            A4_CPPFLAGS+=" -I${with_a4}/$1/src -I${builddir}/../$1/src "
-            A4_LIBS+=' -L${with_a4}/$1/.libs -L${builddir}/../$1/.libs -l$1 '
+            A4_CPPFLAGS+=" -I${with_a4}/$1/src -I${top_builddir}/../$1/src "
+            A4_LIBS+=" -L${with_a4}/$1/.libs -L${top_builddir}/../$1/.libs -l$1 "
         fi
     fi
     a4_cppflags_save=$CPPFLAGS

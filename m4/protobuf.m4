@@ -8,9 +8,9 @@ AC_DEFUN([AC_PROTOBUF_DOWNLOAD],[
    /*) abs_srcdir=$srcdir ;;
    *)  abs_srcdir=$PWD/$srcdir ;;
   esac
-  case $builddir in
-   /*) abs_builddir=$builddir ;;
-   *)  abs_builddir=$PWD/$builddir ;;
+  case $top_builddir in
+   /*) abs_builddir=$top_builddir ;;
+   *)  abs_builddir=$PWD/$top_builddir ;;
   esac
 
 
