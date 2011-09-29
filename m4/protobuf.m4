@@ -8,11 +8,6 @@ AC_DEFUN([AC_PROTOBUF_DOWNLOAD],[
    /*) abs_srcdir=$srcdir ;;
    *)  abs_srcdir=$PWD/$srcdir ;;
   esac
-  case $top_builddir in
-   /*) abs_builddir=$top_builddir ;;
-   *)  abs_builddir=$PWD/$top_builddir ;;
-  esac
-
 
   if ! test -d "$srcdir/protobuf"; then
     if ! test -e "$srcdir/protobuf-2.4.1.tar.bz2"; then
@@ -29,7 +24,7 @@ AC_DEFUN([AC_PROTOBUF_DOWNLOAD],[
   fi
   AC_CONFIG_SUBDIRS([protobuf])
   AC_SUBST([PROTOBUF_BUILD], ["protobuf"])
-  export PROTOBUF_PRIVATE_BUILDDIR="$abs_builddir/protobuf/src"
+  export PROTOBUF_PRIVATE_BUILDDIR="$PWD/protobuf/src"
   export PROTOBUF_PRIVATE_SRCDIR="$abs_srcdir/protobuf/src"
   AC_SUBST([PROTOBUF_PROTOC], ["$PROTOBUF_PRIVATE_BUILDDIR/protoc"])
   AC_SUBST([PROTOBUF_LIBS], ["-pthread -L$PROTOBUF_PRIVATE_BUILDDIR/.libs -lprotobuf -lz -lpthread"])
