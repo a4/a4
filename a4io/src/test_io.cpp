@@ -12,7 +12,7 @@ int main(int argc, char ** argv) {
     {
         A4Output a4o("test_io.a4", "TestEvent");
 
-        auto stream = a4o.get_stream();
+        shared<A4OutputStream> stream = a4o.get_stream();
         stream->content_cls<TestEvent>();
         stream->metadata_cls<TestMetaData>();
 
@@ -31,8 +31,8 @@ int main(int argc, char ** argv) {
         in.add_file("test_io.a4");
         int cnt = 0;
         while (shared<A4InputStream> stream = in.get_stream()) {
-            while (auto msg = stream->next()) {
-                if (auto te = msg.as<TestEvent>()) {
+            while (A4Message msg = stream->next()) {
+                if (shared<TestEvent> te = msg.as<TestEvent>()) {
                     assert((cnt++%N) == te->event_number());
                 }
             }

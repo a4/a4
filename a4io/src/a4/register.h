@@ -15,7 +15,7 @@ namespace a4{ namespace io{
 
         template <typename ProtoClass>
         shared<Message> from_stream(google::protobuf::io::CodedInputStream * instr) {
-            auto msg = shared<ProtoClass>(new ProtoClass());
+            shared<ProtoClass> msg(new ProtoClass());
             msg->ParseFromCodedStream(instr);
             return msg;
         }

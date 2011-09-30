@@ -8,6 +8,11 @@
 #define dynamic_shared_cast std::dynamic_pointer_cast
 #define reinterpret_shared_cast std::reinterpret_pointer_cast
 #endif
+#ifndef foreach
+#include <boost/foreach.hpp>
+#define foreach BOOST_FOREACH
+#endif
+
 #include <cstdint>
 
 namespace google{namespace protobuf{ class Message; };};

@@ -2,7 +2,9 @@
 #define _A4_OUTPUT_H_
 
 #include <vector>
-#include <mutex>
+
+#include <boost/thread.hpp>
+#include <boost/thread/locks.hpp>
 
 #include <a4/output_stream.h>
 
@@ -31,7 +33,7 @@ namespace a4{ namespace io{
             std::string description;
             std::vector<shared<A4OutputStream>> _out_streams;
             std::vector<std::string> _filenames;
-            mutable std::mutex _mutex;
+            mutable boost::mutex _mutex;
     };
 };};
 

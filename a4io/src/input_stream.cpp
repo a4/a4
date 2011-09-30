@@ -217,13 +217,12 @@ bool A4InputStream::discover_all_metadata() {
             std::cerr << "ERROR - a4::io:A4InputStream - Unknown footer class_id " << msg.class_id << std::endl;
             return false;
         }
-        auto footer = msg.as<A4StreamFooter>();
+        shared<A4StreamFooter> footer = msg.as<A4StreamFooter>();
         size += footer->size() + footer_msgsize;
 
         std::vector<A4Message> _this_headers_metadata;
-        auto offsets = footer->metadata_offsets();
-        for (auto offset = offsets.begin(), end = offsets.end(); offset != end; offset++) {
-            uint64_t metadata_start = footer_abs_start - footer->size() + *offset;
+        foreach(uint64_t offset, footer->metadata_offsets()) {
+            uint64_t metadata_start = footer_abs_start - footer->size() + offset;
             if (seek(metadata_start, SEEK_SET) == -1) return false;
             A4Message msg = next(true);
             if (msg.class_id != _metadata_class_id) {
@@ -368,7 +367,7 @@ A4Message A4InputStream::next(bool internal) {
         
     if (message_type == A4StreamFooter::kCLASSIDFieldNumber) {
         // TODO: Process footer
-        auto foot = static_shared_cast<A4StreamFooter>(item);
+        shared<A4StreamFooter> foot = static_shared_cast<A4StreamFooter>(item);
 
         if (!_coded_in->ReadLittleEndian32(&size)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [3]!" << std::endl; 

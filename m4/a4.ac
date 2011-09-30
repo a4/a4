@@ -28,3 +28,4 @@ if test x$PACKAGE_NAME != xa4; then
     AC_SUBST([A4_THIS_SCRIPT_IN],[this_a4.sh.in])
 fi
 
+AC_REQUIRE_BOOST

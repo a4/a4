@@ -2,7 +2,7 @@ AC_INIT([a4],[0.1])
 AC_CONFIG_MACRO_DIR([m4])
 m4_include([m4/a4.ac])
 
-AC_REQUIRE_BOOST
+
 export A4_ROOT=$(cd $srcdir && pwd)
 A4_INIT
 A4_REQUIRE([a4io], [a4io.h])

@@ -26,8 +26,8 @@ int main(int argc, char ** argv) {
     {
         A4InputStream r("test_rw.a4");
         int cnt = 0;
-        while (auto rr = r.next()) {
-            if (auto te = rr.as<TestEvent>()) {
+        while (A4Message msg = r.next()) {
+            if (shared<TestEvent> te = msg.as<TestEvent>()) {
                 assert(cnt++ == te->event_number());
             }
         }

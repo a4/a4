@@ -18,7 +18,7 @@ int main(int argc, char ** argv) {
 
     int cnt = 0;
     while (A4Message rr = r.next()) {
-        if (auto te = rr.as<TestEvent>()) cnt++;
+        if (shared<TestEvent> te = rr.as<TestEvent>()) cnt++;
     }
     if (r.error()) throw "up";
     return 0;

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <functional>
-#include <thread>
+#include <boost/thread.hpp>
 
 #include "a4/proto/io/A4Stream.pb.h"
 #include "a4/output.h"
@@ -12,13 +12,13 @@ using namespace a4::io;
 const int N = 1000;
 
 void no_write(A4Output &a4o) {
-    auto stream = a4o.get_stream();
+    shared<A4OutputStream> stream = a4o.get_stream();
     stream->content_cls<TestEvent>();
     stream->metadata_cls<TestMetaData>();
 }
 
 void my_write(A4Output &a4o) {
-    auto stream = a4o.get_stream();
+    shared<A4OutputStream> stream = a4o.get_stream();
     stream->content_cls<TestEvent>();
     stream->metadata_cls<TestMetaData>();
 
@@ -36,12 +36,12 @@ void my_read(A4Input &in) {
     shared<A4InputStream> stream = in.get_stream();
     if (!stream) return;
     int cnt = 0;
-    while (auto msg = stream->next()) {
-        if (auto te = msg.as<TestEvent>()) {
+    while (A4Message msg = stream->next()) {
+        if (shared<TestEvent> te = msg.as<TestEvent>()) {
             assert((cnt++%N) == te->event_number());
         }
     }
-    if (stream->error()) std::cerr << "stream error in thread " << std::this_thread::get_id() << std::endl;
+    if (stream->error()) std::cerr << "stream error in thread " << boost::this_thread::get_id() << std::endl;
     assert(cnt == 5*N);
 }
 
@@ -50,19 +50,19 @@ void no_read(A4Input &in) {
     if (!stream) return;
     assert(stream->good());
     if (stream->error()) {
-        std::cerr << "stream error in no_read thread " << std::this_thread::get_id() << std::endl;
+        std::cerr << "stream error in no_read thread " << boost::this_thread::get_id() << std::endl;
     }
 }
 
 int main(int argc, char ** argv) {
     {
         A4Output a4o("test_thread.a4", "TestEvent");
-        std::thread t1 = std::thread(std::bind(&my_write, std::ref(a4o)));
-        std::thread t2 = std::thread(std::bind(&my_write, std::ref(a4o)));
-        std::thread t3 = std::thread(std::bind(&my_write, std::ref(a4o)));
-        std::thread t4 = std::thread(std::bind(&my_write, std::ref(a4o)));
-        std::thread t5 = std::thread(std::bind(&my_write, std::ref(a4o)));
-        std::thread t6 = std::thread(std::bind(&no_write, std::ref(a4o)));
+        boost::thread t1 = boost::thread(std::bind(&my_write, std::ref(a4o)));
+        boost::thread t2 = boost::thread(std::bind(&my_write, std::ref(a4o)));
+        boost::thread t3 = boost::thread(std::bind(&my_write, std::ref(a4o)));
+        boost::thread t4 = boost::thread(std::bind(&my_write, std::ref(a4o)));
+        boost::thread t5 = boost::thread(std::bind(&my_write, std::ref(a4o)));
+        boost::thread t6 = boost::thread(std::bind(&no_write, std::ref(a4o)));
         t1.join();
         t2.join();
         t3.join();
@@ -77,15 +77,15 @@ int main(int argc, char ** argv) {
         in.add_file("test_thread.a4");
         in.add_file("test_thread.a4");
         in.add_file("test_thread.a4");
-        std::thread t1 = std::thread(std::bind(&no_read, std::ref(in)));
-        std::thread t2 = std::thread(std::bind(&my_read, std::ref(in)));
-        std::thread t3 = std::thread(std::bind(&my_read, std::ref(in)));
-        std::thread t4 = std::thread(std::bind(&my_read, std::ref(in)));
-        std::thread t5 = std::thread(std::bind(&my_read, std::ref(in)));
-        std::thread t6 = std::thread(std::bind(&my_read, std::ref(in)));
-        std::thread t7 = std::thread(std::bind(&my_read, std::ref(in)));
-        std::thread t8 = std::thread(std::bind(&my_read, std::ref(in)));
-        std::thread t9 = std::thread(std::bind(&my_read, std::ref(in)));
+        boost::thread t1 = boost::thread(std::bind(&no_read, std::ref(in)));
+        boost::thread t2 = boost::thread(std::bind(&my_read, std::ref(in)));
+        boost::thread t3 = boost::thread(std::bind(&my_read, std::ref(in)));
+        boost::thread t4 = boost::thread(std::bind(&my_read, std::ref(in)));
+        boost::thread t5 = boost::thread(std::bind(&my_read, std::ref(in)));
+        boost::thread t6 = boost::thread(std::bind(&my_read, std::ref(in)));
+        boost::thread t7 = boost::thread(std::bind(&my_read, std::ref(in)));
+        boost::thread t8 = boost::thread(std::bind(&my_read, std::ref(in)));
+        boost::thread t9 = boost::thread(std::bind(&my_read, std::ref(in)));
         t1.join();
         t2.join();
         t3.join();

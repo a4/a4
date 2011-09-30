@@ -2,15 +2,16 @@
 #include <cstdlib>
 #include <fstream>
 
-#include <thread>
 #include <boost/lexical_cast.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/locks.hpp>
 
 #include <a4/output.h>
 
 using namespace a4::io;
 using std::ios;
 
-typedef std::unique_lock<std::mutex> Lock;
+typedef boost::unique_lock<boost::mutex> Lock;
 
 A4Output::A4Output(std::string output_file, std::string description) :
     output_file(output_file),
@@ -36,12 +37,12 @@ shared<A4OutputStream> A4Output::get_stream() {
 bool A4Output::close() {
     Lock lock(_mutex);
     _closed = true;
-    for (auto s = _out_streams.begin(), end = _out_streams.end(); s != end; s++) {
-        if ((*s)->opened()) (*s)->close();
+    foreach(shared<A4OutputStream> s, _out_streams) {
+        if (s->opened()) s->close();
     }
     if (_out_streams.size() == 1) {
-        auto from = _filenames[0].c_str();
-        auto to = output_file.c_str();
+        const char * from = _filenames[0].c_str();
+        const char * to = output_file.c_str();
         unlink(to);
         if (rename(from, to) == -1) {
             std::cerr << "ERROR - a4::io:A4Output - Can not rename " << from << " to " << to << "!" << std::endl;
@@ -56,7 +57,7 @@ bool A4Output::close() {
         }
         for (int i = 0; i < _filenames.size(); i++) {
             std::string fn = _filenames[i];
-            auto ostream = _out_streams[i];
+            shared<A4OutputStream> ostream = _out_streams[i];
             if (!ostream->opened()) continue; // maybe threads did not use their output
             std::fstream in(fn.c_str(), ios::in | ios::binary);
             if (!in) {

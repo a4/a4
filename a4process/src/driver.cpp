@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 #include <stdexcept>
-#include <thread>
+
+#include <boost/thread.hpp>
 
 #include <a4/application.h>
 #include <a4/input.h>
@@ -22,7 +23,7 @@ typedef std::vector<string> FileList;
 
 // Write the function ourselves since gcc stl just returns 0 every time
 int hardware_concurrency() {
-    int num_cores = std::thread::hardware_concurrency();
+    int num_cores = boost::thread::hardware_concurrency();
     if (num_cores >= 1) return num_cores;
     // Yeah, thought so. Let's get it from cpuinfo since i'm on the train and have no net.
     num_cores = 0;
@@ -54,19 +55,19 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
     
     while (shared<A4InputStream> instream = self->in->get_stream()) {
         self->set_instream(p, instream);
-        while (auto msg = instream->next()) {
+        while (A4Message msg = instream->next()) {
             if (instream->new_metadata()) p->new_metadata();
             p->process_message(msg);
         };
         if (instream->error()) {
-            std::cerr << "stream error in thread " << std::this_thread::get_id() << std::endl;
+            std::cerr << "stream error in thread " << boost::this_thread::get_id() << std::endl;
             return;
         }
     }
 }
 
 Processor * SimpleCommandLineDriver::new_initialized_processor() {
-    auto p = configuration->new_processor();
+    Processor * p = configuration->new_processor();
     configuration->setup_processor(*p);
     return p;
 }
@@ -129,7 +130,7 @@ try
         config_filename = arguments["config"].as<string>();
         explicit_config_file = true;        
     };
-    std::ifstream config_file(config_filename);
+    std::ifstream config_file(config_filename.c_str());
     if (!config_file && explicit_config_file) {
         throw std::runtime_error("Configuration file '" + config_filename + "' not found!");
     } else if (config_file && !explicit_config_file) {
@@ -142,7 +143,7 @@ try
     configuration->read_arguments(arguments);
 
     // DEBUG
-    for (auto i = inputs.begin(); i != inputs.end(); i++) cout << "inputs += " << *i << endl;
+    foreach(string & i, inputs) { cout << "inputs += " << i << endl; } 
     cout << "output = " << output << endl;
     cout << "results = " << results << endl;
     cout << "config_filename = " << config_filename << endl;
@@ -150,21 +151,21 @@ try
 
     // Set up I/O
     in.reset(new A4Input("command-line input files"));
-    for (auto i = inputs.begin(); i != inputs.end(); i++) in->add_file(*i);
+    foreach(string & i, inputs) in->add_file(i);
 
     if (output.size()) out.reset(new A4Output(output, "command-line output file"));
 
     shared<A4Output> a4results;
     if (results.size()) res.reset(new A4Output(output, "command-line results file"));
 
-    std::vector<std::thread> threads;
+    std::vector<boost::thread> threads;
     for (int i = 0; i < n_threads; i++) {
-        auto p = new_initialized_processor();
-        //threads.push_back(std::thread(std::bind(&simple_thread, this, processors[i])));
-        threads.push_back(std::thread(std::bind(&simple_thread, this, p)));
+        Processor * p = new_initialized_processor();
+        //threads.push_back(boost::thread(std::bind(&simple_thread, this, processors[i])));
+        threads.push_back(boost::thread(std::bind(&simple_thread, this, p)));
     };
 
-    for (auto t = threads.begin(); t != threads.end(); t++) t->join();
+    foreach(boost::thread & t, threads) t.join();
 
     // Clean Up any memory allocated by libprotobuf
     //google::protobuf::ShutdownProtobufLibrary();

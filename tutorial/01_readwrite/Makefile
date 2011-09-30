@@ -10,7 +10,7 @@ PROTOBUF_O=$(patsubst %.cc,%.o,$(PROTOBUF_CC))
 
 SOURCES=$(wildcard src/*.cpp)
 
-CPPFLAGS+=-I$(CPPDIR)
+CPPFLAGS+=-I$(CPPDIR) -I/home/sirius/Projekte/tmp/a4/miniboost
 
 .PHONY: all
 .SECONDARY: $(PROTOBUF_PY) $(PROTOBUF_CC) $(PROTOBUF_O)
@@ -19,7 +19,7 @@ all: analysis rwtest
 
 # Make your binary from the compiled sources and protobuf objects
 %: $(PROTOBUF_O) src/%.o
-	$(CXX) $(LDFLAGS) -la4io -la4process -lboost_program_options -o $@ $^
+	$(CXX) $(LDFLAGS) -la4io -la4process -lboost_program_options -lboost_thread -o $@ $^
 
 # how to make protobuf objects
 $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(PROTOBUF_PROTO)
