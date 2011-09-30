@@ -18,6 +18,15 @@ if test x"$A4_ROOT" != x; then
   fi
 fi
 
+# Set default a4 root directory if not specified
+if test x"$with_a4" = x; then
+  if test x$PACKAGE_NAME != xa4; then
+    with_a4=$(cd $srcdir && cd .. && pwd)
+  else
+    with_a4=$(cd $srcdir && pwd)
+  fi
+fi
+
 AC_SUBST([DISTCHECK_CONFIGURE_FLAGS],
          ["$DISTCHECK_CONFIGURE_FLAGS '--with-a4=${with_a4}'"])dnl
 
@@ -45,7 +54,6 @@ AC_DEFUN([A4_REQUIRE], [
             A4_LIBS+=" -L${with_a4}/lib -l$1 "
         else
             # Source directory
-            AC_MSG_WARN([A4 is not installed in ${with_a4}! Trying to use compiled libraries in-place. Take care to compile dependent packages in order.])
             # Try to use either this directory or that build directory
             A4_CPPFLAGS+=" -I${with_a4}/$1/src -I../$1/src "
             A4_LIBS+=" -L${with_a4}/$1/.libs -L../$1/.libs -l$1 "

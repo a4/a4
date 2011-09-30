@@ -5,6 +5,8 @@ protobuf_name=protobuf-2.4.1
 protobuf_pack=$protobuf_name.tar.bz2
 protobuf_url=http://protobuf.googlecode.com/files/$protobuf_pack
 
+threads=4
+
 echo "-------------------------------------------------"
 echo "A4: Acquiring source of needed Boost Libraries..."
 echo "-------------------------------------------------"
@@ -47,8 +49,12 @@ echo "---------------------------------"
 echo "A4: Compiling Protobuf Library..."
 echo "---------------------------------"
 
-if ! make -j4 && make install; then
+if ! make -j$threads; then
   echo "Protobuf compilation failed! :("
+  exit 1
+fi
+if ! make install; then
+  echo "Protobuf installation into $PWD failed! :("
   exit 1
 fi
 popd

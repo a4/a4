@@ -11,13 +11,8 @@ AC_LANG_CXX_0X
 AM_PATH_PYTHON([2.6])
 m4_ifdef([LT_INIT], [LT_INIT], [AC_PROG_LIBTOOL])
 
-AC_PROTOBUF_CHECK([:],[
-    if test x$PACKAGE_NAME != xa4; then
-        AC_MSG_ERROR("Requires google protobuf library!")
-    else
-        AC_PROTOBUF_DOWNLOAD
-    fi;
-])
+A4_PROTOBUF_CHECK([:],[AC_MSG_ERROR([A4 requires the google protobuf library, which configure could not find! Run $srcdir/get_protobuf.sh to setup a 'builtin' copy and rerun configure.])])
+A4_BOOST_CHECK([:],[AC_MSG_ERROR([A4 requires the C++ boost library version >= 1.41, which configure could not find! Run $srcdir/get_miniboost.sh to setup a 'builtin' copy of the required part of boost and rerun configure.])])
 
 AC_CONFIG_FILES([this_a4.sh.in:this_a4.sh.ac])
 
@@ -28,4 +23,3 @@ if test x$PACKAGE_NAME != xa4; then
     AC_SUBST([A4_THIS_SCRIPT_IN],[this_a4.sh.in])
 fi
 
-AC_REQUIRE_BOOST

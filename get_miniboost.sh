@@ -5,6 +5,8 @@ miniboost_name=miniboost-1
 miniboost_pack=$miniboost_name.tar.bz2
 miniboost_url=http://www.ebke.org/$miniboost_pack
 
+threads=4
+
 echo "-------------------------------------------------"
 echo "A4: Acquiring source of needed Boost Libraries..."
 echo "-------------------------------------------------"
@@ -45,10 +47,14 @@ echo "---------------------------------------"
 echo "A4: Compiling needed Boost Libraries..."
 echo "---------------------------------------"
 
-if ! ./b2 -j2 --prefix=$PWD; then
+if ! ./b2 -j$threads --prefix=$PWD; then
   echo "Boost compilation failed! :("
   exit 1
 fi
+rm -f lib include/boost
+ln -s stage/lib lib
+mkdir -p include
+ln -s ../boost include/boost
 popd
 
 echo "------------------------------------"
