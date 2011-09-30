@@ -57,12 +57,12 @@ void no_read(A4Input &in) {
 int main(int argc, char ** argv) {
     {
         A4Output a4o("test_thread.a4", "TestEvent");
-        boost::thread t1 = boost::thread(std::bind(&my_write, std::ref(a4o)));
-        boost::thread t2 = boost::thread(std::bind(&my_write, std::ref(a4o)));
-        boost::thread t3 = boost::thread(std::bind(&my_write, std::ref(a4o)));
-        boost::thread t4 = boost::thread(std::bind(&my_write, std::ref(a4o)));
-        boost::thread t5 = boost::thread(std::bind(&my_write, std::ref(a4o)));
-        boost::thread t6 = boost::thread(std::bind(&no_write, std::ref(a4o)));
+        boost::thread t1(my_write, boost::ref(a4o));
+        boost::thread t2(my_write, boost::ref(a4o));
+        boost::thread t3(my_write, boost::ref(a4o));
+        boost::thread t4(my_write, boost::ref(a4o));
+        boost::thread t5(my_write, boost::ref(a4o));
+        boost::thread t6(no_write, boost::ref(a4o));
         t1.join();
         t2.join();
         t3.join();
@@ -77,15 +77,15 @@ int main(int argc, char ** argv) {
         in.add_file("test_thread.a4");
         in.add_file("test_thread.a4");
         in.add_file("test_thread.a4");
-        boost::thread t1 = boost::thread(std::bind(&no_read, std::ref(in)));
-        boost::thread t2 = boost::thread(std::bind(&my_read, std::ref(in)));
-        boost::thread t3 = boost::thread(std::bind(&my_read, std::ref(in)));
-        boost::thread t4 = boost::thread(std::bind(&my_read, std::ref(in)));
-        boost::thread t5 = boost::thread(std::bind(&my_read, std::ref(in)));
-        boost::thread t6 = boost::thread(std::bind(&my_read, std::ref(in)));
-        boost::thread t7 = boost::thread(std::bind(&my_read, std::ref(in)));
-        boost::thread t8 = boost::thread(std::bind(&my_read, std::ref(in)));
-        boost::thread t9 = boost::thread(std::bind(&my_read, std::ref(in)));
+        boost::thread t1(no_read, boost::ref(in));
+        boost::thread t2(my_read, boost::ref(in));
+        boost::thread t3(my_read, boost::ref(in));
+        boost::thread t4(my_read, boost::ref(in));
+        boost::thread t5(my_read, boost::ref(in));
+        boost::thread t6(my_read, boost::ref(in));
+        boost::thread t7(my_read, boost::ref(in));
+        boost::thread t8(my_read, boost::ref(in));
+        boost::thread t9(my_read, boost::ref(in));
         t1.join();
         t2.join();
         t3.join();

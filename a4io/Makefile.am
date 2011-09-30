@@ -15,8 +15,8 @@ a4python_PYTHON = python/a4/__init__.py python/a4/A4Stream.py
 a4pythonproto_PYTHON = python/a4/proto/__init__.py
 
 # Configuration options
-AM_CPPFLAGS+=$(PROTOBUF_CFLAGS) $(BOOST_CFLAGS)
-LDADD=liba4io.la $(PROTOBUF_LIBS) $(BOOST_LIBS) -lboost_thread
+AM_CPPFLAGS+=$(PROTOBUF_CFLAGS) $(BOOST_CPPFLAGS)
+LDADD=liba4io.la $(PROTOBUF_LIBS) $(BOOST_LIBS)
 
 # Main a4io library
 LIBRARY_SOURCES=\

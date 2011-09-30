@@ -9,7 +9,7 @@ a4include_HEADERS = \
     src/a4/object_store.h src/a4/object_store_impl.h
 
 # Compilation options
-LDADD=liba4process.la $(A4_LIBS) $(BOOST_LIBS) -lboost_program_options -lboost_thread
+LDADD=liba4process.la $(A4_LIBS) $(BOOST_LIBS)
 AM_CPPFLAGS+=$(A4_CPPFLAGS) $(BOOST_CPPFLAGS)
 
 # Main a4process library
