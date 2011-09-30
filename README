@@ -1,5 +1,5 @@
-A4 - An ATLAS Analysis Attempt 
-------------------------------
+A4 - Another Attempt At Analysis
+--------------------------------
 Johannes Ebke <ebke@cern.ch>
 
 Inspired and building on Samvel Khalatyan's
@@ -7,4 +7,13 @@ excellent demonstration "RTvsPBThreads"
 
 http://indico.cern.ch/contributionDisplay.py?contribId=29&confId=141309
 https://github.com/ksamdev/RTvsPBThreads
+
+For instructions on how to install A4, see INSTALL.
+
+If you are impatient, try:
+    ./configure --prefix=$PWD && make -j2 && make install
+    source bin/this_a4.sh
+    cd tutorial/
+
+Troubleshooting tips are in INSTALL as well.
 

@@ -1,0 +1,64 @@
+A4 - Another Attempt At Analysis
+================================
+Johannes Ebke <ebke@cern.ch>
+
+
+Prerequisites
+-------------
+
+There are two main libraries which are required by A4:
+ * Google Protocol Buffers (protobuf, http://code.google.com/p/protobuf/)
+ * C++ Boost Library (http://www.boost.org/) version >= 1.41
+
+Since you might not have these installed on your system, A4 provides scripts
+that download them for you. They will then be compiled and installed
+automatically together with A4 as 'builtin' libraries:
+
+./get_protobuf.sh
+./get_miniboost.sh
+
+
+Installing from a Distribution
+------------------------------
+
+This part is for you if you are using a distribution package of A4.
+You have probably downloaded and extracted a file named 'a4-0.X.tar.bz2' or
+similar already.
+
+To install A4 into 'my/software/a4' in your home directory, type:
+
+./configure --prefix=$HOME/my/software/a4
+make -j2 # you can replace 2 with your number of processors
+make install
+
+To add this installation to the PYTHONPATH, PATH and compiler flags, go to the
+installation directory and run:
+
+source bin/this_a4.sh
+
+Now you can go into the tutorial/ directory in the A4 source distribution and
+all the examples should work with the provided Makefiles - try it!
+
+The generated executables (except for the python ones) should also work if you
+have not sourced this_a4.sh.
+
+
+Installing from a Git Checkout
+------------------------------
+
+If you checked out A4 from git, you first need to run
+
+autoreconf -i
+
+to generate the 'configure' script and install some auxiliary files.
+To do this, you need the GNU Autotools, a very common software package.
+The versions we tested were 2.59, 2.65 and 2.68, but please tell us
+if your version does not work.
+
+
+Troubleshooting
+---------------
+
+* In some cases autoreconf complains that it cannot find ltmain.sh.
+Running "libtoolize" once fixed this.
+
