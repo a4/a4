@@ -30,7 +30,7 @@ AC_DEFUN([A4_BOOST_CHECK], [
         AC_MSG_NOTICE([Using builtin miniboost at $with_boost])
         AC_SUBST([BOOST_CPPFLAGS], ["-I$with_boost/include"])
         AC_SUBST([BOOST_LDPATH], ["$with_boost"])
-        AC_SUBST([BOOST_LIBS], ["-lboost_thread -lboost_program_options -pthread"])
+        AC_SUBST([BOOST_LIBS], ["-L$with_boost -lboost_thread -lboost_program_options -pthread"])
       else
         AC_MSG_NOTICE([No boost specified and builtin miniboost not set up, expecting boost to be installed])
       fi
