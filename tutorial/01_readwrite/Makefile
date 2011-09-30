@@ -1,4 +1,4 @@
-A4PACK=mya4
+A4PACK=01_readwrite
 
 PYDIR=python/a4/proto/$(A4PACK)
 CPPDIR=src/a4/proto/$(A4PACK)
@@ -12,8 +12,8 @@ SOURCES=$(wildcard src/*.cpp)
 
 CPPFLAGS+=-I$(CPPDIR)
 
-.PHONY: all $(PROTOBUF_PY)
-.SECONDARY: $(PROTOBUF_CC) $(PROTOBUF_O)
+.PHONY: all
+.SECONDARY: $(PROTOBUF_PY) $(PROTOBUF_CC) $(PROTOBUF_O)
 
 all: analysis rwtest
 

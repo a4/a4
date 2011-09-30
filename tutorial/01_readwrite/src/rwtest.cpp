@@ -3,7 +3,7 @@
 #include <a4/output.h>
 #include <a4/input.h>
 
-#include "a4/proto/mya4/Event.pb.h"
+#include "Event.pb.h"
 
 using namespace std;
 using namespace a4::io;
