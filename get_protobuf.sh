@@ -59,7 +59,8 @@ if ! make install; then
 fi
 
 pushd python
-if ! python setup.py install --prefix $PWD/.. --install-purelib $PWD; then
+
+if ! PYTHONPATH=$PWD python setup.py install --prefix $PWD/.. --install-purelib $PWD; then
   echo "Protobuf python installation failed! :("
   exit 1
 fi
