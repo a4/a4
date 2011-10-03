@@ -61,6 +61,7 @@ AC_DEFUN([A4_REQUIRE], [
     fi
     a4_cppflags_save=$CPPFLAGS
     CPPFLAGS+=$A4_CPPFLAGS
+    CPPFLAGS+=$BOOST_CPPFLAGS
     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <a4/$2>]])],
         [:],
         [AC_MSG_FAILURE([Could not compile program with $1 headers (a4/$2)!])])
