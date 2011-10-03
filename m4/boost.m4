@@ -45,7 +45,8 @@ m4_define([_BOOST_SERIAL], [m4_translit([
 # Note: THESE MACROS ASSUME THAT YOU USE LIBTOOL.  If you don't, don't worry,
 # simply read the README, it will show you what to do step by step.
 
-m4_pattern_forbid([^_?(BOOST|Boost)_])
+# Incompatible with older autoconf version 
+# m4_pattern_forbid([^_?(BOOST|Boost)_])
 
 
 # _BOOST_SED_CPP(SED-PROGRAM, PROGRAM,
@@ -93,7 +94,7 @@ rm -rf conftest*
 # Otherwise aborts with an error message.
 AC_DEFUN([BOOST_REQUIRE],
 [AC_REQUIRE([AC_PROG_CXX])dnl
-AC_REQUIRE([AC_PROG_GREP])dnl
+
 echo "$as_me: this is boost.m4[]_BOOST_SERIAL" >&AS_MESSAGE_LOG_FD
 boost_save_IFS=$IFS
 boost_version_req=$1
@@ -1084,10 +1085,13 @@ m4_define([_BOOST_AC_LINK_IFELSE],
 rm -f conftest$ac_exeext
 boost_save_ac_ext=$ac_ext
 boost_use_source=:
+
+m4_ifndef([_AC_DO_STDERR],[AC_DEFUN([_AC_DO_STDERR],[_AC_EVAL_STDERR])])
+
 # If we already have a .o, re-use it.  We change $ac_ext so that $ac_link
 # tries to link the existing object file instead of compiling from source.
-test -f conftest.$ac_objext && ac_ext=$ac_objext && boost_use_source=false &&
-  _AS_ECHO_LOG([re-using the existing conftest.$ac_objext])
+test -f conftest.$ac_objext && ac_ext=$ac_objext && boost_use_source=false # &&
+#  _AS_ECHO_LOG([re-using the existing conftest.$ac_objext])
 AS_IF([_AC_DO_STDERR($ac_link) && {
 	 test -z "$ac_[]_AC_LANG_ABBREV[]_werror_flag" ||
 	 test ! -s conftest.err
