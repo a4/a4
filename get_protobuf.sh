@@ -57,6 +57,14 @@ if ! make install; then
   echo "Protobuf installation into $PWD failed! :("
   exit 1
 fi
+
+pushd python
+if ! python setup.py install --prefix $PWD/.. --install-purelib $PWD; then
+  echo "Protobuf python installation failed! :("
+  exit 1
+fi
+popd
+
 popd
 
 echo "------------------------------------"
