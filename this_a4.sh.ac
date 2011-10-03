@@ -5,8 +5,11 @@ if test "x@PROTOBUF_ROOT@" != "x"; then
     export PYTHONPATH=@PROTOBUF_ROOT@/python:$PYTHONPATH
     export PROTOBUF_RPATH="-Wl,-rpath @PROTOBUF_ROOT@/lib"
 fi
+if test "x@BOOST_ROOT@" != "x"; then
+    export BOOST_RPATH="-Wl,-rpath @BOOST_ROOT@/lib"
+fi
 
 export PYTHONPATH=:@pythondir@:$PYTHONPATH
 export PATH=${prefix}/bin:$PATH
-export CPPFLAGS="$CPPFLAGS @PROTOBUF_CFLAGS@ -std=c++0x -I${prefix}/include"
-export LDFLAGS="$LDFLAGS @PROTOBUF_LIBS@ -L${prefix}/lib -Wl,-rpath ${prefix}/lib $PROTOBUF_RPATH"
+export A4_CPPFLAGS="$CPPFLAGS @BOOST_CPPFLAGS@ @PROTOBUF_CFLAGS@ -std=c++0x -I${prefix}/include"
+export A4_LDFLAGS="$LDFLAGS @BOOST_LIBS@ @PROTOBUF_LIBS@ -L${prefix}/lib -Wl,-rpath ${prefix}/lib $PROTOBUF_RPATH $BOOST_RPATH"

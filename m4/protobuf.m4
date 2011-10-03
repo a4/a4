@@ -55,7 +55,7 @@ AC_DEFUN([A4_PROTOBUF_CHECK], [
       AC_SUBST([PROTOBUF_PROTOC])
       AC_SUBST([PROTOBUF_LIBS])
       AC_SUBST([PROTOBUF_CFLAGS])
-#AC_SUBST([PROTOBUF_ROOT], [$with_protobuf])
+      AC_SUBST([PROTOBUF_ROOT], [$with_protobuf])
     ], [protobuf_not_there=yes])
   fi
   if test x$protobuf_not_there == xyes; then
