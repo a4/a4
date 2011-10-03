@@ -11,5 +11,6 @@ fi
 
 export PYTHONPATH=:@pythondir@:$PYTHONPATH
 export PATH=${prefix}/bin:$PATH
+export A4_CXX=@CXX@
 export A4_CPPFLAGS="$CPPFLAGS @BOOST_CPPFLAGS@ @PROTOBUF_CFLAGS@ -std=c++0x -I${prefix}/include"
 export A4_LDFLAGS="$LDFLAGS @BOOST_LIBS@ @PROTOBUF_LIBS@ -L${prefix}/lib -Wl,-rpath ${prefix}/lib $PROTOBUF_RPATH $BOOST_RPATH"

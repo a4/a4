@@ -38,6 +38,7 @@ AC_DEFUN([A4_BOOST_CHECK], [
   fi
   AC_SUBST([DISTCHECK_CONFIGURE_FLAGS],
            ["$DISTCHECK_CONFIGURE_FLAGS '--with-boost=$with_boost'"])dnl
+  AC_SUBST([BOOST_ROOT], [$with_boost])
 
   BOOST_STATIC
   BOOST_REQUIRE([1.41], [$2])
