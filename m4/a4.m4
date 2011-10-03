@@ -48,15 +48,15 @@ AC_DEFUN([A4_REQUIRE], [
     fi
     AC_LANG_ASSERT([C++])
     if test x"$with_a4" != x; then
-        if test -d ${with_a4}/include; then
-            # Installation directory
-            A4_CPPFLAGS+=" -I${with_a4}/include "
-            A4_LIBS+=" -L${with_a4}/lib -l$1 "
-        else
+        if test -d ${with_a4}/src; then
             # Source directory
             # Try to use either this directory or that build directory
             A4_CPPFLAGS+=" -I${with_a4}/$1/src -I../$1/src "
             A4_LIBS+=" -L${with_a4}/$1/.libs -L../$1/.libs -l$1 "
+        else
+            # Installation directory
+            A4_CPPFLAGS+=" -I${with_a4}/include "
+            A4_LIBS+=" -L${with_a4}/lib -l$1 "
         fi
     fi
     a4_cppflags_save=$CPPFLAGS
