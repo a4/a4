@@ -1,6 +1,8 @@
 #ifndef _A4_STREAM_H_
 #define _A4_STREAM_H_
 
+#include <google/protobuf/message.h>
+
 #include <a4/a4io.h>
 
 namespace google{ namespace protobuf{ namespace io{ class CodedInputStream; };};};
@@ -22,7 +24,9 @@ namespace a4{ namespace io{
 
         template <typename ProtoClass>
         int reg_protoclass_id() {
-            all_class_ids(ProtoClass::kCLASSIDFieldNumber, from_stream<ProtoClass>);
+            if (ProtoClass::kCLASSIDFieldNumber != 0) {
+                all_class_ids(ProtoClass::kCLASSIDFieldNumber, from_stream<ProtoClass>);
+            }
             return ProtoClass::kCLASSIDFieldNumber;
         }
     }
@@ -36,6 +40,17 @@ namespace a4{ namespace io{
 
     template <typename ProtoClass>
     int RegisterClassID<ProtoClass>::class_id = internal::reg_protoclass_id<ProtoClass>();
+
+    /// Class indicating that no MetaData is being used
+    class NoProtoClass : public Message {
+        public:
+            NoProtoClass() {};
+            virtual Message* New() const {return NULL;};
+            virtual int GetCachedSize() const {return 0;};
+            virtual google::protobuf::Metadata GetMetadata() const { return google::protobuf::Metadata(); };
+            static const int kCLASSIDFieldNumber = 0;
+            void ParseFromCodedStream(google::protobuf::io::CodedInputStream *) {};
+    };
 
 };};
 

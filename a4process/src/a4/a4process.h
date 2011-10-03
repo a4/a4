@@ -48,7 +48,7 @@ namespace a4{
                 virtual Processor * new_processor() = 0;
         };
 
-        template<class ProtoMessage, class ProtoMetaData>
+        template<class ProtoMessage, class ProtoMetaData = a4::io::NoProtoClass>
         class ProcessorOf : public Processor {
             public:
                 ProcessorOf() { a4::io::RegisterClassID<ProtoMessage> _e; a4::io::RegisterClassID<ProtoMetaData> _m; };
