@@ -20,7 +20,7 @@ LDFLAGS+=$(shell root-config --libs)
 .PHONY: all
 .SECONDARY: $(PROTOBUF_PY) $(PROTOBUF_CC) $(PROTOBUF_O)
 
-all: analysis rwtest
+all: analysis rwtest agnostic_dump
 
 # Make your binary from the compiled sources and protobuf objects
 %: $(PROTOBUF_O) src/%.o
