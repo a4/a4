@@ -15,7 +15,7 @@ this_a4.sh: this_a4.sh.in
 
 install-exec-hook:
 	mkdir -p $(DESTDIR)$(bindir) && cd $(DESTDIR)$(bindir) && \
-	if ! test -e python; then $(LN_S) `which $(PYTHON)` python; fi
+	if ! test -f ./python; then $(LN_S) -f `which $(PYTHON)` ./python; fi
 
 EXTRA_SCRIPTS = this_a4.sh
 EXTRA_DIST = ${A4_THIS_SCRIPT_IN}
