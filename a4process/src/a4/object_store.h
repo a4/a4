@@ -39,7 +39,7 @@ namespace a4{ namespace process{
             void from_stream(a4::io::A4InputStream & ins);
         protected:
             hash_lookup hl;
-            std::map<std::string, void*> _store;
+            std::map<std::string, shared<Storable>> _store;
     };
 
 

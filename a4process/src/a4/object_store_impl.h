@@ -35,11 +35,10 @@ namespace a4{ namespace process{
     template <class C, typename ...Args> C * ObjectBackStore::find(const Args & ...args) {
         //BOOST_STATIC_ASSERT_MSG((boost::is_convertible<C*, Storable*>::value), "You can only store objects that implement the Storable interface into the ObjectStore!");
         std::string name = str_cat(args...);
-        void * & res = _store[name];
-        if (res) return static_cast<C*>(res);
-        C* p = new C();
-        res = p;
-        return p;
+        shared<Storable> & res = _store[name];
+        if (res) return static_cast<C*>(res.get());
+        res.reset(new C());
+        return res.get();
     };
 };};
 
