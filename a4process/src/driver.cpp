@@ -158,13 +158,13 @@ try
     cout << "n_threads = " << n_threads << endl;
 
     // Set up I/O
-    in.reset(new A4Input("command-line input files"));
+    in.reset(new A4Input("A4 Input Files"));
     foreach(string & i, inputs) in->add_file(i);
 
-    if (output.size()) out.reset(new A4Output(output, "command-line output file"));
+    if (output.size()) out.reset(new A4Output(output, "A4 Output File"));
 
     shared<A4Output> a4results;
-    if (results.size()) res.reset(new A4Output(output, "command-line results file"));
+    if (results.size()) res.reset(new A4Output(output, "A4 Results File"));
 
     std::vector<boost::thread> threads;
     for (int i = 0; i < n_threads; i++) {
