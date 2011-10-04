@@ -400,7 +400,7 @@ rm -f conftest.$ac_objext
 ])
 case $Boost_lib in #(
   no) _AC_MSG_LOG_CONFTEST
-    AC_MSG_ERROR([cannot find the flags to link with Boost $1])
+    AC_MSG_ERROR([cannot find the flags to link with Boost $1. Maybe the library has been compiled for the wrong system/architecture?])
     ;;
 esac
 AC_SUBST(AS_TR_CPP([BOOST_$1_LDFLAGS]), [$Boost_lib_LDFLAGS])dnl
@@ -1084,13 +1084,11 @@ rm -f conftest$ac_exeext
 boost_save_ac_ext=$ac_ext
 boost_use_source=:
 
-m4_ifndef([_AC_DO_STDERR],[AC_DEFUN([_AC_DO_STDERR],[_AC_EVAL_STDERR])])
-
 # If we already have a .o, re-use it.  We change $ac_ext so that $ac_link
 # tries to link the existing object file instead of compiling from source.
 test -f conftest.$ac_objext && ac_ext=$ac_objext && boost_use_source=false # &&
 #  _AS_ECHO_LOG([re-using the existing conftest.$ac_objext])
-AS_IF([_AC_DO_STDERR($ac_link) && {
+AS_IF([(eval echo $ac_link >&AS_MESSAGE_LOG_FD && eval $ac_link) 2>&AS_MESSAGE_LOG_FD && {
 	 test -z "$ac_[]_AC_LANG_ABBREV[]_werror_flag" ||
 	 test ! -s conftest.err
        } && test -s conftest$ac_exeext && {
