@@ -125,12 +125,12 @@ bool A4OutputStream::write(const google::protobuf::Message &msg)
         if (_compressed_out) {
             stop_compression();
             metadata_positions.push_back(get_bytes_written());
-            bool res = write(msg);
+            bool res = write(class_id, msg);
             start_compression();
             return res;
         } else {
             metadata_positions.push_back(get_bytes_written());
-            return write(msg);
+            return write(class_id, msg);
         }
     } else return write(class_id, msg);
 }
