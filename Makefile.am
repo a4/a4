@@ -9,6 +9,7 @@ SUBDIRS+=a4io a4process a4atlas
 
 bin_SCRIPTS += this_a4.sh
 CLEANFILES += this_a4.sh
+EXTRA_DIST+=$(srcdir)/tutorial/ $(srcdir)/doc/
 
 # Main a4process library
 lib_LTLIBRARIES=liba4.la

@@ -12,8 +12,4 @@ AC_CONFIG_FILES([a4io/Makefile])
 AC_CONFIG_FILES([a4atlas/Makefile])
 AC_CONFIG_FILES([a4process/Makefile])
 
-#CPPFLAGS+=" -I${top_srcdir}/a4io/src -I${top_builddir}/a4io/src "
-#CPPFLAGS+=" -I${top_srcdir}/a4atlas/src -I${top_builddir}/a4atlas/src "
-#CPPFLAGS+=" $A4_CPPFLAGS -I${top_srcdir}/a4process/src -I${top_builddir}/a4process/src "
-
 AC_OUTPUT
