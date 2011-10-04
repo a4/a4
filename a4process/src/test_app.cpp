@@ -1,20 +1,19 @@
 #include <iostream>
 
 #include <a4/application.h>
-#include <a4/proto/io/A4Stream.pb.h>
+#include <a4/proto/process/A4Key.pb.h>
 
 using std::cout; using std::cerr; using std::endl;
-using a4::io::TestEvent; using a4::io::TestMetaData;
 
 using namespace a4::process;
 
-class MyProcessor : public ProcessorOf<TestEvent, TestMetaData> {
+class MyProcessor : public ProcessorOf<TestHisto, TestHistoMetaData> {
     public:
-        virtual bool process(const TestEvent &);
+        virtual bool process(const TestHisto &);
 };
 
-bool MyProcessor::process(const TestEvent & event) {
-    cout << event.event_number() << endl;
+bool MyProcessor::process(const TestHisto & event) {
+    cout << event.bin_number() << endl;
 }
 
 int main(int argc, const char * argv[]) {

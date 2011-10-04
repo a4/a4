@@ -36,12 +36,6 @@ message A4EndCompressedSection
     optional int32 CLASS_ID = 103;
 }
 
-message A4Key
-{
-    optional int32 CLASS_ID = 104;
-    required string name = 1;
-}
-
 message TestEvent
 {
     optional int32 CLASS_ID = 110;

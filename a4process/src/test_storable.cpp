@@ -5,7 +5,7 @@
 #include <a4/object_store.h>
 #include <a4/storable.h>
 #include <a4/output_stream.h>
-#include <A4Stream.pb.h>
+#include <a4/proto/process/A4Key.pb.h>
 
 using namespace std;
 using namespace a4::process;
@@ -13,7 +13,7 @@ using namespace a4::io;
 
 std::vector<std::string> items;
 
-class myhist : public StorableAs<myhist, a4::io::TestEvent> {};
+class myhist : public StorableAs<myhist, TestHisto> {};
 
 template <typename... Args>
 void lookup1000(ObjectStore S) {
