@@ -145,6 +145,14 @@ bool A4InputStream::read_header()
         return set_error();
     _coded_in->PopLimit(lim);
 
+    if (h.has_content_descriptor()) {
+        _content_descriptor_proto = h.content_descriptor();
+    }
+    
+    if (h.has_metadata_descriptor()) {
+        _metadata_descriptor_proto = h.metadata_descriptor();
+    }
+    
     if (h.a4_version() != 1) {
         std::cerr << "ERROR - a4::io:A4InputStream - Unknown A4 stream version (";
         std::cerr << h.a4_version() << ")" << std::endl;
@@ -161,7 +169,8 @@ bool A4InputStream::read_header()
         }
     } else {
         _content_class_id = 0;
-    };
+    }
+    
     if (h.has_metadata_class_id()) {
         _metadata_class_id = h.metadata_class_id();
         if (!internal::all_class_ids(_metadata_class_id)) {
@@ -170,7 +179,7 @@ bool A4InputStream::read_header()
         }
     } else {
         _metadata_class_id = 0;
-    };
+    }
 
     _current_metadata_refers_forward = h.metadata_refers_forward();
     if (!_current_metadata_refers_forward && !_discovery_complete) {
