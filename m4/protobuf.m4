@@ -49,7 +49,7 @@ AC_DEFUN([A4_PROTOBUF_CHECK], [
     protobuf_not_there=yes
   else
     if test x"$with_protobuf" != x; then
-      export PKG_CONFIG_PATH=$with_protobuf
+      export PKG_CONFIG_PATH=$with_protobuf/lib/pkgconfig
     fi
     PKG_CHECK_MODULES([PROTOBUF], [protobuf], [
       AC_SUBST([PROTOBUF_PROTOC])
