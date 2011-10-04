@@ -22,7 +22,7 @@ all: analysis rwtest $(PROTOBUF_PYPACK)
 
 # Make your binary from the compiled sources and protobuf objects
 %: $(PROTOBUF_O) src/%.o
-	$(CXX) $(A4_LDFLAGS) $(LDFLAGS) -la4io -la4process -lboost_program_options -lboost_thread -o $@ $^
+	$(CXX) $(A4_LDFLAGS) $(LDFLAGS) -la4io -la4process -o $@ $^
 
 # how to make protobuf objects
 $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(PROTOBUF_PROTO)

@@ -8,7 +8,12 @@ using namespace a4::process;
 class MyProcessor : public ProcessorOf<Event, EventStreamInfo> {
   public:
     virtual bool process(const Event & event) {
-        cout << event.event_number() << " MD: " << metadata().total_events() << endl;
+        cout << event.event_number() << endl;
+        S.T<int>("counter") += 1;
+        write(event);
+    }
+    virtual bool new_metadata() {
+        cout << "New Metadata: " << metadata().total_events() << endl;
     }
 };
 

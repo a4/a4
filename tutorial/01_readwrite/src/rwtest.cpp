@@ -27,7 +27,7 @@ int main(int argc, char ** argv) {
         }
         EventStreamInfo m;
         m.set_total_events(N);
-        stream->metadata(m);
+        stream->write(m);
     }
     {
         A4Input in;
