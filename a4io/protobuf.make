@@ -22,7 +22,7 @@ nodist_protopython_PYTHON=$(PYDIR)/A4Stream_pb2.py $(PYDIR)/__init__.py
 $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(srcdir)/proto/%.proto
 	@mkdir -p $(PYDIR)
 	@mkdir -p $(CPPDIR)
-	${PROTOBUF_PROTOC} -I=$(srcdir)/proto --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
+	${PROTOBUF_PROTOC} -I=$(srcdir)/proto -I${PROTOBUF_ROOT}/include --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
 
 # how to make the python __init__.py
 $(PYDIR)/__init__.py: $(PROTOBUF_PY)
