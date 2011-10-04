@@ -1,19 +1,7 @@
 #ifndef HAVE_A4IO
 #define HAVE_A4IO
 
-#ifndef shared
-#include <memory>
-#define shared std::shared_ptr
-#define static_shared_cast std::static_pointer_cast
-#define dynamic_shared_cast std::dynamic_pointer_cast
-#define reinterpret_shared_cast std::reinterpret_pointer_cast
-#endif
-#ifndef foreach
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
-#endif
-
-#include <cstdint>
+#include <a4/types.h>
 
 namespace google{namespace protobuf{ class Message; };};
 
