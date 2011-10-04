@@ -3,18 +3,17 @@
 #include <cassert>
 
 #include <a4/object_store.h>
-#include <a4/object_store_impl.h>
+#include <a4/storable.h>
+#include <a4/output_stream.h>
+#include <A4Stream.pb.h>
 
 using namespace std;
 using namespace a4::process;
+using namespace a4::io;
 
 std::vector<std::string> items;
 
-class myhist : public Storable {
-    public:
-        virtual shared<google::protobuf::Message> as_message() {return shared<google::protobuf::Message>();};
-        virtual void set_message(const google::protobuf::Message&) {};
-};
+class myhist : public StorableAs<myhist, a4::io::TestEvent> {};
 
 template <typename... Args>
 void lookup1000(ObjectStore S) {
@@ -143,5 +142,10 @@ int main(int argv, char ** argc) {
     ObjectStore S = backstore.store();
     for (int i = 0; i < N; i++) for(int j = 0; j < M; j++) lookup1000(S("test/", i%2, "/", j%5, "/"));
     std::cout << 1000*N*M << std::endl;
+    {
+        A4OutputStream out("test.a4", "Store Test");
+        out.content_cls<A4Key>().metadata_cls<TestMetaData>();
+        backstore.to_stream(out);
+    } 
     return 0;
 }
