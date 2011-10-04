@@ -57,10 +57,12 @@ namespace a4{ namespace io{
             /// Has to be called before writing is begun.
             template<class ProtoClass>
             A4OutputStream & content_cls() { assert(!_opened); _content_class_id = ProtoClass::kCLASSIDFieldNumber; return *this; };
+            A4OutputStream & content_cls(uint32_t id) { assert(!_opened); _content_class_id = id; return *this; };
             /// Set the metadata message object ( s->metadata_cls<TestEvent>(); ).
             /// Has to be called before writing is begun.
             template<class ProtoClass>
             A4OutputStream & metadata_cls() { assert(!_opened); _metadata_class_id = ProtoClass::kCLASSIDFieldNumber; return *this; };
+            A4OutputStream & metadata_cls(uint32_t id) { assert(!_opened); _metadata_class_id = id; return *this; };
 
             /// String representation of this stream for user output
             std::string str() { return std::string("A4OutputStream(\"") + _output_name + "\", \"" + _description + "\")"; };

@@ -273,15 +273,24 @@ class A4InputStream(object):
         #print "footer at ", footer_start, " is ", footer
 
     def info(self):
+        def cname(id):
+            if id == 0:
+                return "None"
+            elif id in class_ids:
+                return class_ids[id].__name__
+            else:
+                return "<unknow class %i>" % id
         self.read_all_meta_info()
         info = []
         version = [h.a4_version for h in self.headers.values()]
         info.append("A4 file v%i" % version[0])
         info.append("size: %s bytes" % self.size)
+        info.append("description: %s" % self.headers.values()[0].description)
+        info.append("metadata: %s" % cname(self.headers.values()[0].metadata_class_id))
         hf = zip(self.headers.values(), self.footers.values())
         cccd = {}
-        for c, cc in ((h.description, f.content_count) for h, f in hf):
-            cccd[c] = cccd.get(c, 0) + cc
+        for c, cc in ((h.content_class_id, f.content_count) for h, f in hf):
+            cccd[cname(c)] = cccd.get(cname(c), 0) + cc
         for content in sorted(cccd.keys()):
             cc = cccd[content]
             if cc != 1:

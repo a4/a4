@@ -63,7 +63,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
         while (A4Message msg = instream->next()) {
             if (instream->new_metadata()) {
                 p->new_metadata();
-                p->write(*msg.message);
+                if (self->out) p->write(*instream->current_metadata().message);
             }
             p->process_message(msg);
         };

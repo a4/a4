@@ -37,6 +37,8 @@ namespace a4{
                 const A4Message metadata_message();
                 bool write(const google::protobuf::Message& m) { if (_outstream) return _outstream->write(m); else return false; };
             protected:
+                virtual const int content_class_id() const { return 0; };
+                virtual const int metadata_class_id() const { return 0; };
                 shared<a4::io::A4InputStream> _instream;
                 shared<a4::io::A4OutputStream> _outstream;
                 shared<ObjectBackStore> _backstore;
@@ -66,6 +68,10 @@ namespace a4{
                     const A4Message msg = metadata_message();
                     return *msg.as<ProtoMetaData>().get();
                 };
+            protected:
+                virtual const int content_class_id() const { return ProtoMessage::kCLASSIDFieldNumber; };
+                virtual const int metadata_class_id() const { return ProtoMetaData::kCLASSIDFieldNumber; };
+                friend class a4::process::Driver;
         };
 
         template<class MyProcessor>
