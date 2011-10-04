@@ -54,9 +54,6 @@ namespace a4{ namespace io{
 
             /// String representation of this stream for user output
             std::string str() { return std::string("A4InputStream(\"") + _inputname + "\")"; };
-
-            google::protobuf::FileDescriptorProto _content_descriptor_proto;
-            google::protobuf::FileDescriptorProto _metadata_descriptor_proto;
             
         private:
             shared<google::protobuf::io::ZeroCopyInputStream> _raw_in;

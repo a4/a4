@@ -62,7 +62,6 @@ namespace a4{ namespace io{
             A4OutputStream & content_cls() {
                 assert(!_opened);
                 _content_class_id = ProtoClass::kCLASSIDFieldNumber;
-                _content_descriptor = ProtoClass::descriptor()->file();
                 return *this;
             };
             /// Set the metadata message object ( s->metadata_cls<TestEvent>(); ).
@@ -72,7 +71,6 @@ namespace a4{ namespace io{
             A4OutputStream & metadata_cls() {
                 assert(!_opened);
                 _metadata_class_id = ProtoClass::kCLASSIDFieldNumber;
-                _metadata_descriptor = ProtoClass::descriptor()->file();
                 return *this;
             };
 
@@ -102,9 +100,7 @@ namespace a4{ namespace io{
             uint32_t _content_count;
             uint64_t _bytes_written;
             uint32_t _content_class_id;
-            const google::protobuf::FileDescriptor* _content_descriptor;
             uint32_t _metadata_class_id;
-            const google::protobuf::FileDescriptor* _metadata_descriptor;
             std::vector<uint64_t> metadata_positions;
     };
 

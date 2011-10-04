@@ -144,14 +144,6 @@ bool A4InputStream::read_header()
     if (!h.ParseFromCodedStream(_coded_in.get()))
         return set_error();
     _coded_in->PopLimit(lim);
-
-    if (h.has_content_descriptor()) {
-        _content_descriptor_proto = h.content_descriptor();
-    }
-    
-    if (h.has_metadata_descriptor()) {
-        _metadata_descriptor_proto = h.metadata_descriptor();
-    }
     
     if (h.a4_version() != 1) {
         std::cerr << "ERROR - a4::io:A4InputStream - Unknown A4 stream version (";

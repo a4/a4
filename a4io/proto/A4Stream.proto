@@ -11,9 +11,6 @@ message A4StreamHeader
     optional int32 metadata_class_id = 4;
     optional bool metadata_refers_forward = 5 [default=false]; 
     // if true, metadata are referring to objects that follow them instead of precede them
-    
-    optional google.protobuf.FileDescriptorProto content_descriptor = 6;
-    optional google.protobuf.FileDescriptorProto metadata_descriptor = 7;
 }
 
 message A4StreamFooter

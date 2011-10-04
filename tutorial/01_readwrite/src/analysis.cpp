@@ -4,7 +4,6 @@
 
 using namespace std;
 using namespace a4::process;
-using namespace a4::example::root;
 
 class MyProcessor : public ProcessorOf<Event, EventStreamInfo> {
   public:
