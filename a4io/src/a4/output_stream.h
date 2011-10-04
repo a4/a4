@@ -39,11 +39,9 @@ namespace a4{ namespace io{
             ~A4OutputStream();
 
             /// Write a message to the stream
-            bool write(google::protobuf::Message& m);
-            /// Write a metadata message to the stream. 
-            /// Take care to respect the metadata direction - forward means the events following
+            /// Take care to respect the metadata message direction - forward means the events following
             /// the metadata are described, otherwise the previous events are referred to.
-            bool metadata(google::protobuf::Message& m);
+            bool write(const google::protobuf::Message& m);
 
             /// \internal Explicitly close the file. \endinternal
             bool close();
@@ -73,7 +71,7 @@ namespace a4{ namespace io{
             google::protobuf::io::CodedOutputStream * _coded_out;
 
             bool open();
-            bool write(uint32_t class_id, google::protobuf::Message& m);
+            bool write(uint32_t class_id, const google::protobuf::Message& m);
             bool write_header(std::string description);
             bool write_footer();
             bool start_compression();

@@ -117,27 +117,22 @@ uint64_t A4OutputStream::get_bytes_written() {
     return size;
 }
 
-bool A4OutputStream::write(google::protobuf::Message &msg)
+bool A4OutputStream::write(const google::protobuf::Message &msg)
 {
     if (!_opened) if(!open()) { return false; };
     uint32_t class_id = msg.GetDescriptor()->FindFieldByName("CLASS_ID")->number();
-    return write(class_id, msg);
-}
-
-bool A4OutputStream::metadata(google::protobuf::Message &msg)
-{
-    if (!_opened) if (!open()) { return false; };
-
-    if (_compressed_out) {
-        stop_compression();
-        metadata_positions.push_back(get_bytes_written());
-        bool res = write(msg);
-        start_compression();
-        return res;
-    } else {
-        metadata_positions.push_back(get_bytes_written());
-        return write(msg);
-    }
+    if (class_id == _metadata_class_id) {
+        if (_compressed_out) {
+            stop_compression();
+            metadata_positions.push_back(get_bytes_written());
+            bool res = write(msg);
+            start_compression();
+            return res;
+        } else {
+            metadata_positions.push_back(get_bytes_written());
+            return write(msg);
+        }
+    } else return write(class_id, msg);
 }
 
 void A4OutputStream::reset_coded_stream() {
@@ -206,7 +201,7 @@ bool A4OutputStream::write_footer() {
     return true;
 }
 
-bool A4OutputStream::write(uint32_t class_id, google::protobuf::Message &msg)
+bool A4OutputStream::write(uint32_t class_id, const google::protobuf::Message &msg)
 {
     if (_coded_out->ByteCount() > 100000000) reset_coded_stream();
 

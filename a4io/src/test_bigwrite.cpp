@@ -31,19 +31,19 @@ int main(int argc, char ** argv) {
         TestEvent e;
         TestMetaData m;
         m.set_meta_data(0);
-        if (forward) w.metadata(m);
+        if (forward) w.write(m);
         for(uint64_t i = 0; i < N; i++) {
             int32_t en = i%mod;
             if (i % 1000000 == 0) cout << "..."<< i << endl;
             if (en/1000 != m.meta_data()) {
-                if (!forward) w.metadata(m);
+                if (!forward) w.write(m);
                 m.set_meta_data(en/1000);
-                if (forward) w.metadata(m);
+                if (forward) w.write(m);
             }
             e.set_event_number(en);
             w.write(e);
         }
-        if (!forward) w.metadata(m);
+        if (!forward) w.write(m);
         cout << "...done." << endl;
     }
 }

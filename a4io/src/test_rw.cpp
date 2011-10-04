@@ -20,7 +20,7 @@ int main(int argc, char ** argv) {
         }
         TestMetaData m;
         m.set_meta_data(N);
-        w.metadata(m);
+        w.write(m);
 
     }
     {

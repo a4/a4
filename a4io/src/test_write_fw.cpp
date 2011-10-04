@@ -20,7 +20,7 @@ int main(int argc, char ** argv) {
 
     TestMetaData m;
     m.set_meta_data(1);
-    w.metadata(m);
+    w.write(m);
     const int N = 500;
     TestEvent e;
     for(int i = 0; i < N; i++) {
@@ -28,7 +28,7 @@ int main(int argc, char ** argv) {
         w.write(e);
     }
     m.set_meta_data(2);
-    w.metadata(m);
+    w.write(m);
     for(int i = 0; i < N; i++) {
         e.set_event_number(2000 + i);
         w.write(e);

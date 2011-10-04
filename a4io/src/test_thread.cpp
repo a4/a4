@@ -29,7 +29,7 @@ void my_write(A4Output &a4o) {
     }
     TestMetaData m;
     m.set_meta_data(N);
-    stream->metadata(m);
+    stream->write(m);
 }
 
 void my_read(A4Input &in) {

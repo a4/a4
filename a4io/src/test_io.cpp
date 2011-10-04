@@ -23,7 +23,7 @@ int main(int argc, char ** argv) {
         }
         TestMetaData m;
         m.set_meta_data(N);
-        stream->metadata(m);
+        stream->write(m);
     }
     {
         A4Input in;
