@@ -33,6 +33,8 @@ namespace a4{ namespace process{
             ObjectStore store();
             template <class C, typename ...Args> C * find(const Args & ...args);
             template <typename ...Args> ObjectStore operator()(const Args & ...args) { return store()(args...); };
+            const shared<Storable> get(std::string s);
+            template <class C> std::vector<std::string> list();
             /// Write all objects out into the given stream
             void to_stream(a4::io::A4OutputStream &outs) const;
             /// Read Storable Objects from input stream until new_metadata() is true

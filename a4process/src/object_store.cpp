@@ -42,4 +42,8 @@ namespace a4{ namespace process{
     
     };
 
+    const shared<Storable> ObjectBackStore::get(std::string s) {
+        return _store[s];
+    };
+
 };};

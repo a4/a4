@@ -40,6 +40,15 @@ namespace a4{ namespace process{
         res.reset(new C());
         return static_cast<C*>(res.get());
     };
+
+    template <class C> std::vector<std::string> ObjectBackStore::list() {
+        std::vector<std::string> res;
+        std::map<std::string, shared<Storable>>::const_iterator i;
+        for (i = _store.begin(); i != _store.end(); i++) {
+            if(dynamic_shared_cast<C>(i->second)) res.push_back(i->first);
+        }
+        return res;
+    };
 };};
 
 #endif
