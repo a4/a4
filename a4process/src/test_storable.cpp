@@ -5,6 +5,7 @@
 #include <a4/object_store.h>
 #include <a4/storable.h>
 #include <a4/output_stream.h>
+#include <a4/input_stream.h>
 #include <a4/proto/process/A4Key.pb.h>
 
 using namespace std;
@@ -136,16 +137,22 @@ void test_check_set(hash_lookup * h, const Args& ...args) {
 }
 
 int main(int argv, char ** argc) {
-    const int N = 1000;
+    const int N = 100;
     const int M = 1000;
     ObjectBackStore backstore;
     ObjectStore S = backstore.store();
     for (int i = 0; i < N; i++) for(int j = 0; j < M; j++) lookup1000(S("test/", i%2, "/", j%5, "/"));
     std::cout << 1000*N*M << std::endl;
     {
-        A4OutputStream out("test.a4", "Store Test");
-        out.content_cls<A4Key>().metadata_cls<TestMetaData>();
+        A4OutputStream out("test_storable.a4", "Store Test");
+        out.content_cls<A4Key>().metadata_cls<TestHistoMetaData>();
         backstore.to_stream(out);
-    } 
+    }
+    {
+        A4InputStream in("test_storable.a4");
+        in.new_metadata();
+        ObjectBackStore inbs;
+        inbs.from_stream(in);
+    }
     return 0;
 }

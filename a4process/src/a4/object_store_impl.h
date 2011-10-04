@@ -38,7 +38,7 @@ namespace a4{ namespace process{
         shared<Storable> & res = _store[name];
         if (res) return static_cast<C*>(res.get());
         res.reset(new C());
-        return res.get();
+        return static_cast<C*>(res.get());
     };
 };};
 
