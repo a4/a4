@@ -1,6 +1,8 @@
 #ifndef _A4_OBJECT_STORE_IMPL_H_
 #define _A4_OBJECT_STORE_IMPL_H_
 
+#include <boost/type_traits.hpp>
+
 template <class C, typename ...Args> C & ObjectStore::T(const Args & ...args) {
     void * & res = hl->lookup(args...);
     if (res) return *(static_cast<C*>(res));
@@ -17,27 +19,18 @@ template <typename ...Args> ObjectStore ObjectStore::operator()(const Args & ...
     return ObjectStore(hl->subhash(args...), backstore);
 }
 
-template <class Base>
-template <class Cls, typename ...Args> Cls & CheckedObjectStore<Base>::T(const Args & ...args) {
-    Base * b = static_cast<Base*>(&ObjectStore::T(args...));
-    return *dynamic_cast<Cls*>(b);
+template <class C, typename ...Args> C & ObjectStore::find(const Args & ...args) {
+    Storable * b = static_cast<Storable*>(&T(args...));
+    return *dynamic_cast<C*>(b);
 }
 
-template <class Base>
-template <class C, typename ...Args> C & CheckedObjectStore<Base>::slow(const Args & ...args) {
-    Base * b = static_cast<Base*>(backstore->find<C>(hl->get_path(), args...));
+template <class C, typename ...Args> C & ObjectStore::find_slow(const Args & ...args) {
+    Storable * b = static_cast<Storable*>(backstore->find<C>(hl->get_path(), args...));
     return *dynamic_cast<C*>(b);
 };
 
-template <class Base>
-template <typename ...Args> CheckedObjectStore<Base> CheckedObjectStore<Base>::operator()(const Args & ...args) {
-    return CheckedObjectStore(hl->subhash(args...), backstore);
-}
-
-template <class Base>
-CheckedObjectStore<Base> ObjectBackStore::checked_store() { return CheckedObjectStore<Base>(&hl, this); };
-
 template <class C, typename ...Args> C * ObjectBackStore::find(const Args & ...args) {
+    BOOST_STATIC_ASSERT_MSG((boost::is_convertible<C*, Storable*>::value), "You can only store objects that implement the Storable interface into the ObjectStore!");
     std::string name = str_cat(args...);
     void * & res = _store[name];
     if (res) return static_cast<C*>(res);
