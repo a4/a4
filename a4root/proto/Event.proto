@@ -1,3 +1,5 @@
+package a4.example.root;
+
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.FieldOptions {
@@ -5,10 +7,10 @@ extend google.protobuf.FieldOptions {
     optional string root_prefix = 50001;
 }
 
-message Electron 
+message Photon 
 {
     //optional float pt = 1 [(root_branch)="pt"];
-    optional float eta_s2 = 40 [(root_branch)="eta_s2"];
+    optional float eta_s2 = 33 [(root_branch)="etas2"];
     
 }
 
@@ -18,7 +20,7 @@ message Event
     optional int32 run_number   = 1 [(root_branch)="RunNumber"];
     optional int32 event_number = 2 [(root_branch)="EventNumber"];
         
-    repeated Electron electrons = 10 [(root_prefix)="el_"];
+    repeated Photon photons = 11 [(root_prefix)="ph_"];
 }
 
 message Metadata
