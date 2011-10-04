@@ -49,14 +49,22 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
     shared<Processor> processor(p);
     // It is safe to get these, even if they are not used.
     shared<A4OutputStream> outstream, resstream;
-    if (self->out) outstream = self->out->get_stream();
+    shared<ObjectBackStore> bs(new ObjectBackStore());
+    if (self->out) self->set_outstream(p, self->out->get_stream());
     if (self->res) resstream = self->res->get_stream();
+    self->set_backstore(p, bs);
+    self->set_store_prefix(p);
+
     // Try as long as there are inputs
     
     while (shared<A4InputStream> instream = self->in->get_stream()) {
         self->set_instream(p, instream);
+
         while (A4Message msg = instream->next()) {
-            if (instream->new_metadata()) p->new_metadata();
+            if (instream->new_metadata()) {
+                p->new_metadata();
+                p->write(*msg.message);
+            }
             p->process_message(msg);
         };
         if (instream->error()) {

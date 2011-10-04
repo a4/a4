@@ -4,8 +4,11 @@
 #include <boost/program_options.hpp>
 
 #include <a4/a4io.h>
+#include <a4/input_stream.h>
+#include <a4/output_stream.h>
 #include <a4/message.h>
 #include <a4/register.h>
+#include <a4/object_store.h>
 
 namespace po = ::boost::program_options;
 
@@ -32,8 +35,12 @@ namespace a4{
                 /// This function is called if new metadata is available
                 virtual bool new_metadata() {};
                 const A4Message metadata_message();
+                bool write(const google::protobuf::Message& m) { if (_outstream) return _outstream->write(m); else return false; };
             protected:
                 shared<a4::io::A4InputStream> _instream;
+                shared<a4::io::A4OutputStream> _outstream;
+                shared<ObjectBackStore> _backstore;
+                ObjectStore S;
                 friend class a4::process::Driver;
         };
 

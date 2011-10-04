@@ -34,11 +34,6 @@ template <typename ...Args> CheckedObjectStore<Base> CheckedObjectStore<Base>::o
     return CheckedObjectStore(hl->subhash(args...), backstore);
 }
 
-ObjectBackStore::ObjectBackStore() {};
-ObjectBackStore::~ObjectBackStore() {};
-
-ObjectStore ObjectBackStore::store() { return ObjectStore(&hl, this); };
-
 template <class Base>
 CheckedObjectStore<Base> ObjectBackStore::checked_store() { return CheckedObjectStore<Base>(&hl, this); };
 

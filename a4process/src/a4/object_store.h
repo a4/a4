@@ -9,6 +9,7 @@ extern void compile_error(std::string);
 
 class ObjectStore {
     public:
+        ObjectStore() {};
         template <class C, typename ...Args> C & T(const Args & ...args);
         template <typename ...Args> void T(const Args & ...args) { compile_error("Call T with a template parameter: S.T<H1>(\"my histogram\")"); };
         template <class C, typename ...Args> C & slow(const Args & ...args);
@@ -41,6 +42,7 @@ class ObjectBackStore {
         template <class Base>
         CheckedObjectStore<Base> checked_store();
         template <class C, typename ...Args> C * find(const Args & ...args);
+        template <typename ...Args> ObjectStore operator()(const Args & ...args) { return store()(args...); };
     private:
         hash_lookup hl;
         std::map<std::string, void*> _store;
