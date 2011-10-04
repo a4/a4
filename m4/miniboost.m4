@@ -28,9 +28,6 @@ AC_DEFUN([A4_BOOST_CHECK], [
       if test -d $srcdir/miniboost; then
         with_boost=$(cd $srcdir/miniboost && pwd)
         AC_MSG_NOTICE([Using builtin miniboost at $with_boost])
-        AC_SUBST([BOOST_CPPFLAGS], ["-I$with_boost/include"])
-        AC_SUBST([BOOST_LDPATH], ["$with_boost"])
-        AC_SUBST([BOOST_LIBS], ["-L$with_boost/lib -Wl,-rpath -Wl,$with_boost/lib -lboost_thread -lboost_program_options -pthread"])
       else
         AC_MSG_NOTICE([No boost specified and builtin miniboost not set up, expecting boost to be installed])
       fi
@@ -44,11 +41,9 @@ AC_DEFUN([A4_BOOST_CHECK], [
   BOOST_REQUIRE([1.41], [$2])
 
   # Find boost in strange locations
-  if test x"$BOOST_LDPATH" == x; then
-    BOOST_PROGRAM_OPTIONS
-    BOOST_THREADS
-    AC_SUBST([BOOST_LIBS], ["$BOOST_PROGRAM_OPTIONS_LDFLAGS $BOOST_PROGRAM_OPTIONS_LIBS $BOOST_THREAD_LIBS"])
-  fi
+  BOOST_PROGRAM_OPTIONS
+  BOOST_THREADS
+  AC_SUBST([BOOST_LIBS], ["$BOOST_PROGRAM_OPTIONS_LDFLAGS $BOOST_PROGRAM_OPTIONS_LIBS $BOOST_THREAD_LIBS"])
 
 ])
 

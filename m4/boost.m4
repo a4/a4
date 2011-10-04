@@ -375,7 +375,6 @@ for boost_rtopt_ in $boost_rtopt '' -d; do
       esac
       boost_save_LIBS=$LIBS
       LIBS="$Boost_lib_LIBS $LIBS"
-      LDFLAGS="$LDFLAGS -nostdlib"
       test x"$boost_ldpath" != x && LDFLAGS="$LDFLAGS -L$boost_ldpath"
 dnl First argument of AC_LINK_IFELSE left empty because the test file is
 dnl generated only once above (before we start the for loops).
@@ -385,7 +384,7 @@ dnl generated only once above (before we start the for loops).
       LDFLAGS=$boost_save_LDFLAGS
       LIBS=$boost_save_LIBS
       if test x"$Boost_lib" = xyes; then
-        Boost_lib_LDFLAGS="-L$boost_ldpath"
+        Boost_lib_LDFLAGS="-L$boost_ldpath -Wl,-rpath -Wl,$boost_ldpath"
         Boost_lib_LDPATH="$boost_ldpath"
         break 6
       else
