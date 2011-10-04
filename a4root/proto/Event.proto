@@ -1,15 +1,24 @@
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.FieldOptions {
-  optional string root_branch = 50000;
+    optional string root_branch = 50000;
+    optional string root_prefix = 50001;
 }
 
+message Electron 
+{
+    //optional float pt = 1 [(root_branch)="pt"];
+    optional float eta_s2 = 40 [(root_branch)="eta_s2"];
+    
+}
 
 message Event
 {
-    optional int32 CLASS_ID = 1001; //0xBEEF001;
+    optional int32 CLASS_ID = 1001;
     optional int32 run_number   = 1 [(root_branch)="RunNumber"];
     optional int32 event_number = 2 [(root_branch)="EventNumber"];
+        
+    repeated Electron electrons = 10 [(root_prefix)="el_"];
 }
 
 message Metadata
