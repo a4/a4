@@ -10,7 +10,7 @@ a4include_HEADERS = \
 
 # Compilation options
 LDADD=liba4process.la $(A4_LIBS) $(BOOST_LIBS)
-AM_CPPFLAGS+=$(A4_CPPFLAGS) $(BOOST_CPPFLAGS)
+AM_CPPFLAGS+=$(A4_CPPFLAGS) $(PROTOBUF_CFLAGS) $(BOOST_CPPFLAGS)
 
 # Main a4process library
 lib_LTLIBRARIES=liba4process.la
