@@ -37,7 +37,9 @@ A4OutputStream::A4OutputStream(const string &output_file,
     _output_name(output_file),
     _description(description),
     _opened(false),
-    _closed(false)
+    _closed(false),
+    _content_descriptor(NULL),
+    _metadata_descriptor(NULL)
 {
     _fileno = -1;
 }
@@ -54,7 +56,9 @@ A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream
     _output_name(outname),
     _description(description),
     _opened(false),
-    _closed(false)
+    _closed(false),
+    _content_descriptor(NULL),
+    _metadata_descriptor(NULL)
 {
     _raw_out = out;
 }
@@ -182,6 +186,9 @@ bool A4OutputStream::write_header(string description) {
         header.set_content_class_id(_content_class_id);
     if (_metadata_class_id != 0)
         header.set_metadata_class_id(_metadata_class_id);
+    
+    if (_content_descriptor)
+        _content_descriptor->CopyTo(header.mutable_content_descriptor());
 
     return write(A4StreamHeader::kCLASSIDFieldNumber, header);
 }
