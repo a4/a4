@@ -2,6 +2,7 @@
 #define _A4_STORABLE_H_
 
 #include <a4/a4io.h>
+#include <a4/message.h>
 
 namespace a4{ namespace process{
 
@@ -38,6 +39,7 @@ namespace a4{ namespace process{
     template <class This, class ProtoClass>
     class StorableAs : public Storable {
         public:
+            StorableAs<This, ProtoClass>() {pb.reset(new ProtoClass());};
             virtual shared<google::protobuf::Message> as_message() { 
                 to_pb(); 
                 return pb; 
@@ -73,6 +75,8 @@ namespace a4{ namespace process{
 
     template <class This, class ProtoClass>
     bool StorableAs<This, ProtoClass>::_registered = internal::reg_storable<This, ProtoClass>();
+
+    shared<Storable> message_to_storable(a4::io::A4Message msg);
 
 };};
 

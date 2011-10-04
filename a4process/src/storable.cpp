@@ -8,4 +8,7 @@ namespace a4{ namespace process{ namespace internal{
         if (func) all_storable_ids[i] = func;
         return all_storable_ids[i];
     }
+    shared<Storable> message_to_storable(a4::io::A4Message msg) {
+        return internal::as_storable(msg.class_id)(*msg.message);
+    }
 };};};
