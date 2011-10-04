@@ -5,7 +5,7 @@ AM_INIT_AUTOMAKE([foreign nostdinc -Wall -Werror])
 
 # specify language
 AC_PROG_CC
-AC_PROG_CXX([g++44 g++4.4 g++-4.4 g++46 g++4.6 g++-4.6 g++45 g++4.5 g++-4.5 g++ gcc cl KCC CC cxx cc++ xlC aCC c++])
+AC_PROG_CXX([g++46 g++4.6 g++-4.6 g++45 g++4.5 g++-4.5 g++44 g++4.4 g++-4.4 g++ gcc cl KCC CC cxx cc++ xlC aCC c++])
 AC_LANG([C++])
 AC_LANG_CXX_0X
 AM_PATH_PYTHON([2.6])
