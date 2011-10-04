@@ -45,7 +45,7 @@ echo "---------------------------------------"
 echo "A4: Compiling needed Boost Libraries..."
 echo "---------------------------------------"
 
-if ! ./b2; then
+if ! ./b2 --buildid=-mt-1_47; then
   echo "Boost compilation failed! :("
   exit 1
 fi
