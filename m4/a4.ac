@@ -1,4 +1,4 @@
-
+AC_PREREQ(2.59)
 
 # specify language
 AC_PROG_CC_C_O
