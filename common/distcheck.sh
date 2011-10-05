@@ -7,10 +7,10 @@ for pack in a4io a4process a4atlas; do
     pushd $pack || exit 1
     chmod -R +w _dcbuild 2> /dev/null;
     rm _dcbuild -rf || exit 1
-    autoreconf -f -i || exit 1
+    ../autogen.sh || exit 1
     mkdir _dcbuild || exit 1
     pushd _dcbuild || exit 1
-    ../configure --prefix=$A4INSTALL --with-a4=$A4INSTALL || exit 1
+    ../configure --prefix=$A4INSTALL --with-a4=$A4INSTALL $1 || exit 1
     make -j$NTHREADS distcheck || exit 1
     make -j$NTHREADS install || exit 1
     make -j$NTHREADS installcheck || exit 1
@@ -26,10 +26,10 @@ for pack in .; do
     pushd $pack || exit 1
     chmod -R +w _dcbuild 2> /dev/null;
     rm _dcbuild -rf || exit 1
-    autoreconf -f -i || exit 1
+    ./autogen.sh || exit 1
     mkdir _dcbuild || exit 1
     pushd _dcbuild || exit 1
-    ../configure --prefix=$A4INSTALL || exit 1
+    ../configure --prefix=$A4INSTALL $1 || exit 1
     make -j$NTHREADS distcheck || exit 1
     make -j$NTHREADS install || exit 1
     make -j$NTHREADS installcheck || exit 1

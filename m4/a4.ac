@@ -1,6 +1,6 @@
 AC_PREREQ(2.59)
 
-AC_CONFIG_AUX_DIR([build-aux])
+
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([1.11 foreign subdir-objects -Wall -Werror])
@@ -25,3 +25,4 @@ if test x$PACKAGE_NAME != xa4; then
     AC_SUBST([A4_THIS_SCRIPT_IN],[m4/this_a4.sh.in])
 fi
 
+A4_INIT
