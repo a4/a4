@@ -1,6 +1,6 @@
 AC_PREREQ(2.59)
-AC_CONFIG_AUX_DIR([build-aux])
 AC_INIT([a4io], [0.1], [johannes.ebke@physik.uni-muenchen.de])
+AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([1.9 foreign subdir-objects -Wall -Werror])
 m4_include([m4/a4.ac])
 AC_CONFIG_FILES([Makefile])

@@ -1,6 +1,6 @@
 AC_PREREQ(2.59)
-AC_CONFIG_AUX_DIR([build-aux])
 AC_INIT([a4hist], [0.1], [johannes.ebke@physik.uni-muenchen.de])
+AC_CONFIG_AUX_DIR([build-aux])
 AM_INIT_AUTOMAKE([1.9 foreign subdir-objects -Wall -Werror])
 AC_CONFIG_SRCDIR(src/test_hist.cpp)
 m4_include([m4/a4.ac])
