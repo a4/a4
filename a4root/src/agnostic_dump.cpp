@@ -19,8 +19,8 @@ using namespace a4::io;
 
 // *ONLY* needed at the moment to stop the stream from complaining and falling over
 // (this is a big 'only').
-A4RegisterClass(a4::example::root::Event);
-A4RegisterClass(a4::example::root::Metadata);
+//A4RegisterClass(a4::example::root::Event);
+//A4RegisterClass(a4::example::root::Metadata);
 
 int main(int argc, char ** argv) {
     A4Input in;
@@ -30,14 +30,15 @@ int main(int argc, char ** argv) {
         
         A4Message m = stream->next();
         
+        //cout << "I have a message with classid " << m.class_id << endl;
         string str;
         google::protobuf::TextFormat::PrintToString(*m.message, &str);
         cout << str << endl;
         
-        DescriptorPool pool(DescriptorPool::generated_pool());
-        const FileDescriptor* file = pool.BuildFile(stream->_content_descriptor_proto);
-        if (file)
-            std::cout << file->DebugString() << std::endl;
+        //DescriptorPool pool(DescriptorPool::generated_pool());
+        //const FileDescriptor* file = pool.BuildFile(stream->_content_descriptor_proto);
+        //if (file)
+            //std::cout << file->DebugString() << std::endl;
         while (A4Message msg = stream->next()); // Stream out
     }
 }

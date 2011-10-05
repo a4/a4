@@ -1,6 +1,7 @@
 #include <iostream>
 #include <a4/application.h>
 #include "Event.pb.h"
+#include "Metadata.pb.h"
 
 using namespace std;
 using namespace a4::process;
