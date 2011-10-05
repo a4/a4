@@ -1,0 +1,139 @@
+import "RootExtension.proto";
+
+message EFPhoton {
+    
+    optional float E = 1 [(root_branch)="E"]; 
+    optional float Et = 2 [(root_branch)="Et"]; 
+    optional float pt = 3 [(root_branch)="pt"]; 
+    optional float m = 4 [(root_branch)="m"]; 
+    optional float eta = 5 [(root_branch)="eta"]; 
+    optional float phi = 6 [(root_branch)="phi"]; 
+    optional float px = 7 [(root_branch)="px"]; 
+    optional float py = 8 [(root_branch)="py"]; 
+    optional float pz = 9 [(root_branch)="pz"]; 
+    
+    optional int32 EF_2g10_loose = 100 [(root_branch)="EF_2g10_loose"]; 
+    optional int32 EF_2g15_loose = 101 [(root_branch)="EF_2g15_loose"]; 
+    optional int32 EF_2g20_loose = 102 [(root_branch)="EF_2g20_loose"]; 
+    optional int32 EF_2g50_etcut = 103 [(root_branch)="EF_2g50_etcut"]; 
+    optional int32 EF_g100_etcut_g50_etcut = 104 [(root_branch)="EF_g100_etcut_g50_etcut"]; 
+    optional int32 EF_g100_loose = 105 [(root_branch)="EF_g100_loose"]; 
+    optional int32 EF_g10_NoCut_cosmic = 106 [(root_branch)="EF_g10_NoCut_cosmic"]; 
+    optional int32 EF_g11_etcut = 107 [(root_branch)="EF_g11_etcut"]; 
+    optional int32 EF_g11_etcut_larcalib = 108 [(root_branch)="EF_g11_etcut_larcalib"]; 
+    optional int32 EF_g150_etcut = 109 [(root_branch)="EF_g150_etcut"]; 
+    optional int32 EF_g15_loose = 110 [(root_branch)="EF_g15_loose"]; 
+    optional int32 EF_g15_loose_larcalib = 111 [(root_branch)="EF_g15_loose_larcalib"]; 
+    optional int32 EF_g17_etcut = 112 [(root_branch)="EF_g17_etcut"]; 
+    optional int32 EF_g17_etcut_EFxe20_noMu = 113 [(root_branch)="EF_g17_etcut_EFxe20_noMu"]; 
+    optional int32 EF_g17_etcut_EFxe30_noMu = 114 [(root_branch)="EF_g17_etcut_EFxe30_noMu"]; 
+    optional int32 EF_g20_etcut = 115 [(root_branch)="EF_g20_etcut"]; 
+    optional int32 EF_g20_etcut_xe30_noMu = 116 [(root_branch)="EF_g20_etcut_xe30_noMu"]; 
+    optional int32 EF_g20_loose = 117 [(root_branch)="EF_g20_loose"]; 
+    optional int32 EF_g20_loose_cnv = 118 [(root_branch)="EF_g20_loose_cnv"]; 
+    optional int32 EF_g20_loose_g30_loose = 119 [(root_branch)="EF_g20_loose_g30_loose"]; 
+    optional int32 EF_g20_loose_larcalib = 120 [(root_branch)="EF_g20_loose_larcalib"]; 
+    optional int32 EF_g20_loose_xe20_noMu = 121 [(root_branch)="EF_g20_loose_xe20_noMu"]; 
+    optional int32 EF_g20_loose_xe30_noMu = 122 [(root_branch)="EF_g20_loose_xe30_noMu"]; 
+    optional int32 EF_g20_tight = 123 [(root_branch)="EF_g20_tight"]; 
+    optional int32 EF_g25_loose_xe30_noMu = 124 [(root_branch)="EF_g25_loose_xe30_noMu"]; 
+    optional int32 EF_g27_etcut = 125 [(root_branch)="EF_g27_etcut"]; 
+    optional int32 EF_g27_etcut_EFxe30_noMu = 126 [(root_branch)="EF_g27_etcut_EFxe30_noMu"]; 
+    
+    optional int32 EF_g40_loose = 200 [(root_branch)="EF_g40_loose"]; 
+    optional int32 EF_g40_loose_EFxe35_noMu = 201 [(root_branch)="EF_g40_loose_EFxe35_noMu"]; 
+    optional int32 EF_g40_loose_EFxe40_noMu = 202 [(root_branch)="EF_g40_loose_EFxe40_noMu"]; 
+    optional int32 EF_g40_loose_larcalib = 203 [(root_branch)="EF_g40_loose_larcalib"]; 
+    optional int32 EF_g40_loose_xe40_noMu = 204 [(root_branch)="EF_g40_loose_xe40_noMu"]; 
+    optional int32 EF_g40_loose_xs35_noMu = 205 [(root_branch)="EF_g40_loose_xs35_noMu"]; 
+    optional int32 EF_g40_tight = 206 [(root_branch)="EF_g40_tight"]; 
+    optional int32 EF_g50_loose = 207 [(root_branch)="EF_g50_loose"]; 
+    optional int32 EF_g5_NoCut_cosmic = 208 [(root_branch)="EF_g5_NoCut_cosmic"]; 
+    optional int32 EF_g60_loose = 209 [(root_branch)="EF_g60_loose"]; 
+    optional int32 EF_g60_loose_larcalib = 210 [(root_branch)="EF_g60_loose_larcalib"]; 
+    optional int32 EF_g80_loose = 211 [(root_branch)="EF_g80_loose"]; 
+    optional int32 EF_g80_loose_larcalib = 212 [(root_branch)="EF_g80_loose_larcalib"]; 
+    
+    optional int32 author = 300 [(root_branch)="author"]; 
+    
+    optional int32 isRecovered = 400 [(root_branch)="isRecovered"]; 
+    
+    optional uint32 isEM = 500 [(root_branch)="isEM"]; 
+    
+    optional int32 convFlag = 600 [(root_branch)="convFlag"]; 
+    optional int32 isConv = 601 [(root_branch)="isConv"]; 
+    optional int32 nConv = 602 [(root_branch)="nConv"]; 
+    optional int32 nSingleTrackConv = 603 [(root_branch)="nSingleTrackConv"]; 
+    optional int32 nDoubleTrackConv = 604 [(root_branch)="nDoubleTrackConv"]; 
+    
+    optional int32 loose = 700 [(root_branch)="loose"]; 
+    optional int32 tight = 701 [(root_branch)="tight"]; 
+    optional int32 tightIso = 702 [(root_branch)="tightIso"]; 
+    
+    optional float Ethad = 800 [(root_branch)="Ethad"]; 
+    optional float Ethad1 = 801 [(root_branch)="Ethad1"]; 
+    optional float E033 = 802 [(root_branch)="E033"]; 
+    optional float f1 = 803 [(root_branch)="f1"]; 
+    optional float f1core = 804 [(root_branch)="f1core"]; 
+    optional float Emins1 = 805 [(root_branch)="Emins1"]; 
+    optional float fside = 806 [(root_branch)="fside"]; 
+    optional float Emax2 = 807 [(root_branch)="Emax2"]; 
+    optional float ws3 = 808 [(root_branch)="ws3"]; 
+    optional float wstot = 809 [(root_branch)="wstot"]; 
+    optional float E132 = 810 [(root_branch)="E132"]; 
+    optional float E1152 = 811 [(root_branch)="E1152"]; 
+    optional float emaxs1 = 812 [(root_branch)="emaxs1"]; 
+    optional float deltaEs = 813 [(root_branch)="deltaEs"]; 
+    optional float E233 = 814 [(root_branch)="E233"]; 
+    optional float E237 = 815 [(root_branch)="E237"]; 
+    optional float E277 = 816 [(root_branch)="E277"]; 
+    optional float weta2 = 817 [(root_branch)="weta2"]; 
+    optional float f3 = 818 [(root_branch)="f3"]; 
+    optional float f3core = 819 [(root_branch)="f3core"]; 
+    
+    optional float rphiallcalo = 900 [(root_branch)="rphiallcalo"]; 
+    
+    optional float Etcone45 = 1000 [(root_branch)="Etcone45"]; 
+    optional float Etcone20 = 1001 [(root_branch)="Etcone20"]; 
+    optional float Etcone30 = 1002 [(root_branch)="Etcone30"]; 
+    optional float Etcone40 = 1003 [(root_branch)="Etcone40"]; 
+    optional float ptcone30 = 1004 [(root_branch)="ptcone30"]; 
+    
+    optional float convanglematch = 1100 [(root_branch)="convanglematch"]; 
+    optional float convtrackmatch = 1101 [(root_branch)="convtrackmatch"]; 
+    
+    optional int32 hasconv = 1200 [(root_branch)="hasconv"]; 
+    optional float convvtxx = 1201 [(root_branch)="convvtxx"]; 
+    optional float convvtxy = 1202 [(root_branch)="convvtxy"]; 
+    optional float convvtxz = 1203 [(root_branch)="convvtxz"]; 
+    optional float Rconv = 1204 [(root_branch)="Rconv"]; 
+    optional float zconv = 1205 [(root_branch)="zconv"]; 
+    optional float convvtxchi2 = 1206 [(root_branch)="convvtxchi2"]; 
+    optional float pt1conv = 1207 [(root_branch)="pt1conv"]; 
+    
+    optional int32 convtrk1nBLHits = 1300 [(root_branch)="convtrk1nBLHits"]; 
+    optional int32 convtrk1nPixHits = 1301 [(root_branch)="convtrk1nPixHits"]; 
+    optional int32 convtrk1nSCTHits = 1302 [(root_branch)="convtrk1nSCTHits"]; 
+    optional int32 convtrk1nTRTHits = 1303 [(root_branch)="convtrk1nTRTHits"]; 
+    
+    optional float pt2conv = 1400 [(root_branch)="pt2conv"]; 
+    
+    optional int32 convtrk2nBLHits = 1500 [(root_branch)="convtrk2nBLHits"]; 
+    optional int32 convtrk2nPixHits = 1501 [(root_branch)="convtrk2nPixHits"]; 
+    optional int32 convtrk2nSCTHits = 1502 [(root_branch)="convtrk2nSCTHits"]; 
+    optional int32 convtrk2nTRTHits = 1503 [(root_branch)="convtrk2nTRTHits"]; 
+    
+    optional float ptconv = 1600 [(root_branch)="ptconv"]; 
+    optional float pzconv = 1601 [(root_branch)="pzconv"]; 
+    
+    optional float reta = 1700 [(root_branch)="reta"]; 
+    optional float rphi = 1701 [(root_branch)="rphi"]; 
+    
+    optional float cl_E = 1800 [(root_branch)="cl_E"]; 
+    optional float cl_pt = 1801 [(root_branch)="cl_pt"]; 
+    optional float cl_eta = 1802 [(root_branch)="cl_eta"]; 
+    optional float cl_phi = 1803 [(root_branch)="cl_phi"]; 
+    optional float cl_etas2 = 1804 [(root_branch)="cl_etas2"]; 
+    
+    
+}
