@@ -4,8 +4,7 @@
 #include <string>
 #include <vector>
 #include <cassert>
-
-#include <google/protobuf/descriptor.h>
+#include <set>
 
 #include <a4/register.h>
 
@@ -17,6 +16,7 @@ namespace google{ namespace protobuf{
         class GzipOutputStream;
         class CodedOutputStream;
     };
+    class SimpleDescriptorDatabase;
 };};
 
 namespace a4{ namespace io{
@@ -102,6 +102,14 @@ namespace a4{ namespace io{
             uint32_t _content_class_id;
             uint32_t _metadata_class_id;
             std::vector<uint64_t> metadata_positions;
+            
+            shared<google::protobuf::SimpleDescriptorDatabase> _written_file_descriptors;
+            
+            void write_a4proto(const google::protobuf::Message &msg);
+            
+            std::set<uint32_t> _written_classids;
+            bool have_written_classid(const uint32_t& classid) { return _written_classids.find(classid) != _written_classids.end(); }
+            void set_written_classid(const uint32_t& classid) { _written_classids.insert(classid); }
     };
 
 };};

@@ -2,10 +2,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <vector>
 #include <iostream>
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
+#include <google/protobuf/descriptor.pb.h>
+#include <google/protobuf/descriptor_database.h>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/gzip_stream.h>
@@ -19,6 +22,7 @@ using std::string;
 using google::protobuf::io::FileOutputStream;
 using google::protobuf::io::CodedOutputStream;
 using google::protobuf::io::GzipOutputStream;
+using google::protobuf::FileDescriptor;
 using namespace a4::io;
 
 const string START_MAGIC = "A4STREAM";
@@ -37,7 +41,8 @@ A4OutputStream::A4OutputStream(const string &output_file,
     _output_name(output_file),
     _description(description),
     _opened(false),
-    _closed(false)
+    _closed(false),
+    _written_file_descriptors(new ::google::protobuf::SimpleDescriptorDatabase())
 {
     _fileno = -1;
 }
@@ -54,7 +59,8 @@ A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream
     _output_name(outname),
     _description(description),
     _opened(false),
-    _closed(false)
+    _closed(false),
+    _written_file_descriptors()
 {
     _raw_out = out;
 }
