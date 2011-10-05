@@ -91,7 +91,7 @@ void A4InputStream::startup() {
     _coded_in.reset(new CodedInputStream(_raw_in.get()));
 
     // Push limit of read bytes
-    _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
+    _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
 
     if (!read_header()) {
         if(_error) std::cerr << "ERROR - a4::io:A4InputStream - Header corrupted!" << std::endl;
@@ -255,7 +255,7 @@ int64_t A4InputStream::seek(int64_t position, int whence) {
     _file_in.reset(new FileInputStream(_fileno));
     _raw_in = _file_in;
     _coded_in.reset(new CodedInputStream(_raw_in.get()));
-    _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
+    _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
     return pos;
 };
 
@@ -273,7 +273,7 @@ bool A4InputStream::start_compression(const A4StartCompressedSection& cs) {
     }
 
     _coded_in.reset(new CodedInputStream(_compressed_in.get()));
-    _coded_in->SetTotalBytesLimit(pow(1024,3), 900*pow(1024,2));
+    _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
     return true;
 }
 
@@ -291,10 +291,12 @@ bool A4InputStream::stop_compression(const A4EndCompressedSection& cs) {
 
 void A4InputStream::reset_coded_stream() {
     _coded_in.reset();
-    if (_compressed_in) 
+    if (_compressed_in) {
         _coded_in.reset(new CodedInputStream(_compressed_in.get()));
-    else
+    } else {
         _coded_in.reset(new CodedInputStream(_raw_in.get()));
+    }
+    _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
 }
 
 /// \internal
@@ -307,7 +309,7 @@ A4Message A4InputStream::next(bool internal) {
     if (!_good) return A4Message(_error);
 
     static int i = 0;
-    if (i++ % 1000 == 0) reset_coded_stream();
+    if (i++ % 100 == 0) reset_coded_stream();
 
     uint32_t size = 0;
     if (!_coded_in->ReadLittleEndian32(&size)) {
