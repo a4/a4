@@ -38,7 +38,7 @@ AC_DEFUN([A4_BOOST_CHECK], [
   AC_SUBST([BOOST_ROOT], [$with_boost])
 
   BOOST_STATIC
-  BOOST_REQUIRE([1.41], [$2])
+  BOOST_REQUIRE([1.43], [$2])
 
   # Find boost in strange locations
   BOOST_PROGRAM_OPTIONS
