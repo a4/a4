@@ -51,22 +51,27 @@ AC_DEFUN([A4_REQUIRE], [
         if test -d ${with_a4}/$1; then
             # Source directory
             # Try to use either this directory or that build directory
-            A4_CPPFLAGS+=" -I${with_a4}/$1/src -I../$1/src "
-            A4_LIBS+=" -L${with_a4}/$1/.libs -L../$1/.libs -l$1 "
+            A4_package_CPPFLAGS=" -I${with_a4}/$1/src -I../$1/src "
+            A4_package_LIBS=" ../$1/.libs/lib$1.la "
         else
             # Installation directory
-            A4_CPPFLAGS+=" -I${with_a4}/include "
-            A4_LIBS+=" -L${with_a4}/lib -l$1 "
+            A4_package_CPPFLAGS+=" -I${with_a4}/include "
+            A4_package_LIBS+=" -L${with_a4}/lib -l$1 "
         fi
     fi
     a4_cppflags_save=$CPPFLAGS
-    CPPFLAGS+=$A4_CPPFLAGS
     CPPFLAGS+=$BOOST_CPPFLAGS
+    CPPFLAGS+=$PROTOBUF_CFLAGS
+    CPPFLAGS+=$A4_CPPFLAGS
+    CPPFLAGS+=$A4_package_CPPFLAGS
     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[#include <a4/$2>]])],
         [:],
         [AC_MSG_FAILURE([Could not compile program with $1 headers (a4/$2)!])])
     # We cannot check the linker since the other pack might not be compiled yet
     CPPFLAGS=$a4_cppflags_save
-    AC_SUBST([A4_CPPFLAGS],[$A4_CPPFLAGS])
-    AC_SUBST([A4_LIBS],[$A4_LIBS])
+    A4_CPPFLAGS+=$A4_package_CPPFLAGS
+    A4_LIBS+=$A4_package_LIBS
+    AC_SUBST(AS_TR_CPP([A4_$1_CPPFLAGS]), [$A4_package_CPPFLAGS])dnl
+    AC_SUBST(AS_TR_CPP([A4_$1_LIBS]), [$A4_package_LIBS])dnl
+    AC_SUBST([A4_CPPFLAGS], [$A4_CPPFLAGS])dnl
 ])# A4_REQUIRE_PACKAGE

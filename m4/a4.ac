@@ -1,10 +1,7 @@
 
-AC_CONFIG_AUX_DIR([.])
-
-AM_INIT_AUTOMAKE([foreign nostdinc -Wall -Werror])
 
 # specify language
-AC_PROG_CC
+AC_PROG_CC_C_O
 AC_PROG_CXX([g++46 g++4.6 g++-4.6 g++45 g++4.5 g++-4.5 g++44 g++4.4 g++-4.4 g++ gcc cl KCC CC cxx cc++ xlC aCC c++])
 AC_LANG([C++])
 AC_LANG_CXX_0X
@@ -14,12 +11,11 @@ m4_ifdef([LT_INIT], [LT_INIT], [AC_PROG_LIBTOOL])
 A4_PROTOBUF_CHECK([:],[AC_MSG_ERROR([A4 requires the google protobuf library, which configure could not find! Run $srcdir/get_protobuf.sh to setup a 'builtin' copy and rerun configure.])])
 A4_BOOST_CHECK([:],[AC_MSG_ERROR([A4 requires the C++ boost library version >= 1.41, which configure could not find! Run $srcdir/get_miniboost.sh to setup a 'builtin' copy of the required part of boost and rerun configure.])])
 
-AC_CONFIG_FILES([this_a4.sh.in:this_a4.sh.ac])
+AC_CONFIG_FILES([m4/this_a4.sh.in:m4/this_a4.sh.ac])
 
 # only set the following variables if we configure an a4 package separately
 if test x$PACKAGE_NAME != xa4; then
-    CPPFLAGS+=" -I${srcdir}/src -I./src "
     AC_SUBST([A4_THIS_SCRIPT],[this_a4.sh])
-    AC_SUBST([A4_THIS_SCRIPT_IN],[this_a4.sh.in])
+    AC_SUBST([A4_THIS_SCRIPT_IN],[m4/this_a4.sh.in])
 fi
 

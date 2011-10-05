@@ -1,21 +1,35 @@
-
 AM_CPPFLAGS=-I$(srcdir)/src -I./src
 
 a4includedir=${includedir}/a4
 a4pythondir=${pythondir}/a4
 a4pythonprotodir=${pythondir}/a4/proto
+pkgconfigdir = $(libdir)/pkgconfig
 
 edit = sed -e 's|$${prefix}|$(prefix)|g'
  
-this_a4.sh: this_a4.sh.in
-	rm -f $@ $@.tmp
-	srcdir=''; \
-	test -f ./$@.in || srcdir=$(srcdir)/; \
-	$(edit) $${srcdir}$@.in > $@
+this_a4.sh: m4/this_a4.sh.in
+	$(edit) m4/this_a4.sh.in > $@
 
 install-exec-hook:
 	mkdir -p $(DESTDIR)$(bindir) && cd $(DESTDIR)$(bindir) && \
 	if ! test -f ./python; then $(LN_S) -f `which $(PYTHON)` ./python; fi
+
+.pc_in.pc:
+	sed -e 's![@]prefix[@]!$(prefix)!g' \
+            -e 's![@]exec_prefix[@]!$(exec_prefix)!g' \
+            -e 's![@]includedir[@]!$(includedir)!g' \
+            -e 's![@]libdir[@]!$(libdir)!g' \
+            -e 's![@]PACKAGE_VERSION[@]!$(PACKAGE_VERSION)!g' \
+            -e 's![@]PROTOBUF_ROOT[@]!$(PROTOBUF_ROOT)!g' \
+            -e 's![@]BOOST_LDFLAGS[@]!$(BOOST_LDFLAGS)!g' \
+            -e 's![@]BOOST_LIBS[@]!$(BOOST_LIBS)!g' \
+            $< > $@
+
+MAINTAINERCLEANFILES = Makefile.in aclocal.m4 build-aux/compile \
+        build-aux/config.guess build-aux/config.sub build-aux/depcomp \
+        build-aux/install-sh build-aux/ltmain.sh build-aux/missing \
+        config.h.in config.h.in~ configure m4/libtool.m4 m4/ltoptions.m4 \
+        m4/ltsugar.m4 m4/ltversion.m4 m4/lt~obsolete.m4
 
 EXTRA_SCRIPTS = this_a4.sh
 EXTRA_DIST = ${A4_THIS_SCRIPT_IN}

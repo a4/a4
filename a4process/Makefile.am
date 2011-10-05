@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 A4PACK=process
 
 include m4/a4.am
-include protobuf.make
+include protobuf.am
 
 # Files to distribute
 a4include_HEADERS = \
@@ -13,8 +13,8 @@ a4include_HEADERS = \
     src/a4/object_store.h src/a4/object_store_impl.h
 
 # Compilation options
-LDADD=liba4process.la $(A4_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)
-AM_CPPFLAGS+=$(A4_CPPFLAGS) $(PROTOBUF_CFLAGS) $(BOOST_CPPFLAGS)
+LDADD=liba4process.la $(A4_A4IO_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)
+AM_CPPFLAGS+=$(A4_A4IO_CPPFLAGS) $(PROTOBUF_CFLAGS) $(BOOST_CPPFLAGS)
 
 # Main a4process library
 lib_LTLIBRARIES=liba4process.la
@@ -25,7 +25,7 @@ liba4process_la_SOURCES= \
     src/a4/hash_lookup.h src/a4/hash_lookup_impl.h src/hash_lookup.cpp \
     src/a4/object_store.h src/a4/object_store_impl.h src/object_store.cpp \
     src/a4/driver.h src/a4/application.h src/driver.cpp
-liba4process_la_LIBADD=$(A4_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)
+liba4process_la_LIBADD=$(A4_A4IO_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)
 
 
 ## Test programs

@@ -1,0 +1,14 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+includedir=@includedir@
+libdir=@libdir@
+
+Name: A4
+Description: Another Attempt At Analysis
+URL: https://github.com/JohannesEbke/a4
+Version: @PACKAGE_VERSION@
+Cflags: -I${includedir}
+Libs: -L${libdir} -la4
+Libs.private: @BOOST_LDFLAGS@ @BOOST_LIBS@
+Requires: @PROTOBUF_ROOT@/lib/pkgconfig/protobuf.pc
+

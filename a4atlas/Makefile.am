@@ -1,8 +1,9 @@
 ACLOCAL_AMFLAGS = -I m4
 
 A4PACK=atlas
+
 include m4/a4.am
-include protobuf.make
+include protobuf.am
 
 ## What to dostribute and where
 athenadatadir=${pkgdatadir}/athena

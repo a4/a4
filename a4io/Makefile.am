@@ -3,7 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 A4PACK=io
 
 include m4/a4.am
-include protobuf.make
+include protobuf.am
 
 # Files to distribute
 dist_bin_SCRIPTS = python/a4dump python/a4info

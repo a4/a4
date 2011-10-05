@@ -6,10 +6,10 @@ PYDIR=./python/a4/proto/$(A4PACK)
 CPPDIR=./src/a4/proto/$(A4PACK)
 PROTOBUF_CFLAGS += -I$(CPPDIR)
 
-PROTOBUF_PY=$(PYDIR)/Histograms_pb2.py $(PYDIR)/Cutflow_pb2.py
-PROTOBUF_H=$(CPPDIR)/Histograms.pb.h $(CPPDIR)/Cutflow.pb.h
-PROTOBUF_CC=$(CPPDIR)/Histograms.pb.cc $(CPPDIR)/Cutflow.pb.cc
-PROTOBUF_PROTO=$(srcdir)/proto/Histograms.proto $(srcdir)/proto/Cutflow.proto
+PROTOBUF_PY=$(PYDIR)/Cutflow_pb2.py $(PYDIR)/Histograms_pb2.py
+PROTOBUF_H=$(CPPDIR)/Cutflow.pb.h $(CPPDIR)/Histograms.pb.h
+PROTOBUF_CC=$(CPPDIR)/Cutflow.pb.cc $(CPPDIR)/Histograms.pb.cc
+PROTOBUF_PROTO=$(srcdir)/proto/Cutflow.proto $(srcdir)/proto/Histograms.proto
 
 CLEANFILES += $(PYDIR)/__init__.py
 
