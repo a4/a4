@@ -226,6 +226,14 @@ bool A4InputStream::discover_all_metadata() {
             uint64_t metadata_start = footer_abs_start - footer->size() + offset;
             if (seek(metadata_start, SEEK_SET) == -1) return false;
             A4Message msg = next(true);
+            
+            while (msg.class_id == A4Proto::kCLASSIDFieldNumber) {
+                // Instead of getting metadata we might get class descriptions here
+                shared<A4Proto> a4proto = msg.as<A4Proto>();
+                generate_dynamic_classes(a4proto.get());
+                msg = next(true);
+            }
+            
             if (msg.class_id != _metadata_class_id) {
                 std::cerr << "ERROR - a4::io:A4InputStream - class_id is not metadata class_id: "
                           << msg.class_id << " != " << _metadata_class_id << std::endl;
@@ -412,6 +420,10 @@ A4Message A4InputStream::next(bool internal) {
         if(!stop_compression(*static_cast<A4EndCompressedSection*>(item.get()))) {
             return set_error(); // read error;
         }
+        return next();
+    } else if (message_type == A4Proto::kCLASSIDFieldNumber) {
+        shared<A4Proto> a4proto = static_shared_cast<A4Proto>(item);
+        generate_dynamic_classes(a4proto.get());
         return next();
     } else if (message_type == _metadata_class_id) {
         if (_current_metadata_refers_forward) {

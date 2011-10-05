@@ -24,6 +24,7 @@ namespace a4{ namespace io{
     class GzipInputStream;
     class A4StartCompressedSection;
     class A4EndCompressedSection;
+    class A4Proto;
 
     /// A4 Input Stream - reads protobuf messages from file
 

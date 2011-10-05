@@ -201,8 +201,55 @@ bool A4OutputStream::write_footer() {
     return true;
 }
 
+void get_descriptors_recursively(
+    std::vector<const google::protobuf::FileDescriptor*>& file_descriptors, 
+    const google::protobuf::FileDescriptor* file_descriptor) 
+{
+    foreach (const google::protobuf::FileDescriptor* fd, file_descriptors) {
+        if (fd->name() == file_descriptor->name())
+            return; // We have seen this one before
+    }
+        
+    for (int i = 0; i < file_descriptor->dependency_count(); i++)
+        get_descriptors_recursively(file_descriptors, file_descriptor->dependency(i));
+    
+    file_descriptors.push_back(file_descriptor);
+}
+
+void A4OutputStream::write_a4proto(const google::protobuf::Message &msg)
+{
+    std::vector<const google::protobuf::FileDescriptor*> file_descriptors;
+    
+    get_descriptors_recursively(file_descriptors, msg.GetDescriptor()->file());
+    
+    foreach (const google::protobuf::FileDescriptor* fd, file_descriptors) {
+        google::protobuf::FileDescriptorProto fdp;
+        fd->CopyTo(&fdp); // Necessary to have it in proto form
+        {
+            google::protobuf::LogSilencer silencer;
+            if (!_written_file_descriptors->Add(fdp))
+                continue; // This filedescriptor has been written as a a4proto before.
+        }
+        
+        A4Proto a4proto;
+        fd->CopyTo(a4proto.mutable_file_descriptor());
+        write(A4Proto::kCLASSIDFieldNumber, a4proto);
+        
+        for (int i = 0; i < fd->message_type_count(); i++) {
+            const google::protobuf::Descriptor* d = fd->message_type(i);
+            const google::protobuf::FieldDescriptor* fdesc = d->FindFieldByName("CLASS_ID");
+            if (!fdesc) continue; // Doesn't have a CLASS_ID, ignore
+            set_written_classid(fdesc->number());
+        }
+    }
+}
+
 bool A4OutputStream::write(uint32_t class_id, const google::protobuf::Message &msg)
 {
+    // If it is a custom message class, write it to the file
+    if (class_id >= a4::io::FIRST_CUSTOM_MESSAGE_CLASS && not have_written_classid(class_id))
+        write_a4proto(msg);
+        
     if (_coded_out->ByteCount() > 100000000) reset_coded_stream();
 
     string message;

@@ -16,6 +16,7 @@ namespace a4{ namespace io{
     template class RegisterClassID<A4StreamFooter>;
     template class RegisterClassID<A4StartCompressedSection>;
     template class RegisterClassID<A4EndCompressedSection>;
+    template class RegisterClassID<A4Proto>;
     template class RegisterClassID<TestEvent>;
     template class RegisterClassID<TestMetaData>;
 

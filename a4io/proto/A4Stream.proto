@@ -38,6 +38,13 @@ message A4EndCompressedSection
     optional int32 CLASS_ID = 103;
 }
 
+message A4Proto
+{
+    optional int32 CLASS_ID = 105;
+    
+    optional google.protobuf.FileDescriptorProto file_descriptor = 1;
+}
+
 message TestEvent
 {
     optional int32 CLASS_ID = 110;
