@@ -1,317 +1,114 @@
-// Protocol Buffers - Google's data interchange format
-// Copyright 2008 Google Inc.  All rights reserved.
-// http://code.google.com/p/protobuf/
-//
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-//
-//     * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-//     * Neither the name of Google Inc. nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-// Author: brianolson@google.com (Brian Olson)
-//
-// This file contains the implementation of classes SnappyInputStream and
-// SnappyOutputStream.
+// Author: peter.waller@gmail.com (Peter Waller)
+// Author: johannes@ebke.org (Johannes Ebke)
 
 #include "config.h"
 
 #if HAVE_SNAPPY
 
 #include <google/protobuf/stubs/common.h>
+
+#include <google/protobuf/io/coded_stream.h>
+using google::protobuf::io::CodedInputStream;
+using google::protobuf::io::CodedOutputStream;
+
+#include <snappy.h>
+
 #include "snappy_stream.h"
 
-namespace google {
-namespace protobuf {
+namespace a4 {
 namespace io {
 
-static const int kDefaultBufferSize = 65536;
+const size_t BLOCKSIZE = 64 * 1024;
 
-SnappyInputStream::SnappyInputStream(
-    ZeroCopyInputStream* sub_stream, Format format, int buffer_size)
-    : format_(format), sub_stream_(sub_stream), zerror_(Z_OK) {
+SnappyInputStream::SnappyInputStream(ZeroCopyInputStream* sub_stream)
+    : _sub_stream(new CodedInputStream(sub_stream)), _byte_count(0) {
 
-  if (buffer_size == -1) {
-    output_buffer_length_ = kDefaultBufferSize;
-  } else {
-    output_buffer_length_ = buffer_size;
-  }
-  output_buffer_ = operator new(output_buffer_length_);
-  GOOGLE_CHECK(output_buffer_ != NULL);
-  output_position_ = output_buffer_;
 }
 SnappyInputStream::~SnappyInputStream() {
-  operator delete(output_buffer_);
-  //zerror_ = inflateEnd(&zcontext_);
 }
 
-int SnappyInputStream::Inflate(int flush) {
-  /*
-  if ((zerror_ == Z_OK) && (zcontext_.avail_out == 0)) {
-    // previous inflate filled output buffer. don't change input params yet.
-  } else if (zcontext_.avail_in == 0) {
-    const void* in;
-    int in_size;
-    bool first = zcontext_.next_in == NULL;
-    bool ok = sub_stream_->Next(&in, &in_size);
-    if (!ok) {
-      zcontext_.next_out = NULL;
-      zcontext_.avail_out = 0;
-      return Z_STREAM_END;
-    }
-    zcontext_.next_in = static_cast<Bytef*>(const_cast<void*>(in));
-    zcontext_.avail_in = in_size;
-    if (first) {
-      int error = 1;// internalInflateInit2(&zcontext_, format_);
-      if (error) {
-        return error;
-      }
-    }
-  }
-  zcontext_.next_out = static_cast<Bytef*>(output_buffer_);
-  zcontext_.avail_out = output_buffer_length_;
-  */
-  output_position_ = output_buffer_;
-  //int error = inflate(&zcontext_, flush);
-  return error;
-}
-
-void SnappyInputStream::DoNextOutput(const void** data, int* size) {
-  *data = output_position_;
-  //*size = ((uintptr_t)zcontext_.next_out) - ((uintptr_t)output_position_);
-  //output_position_ = zcontext_.next_out;
-}
-
-// implements ZeroCopyInputStream ----------------------------------
-bool SnappyInputStream::Next(const void** data, int* size) {
-  bool ok = (zerror_ == Z_OK) || (zerror_ == Z_STREAM_END)
-      || (zerror_ == Z_BUF_ERROR);
-  if ((!ok) || (zcontext_.next_out == NULL)) {
-    return false;
-  }
-  if (zcontext_.next_out != output_position_) {
-    DoNextOutput(data, size);
-    return true;
-  }
-  if (zerror_ == Z_STREAM_END) {
-    if (zcontext_.next_out != NULL) {
-      // sub_stream_ may have concatenated streams to follow
-      zerror_ = inflateEnd(&zcontext_);
-      if (zerror_ != Z_OK) {
-        return false;
-      }
-      zerror_ = internalInflateInit2(&zcontext_, format_);
-      if (zerror_ != Z_OK) {
-        return false;
-      }
-    } else {
-      *data = NULL;
-      *size = 0;
-      return false;
-    }
-  }
-  zerror_ = Inflate(Z_NO_FLUSH);
-  if ((zerror_ == Z_STREAM_END) && (zcontext_.next_out == NULL)) {
-    // The underlying stream's Next returned false inside Inflate.
-    return false;
-  }
-  ok = (zerror_ == Z_OK) || (zerror_ == Z_STREAM_END)
-      || (zerror_ == Z_BUF_ERROR);
-  if (!ok) {
-    return false;
-  }
-  DoNextOutput(data, size);
-  return true;
-}
-void SnappyInputStream::BackUp(int count) {
-  output_position_ = reinterpret_cast<void*>(
-      reinterpret_cast<uintptr_t>(output_position_) - count);
-}
 bool SnappyInputStream::Skip(int count) {
-  const void* data;
-  int size;
-  bool ok = Next(&data, &size);
-  while (ok && (size < count)) {
-    count -= size;
-    ok = Next(&data, &size);
-  }
-  if (size > count) {
-    BackUp(size - count);
-  }
-  return ok;
-}
-int64 SnappyInputStream::ByteCount() const {
-  return zcontext_.total_out +
-    (((uintptr_t)zcontext_.next_out) - ((uintptr_t)output_position_));
+    assert(false);
+};
+
+void SnappyInputStream::BackUp(int count) {
+    _backed_up_bytes += count;
+};
+
+
+bool SnappyInputStream::Next(const void** data, int* size) {
+    if (_backed_up_bytes) {
+       size_t skip = _output_buffer_size - _backed_up_bytes;
+       assert(skip >= 0);
+       (*data) = _output_buffer.get() + skip;
+       (*size) = _backed_up_bytes;
+       _backed_up_bytes = 0;
+       return true;
+    }
+    
+    uint32_t compressed_size = 0;
+    assert(_sub_stream->ReadVarint32(&compressed_size));
+    assert(compressed_size < BLOCKSIZE*10);
+    shared<char> tempbuffer(new char[compressed_size]); 
+    _sub_stream->ReadRaw(tempbuffer.get(), compressed_size);
+    
+    bool success = snappy::GetUncompressedLength(
+        tempbuffer.get(), compressed_size, &_output_buffer_size);
+    assert(success);
+    
+    success = snappy::RawUncompress(tempbuffer.get(), compressed_size, _output_buffer.get());
+    assert(success);
+    _output_buffer.reset(new char[_output_buffer_size]);
+    
+    (*size) = _output_buffer_size;
+    (*data) = _output_buffer.get();
+    return true;
 }
 
 // =========================================================================
 
-SnappyOutputStream::Options::Options()
-    : format(GZIP),
-      buffer_size(kDefaultBufferSize),
-      compression_level(Z_DEFAULT_COMPRESSION),
-      compression_strategy(Z_DEFAULT_STRATEGY) {}
-
-SnappyOutputStream::SnappyOutputStream(ZeroCopyOutputStream* sub_stream) {
-  Init(sub_stream, Options());
+SnappyOutputStream::SnappyOutputStream(ZeroCopyOutputStream* sub_stream) 
+    : _sub_stream(new CodedOutputStream(sub_stream)), _byte_count(0) {
 }
 
-SnappyOutputStream::SnappyOutputStream(ZeroCopyOutputStream* sub_stream,
-                                   const Options& options) {
-  Init(sub_stream, options);
-}
-
-SnappyOutputStream::SnappyOutputStream(
-    ZeroCopyOutputStream* sub_stream, Format format, int buffer_size) {
-  Options options;
-  options.format = format;
-  if (buffer_size != -1) {
-    options.buffer_size = buffer_size;
-  }
-  Init(sub_stream, options);
-}
-
-void SnappyOutputStream::Init(ZeroCopyOutputStream* sub_stream,
-                            const Options& options) {
-  sub_stream_ = sub_stream;
-  sub_data_ = NULL;
-  sub_data_size_ = 0;
-
-  input_buffer_length_ = options.buffer_size;
-  input_buffer_ = operator new(input_buffer_length_);
-  GOOGLE_CHECK(input_buffer_ != NULL);
-
-  zcontext_.zalloc = Z_NULL;
-  zcontext_.zfree = Z_NULL;
-  zcontext_.opaque = Z_NULL;
-  zcontext_.next_out = NULL;
-  zcontext_.avail_out = 0;
-  zcontext_.total_out = 0;
-  zcontext_.next_in = NULL;
-  zcontext_.avail_in = 0;
-  zcontext_.total_in = 0;
-  zcontext_.msg = NULL;
-  // default to GZIP format
-  int windowBitsFormat = 16;
-  if (options.format == ZLIB) {
-    windowBitsFormat = 0;
-  }
-  zerror_ = deflateInit2(
-      &zcontext_,
-      options.compression_level,
-      Z_DEFLATED,
-      /* windowBits */15 | windowBitsFormat,
-      /* memLevel (default) */8,
-      options.compression_strategy);
-}
-
-SnappyOutputStream::~SnappyOutputStream() {
-  Close();
-  if (input_buffer_ != NULL) {
-    operator delete(input_buffer_);
-  }
-}
-
-// private
-int SnappyOutputStream::Deflate(int flush) {
-  int error = Z_OK;
-  do {
-    if ((sub_data_ == NULL) || (zcontext_.avail_out == 0)) {
-      bool ok = sub_stream_->Next(&sub_data_, &sub_data_size_);
-      if (!ok) {
-        sub_data_ = NULL;
-        sub_data_size_ = 0;
-        return Z_BUF_ERROR;
-      }
-      GOOGLE_CHECK_GT(sub_data_size_, 0);
-      zcontext_.next_out = static_cast<Bytef*>(sub_data_);
-      zcontext_.avail_out = sub_data_size_;
-    }
-    error = deflate(&zcontext_, flush);
-  } while (error == Z_OK && zcontext_.avail_out == 0);
-  if ((flush == Z_FULL_FLUSH) || (flush == Z_FINISH)) {
-    // Notify lower layer of data.
-    sub_stream_->BackUp(zcontext_.avail_out);
-    // We don't own the buffer anymore.
-    sub_data_ = NULL;
-    sub_data_size_ = 0;
-  }
-  return error;
-}
-
-// implements ZeroCopyOutputStream ---------------------------------
-bool SnappyOutputStream::Next(void** data, int* size) {
-  if ((zerror_ != Z_OK) && (zerror_ != Z_BUF_ERROR)) {
-    return false;
-  }
-  if (zcontext_.avail_in != 0) {
-    zerror_ = Deflate(Z_NO_FLUSH);
-    if (zerror_ != Z_OK) {
-      return false;
-    }
-  }
-  if (zcontext_.avail_in == 0) {
-    // all input was consumed. reset the buffer.
-    zcontext_.next_in = static_cast<Bytef*>(input_buffer_);
-    zcontext_.avail_in = input_buffer_length_;
-    *data = input_buffer_;
-    *size = input_buffer_length_;
-  } else {
-    // The loop in Deflate should consume all avail_in
-    GOOGLE_LOG(DFATAL) << "Deflate left bytes unconsumed";
-  }
-  return true;
-}
 void SnappyOutputStream::BackUp(int count) {
-  GOOGLE_CHECK_GE(zcontext_.avail_in, count);
-  zcontext_.avail_in -= count;
-}
-int64 SnappyOutputStream::ByteCount() const {
-  return zcontext_.total_in + zcontext_.avail_in;
+    _backed_up_bytes += count;
 }
 
-bool SnappyOutputStream::Flush() {
-  do {
-    zerror_ = Deflate(Z_FULL_FLUSH);
-  } while (zerror_ == Z_OK);
-  return zerror_ == Z_OK;
+void SnappyOutputStream::Flush()
+{
+    size_t size = BLOCKSIZE - _backed_up_bytes;
+    
+    size_t compressed_size = 0;
+    shared<char> compressed_data(new char[snappy::MaxCompressedLength(size)]);
+    snappy::RawCompress(_input_buffer.get(), size, compressed_data.get(), &compressed_size);
+    
+    assert(compressed_size <= 2*BLOCKSIZE);
+    
+    uint32_t compressed_size_32 = static_cast<uint32_t>(compressed_size);
+    _sub_stream->WriteVarint32(compressed_size_32);
+    _sub_stream->WriteRaw(compressed_data.get(), compressed_size_32);
+        
+    _input_buffer.reset();
 }
 
-bool SnappyOutputStream::Close() {
-  if ((zerror_ != Z_OK) && (zerror_ != Z_BUF_ERROR)) {
-    return false;
-  }
-  do {
-    zerror_ = Deflate(Z_FINISH);
-  } while (zerror_ == Z_OK);
-  zerror_ = deflateEnd(&zcontext_);
-  bool ok = zerror_ == Z_OK;
-  zerror_ = Z_STREAM_END;
-  return ok;
+bool SnappyOutputStream::Next(void** data, int* size) {
+    if (_backed_up_bytes) {
+       size_t skip = BLOCKSIZE - _backed_up_bytes;
+       assert(skip >= 0);
+       (*data) = _input_buffer.get() + skip;
+       (*size) = _backed_up_bytes;
+       _backed_up_bytes = 0;
+       return true;
+    }
+    if(_input_buffer) Flush();
+    _input_buffer.reset(new char[BLOCKSIZE]);
+    (*data) = _input_buffer.get();
+    (*size) = BLOCKSIZE;
+    return true;
 }
 
 }  // namespace io
-}  // namespace protobuf
-}  // namespace google
+}  // namespace a4
 
-#endif  // HAVE_ZLIB
+#endif  // HAVE_SNAPPY
