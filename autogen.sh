@@ -1,5 +1,4 @@
 #!/bin/sh
-mkdir -p portable
 autoreconf -i --force
 rm -rf autom4te.cache/
 echo "A4: Disregard messages about LT_INIT and AC_CONFIG_MACRO_DIR"
