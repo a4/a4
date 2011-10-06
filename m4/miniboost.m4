@@ -44,7 +44,7 @@ AC_DEFUN([A4_BOOST_CHECK], [
   # Make the whole boost checks much faster if we have miniboost 
   if test x$have_miniboost == xyes; then
     BOOST_REQUIRE([1.43], [$2])
-    AC_SUBST([BOOST_LIBS], ["-L$with_boost/lib -lboost_program_options -lboost_thread -pthread -lboost_filesystem"])
+    AC_SUBST([BOOST_LIBS], ["-L$with_boost/lib -lboost_program_options -lboost_thread -pthread -lboost_filesystem -lboost_system"])
   else
     BOOST_REQUIRE([1.43], [$2])
     BOOST_PROGRAM_OPTIONS
