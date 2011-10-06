@@ -32,7 +32,8 @@ namespace a4{ namespace io{
             /// true if the message pointer is None (end, unknown or no metadata)
             bool null() const {return message.get() == NULL; };
             /// this object can be used in if() expressions, it will be true if it contains a message
-            operator bool() { return !null(); }
+            operator bool() const { return !null(); }
+            bool operator!() const { return null(); }
             /// Check if the class ID matches.
             /// example: if (result.is<TestEvent>())
             template <class T>
