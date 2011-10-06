@@ -10,7 +10,7 @@ dist_bin_SCRIPTS = python/a4dump python/a4info
 dist_pkgdata_SCRIPTS=python/test_pyrw
 pkgdata_SCRIPTS=test_rw test_read
 pkgdata_PROGRAMS=test_read test_read_nomd test_write_fw test_write_bw test_bigwrite test_write_nomd_fw test_write_nomd_bw
-a4include_HEADERS = src/a4/types.h src/a4/a4io.h src/a4/register.h src/a4/message.h src/a4/input_stream.h src/a4/output_stream.h src/a4/input.h src/a4/output.h
+a4include_HEADERS = src/a4/exceptions.h src/a4/types.h src/a4/a4io.h src/a4/register.h src/a4/message.h src/a4/input_stream.h src/a4/output_stream.h src/a4/input.h src/a4/output.h
 a4python_PYTHON = python/a4/__init__.py python/a4/A4Stream.py
 a4pythonproto_PYTHON = python/a4/proto/__init__.py
 
@@ -19,14 +19,10 @@ AM_CPPFLAGS+=$(PROTOBUF_CFLAGS) $(BOOST_CPPFLAGS)
 LDADD=liba4io.la $(PROTOBUF_LIBS) $(BOOST_LIBS)
 
 # Main a4io library
-LIBRARY_SOURCES=\
+LIBRARY_SOURCES=$(a4include_HEADERS) \
     src/gzip_stream.h src/gzip_stream.cpp \
-    src/a4/message.h \
-    src/a4/input_stream.h src/input_stream.cpp \
-    src/a4/output_stream.h src/output_stream.cpp \
-    src/a4/register.h src/register.cpp \
-    src/a4/input.h src/input.cpp \
-    src/a4/output.h src/output.cpp
+    src/input_stream.cpp src/output_stream.cpp \
+    src/register.cpp src/input.cpp src/output.cpp
 lib_LTLIBRARIES=liba4io.la
 nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
 dist_liba4io_la_SOURCES=$(LIBRARY_SOURCES)

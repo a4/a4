@@ -15,4 +15,6 @@
 
 #include <cstdint>
 
+#include <a4/exceptions.h>
+
 #endif
