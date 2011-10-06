@@ -3,7 +3,17 @@
 #include <cxxabi.h>
 
 namespace _string_internal {
-    static inline std::string str_printf(const char * s) { return std::string (s); };
+    static std::ostream& operator<<(std::ostream &sstr, const std::type_info& ti) {
+        int status;
+        char * real_name = abi::__cxa_demangle(ti.name(), 0, 0, &status);
+        if (real_name) sstr << real_name; else sstr << ti.name();
+        free(real_name);
+        return sstr;
+    };
+
+    static inline std::string str_printf(const char * s) {
+        return std::string (s);
+    };
 
     template<typename T, typename... Args>
     std::string str_printf(const char * s, const T& value, const Args&... args) {
@@ -21,23 +31,13 @@ namespace _string_internal {
 
     static inline std::string str_cat() { return std::string(""); };
 
-    template<typename... Args>
-    std::string str_cat(const std::type_info& ti, const Args&... args) {
-        std::stringstream ss;
-        int status;
-        char * real_name = abi::__cxa_demangle(ti.name(), 0, 0, &status);
-        if (real_name) ss << real_name; else ss << ti.name();
-        free(real_name);
-        ss << str_cat(args...);
-        return ss.str();
-    };
-
     template<typename T, typename... Args>
     std::string str_cat(const T& s, const Args&... args) {
         std::stringstream ss;
         ss << s << str_cat(args...);
         return ss.str();
     };
+
 };
 
 template<typename... Args>
