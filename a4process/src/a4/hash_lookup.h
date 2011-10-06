@@ -56,12 +56,6 @@ class hash_lookup {
 
 bool is_writeable_pointer(const char * _p);
 
-template<typename T, typename... Args>
-std::string str_printf(const char * s, const T& value, const Args&... args);
-
-template<typename T, typename... Args>
-std::string str_cat(const T& s, const Args&... args);
-
 #include <a4/hash_lookup_impl.h>
 
 #endif

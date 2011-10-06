@@ -1,7 +1,7 @@
 #ifndef _A4_HASH_LOOKUP_IMPL_H_
 #define _A4_HASH_LOOKUP_IMPL_H_
 
-#include <sstream>
+#include <a4/string.h>
 
 template <typename... Args>
 void * & hash_lookup::lookup(const char * const index, const Args& ...args) {
@@ -69,31 +69,6 @@ hash_lookup * hash_lookup::subhash(uint32_t index, const Args& ...args) {
         idx = (idx+1) % size;
     }
     throw std::runtime_error("ERROR: Hash table full - check your code or increase hash_lookup.size.");
-};
-
-static inline std::string str_printf(const char * s) { return std::string (s); };
-
-template<typename T, typename... Args>
-std::string str_printf(const char * s, const T& value, const Args&... args) {
-    std::string res;
-    while (*s) {
-        if (*s == '%' && *++s != '%') {
-            res += std::string(value);
-            return res + str_printf(++s, args...);
-        }
-        res += char(*s++);
-    }
-    // Append extra arguments
-    return res + std::string(value) + str_printf("", args...);
-};
-
-static inline std::string str_cat() { return std::string(""); };
-
-template<typename T, typename... Args>
-std::string str_cat(const T& s, const Args&... args) {
-    std::stringstream ss;
-    ss << s << str_cat(args...);
-    return ss.str();
 };
 
 #endif
