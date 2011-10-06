@@ -6,6 +6,8 @@
 #include <a4/hash_lookup.h>
 #include <a4/storable.h>
 
+#define IS_FALSE(X) (sizeof(std::tuple<X...>) == -1)
+
 namespace a4{ namespace process{
     class ObjectBackStore;
 
@@ -16,8 +18,12 @@ namespace a4{ namespace process{
             template <class C, typename ...Args> C & find(const Args & ...args);
             template <class C, typename ...Args> C & slow(const Args & ...args);
             template <class C, typename ...Args> C & find_slow(const Args & ...args);
-            template <typename ...Args, bool use=false> void T(const Args & ...args) { BOOST_STATIC_ASSERT_MSG(use, "Call T with a template parameter: S.T<H1>(''my histogram'')"); };
-            template <typename ...Args, bool use=false> void find(const Args & ...args) { BOOST_STATIC_ASSERT_MSG(use, "Call find with a template parameter: S.find<H1>(''my histogram'')"); };
+            template <typename ...Args> void T(const Args & ...args) { 
+                BOOST_STATIC_ASSERT_MSG(IS_FALSE(Args), "ObjectStore::T must be called with a template parameter: S.T<H1>(\"my histogram\")"); 
+            };
+            template <typename ...Args> void find(const Args & ...args) { 
+                BOOST_STATIC_ASSERT_MSG(IS_FALSE(Args), "ObjectStore::find must be called with a template parameter: S.find<H1>(\"my histogram\")"); 
+            };
             template <typename ...Args> ObjectStore operator()(const Args & ...args);
         protected:
             ObjectStore(hash_lookup * hl, ObjectBackStore* bs) : hl(hl), backstore(bs) {};

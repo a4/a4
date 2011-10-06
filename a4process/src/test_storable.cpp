@@ -20,6 +20,8 @@ class myhist : public StorableAs<myhist, TestHisto> {
             if (_initialized) return *this;
             j = d;
             pb.reset(new TestHisto());
+            _initialized = true;
+            return *this;
         }
         void to_pb() { assert(pb); pb->set_data(j); };
         void from_pb() { assert(pb); j = pb->data(); };
@@ -152,7 +154,16 @@ int main(int argv, char ** argc) {
     const int M = 1000;
     ObjectBackStore backstore;
     ObjectStore S = backstore.store();
-    for (int i = 0; i < N; i++) for(int j = 0; j < M; j++) lookup1000(S("test/", i%2, "/", j%5, "/"));
+    ObjectStore S_test = S("test/");
+
+    assert(S_test.find<myhist>("goo").j == 0);
+
+    for (int i = 0; i < N; i++) {
+        for(int j = 0; j < M; j++) {
+            ObjectStore subdir = S("test/", i%2, "/", j%5, "/");
+            lookup1000(subdir);
+        }
+    }
     std::cout << 1000*N*M << std::endl;
     {
         A4OutputStream out("test_storable.a4", "Store Test");

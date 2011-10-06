@@ -23,17 +23,19 @@ namespace a4{ namespace process{
     }
 
     template <class C, typename ...Args> C & ObjectStore::find(const Args & ...args) {
-        Storable * b = static_cast<Storable*>(&T(args...));
+        BOOST_STATIC_ASSERT_MSG((boost::is_convertible<C*, Storable*>::value), "You can only store objects that implement the Storable interface into the ObjectStore!");
+        Storable * b = static_cast<Storable*>(&T<C>(args...));
         return *dynamic_cast<C*>(b);
     }
 
     template <class C, typename ...Args> C & ObjectStore::find_slow(const Args & ...args) {
+        BOOST_STATIC_ASSERT_MSG((boost::is_convertible<C*, Storable*>::value), "You can only store objects that implement the Storable interface into the ObjectStore!");
         Storable * b = static_cast<Storable*>(backstore->find<C>(hl->get_path(), args...));
         return *dynamic_cast<C*>(b);
     };
 
     template <class C, typename ...Args> C * ObjectBackStore::find(const Args & ...args) {
-        //BOOST_STATIC_ASSERT_MSG((boost::is_convertible<C*, Storable*>::value), "You can only store objects that implement the Storable interface into the ObjectStore!");
+        BOOST_STATIC_ASSERT_MSG((boost::is_convertible<C*, Storable*>::value), "You can only store objects that implement the Storable interface into the ObjectStore!");
         std::string name = str_cat(args...);
         shared<Storable> & res = _store[name];
         if (res) return static_cast<C*>(res.get());
