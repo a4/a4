@@ -165,7 +165,7 @@ void test_check_set(hash_lookup * h, const Args& ...args) {
 
 int main(int argv, char ** argc) {
     const int N = 1000;
-    const int M = 1000;
+    const int M = 100;
     ObjectBackStore backstore;
     ObjectStore S = backstore.store();
     ObjectStore S_test = S("test1/");

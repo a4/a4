@@ -138,7 +138,7 @@ void test_check_set(hash_lookup * h, const Args& ...args) {
 
 int main(int argv, char ** argc) {
     const int N = 1000;
-    const int M = 1000;
+    const int M = 100;
     ObjectBackStore backstore;
     ObjectStore S = backstore.store();
     for (int i = 0; i < N; i++) for(int j = 0; j < M; j++) lookup1000(S("test/", i%2, "/", j%5, "/"));
