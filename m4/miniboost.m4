@@ -39,8 +39,8 @@ AC_DEFUN([A4_BOOST_CHECK], [
            ["$DISTCHECK_CONFIGURE_FLAGS '--with-boost=$with_boost'"])dnl
   AC_SUBST([BOOST_ROOT], [$with_boost])
 
-
-
+  # This is necessary for some autoconf versions?
+  enable_static_boost=no
   # Make the whole boost checks much faster if we have miniboost 
   if test x$have_miniboost == xyes; then
     BOOST_REQUIRE([1.43], [$2])
