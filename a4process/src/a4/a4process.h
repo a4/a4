@@ -63,10 +63,18 @@ namespace a4{
                 ProcessorOf() { a4::io::RegisterClassID<ProtoMessage> _e; a4::io::RegisterClassID<ProtoMetaData> _m; };
                 /// Override this to proces only your requested messages
                 virtual bool process(const ProtoMessage &) = 0;
-                bool process_message(const A4Message msg) { return process(*msg.as<ProtoMessage>()); };
+                bool process_message(const A4Message msg) {
+                    if (!msg) throw a4::Fatal("No message!"); // TODO: Should not be fatal
+                    ProtoMessage * pmsg = msg.as<ProtoMessage>().get();
+                    if (!pmsg) throw a4::Fatal("Unexpected Message type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMessage), ")");
+                    process(*pmsg);
+                };
                 const ProtoMetaData & metadata() {
                     const A4Message msg = metadata_message();
-                    return *msg.as<ProtoMetaData>().get();
+                    if (!msg) throw a4::Fatal("No metadata at this time!"); // TODO: Should not be fatal
+                    ProtoMetaData * meta = msg.as<ProtoMetaData>().get();
+                    if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    return *meta;
                 };
             protected:
                 virtual const int content_class_id() const { return ProtoMessage::kCLASSIDFieldNumber; };
