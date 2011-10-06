@@ -8,8 +8,7 @@ include protobuf.am
 # Files to distribute
 dist_bin_SCRIPTS = python/a4dump python/a4info
 dist_pkgdata_SCRIPTS=python/test_pyrw
-pkgdata_SCRIPTS=test_rw test_read
-pkgdata_PROGRAMS=test_read test_read_nomd test_write_fw test_write_bw test_bigwrite test_write_nomd_fw test_write_nomd_bw
+pkgdata_PROGRAMS=test_read test_rw test_read test_read_nomd test_write_fw test_write_bw test_bigwrite test_write_nomd_fw test_write_nomd_bw
 a4include_HEADERS = src/a4/a4io.h src/a4/exceptions.h src/a4/types.h \
     src/a4/string.h src/a4/string_impl.h src/a4/register.h src/a4/message.h \
     src/a4/input_stream.h src/a4/output_stream.h src/a4/input.h src/a4/output.h
