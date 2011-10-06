@@ -42,8 +42,13 @@ namespace a4{ namespace process{
     
     };
 
-    const shared<Storable> ObjectBackStore::get(std::string s) {
-        return _store[s];
+    std::vector<std::string> ObjectBackStore::list() const {
+        std::vector<std::string> res;
+        std::map<std::string, shared<Storable>>::const_iterator i;
+        for (i = _store.begin(); i != _store.end(); i++) {
+            res.push_back(i->first);
+        }
+        return res;
     };
 
 };};

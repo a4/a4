@@ -28,6 +28,20 @@ class ToyHist : public StorableAs<ToyHist, TestHisto> {
         void add(float s) { j += s; };
         float j;
 };
+class ToyTest : public StorableAs<ToyHist, TestHisto> {
+    public:
+        ToyTest & operator()(const float & start, int A, int B) { 
+            if (_initialized) return *this;
+            j = start;
+            pb.reset(new TestHisto());
+            _initialized = true;
+            return *this;
+        }
+        void to_pb() { assert(pb); pb->set_data(j); };
+        void from_pb() { assert(pb); j = pb->data(); };
+        void add(float s) { j += s; };
+        float j;
+};
 
 template <typename... Args>
 void lookup1000(ObjectStore S) {
@@ -154,9 +168,39 @@ int main(int argv, char ** argc) {
     const int M = 1000;
     ObjectBackStore backstore;
     ObjectStore S = backstore.store();
-    ObjectStore S_test = S("test/");
+    ObjectStore S_test = S("test1/");
 
-    assert(S_test.find<ToyHist>("goo").j == 0);
+    assert(S.T<ToyHist>("test/goo1")(4.2,0,1).j == 4.2);
+    assert(S.T_slow<ToyHist>("test/goo1")(8.4,0,1).j == 4.2);
+
+    assert(S_test.find<ToyHist>("goo1")->j == 4.2);
+    assert(S_test.find_slow<ToyHist>("goo1")->j == 4.2);
+
+    assert(S.find<ToyHist>("test/goo1")->j == 4.2);
+    assert(S.find_slow<ToyHist>("test/goo1")->j == 4.2);
+
+    assert(S_test.find<ToyTest>("goo1") == NULL);
+    assert(S_test.find_slow<ToyTest>("goo1") == NULL);
+
+    assert(S_test.T<ToyHist>("goo1").j == 4.2);
+    assert(S_test.T_slow<ToyHist>("goo1").j == 4.2);
+
+    S_test = S("test", 1, "/");
+
+    assert(S_test.find<ToyHist>("goo",1)->j == 4.2);
+    assert(S_test.find_slow<ToyHist>("goo",1)->j == 4.2);
+
+    assert(S.T<ToyHist>("test/goo",1).j == 4.2);
+    assert(S.T_slow<ToyHist>("test/goo",1).j == 4.2);
+
+    assert(S.find<ToyHist>("test/goo",1)->j == 4.2);
+    assert(S.find_slow<ToyHist>("test/goo",1)->j == 4.2);
+
+    assert(S_test.find<ToyTest>("goo",1) == NULL);
+    assert(S_test.find_slow<ToyTest>("goo",1) == NULL);
+
+    assert(S_test.T<ToyHist>("goo",1).j == 4.2);
+    assert(S_test.T_slow<ToyHist>("goo",1).j == 4.2);
 
     for (int i = 0; i < N; i++) {
         for(int j = 0; j < M; j++) {
@@ -175,6 +219,12 @@ int main(int argv, char ** argc) {
         A4InputStream in("test_storable.a4");
         in.new_metadata();
         inbs.from_stream(in);
+    }
+    foreach(string name, backstore.list<ToyHist>()) {
+        float j1 = backstore.get<ToyHist>(name)->j;
+        float j2 = inbs.get<ToyHist>(name)->j;
+
+        assert(j1 == j2);
     }
     
     return 0;
