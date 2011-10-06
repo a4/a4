@@ -113,7 +113,7 @@ namespace a4{
             }
 
             static bool enable_throw_on_segfault() {
-                const struct sigaction act = {&segfault_handler, 0, 0, NULL};
+                const struct sigaction act = {&segfault_handler, 0, 0, 0};
                 sigaction(SIGSEGV, &act, NULL);
             };
 
