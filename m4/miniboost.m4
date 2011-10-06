@@ -28,6 +28,7 @@ AC_DEFUN([A4_BOOST_CHECK], [
       if test -d $srcdir/miniboost; then
         with_boost=$(cd $srcdir/miniboost && pwd)
         AC_MSG_NOTICE([Using builtin miniboost at $with_boost])
+        have_miniboost=true
       else
         AC_MSG_NOTICE([No boost specified and builtin miniboost not set up, expecting boost to be installed])
       fi
@@ -40,10 +41,15 @@ AC_DEFUN([A4_BOOST_CHECK], [
   BOOST_STATIC
   BOOST_REQUIRE([1.43], [$2])
 
-  # Find boost in strange locations
-  BOOST_PROGRAM_OPTIONS
-  BOOST_THREADS
-  AC_SUBST([BOOST_LIBS], ["$BOOST_PROGRAM_OPTIONS_LDFLAGS $BOOST_PROGRAM_OPTIONS_LIBS $BOOST_THREAD_LIBS"])
+  # Make the whole boost checks much faster if we have miniboost 
+  if test x$have_miniboost == x; then
+    BOOST_PROGRAM_OPTIONS
+    BOOST_THREADS
+    BOOST_FILESYSTEM
+    AC_SUBST([BOOST_LIBS], ["$BOOST_PROGRAM_OPTIONS_LDFLAGS $BOOST_PROGRAM_OPTIONS_LIBS $BOOST_THREAD_LIBS $BOOST_FILESYSTEM_LIBS"])
+  else
+    AC_SUBST([BOOST_LIBS], ["-L$with_boost/lib -Wl,-rpath -Wl,$with_boost/lib -lboost_program_options--mt-1_47 -lboost_thread--mt-1_47 -pthread -lboost_filesystem--mt-1_47"])
+  fi
 
 ])
 
