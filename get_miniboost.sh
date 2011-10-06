@@ -70,6 +70,8 @@ popd
 
 rm $miniboost_name/ -rf
 
+./common/make_boost_la.sh
+
 echo "------------------------------------"
 echo "A4: Builtin Miniboost ready for use!"
 echo "------------------------------------"
