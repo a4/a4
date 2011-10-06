@@ -1,3 +1,5 @@
+#ifndef _A4_EXCEPTIONS_
+#define _A4_EXCEPTIONS_
 
 #include <execinfo.h>
 #include <signal.h>
@@ -109,7 +111,21 @@ namespace a4{
             virtual const char* what() const throw() {
                 return _what.c_str();
             }
+
+            static bool enable_throw_on_segfault() {
+                const struct sigaction act = {&segfault_handler, 0, 0, NULL};
+                sigaction(SIGSEGV, &act, NULL);
+            };
+
+            static void segfault_handler(int i) {
+                throw Fatal("Segmentation Fault!");
+            };
+
         protected:
             std::string _what;
     };
+
+    
 };
+
+#endif

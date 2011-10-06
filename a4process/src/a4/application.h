@@ -25,12 +25,14 @@ namespace a4{
 
         template <class MyConfiguration, class MyDriver=SimpleCommandLineDriver>
         int a4_main_configuration(int argc, const char * argv[]) {
+            a4::Fatal::enable_throw_on_segfault();
             shared<MyDriver> driver(new MyDriver(argc, argv, new MyConfiguration()));
             return driver->main(argc, argv);
         };
 
         template <class MyProcessor, class MyDriver=SimpleCommandLineDriver>
         int a4_main_process(const int &argc, const char * argv[]) {
+            a4::Fatal::enable_throw_on_segfault();
             shared<MyDriver> driver(new MyDriver(new ConfigurationOf<MyProcessor>()));
             return driver->main(argc, argv);
         };
