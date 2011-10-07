@@ -10,11 +10,6 @@ EXTRA_DIST+=$(srcdir)/tutorial/ $(srcdir)/doc/ m4/liba4.pc_in
 
 nodist_pkgconfig_DATA = m4/liba4.pc
 
-# Dummy library for linking (does this actually work?)
-lib_LTLIBRARIES=liba4.la
-liba4_la_SOURCES=common/dummy.cpp
-liba4_la_LIBADD=a4atlas/liba4atlas.la a4process/liba4process.la a4io/liba4io.la
-
 # Rules for generating documentation
 doxygen-user:
 	mkdir -p doc
