@@ -16,12 +16,9 @@ std::vector<std::string> items;
 
 class ToyHist : public StorableAs<ToyHist, TestHisto> {
     public:
-        ToyHist & operator()(const float & start, int A, int B) { 
-            if (_initialized) return *this;
+        void constructor(const float & start, int A, int B) {
             j = start;
             pb.reset(new TestHisto());
-            _initialized = true;
-            return *this;
         }
         void to_pb() { assert(pb); pb->set_data(j); };
         void from_pb() { assert(pb); j = pb->data(); };
@@ -30,12 +27,9 @@ class ToyHist : public StorableAs<ToyHist, TestHisto> {
 };
 class ToyTest : public StorableAs<ToyHist, TestHisto> {
     public:
-        ToyTest & operator()(const float & start, int A, int B) { 
-            if (_initialized) return *this;
+        void constructor(const float & start, int A, int B) {
             j = start;
             pb.reset(new TestHisto());
-            _initialized = true;
-            return *this;
         }
         void to_pb() { assert(pb); pb->set_data(j); };
         void from_pb() { assert(pb); j = pb->data(); };
