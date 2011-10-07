@@ -21,7 +21,7 @@ int main(int argc, char ** argv) {
     {
         A4OutputStream w(argv[3], "TestEvent");
         w.content_cls<TestEvent>().metadata_cls<TestMetaData>();
-        w.set_compression(false);
+        w.set_compression(compression);
         if (forward) w.set_forward_metadata();
 
         const uint64_t N = 800*1000*1000L;
@@ -34,7 +34,7 @@ int main(int argc, char ** argv) {
         if (forward) w.write(m);
         for(uint64_t i = 0; i < N; i++) {
             int32_t en = i%mod;
-            if (i % 1000000 == 0) cout << "..."<< i << endl;
+            if (i % 1000000 == 0) cout << "..." << i << endl;
             if (en/1000 != m.meta_data()) {
                 if (!forward) w.write(m);
                 m.set_meta_data(en/1000);
