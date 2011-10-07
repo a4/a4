@@ -53,7 +53,7 @@ echo "---------------------------------------"
 echo "A4: Compiling needed Boost Libraries..."
 echo "---------------------------------------"
 
-if ! ./b2 --buildid=-mt-1_47 --prefix=$prefix; then
+if ! ./b2 --buildid=-a4-mt-1_47 --prefix=$prefix; then
   echo "Boost compilation failed! :("
   exit 1
 fi
@@ -62,7 +62,7 @@ echo "----------------------------------------------"
 echo "A4: Local install of needed Boost Libraries..."
 echo "----------------------------------------------"
 
-if ! ./b2 --buildid=-mt-1_47 --prefix=$prefix install; then
+if ! ./b2 --buildid=-a4-mt-1_47 --prefix=$prefix install; then
   echo "Boost installation failed! :("
   exit 1
 fi
