@@ -99,6 +99,7 @@ if [ "$USER" == "__FAILED__" ]; then
     error "  https://github.com/signup/free"
     error "Then run:"
     error "  git config --global github.user your_github_username"
+    error "  git config --global github.token 0123456789yourf0123456789token"
     error
     die See http://help.github.com/set-your-user-name-email-and-github-token/
 fi
@@ -158,8 +159,8 @@ URL=$(get_yaml html_url "${ISSUE}")
 
 inform "Issue ${ISSUE_NUMBER} created: ${URL}"
 
-debug "Labelling issue"
-github RESULT 200 issues/label/add/{REPO}/${LABELNAME}/${ISSUE_NUMBER}
+#debug "Labelling issue"
+#github RESULT 200 issues/label/add/{REPO}/${LABELNAME}/${ISSUE_NUMBER}
 
 inform "Please edit the issue to add more context."
 
