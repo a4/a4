@@ -8,8 +8,8 @@ set -e
 API_URL=https://github.com/api/v2/yaml
 #json
 LABELNAME=a4shout
-#REPO=JohannesEbke/a4
-REPO=pwaller/test
+REPO=JohannesEbke/a4
+#REPO=pwaller/test
 LAST_ERROR_FILE="${XDG_CACHE_HOME-${HOME}/.cache}/a4/last-error"
 ISSUE_TITLE="Automatic report"
 
