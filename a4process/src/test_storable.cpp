@@ -196,6 +196,14 @@ int main(int argv, char ** argc) {
     assert(S_test.T<ToyHist>("goo",1).j == 4.2f);
     assert(S_test.T_slow<ToyHist>("goo",1).j == 4.2f);
 
+    // Check if cloning works and separates the objects
+    ToyHist h1 = S_test.T_slow<ToyHist>("goo",1).clone();
+    ToyHist h2 = S_test.T_slow<ToyHist>("goo",1).clone();
+    assert(h1.j == h2.j);
+    h1.j = 42.0f;
+    assert(h2.j == 4.2f);
+    assert(S_test.T_slow<ToyHist>("goo",1).j == 4.2f);
+
     for (int i = 0; i < N; i++) {
         for(int j = 0; j < M; j++) {
             ObjectStore subdir = S("test/", i%2, "/", j%5, "/");

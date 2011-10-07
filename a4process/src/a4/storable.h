@@ -21,9 +21,11 @@ namespace a4{ namespace process{
             /// Require that merging works. Must throw an exception if merge fails. (may be bad_cast)
             virtual Storable& operator+=(const Storable &other) = 0;
             // Trying C++0x move semantics...
-            virtual Storable&& operator+(const Storable &other) { Storable && t = this->clone(); t += other; return t; };
+            virtual Storable&& operator+(const Storable &other) {
+                return std::move(this->clone_storable() += other);
+            };
             /// Cloneable
-            virtual Storable&& clone() = 0;
+            virtual Storable&& clone_storable() = 0;
             virtual ~Storable() {};
     };
 
@@ -51,7 +53,9 @@ namespace a4{ namespace process{
                 pb.reset(new ProtoClass());
             };
  
-            Storable && clone() { This t = *static_cast<This*>(this); return std::move(t); };
+            This && clone() { This t = *static_cast<This*>(this); return std::move(t); };
+            Storable && clone_storable() { return clone(); };
+
             Storable & operator+=(const Storable &other) {
                 static_cast<This&>(*this) += dynamic_cast<const This&>(other);
                 return *this;
