@@ -47,14 +47,21 @@ static const int kDefaultBufferSize = 65536;
 GzipInputStream::GzipInputStream(
     ZeroCopyInputStream* sub_stream, Format format, int buffer_size)
     : format_(format), sub_stream_(sub_stream), zerror_(Z_OK) {
+  zcontext_.next_in = NULL;
+  zcontext_.avail_in = 0;
+  zcontext_.total_in = 0;
+  zcontext_.next_out = NULL;
+  zcontext_.avail_out = 0;
+  zcontext_.total_out = 0;
+  zcontext_.msg = NULL;
+  zcontext_.state = NULL;
   zcontext_.zalloc = Z_NULL;
   zcontext_.zfree = Z_NULL;
   zcontext_.opaque = Z_NULL;
   zcontext_.total_out = 0;
-  zcontext_.next_in = NULL;
-  zcontext_.avail_in = 0;
-  zcontext_.total_in = 0;
-  zcontext_.msg = NULL;
+  zcontext_.data_type = Z_BINARY;
+  zcontext_.adler = 0;
+  zcontext_.reserved = 0;
   if (buffer_size == -1) {
     output_buffer_length_ = kDefaultBufferSize;
   } else {
