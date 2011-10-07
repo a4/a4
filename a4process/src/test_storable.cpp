@@ -20,8 +20,8 @@ class ToyHist : public StorableAs<ToyHist, TestHisto> {
             j = start;
             pb.reset(new TestHisto());
         }
-        void to_pb() { assert(pb); pb->set_data(j); };
-        void from_pb() { assert(pb); j = pb->data(); };
+        void to_pb(bool blank_pb) { pb->set_data(j); };
+        void from_pb() { j = pb->data(); };
         void add(float s) { j += s; };
         float j;
 };
@@ -31,8 +31,8 @@ class ToyTest : public StorableAs<ToyHist, TestHisto> {
             j = start;
             pb.reset(new TestHisto());
         }
-        void to_pb() { assert(pb); pb->set_data(j); };
-        void from_pb() { assert(pb); j = pb->data(); };
+        void to_pb(bool blank_pb) { pb->set_data(j); };
+        void from_pb() { j = pb->data(); };
         void add(float s) { j += s; };
         float j;
 };

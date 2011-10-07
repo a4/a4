@@ -23,7 +23,7 @@ namespace a4{ namespace process{
         for(i = _store.begin(); i != _store.end(); i++) {
             A4Key k;
             k.set_name(i->first);
-            shared<google::protobuf::Message> msg(i->second->as_message());
+            shared<const google::protobuf::Message> msg(i->second->as_message());
             outs.write(k);
             if (!msg) std::cerr << "HOAOAOA" << std::endl;
             assert(msg);
