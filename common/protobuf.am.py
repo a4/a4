@@ -11,11 +11,7 @@ names = [n[len(dir)+1:-len(".proto")] for n in names]
 subdirs = dict((nm, "/".join(nm.split("/")[:-1])) for nm in names)
 
 lines = []
-lines.append("""
-AM_V_PROTOC = $(am__v_PROTOC_$(V))
-am__v_PROTOC_ = $(am__v_PROTOC_$(AM_DEFAULT_VERBOSITY))
-am__v_PROTOC_0 = @echo "  PROTOC" $@;
-""")
+lines.append("@A4_SET_AM_V_PROTOC@")
 lines.append("protodir=${localstatedir}/a4/proto/$(A4PACK)")
 lines.append("protoincludedir=${includedir}/a4/proto/$(A4PACK)")
 lines.append("protopythondir=${pythondir}/a4/proto/$(A4PACK)")

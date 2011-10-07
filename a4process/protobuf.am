@@ -1,8 +1,4 @@
-
-AM_V_PROTOC = $(am__v_PROTOC_$(V))
-am__v_PROTOC_ = $(am__v_PROTOC_$(AM_DEFAULT_VERBOSITY))
-am__v_PROTOC_0 = @echo "  PROTOC" $@;
-
+@A4_SET_AM_V_PROTOC@
 protodir=${localstatedir}/a4/proto/$(A4PACK)
 protoincludedir=${includedir}/a4/proto/$(A4PACK)
 protopythondir=${pythondir}/a4/proto/$(A4PACK)
