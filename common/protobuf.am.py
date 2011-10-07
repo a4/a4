@@ -11,7 +11,11 @@ names = [n[len(dir)+1:-len(".proto")] for n in names]
 subdirs = dict((nm, "/".join(nm.split("/")[:-1])) for nm in names)
 
 lines = []
-
+lines.append("""
+AM_V_PROTOC = $(am__v_PROTOC_$(V))
+am__v_PROTOC_ = $(am__v_PROTOC_$(AM_DEFAULT_VERBOSITY))
+am__v_PROTOC_0 = @echo "  PROTOC" $@;
+""")
 lines.append("protodir=${localstatedir}/a4/proto/$(A4PACK)")
 lines.append("protoincludedir=${includedir}/a4/proto/$(A4PACK)")
 lines.append("protopythondir=${pythondir}/a4/proto/$(A4PACK)")
@@ -53,11 +57,11 @@ lines.append("""
 $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(srcdir)/proto/%.proto
 	@mkdir -p $(PYDIR)
 	@mkdir -p $(CPPDIR)
-	${PROTOBUF_PROTOC} -I=$(srcdir)/proto --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
+	$(AM_V_PROTOC)${PROTOBUF_PROTOC} -I=$(srcdir)/proto --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
 
 # how to make the python __init__.py
 $(PYDIR)/__init__.py: $(PROTOBUF_PY)
-	grep -Ho 'class [A-Za-z0-9]*' $^ | sed 's/.py:class/ import/' | sed "s/python\/a4\/proto\/$(A4PACK)\//from ./" | sed 's/\//./g' > $@
+	$(AM_V_PROTOC)grep -Ho 'class [A-Za-z0-9]*' $^ | sed 's/.py:class/ import/' | sed "s/python\/a4\/proto\/$(A4PACK)\//from ./" | sed 's/\//./g' > $@
 
 # make sure all protobuf are generated before they are built!
 BUILT_SOURCES=$(PROTOBUF_H) $(PROTOBUF_CC)
