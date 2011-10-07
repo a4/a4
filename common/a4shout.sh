@@ -6,15 +6,14 @@ set -e
 
 # Configurables
 API_URL=https://github.com/api/v2/yaml
-#json
-LABELNAME=a4shout
 REPO=JohannesEbke/a4
 #REPO=pwaller/test
 LAST_ERROR_FILE="${XDG_CACHE_HOME-${HOME}/.cache}/a4/last-error"
 ISSUE_TITLE="Automatic report"
 
-# Safe workaround for ancient HTTPS certificates
+# Test if stdout is a terminal we can use color on
 if tty -s <&1; then USE_COLOR=true; else USE_COLOR=false; fi
+# Safe workaround for ancient HTTPS certificates
 CA_CERT="$( cd "$( dirname "$0" )" && pwd )"/github-ca/curl-ca-bundle-github.crt
 
 function color {
@@ -65,7 +64,14 @@ if tty -s; then
             USING_LAST_ERROR_FILE=true
         else
             # Nothing. Don't know what to do!
-            error "stdin is terminal but there is no \"${LAST_ERROR_FILE}\"."
+            error "stdin is a terminal and there is no 'last error' file."
+            error "Either specify a filename or provide some stdin."
+            about "\"a4shout\" creates a github issue at "
+            about "  $(bold ${ISSUES_URL}) "
+            about "from either the input provided on $(bold stdin),"
+            about "the file specified in the $(bold arguments), or"
+            about "the contents of the file (if it exists):"
+            about "  \"$(bold ${LAST_ERROR_FILE}\")."
             inform "Usage:"
             inform "  $ ./a4shout.sh # (if ${LAST_ERROR_FILE} exists)"
             inform "  $ ./a4shout.sh filename [issue title]"
@@ -158,11 +164,10 @@ ISSUE_NUMBER=$(get_yaml number "${ISSUE}")
 URL=$(get_yaml html_url "${ISSUE}")
 
 inform "Issue ${ISSUE_NUMBER} created: ${URL}"
+inform "Please edit the issue to add more context."
 
 #debug "Labelling issue"
 #github RESULT 200 issues/label/add/{REPO}/${LABELNAME}/${ISSUE_NUMBER}
-
-inform "Please edit the issue to add more context."
 
 if [ $USING_LAST_ERROR_FILE ]; then
     NEW_FILENAME="${LAST_ERROR_FILE}-issue-${ISSUE_NUMBER}"
