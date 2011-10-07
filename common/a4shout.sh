@@ -1,8 +1,10 @@
 #! /usr/bin/env bash
 
+# set crash if anything fails, or upon encountering unset variables
 set -u
 set -e
 
+# Configurables
 API_URL=https://github.com/api/v2/yaml
 #json
 LABELNAME=a4shout
@@ -11,6 +13,7 @@ REPO=pwaller/test
 LAST_ERROR_FILE="${XDG_CACHE_HOME-${HOME}/.cache}/a4/last-error"
 ISSUE_TITLE="Automatic report"
 
+# Safe workaround for ancient HTTPS certificates
 if tty -s <&1; then USE_COLOR=true; else USE_COLOR=false; fi
 CA_CERT="$( cd "$( dirname "$0" )" && pwd )"/github-ca/curl-ca-bundle-github.crt
 
@@ -61,6 +64,7 @@ if tty -s; then
             CONTENTS="$(cat "${LAST_ERROR_FILE}")"
             USING_LAST_ERROR_FILE=true
         else
+            # Nothing. Don't know what to do!
             error "stdin is terminal but there is no \"${LAST_ERROR_FILE}\"."
             inform "Usage:"
             inform "  $ ./a4shout.sh # (if ${LAST_ERROR_FILE} exists)"
@@ -69,7 +73,8 @@ if tty -s; then
             die "Either specify a filename or provide some stdin"
         fi
     fi
-else        
+else
+    # Read stdin
     INPUT=stdin
     CONTENTS="$(cat)"
     if [ -n "${1-}" ]; then
@@ -77,7 +82,7 @@ else
     fi
 fi
 
-# Format contents using awk
+# Format contents using awk to give indentation
 CONTENTS="$(echo -n "$CONTENTS" | awk '{ print "    "$0 }')"
 CONTENTS="$(
     echo "This issue was automatically created by a4shout.sh" &&
@@ -116,7 +121,6 @@ function github {
     shift
     CALL=$(echo $1 | sed "s|{REPO}|${REPO}|")
     shift
-    #curl --cacert "${CA_CERT}" -F "login=${USER}" -F "token=${TOKEN}" "$@" ${API_URL}/${CALL}
     local RESULT="$(
         curl --write-out "%{http_code}" \
              --cacert "${CA_CERT}" \
