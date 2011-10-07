@@ -7,9 +7,10 @@ set -e
 # Configurables
 API_URL=https://github.com/api/v2/yaml
 REPO=JohannesEbke/a4
-#REPO=pwaller/test
+
 LAST_ERROR_FILE="${XDG_CACHE_HOME-${HOME}/.cache}/a4/last-error"
 ISSUE_TITLE="Automatic report"
+ISSUES_URL="https://github.com/${REPO}/issues"
 
 # Test if stdout is a terminal we can use color on
 if tty -s <&1; then USE_COLOR=true; else USE_COLOR=false; fi
@@ -32,6 +33,8 @@ function color {
     fi
 }
 
+function bold { color bold "$@"; }
+
 function debug {
     # Emit debugging information if DEBUG is set
     if test -n "${DEBUG:+x}"; then echo [$(color blue DEBUG)] "$@"; fi
@@ -39,6 +42,7 @@ function debug {
 
 function error { echo [$(color red ERROR)] "$@" >&2; }
 function inform { echo [$(color green INFO)] "$@" >&2; }
+function about { echo [$(color blue ABOUT)] "$@" >&2; }
 
 function die {
     error "$@"
@@ -76,7 +80,7 @@ if tty -s; then
             inform "  $ ./a4shout.sh # (if ${LAST_ERROR_FILE} exists)"
             inform "  $ ./a4shout.sh filename [issue title]"
             inform "  $ program 2>1 | ./a4shout [issue title]"
-            die "Either specify a filename or provide some stdin"
+            exit 1
         fi
     fi
 else
