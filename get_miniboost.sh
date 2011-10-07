@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -u
+
 target_name=miniboost
 miniboost_name=miniboost-1.47
 
@@ -18,8 +21,7 @@ echo "-------------------------------------------------"
 if ! test -d $miniboost_name; then
   if ! test -e $miniboost_pack; then
     echo "Downloading A4 miniboost library $miniboost_name..."
-    curl -f $miniboost_url > $miniboost_pack
-    if test $? != 0; then
+    if ! curl -f $miniboost_url > $miniboost_pack; then
       echo "FATAL: Download failed! :( "
       exit 1
     fi
@@ -70,7 +72,7 @@ popd
 
 rm $miniboost_name/ -rf
 
-./common/make_boost_la.sh
+bash ./common/make_boost_la.sh
 
 echo "------------------------------------"
 echo "A4: Builtin Miniboost ready for use!"

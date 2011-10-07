@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -u
+
 prefix="$PWD/miniboost"
 # generate la files for miniboost
 for soname in miniboost/lib/*.so; do
