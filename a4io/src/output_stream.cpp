@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <iostream>
+#include <errno.h>
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
@@ -69,10 +70,15 @@ bool A4OutputStream::open() {
     _opened = true;
     _compressed_out = NULL;
     _content_count = 0;
-    _bytes_written = 0;
 
     if (_fileno == -1) {
-        _file_out.reset(new FileOutputStream(::open(_output_name.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH)));
+        int fd = ::open(_output_name.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+        if (fd < 0) {
+            std::cerr << "ERROR - A4IO:A4OutputStream - Could not open '" << _output_name \
+                      << "' - error: " << strerror(errno) << std::endl;
+            return false;
+        }
+        _file_out.reset(new FileOutputStream(fd));
         _raw_out = _file_out;
     } else {
         _file_out.reset();
@@ -81,14 +87,6 @@ bool A4OutputStream::open() {
     _coded_out = new CodedOutputStream(_raw_out.get());
     write_header(_description);
     if (_compression) start_compression();
-    if (_file_out) {
-        _file_out->Flush(); // Force the underlying file to be opened
-        if (_file_out->GetErrno()) {
-            std::cerr << "ERROR - A4IO:A4OutputStream - Could not open '" << _output_name \
-                      << "' - error " << _file_out->GetErrno() << std::endl;
-            return false;
-        }
-    }
     return true;
 }
 
@@ -136,7 +134,6 @@ bool A4OutputStream::write(const google::protobuf::Message &msg)
 }
 
 void A4OutputStream::reset_coded_stream() {
-    _bytes_written += _coded_out->ByteCount();
     delete _coded_out;
     if (_compressed_out) 
         _coded_out = new CodedOutputStream(_compressed_out);
@@ -149,7 +146,6 @@ bool A4OutputStream::start_compression() {
     A4StartCompressedSection cs_header;
     cs_header.set_compression(A4StartCompressedSection_Compression_ZLIB);
     write(A4StartCompressedSection::kCLASSIDFieldNumber, cs_header);
-    _bytes_written += _coded_out->ByteCount();
     delete _coded_out;
     GzipOutputStream::Options o;
     o.format = GzipOutputStream::ZLIB;
@@ -165,10 +161,8 @@ bool A4OutputStream::stop_compression() {
     delete _coded_out;
     _compressed_out->Flush();
     _compressed_out->Close();
-    _bytes_written += _compressed_out->ByteCount();
     delete _compressed_out;
     _compressed_out = NULL;
-    if (_file_out) _file_out->Flush();
     _coded_out = new CodedOutputStream(_raw_out.get());
 };
 

@@ -88,7 +88,6 @@ namespace a4{ namespace io{
             bool _opened, _closed;
             bool _metadata_refers_forward;
             uint32_t _content_count;
-            uint64_t _bytes_written;
             uint32_t _content_class_id;
             uint32_t _metadata_class_id;
             std::vector<uint64_t> metadata_positions;
