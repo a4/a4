@@ -92,8 +92,8 @@ CONTENTS="$(
     echo "$CONTENTS"
 )"
 
-USER=$(git config --get github.user || echo __FAILED__)
-if [ $USER == "__FAILED__" ]; then 
+USER="$(git config --get github.user || echo __FAILED__)"
+if [ "$USER" == "__FAILED__" ]; then 
     error "Please configure your github.user!"
     error "Create an account in seconds here if you don't have one:"
     error "  https://github.com/signup/free"
@@ -103,13 +103,14 @@ if [ $USER == "__FAILED__" ]; then
     die See http://help.github.com/set-your-user-name-email-and-github-token/
 fi
 
-TOKEN=$(git config --get github.token || echo __FAILED__)
-if [ $TOKEN == "__FAILED__" ]; then 
+TOKEN="$(git config --get github.token || echo __FAILED__)"
+if [ "$TOKEN" == "__FAILED__" ]; then 
     error "Please configure your github.token!"
     error "Get it from here:"
     error "  https://github.com/account/admin"
     error "Then run:"
     error "  git config --global github.token 0123456789yourf0123456789token"
+    error "  chmod go-rw ${HOME}/.gitconfig # Keep your token safe from prying eyes!"
     error
     die "See http://help.github.com/set-your-user-name-email-and-github-token/"
 fi
