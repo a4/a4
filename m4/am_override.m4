@@ -39,13 +39,14 @@ AC_DEFUN([_AM_OUTPUT_DEPENDENCY_COMMANDS],
     # $(DEPDIR) in their names.  We invoke sed twice because it is the
     # simplest approach to changing $(DEPDIR) to its actual value in the
     # expansion.
-    for file in `sed -n "
-      s/^$am__include $am__quote\(.*(DEPDIR).*\)$am__quote"'$/\1/p' <"$mf" | \
-	 sed -e 's/\$(DEPDIR)/'"$DEPDIR"'/g' -e 's/\$U/'"$U"'/g'`; do
+    for origfile in `sed -n "
+      s/^$am__include $am__quote\(.*(DEPDIR).*\)$am__quote"'$/\1/p' <"$mf"`; do
+      file=`echo $origfile | sed -e 's/\$(DEPDIR)/'"$DEPDIR"'/g' -e 's/\$U/'"$U"'/g'`;
       # Make sure the directory exists.
       # echo "DIRPART / FILE IS $dirpart / $file"
-      # do not create directories with variable names
-      test x`echo $file | grep \(` != x && echo $'\n'$file$':\n\tmkdir -p `dirname $$@@` && touch $$@@\n' >> $mf && continue
+      # do not create directories with variable names, also make them -includes (silent)
+      edit=`echo "s|^include $origfile|-include $origfile|" | sed -e 's/\\\$/\\\\\$/g'`
+      test x`echo $file | grep \(` != x && cat "$mf" | sed -e "$edit" > "$mf.sed_tmp" && mv "$mf.sed_tmp" "$mf" && continue
       test -f "$dirpart/$file" && continue
       fdir=`AS_DIRNAME(["$file"])`
       AS_MKDIR_P([$dirpart/$fdir])
