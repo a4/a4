@@ -26,8 +26,20 @@ AC_DEFUN([_AM_OUTPUT_DEPENDENCY_COMMANDS],
     else
       continue
     fi
+
+    # A4: Save submake output
+    CACHE_DIR="${XDG_CACHE_HOME-${HOME}/.cache}/a4"
+    mkdir -p "$CACHE_DIR"
+    LAST_MAKE=`echo "$CACHE_DIR/last-submake" | sed -e 's/\//\\\\\//g'`
+    LAST_ERROR=`echo "$CACHE_DIR/last-error" | sed -e 's/\//\\\\\//g'`
+    cat $mf | sed -e "s/(\$(am__cd) \$\$subdir && \$(MAKE) \$(AM_MAKEFLAGS) \$\$local_target/& 2>\&1 | tee \"$LAST_MAKE\"; let \\\!PIPESTATUS /g" > $mf.tmp && mv $mf.tmp $mf
+
     # A4: Insert an error message
-    cat $mf | sed -e "s/failcom='exit 1'/failcom='echo \"It seems that an error has occurred! :(\" \&\& exit 1'/" > $mf.tmp && mv $mf.tmp $mf
+    ERROR_MESSAGE_1="A4: It seems that an error has occurred! :("
+    ERROR_MESSAGE_2="A4: Run \"\$(top_srcdir)\/common\/a4shout.sh --last\" to report this compilation error to the A4 devepers."
+    echo_SEP="echo \\\"-----------------\\\""
+    cat $mf | sed -e "s/failcom='exit 1'/failcom='{ mv $LAST_MAKE $LAST_ERROR 2>\/dev\/null \&\& $echo_SEP \&\& echo \"$ERROR_MESSAGE_1\" \&\& echo \"$ERROR_MESSAGE_2\" \&\& $echo_SEP; exit 1; }'/" > $mf.tmp && mv $mf.tmp $mf
+
     # Extract the definition of DEPDIR, am__include, and am__quote
     # from the Makefile without running `make'.
     DEPDIR=`sed -n 's/^DEPDIR = //p' < "$mf"`
