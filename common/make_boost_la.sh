@@ -6,6 +6,7 @@ set -u
 prefix="$PWD/miniboost"
 # generate la files for miniboost
 for soname in miniboost/lib/*.so; do
+    DEPS=""
     fullname=$(basename $soname .so);
     name=${fullname%%-*}
     #if test "$name" == "libboost_filesystem"; then
