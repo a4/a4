@@ -43,7 +43,7 @@ namespace a4{ namespace io{
             template <class T>
             shared<T> as() const {
                 if (not is<T>()) return shared<T>(); 
-                else return static_shared_cast<T>(message);
+                else return static_pointer_cast<T>(message);
             }
     };
 };};

@@ -51,7 +51,7 @@ namespace a4{ namespace process{
         std::vector<std::string> res;
         std::map<std::string, shared<Storable>>::const_iterator i;
         for (i = _store.begin(); i != _store.end(); i++) {
-            if(dynamic_shared_cast<C>(i->second)) res.push_back(i->first);
+            if(dynamic_pointer_cast<C>(i->second)) res.push_back(i->first);
         }
         return res;
     };
@@ -59,7 +59,7 @@ namespace a4{ namespace process{
     template <class C> shared<C> ObjectBackStore::get(std::string s) const {
         std::map<std::string, shared<Storable>>::const_iterator res;
         res = _store.find(s);
-        if (res!=_store.end()) return dynamic_shared_cast<C>(res->second);
+        if (res!=_store.end()) return dynamic_pointer_cast<C>(res->second);
         return shared<C>();
     };
 

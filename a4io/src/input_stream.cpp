@@ -369,7 +369,7 @@ A4Message A4InputStream::next(bool internal) {
         
     if (message_type == A4StreamFooter::kCLASSIDFieldNumber) {
         // TODO: Process footer
-        shared<A4StreamFooter> foot = static_shared_cast<A4StreamFooter>(item);
+        shared<A4StreamFooter> foot = static_pointer_cast<A4StreamFooter>(item);
 
         if (!_coded_in->ReadLittleEndian32(&size)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [3]!" << std::endl; 
