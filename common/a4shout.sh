@@ -6,10 +6,12 @@ set -e
 
 # Configurables
 API_URL=https://github.com/api/v2/yaml
-REPO=JohannesEbke/a4
+if [[ -z "${REPO-}" ]]; then
+    REPO=JohannesEbke/a4
+fi
 
 LAST_ERROR_FILE="${XDG_CACHE_HOME-${HOME}/.cache}/a4/last-error"
-ISSUE_TITLE="Automatic report"
+ISSUE_TITLE="a4shout report"
 ISSUES_URL="https://github.com/${REPO}/issues"
 
 # Test if stdout is a terminal we can use color on
@@ -42,7 +44,7 @@ function debug {
 }
 
 function error { echo "[$(color red ERROR)]" "$@" >&2; }
-function inform { echo "[$(color green INFO)]" "$@" >&2; }
+function inform { echo "[$(color green INFO)]" "$@"; }
 function about { echo "[$(color blue ABOUT)]" "$@" >&2; }
 
 function die {
@@ -60,10 +62,10 @@ function usage {
     about "the contents of the file (if it exists):"
     about "  \"$(bold ${LAST_ERROR_FILE}\")."
     inform "Usage:"
-    inform "  $ a4shout.sh # (if ${LAST_ERROR_FILE} exists)"
-    inform "  $ a4shout.sh filename [issue title]"
-    inform "  $ program 2>1 | ./a4shout [issue title]"
-    inform "  $ a4shout more issue_number [issue title] # add more information"
+    inform "  $ a4shout.sh --last [issue title...] # (if ${LAST_ERROR_FILE} exists)"
+    inform "  $ a4shout.sh filename [issue title...]"
+    inform "  $ program 2>1 | ./a4shout - [issue title...]"
+    inform "  $ a4shout more issue_number [filename|-] [comment text...]"
 
     if [[ $USER_FAILED == true || $TOKEN_FAILED == true ]]; then 
         error "Please configure your github.user and github.token!"
@@ -98,51 +100,60 @@ if [[ $TOKEN_FAILED == "true" || $USER_FAILED == "true" ]]; then
     usage
 fi
 
-# Is the user extending an existing issue?
-ISSUE_NUMBER=
-if [[ "${1-}" == "more" ]]; then
-    if [[ -z "${2-}" ]]; then
-        error "'more' specified, but no issue number!"
-        usage
-    fi
-    ISSUE_NUMBER="$2"
-    shift 2
+if [[ -z "${1-}" ]]; then
+    usage
 fi
 
+if [[ "${1}" == "--test" ]]; then
+    export REPO="pwaller/test"
+    export DEBUG=1
+        
+    inform "--- Test posting self"
+    $0 $0 "Test posting self"
+    inform "--- Test posting stdin"
+    echo issue content goes here | $0 - "Test posting stdin"
+    inform "--- Test last-error"
+    echo last-error content goes here > ${LAST_ERROR_FILE}
+    RESULT="$($0 --last "Last error test" | grep -oE 'Issue [0-9]+ created' | grep -oE '[0-9]+' || true)"
+    inform "--- Test commenting"
+    debug "Issue number? $RESULT"
+    $0 more ${RESULT} "This is a test comment."
+    inform ".. Finished testing"
+    exit
+fi
+
+# Is the user extending an existing issue?
+ISSUE_NUMBER=
 USING_LAST_ERROR_FILE=false
-if tty -s; then
-    # We're hooked up to a tty
-    if [[ -n "${1-}" ]]; then
-        # File specified on commandline
-        if [[ ! -e "${1}" ]]; then die "Filename \"${1}\" does not exist!"; fi
-        INPUT="${1}"
-        CONTENTS="$(cat "$1")"
-        shift
-        if [[ -n "${1-}" ]]; then
-            ISSUE_TITLE="$@"
-        fi
-    else
-        # Look for last error file
-        if [[ -e "$LAST_ERROR_FILE" ]]; then
-            INPUT=a4/last-error
-            CONTENTS="$(cat "${LAST_ERROR_FILE}")"
-            USING_LAST_ERROR_FILE=true
-        else
-            # Nothing. Don't know what to do!
-            error "stdin is a terminal and there is no 'last error' file."
-            error "Either specify a filename or provide some stdin."
+
+if [[ -n "${1-}" ]]; then
+    if [[ "${1}" == "more" ]]; then
+        if [[ -z "${2-}" ]]; then
+            error "'more' specified, but no issue number!"
             usage
-            exit 1
         fi
+        ISSUE_NUMBER="$2"
+        shift 2
     fi
-else
-    # Read stdin
-    INPUT=stdin
-    CONTENTS="$(cat)"
+
+    # File specified on commandline
+    INPUT="${1}"
+    if [[ "$INPUT" == "--last" ]]; then
+        INPUT="${LAST_ERROR_FILE}"
+        USING_LAST_ERROR_FILE=true
+    fi
+    if [[ ! -e "${INPUT}" && "${INPUT}" != "-" ]]; then
+        die "Filename \"${INPUT}\" does not exist!"; 
+    fi
+    CONTENTS="$(cat "$INPUT")"
+    shift
     if [[ -n "${1-}" ]]; then
-        debug "Setting issue title: '$@'"
         ISSUE_TITLE="$@"
     fi
+else
+    # Nothing. Don't know what to do!
+    error "Either specify a filename or provide some stdin."
+    usage
 fi
 
 # Format contents using awk to give indentation
