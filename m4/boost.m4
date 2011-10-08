@@ -135,7 +135,7 @@ m4_pattern_allow([^BOOST_VERSION$])dnl
     #
     # I didn't indent this loop on purpose (to avoid over-indented code)
     boost_layout_system_search_list=`cd "$boost_dir" 2>/dev/null \
-        && ls -1 | "${EGREP}" '^boost-' | sort -rn -t- -k2 \
+        && ls -1 | ${EGREP} '^boost-' | sort -rn -t- -k2 \
         && echo .`
     for boost_inc in $boost_layout_system_search_list
     do
