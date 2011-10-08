@@ -26,6 +26,8 @@ AC_DEFUN([_AM_OUTPUT_DEPENDENCY_COMMANDS],
     else
       continue
     fi
+    # A4: Insert an error message
+    cat $mf | sed -e "s/failcom='exit 1'/failcom='echo \"It seems that an error has occurred! :(\" \&\& exit 1'/" > $mf.tmp && mv $mf.tmp $mf
     # Extract the definition of DEPDIR, am__include, and am__quote
     # from the Makefile without running `make'.
     DEPDIR=`sed -n 's/^DEPDIR = //p' < "$mf"`
