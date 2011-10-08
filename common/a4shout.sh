@@ -60,9 +60,10 @@ function usage {
     about "the contents of the file (if it exists):"
     about "  \"$(bold ${LAST_ERROR_FILE}\")."
     inform "Usage:"
-    inform "  $ ./a4shout.sh # (if ${LAST_ERROR_FILE} exists)"
-    inform "  $ ./a4shout.sh filename [issue title]"
+    inform "  $ a4shout.sh # (if ${LAST_ERROR_FILE} exists)"
+    inform "  $ a4shout.sh filename [issue title]"
     inform "  $ program 2>1 | ./a4shout [issue title]"
+    inform "  $ a4shout more issue_number [issue title] # add more information"
 
     if [[ $USER_FAILED == true || $TOKEN_FAILED == true ]]; then 
         error "Please configure your github.user and github.token!"
@@ -95,6 +96,17 @@ fi
 
 if [[ $TOKEN_FAILED == "true" || $USER_FAILED == "true" ]]; then
     usage
+fi
+
+# Is the user extending an existing issue?
+ISSUE_NUMBER=
+if [[ "${1-}" == "more" ]]; then
+    if [[ -z "${2-}" ]]; then
+        error "'more' specified, but no issue number!"
+        usage
+    fi
+    ISSUE_NUMBER="$2"
+    shift 2
 fi
 
 USING_LAST_ERROR_FILE=false
@@ -135,13 +147,6 @@ fi
 
 # Format contents using awk to give indentation
 CONTENTS="$(echo -n "$CONTENTS" | awk '{ print "    "$0 }')"
-CONTENTS="$(
-    echo "This issue was automatically created by a4shout.sh" &&
-    echo &&
-    echo "The contents of ${INPUT}:"
-    echo &&
-    echo "$CONTENTS"
-)"
 
 function github {
     CONTENTS_VAR=$1
@@ -178,14 +183,42 @@ function get_yaml {
     echo "$@" | grep -E "^ +$VAR"':.*$' | sed -r "s/^ +$VAR: +(.*)$/\1/"
 }
 
-debug "Creating issue"
-github ISSUE 201 issues/open/{REPO} -F "title=${ISSUE_TITLE}" -F "body=${CONTENTS}"
+if [[ -z "$ISSUE_NUMBER" ]]; then
+    BODY="$(
+        echo "This issue was automatically created by a4shout.sh" &&
+        echo &&
+        echo "The contents of ${INPUT}:"
+        echo &&
+        echo "${CONTENTS}"
+    )"
 
-ISSUE_NUMBER=$(get_yaml number "${ISSUE}")
-URL=$(get_yaml html_url "${ISSUE}")
+    debug "Creating new issue"
+    github ISSUE 201 "issues/open/{REPO}" -F "title=${ISSUE_TITLE}" -F "body=${BODY}"
+    
+    ISSUE_NUMBER=$(get_yaml number "${ISSUE}")
+    URL=$(get_yaml html_url "${ISSUE}")
 
-inform "Issue ${ISSUE_NUMBER} created: ${URL}"
-inform "Please edit the issue to add more context."
+    inform "Issue ${ISSUE_NUMBER} created: ${URL}"
+    inform "Please edit the issue to add more context, or use"
+    inform "  $(bold "$ a4shout more ${ISSUE_NUMBER} [file] [comment]")"
+    inform "to add additional information."
+else
+    debug "Commenting on existing issue"
+    
+    COMMENT="$(
+        echo "Comment made through a4shout.sh" &&
+        echo "${ISSUE_TITLE}" &&
+        echo "The contents of ${INPUT}:"
+        echo &&
+        echo "${CONTENTS}"
+    )"
+    github COMMENT_RESULT 201 "issues/comment/{REPO}/${ISSUE_NUMBER}" -F "comment=${COMMENT}"
+    
+    COMMENT_ID="$(get_yaml id "${COMMENT_RESULT}")"
+    COMMENT_URL="${ISSUES_URL}/${ISSUE_NUMBER}#issuecomment-${COMMENT_ID}"
+    
+    inform "Comment posted to ${COMMENT_URL}"
+fi
 
 #debug "Labelling issue"
 #github RESULT 200 issues/label/add/{REPO}/${LABELNAME}/${ISSUE_NUMBER}
