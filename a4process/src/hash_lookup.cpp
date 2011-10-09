@@ -21,8 +21,9 @@ hash_lookup::hash_lookup(std::string path) : path(path), cc_key(NULL), ui_key(0)
     for (int i = 0; i < size; i++) _subhash[i] = NULL;
 };
 
-
-
+hash_lookup::~hash_lookup() {
+    for (int i = 0; i < size; i++) if (_subhash[i]) delete _subhash[i];
+};
 
 hash_lookup * hash_lookup::subhash() { return this; };
 

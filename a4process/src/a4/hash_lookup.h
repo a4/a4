@@ -21,6 +21,7 @@ class hash_lookup {
     public:
         /// Create an empty hash table with the @path prefix.
         hash_lookup(std::string path="");
+        ~hash_lookup();
 
         /// Lookup a piece of _data_ by const char * index
         void * & lookup(const char * index);
