@@ -8,7 +8,9 @@
 #include <stdexcept>
 #include <stdarg.h>
 #include <cassert>
+
 #include <a4/hash_lookup.h>
+#include <a4/types.h>
 
 using namespace std;
 
@@ -26,6 +28,8 @@ void check_set(hash_lookup * h, const Args& ...args) {
     string * & res = (string*&)h->lookup(args...);
     assert(res != NULL);
     assert(*res == str_cat(args...));
+    delete res;
+    res = 0;
 }
 
 template <typename... Args>
@@ -43,13 +47,13 @@ int main(int argv, char ** argc) {
     a[1] = '1';
     assert(is_writeable_pointer(a.c_str()));
 
-    hash_lookup * hl = new hash_lookup();
+    unique<hash_lookup> hl(new hash_lookup());
 
     // Test the hash lookup for consistency
-    test_check_set(hl, "test");
-    test_check_set(hl, "test", 1);
-    test_check_set(hl, "test", 1, "A");
-    for (int i = 0; i < (1<<16); i++) test_check_set(hl, "test", 1, "A", i);
-    for (int i = 0; i < (1<<16); i++) test_check_set(hl, "test", 2, "A", i);
+    test_check_set(hl.get(), "test");
+    test_check_set(hl.get(), "test", 1);
+    test_check_set(hl.get(), "test", 1, "A");
+    for (int i = 0; i < (1<<16); i++) test_check_set(hl.get(), "test", 1, "A", i);
+    for (int i = 0; i < (1<<16); i++) test_check_set(hl.get(), "test", 2, "A", i);
     return 0;
 }

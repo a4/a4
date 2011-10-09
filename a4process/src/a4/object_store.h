@@ -88,9 +88,9 @@ namespace a4{ namespace process{
             void from_stream(a4::io::A4InputStream & ins);
         protected:
             // The fast lookup table
-            hash_lookup hl;
+            unique<hash_lookup> hl;
             // The actual store where the objects are kept
-            std::map<std::string, shared<Storable>> _store;
+            unique<std::map<std::string, shared<Storable>>> _store;
             // Get a pointer to the given C object, creating it if it is not found.
             template <class C, typename ...Args> C * find(const Args & ...args);
             // Give ObjectStore access to find()

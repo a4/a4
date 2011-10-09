@@ -100,7 +100,7 @@ namespace a4{ namespace process{
 
             virtual void construct_from(shared<google::protobuf::Message> msg) {
                 if(_initialized) throw a4::Fatal("Object already constructed!");
-                pb = dynamic_shared_cast<ProtoClass>(msg);
+                pb = dynamic_pointer_cast<ProtoClass>(msg);
                 from_pb();
             };
 

@@ -14,9 +14,9 @@ using std::ios;
 typedef boost::unique_lock<boost::mutex> Lock;
 
 A4Output::A4Output(std::string output_file, std::string description) :
+    _closed(false),
     output_file(output_file),
-    description(description),
-    _closed(false)
+    description(description)
 {
 };
 
@@ -55,7 +55,7 @@ bool A4Output::close() {
             std::cerr << "ERROR - a4::io:A4Output - Could not open " << output_file << " for writing!" << std::endl;
             return false;
         }
-        for (int i = 0; i < _filenames.size(); i++) {
+        for (uint32_t i = 0; i < _filenames.size(); i++) {
             std::string fn = _filenames[i];
             shared<A4OutputStream> ostream = _out_streams[i];
             if (!ostream->opened()) continue; // maybe threads did not use their output

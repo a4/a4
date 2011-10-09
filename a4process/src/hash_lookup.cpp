@@ -17,18 +17,13 @@ bool is_writeable_pointer(const char * _p) {
     return true;
 };
 
-hash_lookup::hash_lookup(std::string path) : path(path) {};
+hash_lookup::hash_lookup(std::string path) : path(path), cc_key(NULL), ui_key(0) {
+    for (int i = 0; i < size; i++) _subhash[i] = NULL;
+};
 
-void hash_lookup::zero() {
-    cc_key = NULL;
-    ui_key = 0;
-    for (int i = 0; i < size; i++) {
-        _data[i].value = NULL;
-        _data[i].cc_key = NULL;
-        _data[i].ui_key = 0;
-        _subhash[i] = NULL;
-    };
-}
+hash_lookup::~hash_lookup() {
+    for (int i = 0; i < size; i++) if (_subhash[i]) delete _subhash[i];
+};
 
 hash_lookup * hash_lookup::subhash() { return this; };
 

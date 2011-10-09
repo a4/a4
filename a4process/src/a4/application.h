@@ -33,7 +33,8 @@ namespace a4{
         template <class MyProcessor, class MyDriver=SimpleCommandLineDriver>
         int a4_main_process(const int &argc, const char * argv[]) {
             a4::Fatal::enable_throw_on_segfault();
-            shared<MyDriver> driver(new MyDriver(new ConfigurationOf<MyProcessor>()));
+            unique<Configuration> p(new ConfigurationOf<MyProcessor>());
+            unique<MyDriver> driver(new MyDriver(p.get()));
             return driver->main(argc, argv);
         };
 

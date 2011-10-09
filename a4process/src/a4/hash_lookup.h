@@ -21,6 +21,7 @@ class hash_lookup {
     public:
         /// Create an empty hash table with the @path prefix.
         hash_lookup(std::string path="");
+        ~hash_lookup();
 
         /// Lookup a piece of _data_ by const char * index
         void * & lookup(const char * index);
@@ -44,10 +45,14 @@ class hash_lookup {
         const std::string & get_path() const {return path;};
 
     private:
-        void zero();
         std::string path;
         const static uintptr_t size = 1<<16;
-        typedef struct { const char * cc_key; uint32_t ui_key; void * value; } hash_lookup_data;
+        typedef struct hash_lookup_data_s {
+            hash_lookup_data_s() : cc_key(NULL), ui_key(0), value(NULL) {};
+            const char * cc_key;
+            uint32_t ui_key;
+            void * value;
+        } hash_lookup_data;
         const char * cc_key;
         uint32_t ui_key;
         hash_lookup_data _data[size];
