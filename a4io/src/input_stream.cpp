@@ -498,7 +498,7 @@ A4Message A4InputStream::next(bool internal) {
         }
         return next();
     } else if (message_type == A4Proto::kCLASSIDFieldNumber) {
-        shared<A4Proto> a4proto = static_shared_cast<A4Proto>(item);
+        shared<A4Proto> a4proto = static_pointer_cast<A4Proto>(item);
         generate_dynamic_classes(a4proto.get());
         return next();
     } else if (message_type == _metadata_class_id) {
