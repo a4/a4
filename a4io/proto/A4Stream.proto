@@ -1,5 +1,7 @@
 package a4.io;
 
+import "google/protobuf/descriptor.proto";
+
 message A4StreamHeader
 {
     optional int32 CLASS_ID = 100;
@@ -34,6 +36,13 @@ message A4StartCompressedSection
 message A4EndCompressedSection
 {
     optional int32 CLASS_ID = 103;
+}
+
+message A4Proto
+{
+    optional int32 CLASS_ID = 105;
+    
+    optional google.protobuf.FileDescriptorProto file_descriptor = 1;
 }
 
 message TestEvent

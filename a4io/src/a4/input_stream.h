@@ -9,12 +9,17 @@
 #include <a4/message.h>
 
 // used internally
-namespace google{ namespace protobuf{ namespace io{
+namespace google{ namespace protobuf{ 
+    namespace io{
         class ZeroCopyInputStream;
         class FileInputStream;
         class GzipInputStream;
         class CodedInputStream;
-};};};
+    };
+    class SimpleDescriptorDatabase;
+    class DescriptorPool;
+    class DynamicMessageFactory;
+};};
 
 namespace a4{ namespace io{
 
@@ -22,6 +27,7 @@ namespace a4{ namespace io{
     class GzipInputStream;
     class A4StartCompressedSection;
     class A4EndCompressedSection;
+    class A4Proto;
 
     /// A4 Input Stream - reads protobuf messages from file
 
@@ -52,7 +58,7 @@ namespace a4{ namespace io{
 
             /// String representation of this stream for user output
             std::string str() { return std::string("A4InputStream(\"") + _inputname + "\")"; };
-
+            
         private:
             shared<google::protobuf::io::ZeroCopyInputStream> _raw_in;
             shared<google::protobuf::io::FileInputStream> _file_in;
@@ -64,6 +70,12 @@ namespace a4{ namespace io{
             uint32_t _content_class_id;
             uint32_t _metadata_class_id;
             internal::from_stream_func _content_func;
+            
+            shared<Message> message_factory(const google::protobuf::Message* prototype, google::protobuf::io::CodedInputStream *);
+            void generate_dynamic_classes(const A4Proto* a4proto);
+            shared<google::protobuf::SimpleDescriptorDatabase> _encountered_file_descriptors;
+            shared<google::protobuf::DescriptorPool> _descriptor_pool;
+            shared<google::protobuf::DynamicMessageFactory> _message_factory;
 
             // status variables
             bool _good, _error, _started,_discovery_complete;

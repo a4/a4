@@ -28,7 +28,7 @@ AC_DEFUN([A4_CERN_ROOT_SYSTEM_CHECK], [
         with_cern_root_system=$(root-config --prefix)
         AC_MSG_NOTICE([Using found CERN Root system at $with_cern_root_system])
       else
-        AC_MSG_WARNING([No CERN Root system specified and none found!])
+        AC_MSG_NOTICE([No CERN Root system specified and none found!])
         found_cern_root_system=false
       fi
     fi
@@ -37,14 +37,14 @@ AC_DEFUN([A4_CERN_ROOT_SYSTEM_CHECK], [
            ["$DISTCHECK_CONFIGURE_FLAGS '--with-cern-root-system=$with_cern_root_system'"])dnl
 
   if test x"$with_cern_root_system" != x; then
-      AC_MSG_NOTICE([checking for root-config in $with_cern_root_system/bin])
-      AC_PATH_PROG([CERN_ROOT_SYSTEM_CONFIG], [root-config], [], [$with_cern_root_system/bin])
-    else
-      AC_MSG_WARNING([Did not find CERN Root systems root-config!])
-      found_cern_root_system=false
-    fi
+    AC_MSG_NOTICE([checking for root-config in $with_cern_root_system/bin])
+    AC_PATH_PROG([CERN_ROOT_SYSTEM_CONFIG], [root-config], [], [$with_cern_root_system/bin])
+  else
+    AC_MSG_NOTICE([Did not find CERN Root systems root-config!])
+    found_cern_root_system=false
   fi
-  test "$found_cern_root_system" == "false"; then
+  
+  if test "$found_cern_root_system" == "false"; then
     $2
   else
     AC_SUBST([CERN_ROOT_SYSTEM_LIBS], [`$CERN_ROOT_SYSTEM_CONFIG --libs`])

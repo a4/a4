@@ -1,0 +1,37 @@
+@A4_SET_AM_V_PROTOC@
+protodir=${localstatedir}/a4/proto/$(A4PACK)
+protoincludedir=${includedir}/a4/proto/$(A4PACK)
+protopythondir=${pythondir}/a4/proto/$(A4PACK)
+
+PYDIR=./python/a4/proto/$(A4PACK)
+CPPDIR=./src/a4/proto/$(A4PACK)
+PROTOBUF_CFLAGS += -I$(CPPDIR)
+
+PROTOBUF_PY=$(PYDIR)/EFElectron_pb2.py $(PYDIR)/TrackParticle_pb2.py $(PYDIR)/RootExtension_pb2.py $(PYDIR)/TrigElectron_pb2.py $(PYDIR)/Metadata_pb2.py $(PYDIR)/Muon_pb2.py $(PYDIR)/TrigEMCluster_pb2.py $(PYDIR)/D3PDObject1_pb2.py $(PYDIR)/D3PDObject2_pb2.py $(PYDIR)/BeamSpot_pb2.py $(PYDIR)/Photon_pb2.py $(PYDIR)/Cluster_pb2.py $(PYDIR)/TrigInDetTrack_pb2.py $(PYDIR)/CollisionDecision_pb2.py $(PYDIR)/ChainEntry_pb2.py $(PYDIR)/MBTSTime_pb2.py $(PYDIR)/Jet_pb2.py $(PYDIR)/Event_pb2.py $(PYDIR)/Electron_pb2.py $(PYDIR)/BunchConfigID_pb2.py $(PYDIR)/TrigPhoton_pb2.py $(PYDIR)/EmTauROI_pb2.py $(PYDIR)/EFPhoton_pb2.py $(PYDIR)/DiPhoton_pb2.py $(PYDIR)/MBTS_pb2.py
+PROTOBUF_H=$(CPPDIR)/EFElectron.pb.h $(CPPDIR)/TrackParticle.pb.h $(CPPDIR)/RootExtension.pb.h $(CPPDIR)/TrigElectron.pb.h $(CPPDIR)/Metadata.pb.h $(CPPDIR)/Muon.pb.h $(CPPDIR)/TrigEMCluster.pb.h $(CPPDIR)/D3PDObject1.pb.h $(CPPDIR)/D3PDObject2.pb.h $(CPPDIR)/BeamSpot.pb.h $(CPPDIR)/Photon.pb.h $(CPPDIR)/Cluster.pb.h $(CPPDIR)/TrigInDetTrack.pb.h $(CPPDIR)/CollisionDecision.pb.h $(CPPDIR)/ChainEntry.pb.h $(CPPDIR)/MBTSTime.pb.h $(CPPDIR)/Jet.pb.h $(CPPDIR)/Event.pb.h $(CPPDIR)/Electron.pb.h $(CPPDIR)/BunchConfigID.pb.h $(CPPDIR)/TrigPhoton.pb.h $(CPPDIR)/EmTauROI.pb.h $(CPPDIR)/EFPhoton.pb.h $(CPPDIR)/DiPhoton.pb.h $(CPPDIR)/MBTS.pb.h
+PROTOBUF_CC=$(CPPDIR)/EFElectron.pb.cc $(CPPDIR)/TrackParticle.pb.cc $(CPPDIR)/RootExtension.pb.cc $(CPPDIR)/TrigElectron.pb.cc $(CPPDIR)/Metadata.pb.cc $(CPPDIR)/Muon.pb.cc $(CPPDIR)/TrigEMCluster.pb.cc $(CPPDIR)/D3PDObject1.pb.cc $(CPPDIR)/D3PDObject2.pb.cc $(CPPDIR)/BeamSpot.pb.cc $(CPPDIR)/Photon.pb.cc $(CPPDIR)/Cluster.pb.cc $(CPPDIR)/TrigInDetTrack.pb.cc $(CPPDIR)/CollisionDecision.pb.cc $(CPPDIR)/ChainEntry.pb.cc $(CPPDIR)/MBTSTime.pb.cc $(CPPDIR)/Jet.pb.cc $(CPPDIR)/Event.pb.cc $(CPPDIR)/Electron.pb.cc $(CPPDIR)/BunchConfigID.pb.cc $(CPPDIR)/TrigPhoton.pb.cc $(CPPDIR)/EmTauROI.pb.cc $(CPPDIR)/EFPhoton.pb.cc $(CPPDIR)/DiPhoton.pb.cc $(CPPDIR)/MBTS.pb.cc
+PROTOBUF_PROTO=$(srcdir)/proto/EFElectron.proto $(srcdir)/proto/TrackParticle.proto $(srcdir)/proto/RootExtension.proto $(srcdir)/proto/TrigElectron.proto $(srcdir)/proto/Metadata.proto $(srcdir)/proto/Muon.proto $(srcdir)/proto/TrigEMCluster.proto $(srcdir)/proto/D3PDObject1.proto $(srcdir)/proto/D3PDObject2.proto $(srcdir)/proto/BeamSpot.proto $(srcdir)/proto/Photon.proto $(srcdir)/proto/Cluster.proto $(srcdir)/proto/TrigInDetTrack.proto $(srcdir)/proto/CollisionDecision.proto $(srcdir)/proto/ChainEntry.proto $(srcdir)/proto/MBTSTime.proto $(srcdir)/proto/Jet.proto $(srcdir)/proto/Event.proto $(srcdir)/proto/Electron.proto $(srcdir)/proto/BunchConfigID.proto $(srcdir)/proto/TrigPhoton.proto $(srcdir)/proto/EmTauROI.proto $(srcdir)/proto/EFPhoton.proto $(srcdir)/proto/DiPhoton.proto $(srcdir)/proto/MBTS.proto
+
+CLEANFILES += $(PYDIR)/__init__.py
+
+dist_proto_DATA=$(srcdir)/proto/BeamSpot.proto $(srcdir)/proto/Jet.proto $(srcdir)/proto/TrigElectron.proto $(srcdir)/proto/CollisionDecision.proto $(srcdir)/proto/DiPhoton.proto $(srcdir)/proto/EFElectron.proto $(srcdir)/proto/BunchConfigID.proto $(srcdir)/proto/MBTSTime.proto $(srcdir)/proto/Metadata.proto $(srcdir)/proto/MBTS.proto $(srcdir)/proto/RootExtension.proto $(srcdir)/proto/Photon.proto $(srcdir)/proto/Electron.proto $(srcdir)/proto/TrigInDetTrack.proto $(srcdir)/proto/EmTauROI.proto $(srcdir)/proto/TrigEMCluster.proto $(srcdir)/proto/Muon.proto $(srcdir)/proto/EFPhoton.proto $(srcdir)/proto/D3PDObject1.proto $(srcdir)/proto/D3PDObject2.proto $(srcdir)/proto/Cluster.proto $(srcdir)/proto/TrigPhoton.proto $(srcdir)/proto/ChainEntry.proto $(srcdir)/proto/Event.proto $(srcdir)/proto/TrackParticle.proto
+nodist_protoinclude_HEADERS=$(CPPDIR)/BeamSpot.pb.h $(CPPDIR)/Jet.pb.h $(CPPDIR)/TrigElectron.pb.h $(CPPDIR)/CollisionDecision.pb.h $(CPPDIR)/DiPhoton.pb.h $(CPPDIR)/EFElectron.pb.h $(CPPDIR)/BunchConfigID.pb.h $(CPPDIR)/MBTSTime.pb.h $(CPPDIR)/Metadata.pb.h $(CPPDIR)/MBTS.pb.h $(CPPDIR)/RootExtension.pb.h $(CPPDIR)/Photon.pb.h $(CPPDIR)/Electron.pb.h $(CPPDIR)/TrigInDetTrack.pb.h $(CPPDIR)/EmTauROI.pb.h $(CPPDIR)/TrigEMCluster.pb.h $(CPPDIR)/Muon.pb.h $(CPPDIR)/EFPhoton.pb.h $(CPPDIR)/D3PDObject1.pb.h $(CPPDIR)/D3PDObject2.pb.h $(CPPDIR)/Cluster.pb.h $(CPPDIR)/TrigPhoton.pb.h $(CPPDIR)/ChainEntry.pb.h $(CPPDIR)/Event.pb.h $(CPPDIR)/TrackParticle.pb.h
+nodist_protopython_PYTHON=$(PYDIR)/BeamSpot_pb2.py $(PYDIR)/Jet_pb2.py $(PYDIR)/TrigElectron_pb2.py $(PYDIR)/CollisionDecision_pb2.py $(PYDIR)/DiPhoton_pb2.py $(PYDIR)/EFElectron_pb2.py $(PYDIR)/BunchConfigID_pb2.py $(PYDIR)/MBTSTime_pb2.py $(PYDIR)/Metadata_pb2.py $(PYDIR)/MBTS_pb2.py $(PYDIR)/RootExtension_pb2.py $(PYDIR)/Photon_pb2.py $(PYDIR)/Electron_pb2.py $(PYDIR)/TrigInDetTrack_pb2.py $(PYDIR)/EmTauROI_pb2.py $(PYDIR)/TrigEMCluster_pb2.py $(PYDIR)/Muon_pb2.py $(PYDIR)/EFPhoton_pb2.py $(PYDIR)/D3PDObject1_pb2.py $(PYDIR)/D3PDObject2_pb2.py $(PYDIR)/Cluster_pb2.py $(PYDIR)/TrigPhoton_pb2.py $(PYDIR)/ChainEntry_pb2.py $(PYDIR)/Event_pb2.py $(PYDIR)/TrackParticle_pb2.py $(PYDIR)/__init__.py
+
+
+# how to make protobuf objects
+$(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(srcdir)/proto/%.proto
+	@mkdir -p $(PYDIR)
+	@mkdir -p $(CPPDIR)
+	$(AM_V_PROTOC)${PROTOBUF_PROTOC} -I=$(srcdir)/proto -I${PROTOBUF_ROOT}/include --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
+
+# how to make the python __init__.py
+$(PYDIR)/__init__.py: $(PROTOBUF_PY)
+	$(AM_V_PROTOC)grep -Ho 'class [A-Za-z0-9]*' $^ | sed 's/.py:class/ import/' | sed "s/python\/a4\/proto\/$(A4PACK)\//from ./" | sed 's/\//./g' > $@
+
+# make sure all protobuf are generated before they are built!
+BUILT_SOURCES=$(PROTOBUF_H) $(PROTOBUF_CC)
+
+CLEANFILES += $(PROTOBUF_H) $(PROTOBUF_CC) $(PROTOBUF_PY)
+
+

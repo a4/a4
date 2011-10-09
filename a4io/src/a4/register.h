@@ -1,6 +1,8 @@
 #ifndef _A4_STREAM_H_
 #define _A4_STREAM_H_
 
+#include <boost/function.hpp>
+
 #include <google/protobuf/message.h>
 
 #include <a4/a4io.h>
@@ -10,10 +12,13 @@ namespace google{ namespace protobuf{ namespace io{ class CodedInputStream; };};
 namespace a4{ namespace io{
 
     namespace internal {
+    
+        shared<Message> bad_from_stream_func(google::protobuf::io::CodedInputStream *);
 
         // Wizardry to get class from ID
-        typedef shared<Message> (*from_stream_func)(google::protobuf::io::CodedInputStream *);
-        from_stream_func all_class_ids(int, from_stream_func f = NULL);
+        // typedef shared<Message> (*from_stream_func)(google::protobuf::io::CodedInputStream *);
+        typedef boost::function<shared<Message> (google::protobuf::io::CodedInputStream*)> from_stream_func;
+        from_stream_func all_class_ids(int, from_stream_func f = NULL, bool warn=true);
 
         template <typename ProtoClass>
         shared<Message> from_stream(google::protobuf::io::CodedInputStream * instr) {

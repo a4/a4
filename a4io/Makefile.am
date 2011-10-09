@@ -50,6 +50,8 @@ gtest_LDADD = $(LDADD) $(GTEST_LIBS)
 
 TESTS=$(check_PROGRAMS)
 
+tests: $(TESTS)
+
 installcheck-local: python/test_pyrw test_read test_write_fw test_write_bw
 	source $(bindir)/this_a4.sh && $(pkgdatadir)/test_pyrw
 	source $(bindir)/this_a4.sh && a4info -m pytest_fw.a4 > /dev/null
