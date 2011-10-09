@@ -8,6 +8,7 @@ A4_REQUIRE([a4process], [a4process.h])
 #A4_REQUIRE([a4hist], [a4hist.h])
 A4_REQUIRE([a4atlas], [grl.h])
 
+AC_CONFIG_HEADER([config.h])
 # Needed so that the sources can find config.h
 AC_SUBST(AM_CPPFLAGS, [-I${PWD}])
 AC_CONFIG_FILES([Makefile])

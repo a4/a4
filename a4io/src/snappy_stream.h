@@ -15,17 +15,20 @@ using google::protobuf::io::CodedInputStream;
 using google::protobuf::io::CodedOutputStream;
 
 #include <a4/types.h>
+#include <base_compressed_streams.h>
 
 namespace a4 {
 namespace io {
 
 // A ZeroCopyInputStream that reads compressed data through Snappy
-class SnappyInputStream : public ZeroCopyInputStream {
+class SnappyInputStream : public BaseCompressedInputStream {
  public:
 
   explicit SnappyInputStream(ZeroCopyInputStream* sub_stream);
   virtual ~SnappyInputStream();
-
+  
+  void reset_input_stream();
+  
   // implements ZeroCopyInputStream ----------------------------------
   bool Next(const void** data, int* size);
   void BackUp(int count);
@@ -35,6 +38,7 @@ class SnappyInputStream : public ZeroCopyInputStream {
  private:
 
   CodedInputStream* _sub_stream;
+  ZeroCopyInputStream* _raw_stream;
 
   int _backed_up_bytes;
   shared<char> _output_buffer;
@@ -45,20 +49,21 @@ class SnappyInputStream : public ZeroCopyInputStream {
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(SnappyInputStream);
 };
 
-class SnappyOutputStream : public ZeroCopyOutputStream {
+class SnappyOutputStream : public BaseCompressedOutputStream {
  public:
   // Create a SnappyOutputStream with default options.
   explicit SnappyOutputStream(ZeroCopyOutputStream* sub_stream);
 
-  ~SnappyOutputStream() {};
+  virtual ~SnappyOutputStream();
   
   // implements ZeroCopyOutputStream ---------------------------------
   bool Next(void** data, int* size);
   void BackUp(int count);
   int64_t ByteCount() const { return _byte_count; };
 
+  bool Flush();
+  bool Close() {}
  private:
-  void Flush();
   
   CodedOutputStream* _sub_stream;
   
