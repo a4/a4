@@ -29,12 +29,18 @@ namespace _string_internal {
         return res + std::string(value) + str_printf("", args...);
     };
 
-    static inline std::string str_cat() { return std::string(""); };
+    static void _stream_in(std::stringstream & ss) {};
 
     template<typename T, typename... Args>
-    std::string str_cat(const T& s, const Args&... args) {
+    void _stream_in(std::stringstream & ss, const T& s, const Args&... args) {
+        ss << s;
+        _stream_in(ss, args...);
+    }
+
+    template<typename... Args>
+    std::string str_cat(const Args&... args) {
         std::stringstream ss;
-        ss << s << str_cat(args...);
+        _stream_in(ss, args...);
         return ss.str();
     };
 
