@@ -4,10 +4,12 @@
 #include "a4/output_stream.h"
 #include "a4/input_stream.h"
 
+#include <gtest/gtest.h>
+
 using namespace std;
 using namespace a4::io;
 
-int main(int argc, char ** argv) {
+TEST(a4io, read_write) {
     {
         A4OutputStream w("test_rw.a4", "TestEvent");
         w.content_cls<TestEvent>().metadata_cls<TestMetaData>();
@@ -31,7 +33,6 @@ int main(int argc, char ** argv) {
                 assert(cnt++ == te->event_number());
             }
         }
-        if (r.error()) throw "AJS";
+        ASSERT_FALSE(r.error());
     }
-    return 0;
 }

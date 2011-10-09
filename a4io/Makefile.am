@@ -10,7 +10,7 @@ AM_CXXFLAGS+= -Wall -Werror
 # Files to distribute
 dist_bin_SCRIPTS = python/a4dump python/a4info
 dist_pkgdata_SCRIPTS=python/test_pyrw
-pkgdata_PROGRAMS=test_read test_rw test_read test_read_nomd test_write_fw test_write_bw test_bigwrite test_write_nomd_fw test_write_nomd_bw
+pkgdata_PROGRAMS=test_read test_read test_read_nomd test_write_fw test_write_bw test_bigwrite test_write_nomd_fw test_write_nomd_bw
 a4include_HEADERS = src/a4/a4io.h src/a4/exceptions.h src/a4/types.h \
     src/a4/string.h src/a4/string_impl.h src/a4/register.h src/a4/message.h \
     src/a4/input_stream.h src/a4/output_stream.h src/a4/input.h src/a4/output.h
@@ -33,9 +33,8 @@ dist_liba4io_la_SOURCES=$(LIBRARY_SOURCES)
 liba4io_la_LIBADD=$(PROTOBUF_LIBS) $(BOOST_LIBS)
 
 ## Test programs
-check_PROGRAMS = test_rw test_io test_thread
+check_PROGRAMS = test_io test_thread gtest
 test_bigwrite_SOURCES = $(PROTOBUF_H) src/test_bigwrite.cpp
-test_rw_SOURCES = $(PROTOBUF_H) src/test_rw.cpp
 test_io_SOURCES = $(PROTOBUF_H) src/test_io.cpp
 test_thread_SOURCES = $(PROTOBUF_H) src/test_thread.cpp
 test_read_SOURCES = $(PROTOBUF_H) src/test_read.cpp
@@ -44,6 +43,10 @@ test_write_fw_SOURCES = $(PROTOBUF_H) src/test_write_fw.cpp
 test_write_bw_SOURCES = $(PROTOBUF_H) src/test_write_bw.cpp
 test_write_nomd_fw_SOURCES = $(PROTOBUF_H) src/test_write_nomd_fw.cpp
 test_write_nomd_bw_SOURCES = $(PROTOBUF_H) src/test_write_nomd_bw.cpp
+
+gtest_SOURCES = $(GTEST_APP) $(PROTOBUF_H) src/test_rw.cpp
+gtest_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
+gtest_LDADD = $(LDADD) $(GTEST_LIBS)
 
 TESTS=$(check_PROGRAMS)
 
