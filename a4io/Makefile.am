@@ -34,17 +34,18 @@ liba4io_la_LIBADD=$(PROTOBUF_LIBS) $(BOOST_LIBS)
 
 ## Test programs
 check_PROGRAMS = test_io test_thread gtest
-test_bigwrite_SOURCES = $(PROTOBUF_H) src/test_bigwrite.cpp
-test_io_SOURCES = $(PROTOBUF_H) src/test_io.cpp
-test_thread_SOURCES = $(PROTOBUF_H) src/test_thread.cpp
-test_read_SOURCES = $(PROTOBUF_H) src/test_read.cpp
-test_read_nomd_SOURCES = $(PROTOBUF_H) src/test_read_nomd.cpp
-test_write_fw_SOURCES = $(PROTOBUF_H) src/test_write_fw.cpp
-test_write_bw_SOURCES = $(PROTOBUF_H) src/test_write_bw.cpp
-test_write_nomd_fw_SOURCES = $(PROTOBUF_H) src/test_write_nomd_fw.cpp
-test_write_nomd_bw_SOURCES = $(PROTOBUF_H) src/test_write_nomd_bw.cpp
+test_bigwrite_SOURCES = src/test_bigwrite.cpp
+test_io_SOURCES = src/test_io.cpp
+test_thread_SOURCES = src/test_thread.cpp
+test_read_SOURCES = src/test_read.cpp
+test_read_nomd_SOURCES = src/test_read_nomd.cpp
+test_write_fw_SOURCES = src/test_write_fw.cpp
+test_write_bw_SOURCES = src/test_write_bw.cpp
+test_write_nomd_fw_SOURCES = src/test_write_nomd_fw.cpp
+test_write_nomd_bw_SOURCES = src/test_write_nomd_bw.cpp
 
-gtest_SOURCES = $(GTEST_APP) $(PROTOBUF_H) src/test_rw.cpp
+nodist_gtest_SOURCES = $(GTEST_APP)
+gtest_SOURCES = src/test_rw.cpp
 gtest_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
 gtest_LDADD = $(LDADD) $(GTEST_LIBS)
 

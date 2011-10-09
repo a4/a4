@@ -13,10 +13,11 @@ LDADD=$(A4_A4IO_LIBS) $(CERN_ROOT_SYSTEM_LIBS) $(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS
 
 ## Test programs
 check_PROGRAMS = rwtest agnostic_dump
-rwtest_SOURCES = $(PROTOBUF_CC) $(PROTOBUF_H) src/rwtest.cpp
+nodist_rwtest_SOURCES = $(PROTOBUF_CC) $(PROTOBUF_H)
+rwtest_SOURCES = src/rwtest.cpp
 agnostic_dump_SOURCES = src/agnostic_dump.cpp
 
-TESTS=$(check_PROGRAMS)
+#TESTS=$(check_PROGRAMS)
 
 
 
