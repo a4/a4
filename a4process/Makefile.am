@@ -5,6 +5,8 @@ A4PACK=process
 include m4/a4.am
 include protobuf.am
 
+AM_CXXFLAGS+= -Wall -Werror
+
 # Files to distribute
 a4include_HEADERS = \
     src/a4/storable.h \

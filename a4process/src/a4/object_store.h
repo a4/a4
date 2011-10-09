@@ -57,7 +57,7 @@ namespace a4{ namespace process{
             ObjectBackStore * backstore;
             hash_lookup * hl;
             /// Always create ObjectStores from ObjectBackStore.store() and ObjectStore("prefix/")
-            ObjectStore(hash_lookup * hl, ObjectBackStore* bs) : hl(hl), backstore(bs) {};
+            ObjectStore(hash_lookup * hl, ObjectBackStore* bs) : backstore(bs), hl(hl) {};
             // Let ObjectBackStore use the protected constructor
             friend class ObjectBackStore;
     };

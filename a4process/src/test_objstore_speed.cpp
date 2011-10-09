@@ -17,7 +17,7 @@ class myhist : public Storable {
         virtual void set_message(shared<google::protobuf::Message>) {};
         void construct_from(const google::protobuf::Message&) {};
         void construct_from(std::shared_ptr<google::protobuf::Message>) {};
-        Storable&  operator+=(const a4::process::Storable&) {};
+        Storable&  operator+=(const a4::process::Storable&) { return *this; };
         Storable&& clone_storable() { return myhist(*this);};
 };
 
