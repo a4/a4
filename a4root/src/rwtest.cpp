@@ -14,6 +14,7 @@ using boost::function;
 
 #include <a4/output.h>
 #include <a4/input.h>
+#include <a4/string.h>
 
 #include <TBranch.h>
 #include <TBranchElement.h>
@@ -73,15 +74,19 @@ void call_setter(
     setter(message, *reinterpret_cast<T*>(value));
 }
 
-template<typename T> typename Setter<T>::type reflection_setter() { throw "Don't use this one"; };
+template<typename T> typename Setter<T>::type reflection_setter() { 
+    throw std::runtime_error(str_cat("Unknown type: ", typeid(T), ", add a DEFINE_SETTER line in ", __FILE__)); 
+};
 #define DEFINE_SETTER(T, SetterName) \
     template<> Setter<T>::type reflection_setter<T>() { \
         return bind(&::google::protobuf::Reflection::SetterName, _1, _2, _3, _4); \
     }
     
 DEFINE_SETTER(int32_t,   SetInt32);
+DEFINE_SETTER(short,    SetInt32);
 DEFINE_SETTER(int64_t,   SetInt64);
 DEFINE_SETTER(uint32_t,  SetUInt32);
+DEFINE_SETTER(unsigned short, SetUInt32);
 DEFINE_SETTER(uint64_t,  SetUInt64);
 DEFINE_SETTER(float,    SetFloat);
 DEFINE_SETTER(double,   SetDouble);
@@ -229,7 +234,7 @@ function<size_t ()> make_count_getter(TBranchElement* br, const FieldDescriptor*
 SubmessageSetter make_submessage_setter(TBranchElement* br, const FieldDescriptor* field, const Reflection* refl)
 {
     #define BIND(T) \
-        return bind(submessage_setter<T>, _1, _2, br, make_setter<T>(field, refl), field->full_name())
+        return bind(submessage_setter<T>, _1, _2, br, make_setter<T>(field, refl))
     #define FIELD(cpptype, T) \
         case FieldDescriptor::cpptype: \
             BIND(T)
@@ -240,9 +245,9 @@ SubmessageSetter make_submessage_setter(TBranchElement* br, const FieldDescripto
         
         case FieldDescriptor::CPPTYPE_INT32:
             if (br->GetTypeName() == std::string("vector<int>"))
-                BIND(uint32_t);
+                BIND(int32_t);
             else if (br->GetTypeName() == std::string("vector<long>"))
-                BIND(uint32_t);
+                BIND(int32_t);
             else if (br->GetTypeName() == std::string("vector<char>"))
                 BIND(char);
             else if (br->GetTypeName() == std::string("vector<short>"))
