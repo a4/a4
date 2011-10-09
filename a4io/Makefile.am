@@ -5,6 +5,8 @@ A4PACK=io
 include m4/a4.am
 include protobuf.am
 
+AM_CXXFLAGS+= -Wall -Werror
+
 # Files to distribute
 dist_bin_SCRIPTS = python/a4dump python/a4info
 dist_pkgdata_SCRIPTS=python/test_pyrw
