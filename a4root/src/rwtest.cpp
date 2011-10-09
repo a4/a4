@@ -189,7 +189,7 @@ void submessage_setter(Message** messages, size_t count, TBranchElement* br, con
 {
     vector<T>* values = reinterpret_cast<vector<T>* >(br->GetObject());
     for (size_t i = 0; i < count; i++)
-        setter(messages[i], (*values)[i]);
+        setter(messages[i], values->at(i));
 }
 
 template<typename T>
@@ -228,17 +228,41 @@ function<size_t ()> make_count_getter(TBranchElement* br, const FieldDescriptor*
 
 SubmessageSetter make_submessage_setter(TBranchElement* br, const FieldDescriptor* field, const Reflection* refl)
 {
+    #define BIND(T) \
+        return bind(submessage_setter<T>, _1, _2, br, make_setter<T>(field, refl), field->full_name())
     #define FIELD(cpptype, T) \
         case FieldDescriptor::cpptype: \
-            return bind(submessage_setter<T>, _1, _2, br, make_setter<T>(field, refl))
+            BIND(T)
     
     switch (field->cpp_type())
     {
         FIELD(CPPTYPE_BOOL,   bool);
         
-        FIELD(CPPTYPE_INT32,  int32_t);
+        case FieldDescriptor::CPPTYPE_INT32:
+            if (br->GetTypeName() == std::string("vector<int>"))
+                BIND(uint32_t);
+            else if (br->GetTypeName() == std::string("vector<long>"))
+                BIND(uint32_t);
+            else if (br->GetTypeName() == std::string("vector<char>"))
+                BIND(char);
+            else if (br->GetTypeName() == std::string("vector<short>"))
+                BIND(short);
+            else
+                throw std::runtime_error(std::string("Unknown type identifier on root file: ") + br->GetTypeName());
+        
+        case FieldDescriptor::CPPTYPE_UINT32:
+            if (br->GetTypeName() == std::string("vector<unsigned int>"))
+                BIND(uint32_t);
+            else if (br->GetTypeName() == std::string("vector<unsigned long>"))
+                BIND(uint32_t);
+            else if (br->GetTypeName() == std::string("vector<unsigned char>"))
+                BIND(unsigned char);
+            else if (br->GetTypeName() == std::string("vector<unsigned short>"))
+                BIND(unsigned short);
+            else
+                throw std::runtime_error(std::string("Unknown type identifier on root file: ") + br->GetTypeName());
+        
         FIELD(CPPTYPE_INT64,  int64_t);
-        FIELD(CPPTYPE_UINT32, uint32_t);
         FIELD(CPPTYPE_UINT64, uint64_t);
         
         FIELD(CPPTYPE_FLOAT,  float);
@@ -251,6 +275,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* br, const FieldDescripto
             throw "Aaaaaaargh!";
     }
     #undef FIELD
+    #undef BIND
 }
 
 void null_copier(Message*) {}
@@ -335,6 +360,12 @@ RootToMessageFactory make_message_factory(TTree& tree, const Descriptor* desc, c
             if (field->options().HasExtension(root_branch)) {
                 auto leafname = prefix + field->options().GetExtension(root_branch);
                 TLeaf* b = tree.GetLeaf(leafname.c_str());
+                if (!b)
+                {
+                    std::cerr << "Skipping missing branch: " << leafname << std::endl;
+                    continue;
+                }
+                assert(b);
                 // Enable this branch
                 tree.GetBranch(leafname.c_str())->ResetBit(kDoNotProcess);
                 //cout << "Copying leaf: " << b->GetName() << endl;
