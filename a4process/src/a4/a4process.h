@@ -31,9 +31,9 @@ namespace a4{
         class Processor {
             public:
                 /// Override this to proces raw A4 Messages without type checking
-                virtual bool process_message(const A4Message) = 0;
+                virtual void process_message(const A4Message) = 0;
                 /// This function is called if new metadata is available
-                virtual bool new_metadata() {};
+                virtual void process_new_metadata() {};
                 const A4Message metadata_message();
                 bool write(const google::protobuf::Message& m) { if (_outstream) return _outstream->write(m); else return false; };
             protected:
@@ -51,7 +51,7 @@ namespace a4{
                 /// Override this to add options to the command line and configuration file
                 virtual po::options_description get_options() { return po::options_description(); };
                 /// Override this to do further processing of the options from the command line or config file
-                virtual bool read_arguments(po::variables_map &arguments) {};
+                virtual void read_arguments(po::variables_map &arguments) {};
 
                 virtual bool setup_processor(Processor &g) { return true; };
                 virtual Processor * new_processor() = 0;
@@ -63,7 +63,7 @@ namespace a4{
                 ProcessorOf() { a4::io::RegisterClassID<ProtoMessage> _e; a4::io::RegisterClassID<ProtoMetaData> _m; };
                 /// Override this to proces only your requested messages
                 virtual bool process(const ProtoMessage &) = 0;
-                bool process_message(const A4Message msg) {
+                void process_message(const A4Message msg) {
                     if (!msg) throw a4::Fatal("No message!"); // TODO: Should not be fatal
                     ProtoMessage * pmsg = msg.as<ProtoMessage>().get();
                     if (!pmsg) throw a4::Fatal("Unexpected Message type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMessage), ")");
