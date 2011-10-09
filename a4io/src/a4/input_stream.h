@@ -69,7 +69,7 @@ namespace a4{ namespace io{
             bool _good, _error, _started,_discovery_complete;
             uint64_t _items_read;
             int _current_header_index;
-            int _current_metadata_index;
+            unsigned int _current_metadata_index;
             int _fileno;
 
             // metadata-related status

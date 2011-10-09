@@ -37,7 +37,7 @@ namespace a4{ namespace io{
             /// Check if the class ID matches.
             /// example: if (result.is<TestEvent>())
             template <class T>
-            bool is() const { return T::kCLASSIDFieldNumber == class_id; };
+            bool is() const { BOOST_STATIC_ASSERT(T::kCLASSIDFieldNumber >= 0); return uint32_t(T::kCLASSIDFieldNumber) == class_id; };
             /// Check if the class ID matches and return the message, otherwise NULL.
             /// example: auto event = result.as<MyEvent>()
             template <class T>

@@ -31,16 +31,17 @@ A4OutputStream::A4OutputStream(const string &output_file,
                                const string description, 
                                uint32_t content_class_id, 
                                uint32_t metadata_class_id) : 
-    _content_class_id(content_class_id),
-    _metadata_class_id(metadata_class_id),
-    _metadata_refers_forward(false),
-    _compression(true),
     _output_name(output_file),
     _description(description),
+    _fileno(-1),
+    _compression(true),
     _opened(false),
-    _closed(false)
+    _closed(false),
+    _metadata_refers_forward(false),
+    _content_class_id(content_class_id),
+    _metadata_class_id(metadata_class_id)
 {
-    _fileno = -1;
+
 }
 
 A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream> out,
@@ -48,14 +49,14 @@ A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream
                            const std::string description, 
                            uint32_t content_class_id,
                            uint32_t metadata_class_id) : 
-    _content_class_id(content_class_id),
-    _metadata_class_id(metadata_class_id),
-    _metadata_refers_forward(false),
-    _compression(true),
     _output_name(outname),
     _description(description),
+    _fileno(0),
+    _compression(true),
     _opened(false),
-    _closed(false)
+    _closed(false),
+    _metadata_refers_forward(false),
+    _content_class_id(content_class_id)
 {
     _raw_out = out;
 }
@@ -68,7 +69,7 @@ A4OutputStream::~A4OutputStream()
 bool A4OutputStream::open() {
     if (_opened) return false;
     _opened = true;
-    _compressed_out = NULL;
+    _compressed_out.reset();
     _content_count = 0;
 
     if (_fileno == -1) {
@@ -84,7 +85,7 @@ bool A4OutputStream::open() {
         _file_out.reset();
     }
 
-    _coded_out = new CodedOutputStream(_raw_out.get());
+    _coded_out.reset(new CodedOutputStream(_raw_out.get()));
     write_header(_description);
     if (_compression) start_compression();
     return true;
@@ -96,7 +97,7 @@ bool A4OutputStream::close() {
     _closed = true;
     if (_compressed_out) stop_compression();
     write_footer();
-    delete _coded_out;
+    _coded_out.reset();
     if (_file_out && !_file_out->Close()) {
         std::cerr << "ERROR - A4IO:A4OutputStream - Error on closing: " << _file_out->GetErrno() << std::endl;
         return false;
@@ -109,9 +110,9 @@ bool A4OutputStream::close() {
 
 uint64_t A4OutputStream::get_bytes_written() {
     assert(!_compressed_out);
-    delete _coded_out;
+    _coded_out.reset();
     uint64_t size = _raw_out->ByteCount();
-    _coded_out = new CodedOutputStream(_raw_out.get());
+    _coded_out.reset(new CodedOutputStream(_raw_out.get()));
     return size;
 }
 
@@ -134,36 +135,39 @@ bool A4OutputStream::write(const google::protobuf::Message &msg)
 }
 
 void A4OutputStream::reset_coded_stream() {
-    delete _coded_out;
+    _coded_out.reset();
     if (_compressed_out) 
-        _coded_out = new CodedOutputStream(_compressed_out);
+        _coded_out.reset(new CodedOutputStream(_compressed_out.get()));
     else
-        _coded_out = new CodedOutputStream(_raw_out.get());
+        _coded_out.reset(new CodedOutputStream(_raw_out.get()));
 }
 
 bool A4OutputStream::start_compression() {
     if (_compressed_out) return false;
     A4StartCompressedSection cs_header;
     cs_header.set_compression(A4StartCompressedSection_Compression_ZLIB);
-    write(A4StartCompressedSection::kCLASSIDFieldNumber, cs_header);
-    delete _coded_out;
+    if (!write(A4StartCompressedSection::kCLASSIDFieldNumber, cs_header))
+        throw a4::Fatal("Failed to start compression");
+    _coded_out.reset();
     GzipOutputStream::Options o;
     o.format = GzipOutputStream::ZLIB;
     o.compression_level = 9;
-    _compressed_out = new GzipOutputStream(_raw_out.get(), o);
-    _coded_out = new CodedOutputStream(_compressed_out);
+    _compressed_out.reset(new GzipOutputStream(_raw_out.get(), o));
+    _coded_out.reset(new CodedOutputStream(_compressed_out.get()));
+    return true;
 };
 
 bool A4OutputStream::stop_compression() {
     if (!_compressed_out) return false;
     A4EndCompressedSection cs_footer;
-    write(A4EndCompressedSection::kCLASSIDFieldNumber, cs_footer);
-    delete _coded_out;
+    if (!write(A4EndCompressedSection::kCLASSIDFieldNumber, cs_footer))
+        throw a4::Fatal("Failed to stop compression");
+    _coded_out.reset();
     _compressed_out->Flush();
     _compressed_out->Close();
-    delete _compressed_out;
-    _compressed_out = NULL;
-    _coded_out = new CodedOutputStream(_raw_out.get());
+    _compressed_out.reset();
+    _coded_out.reset(new CodedOutputStream(_raw_out.get()));
+    return true;
 };
 
 bool A4OutputStream::write_header(string description) {
@@ -185,7 +189,7 @@ bool A4OutputStream::write_footer() {
     A4StreamFooter footer;
     footer.set_size(get_bytes_written());
     footer.set_metadata_refers_forward(_metadata_refers_forward);
-    for (int i = 0; i < metadata_positions.size(); i++)
+    for (uint32_t i = 0; i < metadata_positions.size(); i++)
         footer.add_metadata_offsets(metadata_positions[i]);
     if (_content_class_id != 0)
         footer.set_content_count(_content_count);
@@ -211,7 +215,7 @@ bool A4OutputStream::write(uint32_t class_id, const google::protobuf::Message &m
         _coded_out->WriteLittleEndian32(size | HIGH_BIT );
         _coded_out->WriteLittleEndian32(class_id);
     }
-    msg.SerializeWithCachedSizes(_coded_out);
+    msg.SerializeWithCachedSizes(_coded_out.get());
     return true;
 }
 

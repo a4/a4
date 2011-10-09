@@ -17,6 +17,7 @@ A4Input::A4Input(std::string name) {};
 A4Input & A4Input::add_stream(shared<A4InputStream> s) {
     _streams.push_back(s);
     _ready.push_front(s.get());
+    return *this;
 };
 
 /// Add a file to be processed, Returns this object again.
@@ -24,6 +25,7 @@ A4Input & A4Input::add_file(const std::string & filename) {
     shared<A4InputStream> s(new A4InputStream(filename));
     _streams.push_back(s);
     _ready.push_front(s.get());
+    return *this;
 };
 
 void A4Input::report_finished(A4Input * input, A4InputStream* _s) {

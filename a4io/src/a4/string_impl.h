@@ -3,13 +3,7 @@
 #include <cxxabi.h>
 
 namespace _string_internal {
-    static std::ostream& operator<<(std::ostream &sstr, const std::type_info& ti) {
-        int status;
-        char * real_name = abi::__cxa_demangle(ti.name(), 0, 0, &status);
-        if (real_name) sstr << real_name; else sstr << ti.name();
-        free(real_name);
-        return sstr;
-    };
+    std::ostream& operator<<(std::ostream &sstr, const std::type_info& ti);
 
     static inline std::string str_printf(const char * s) {
         return std::string (s);
@@ -29,7 +23,7 @@ namespace _string_internal {
         return res + std::string(value) + str_printf("", args...);
     };
 
-    static void _stream_in(std::stringstream & ss) {};
+    inline static void _stream_in(std::stringstream & ss) {};
 
     template<typename T, typename... Args>
     void _stream_in(std::stringstream & ss, const T& s, const Args&... args) {

@@ -197,7 +197,6 @@ bool A4InputStream::discover_all_metadata() {
     std::deque<uint64_t> headers;
 
     while (true) {
-        int mark = 0;
         if (seek(-size - END_MAGIC_len, SEEK_END) == -1) return false;
         string magic;
         if (!_coded_in->ReadString(&magic, 8)) {
@@ -210,7 +209,7 @@ bool A4InputStream::discover_all_metadata() {
         if (!_coded_in->ReadLittleEndian32(&footer_size)) return false;
         uint32_t footer_msgsize  = END_MAGIC_len + 4 + footer_size + 8;
         uint64_t footer_start = - size - footer_msgsize;
-        uint64_t footer_abs_start = seek(footer_start, SEEK_END);
+        int64_t footer_abs_start = seek(footer_start, SEEK_END);
         if (footer_abs_start == -1) return false;
         A4Message msg = next(true);
         if (!msg.is<A4StreamFooter>()) {
@@ -234,7 +233,7 @@ bool A4InputStream::discover_all_metadata() {
         }
         _metadata_per_header.push_front(_this_headers_metadata);
 
-        uint64_t tell = seek(-size, SEEK_END);
+        int64_t tell = seek(-size, SEEK_END);
         headers.push_front(tell);
         if (tell == -1) return false;
         if (tell == 0) break;
@@ -334,7 +333,6 @@ A4Message A4InputStream::next(bool internal) {
     }
 
     string magic;
-    int rh = 0;
 
     if (message_type == _content_class_id) {
         CodedInputStream::Limit lim = _coded_in->PushLimit(size);
@@ -367,7 +365,7 @@ A4Message A4InputStream::next(bool internal) {
     
     if (internal) return A4Message(message_type, item);
         
-    if (message_type == A4StreamFooter::kCLASSIDFieldNumber) {
+    if (message_type == uint32_t(A4StreamFooter::kCLASSIDFieldNumber)) {
         // TODO: Process footer
         shared<A4StreamFooter> foot = static_pointer_cast<A4StreamFooter>(item);
 
@@ -400,16 +398,16 @@ A4Message A4InputStream::next(bool internal) {
                 _current_metadata = _metadata_per_header[_current_header_index][0];
         }
         return next();
-    } else if (message_type == A4StreamHeader::kCLASSIDFieldNumber) {
+    } else if (message_type == uint32_t(A4StreamHeader::kCLASSIDFieldNumber)) {
         // should not happen???
         std::cerr << "ERROR - a4::io:A4InputStream - Unexpected header!" << std::endl; 
         return set_error();
-    } else if (message_type == A4StartCompressedSection::kCLASSIDFieldNumber) {
+    } else if (message_type == uint32_t(A4StartCompressedSection::kCLASSIDFieldNumber)) {
         if (!start_compression(*static_cast<A4StartCompressedSection*>(item.get()))) {
             return set_error();
         }
         return next();
-    } else if (message_type == A4EndCompressedSection::kCLASSIDFieldNumber) {
+    } else if (message_type == uint32_t(A4EndCompressedSection::kCLASSIDFieldNumber)) {
         if(!stop_compression(*static_cast<A4EndCompressedSection*>(item.get()))) {
             return set_error(); // read error;
         }

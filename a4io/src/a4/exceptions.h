@@ -113,8 +113,12 @@ namespace a4{
             }
 
             static bool enable_throw_on_segfault() {
-                const struct sigaction act = {&segfault_handler, 0, 0, 0};
-                sigaction(SIGSEGV, &act, NULL);
+                struct sigaction act;
+                act.sa_handler = &segfault_handler;
+                sigemptyset(&act.sa_mask);
+                act.sa_flags = 0;
+                act.sa_restorer = NULL;
+                return sigaction(SIGSEGV, &act, NULL) == 0;
             };
 
             static void segfault_handler(int i) {

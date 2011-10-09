@@ -69,8 +69,8 @@ namespace a4{ namespace io{
         private:
             shared<google::protobuf::io::ZeroCopyOutputStream> _raw_out;
             shared<google::protobuf::io::FileOutputStream> _file_out;
-            google::protobuf::io::GzipOutputStream * _compressed_out;
-            google::protobuf::io::CodedOutputStream * _coded_out;
+            unique<google::protobuf::io::GzipOutputStream> _compressed_out;
+            unique<google::protobuf::io::CodedOutputStream> _coded_out;
 
             bool open();
             bool write(uint32_t class_id, const google::protobuf::Message& m);
