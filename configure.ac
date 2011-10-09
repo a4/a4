@@ -16,4 +16,5 @@ AC_CONFIG_FILES([a4io/Makefile])
 AC_CONFIG_FILES([a4process/Makefile])
 #AC_CONFIG_FILES([a4hist/Makefile])
 AC_CONFIG_FILES([a4atlas/Makefile])
+AC_CONFIG_FILES([a4root/Makefile])
 AC_OUTPUT
