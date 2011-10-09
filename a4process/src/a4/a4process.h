@@ -53,7 +53,7 @@ namespace a4{
                 /// Override this to do further processing of the options from the command line or config file
                 virtual void read_arguments(po::variables_map &arguments) {};
 
-                virtual bool setup_processor(Processor &g) { return true; };
+                virtual void setup_processor(Processor &g) {};
                 virtual Processor * new_processor() = 0;
         };
 
@@ -62,7 +62,7 @@ namespace a4{
             public:
                 ProcessorOf() { a4::io::RegisterClassID<ProtoMessage> _e; a4::io::RegisterClassID<ProtoMetaData> _m; };
                 /// Override this to proces only your requested messages
-                virtual bool process(const ProtoMessage &) = 0;
+                virtual void process(const ProtoMessage &) = 0;
                 void process_message(const A4Message msg) {
                     if (!msg) throw a4::Fatal("No message!"); // TODO: Should not be fatal
                     ProtoMessage * pmsg = msg.as<ProtoMessage>().get();
@@ -86,9 +86,9 @@ namespace a4{
         class ConfigurationOf : public Configuration {
             public:
                 /// Override this to setup your thread-safe Processor!
-                virtual bool setup_processor(MyProcessor &g) { return true; };
+                virtual void setup_processor(MyProcessor &g) {};
 
-                virtual bool setup_processor(Processor &g) { return setup_processor(dynamic_cast<MyProcessor&>(g)); };
+                virtual void setup_processor(Processor &g) { setup_processor(dynamic_cast<MyProcessor&>(g)); };
                 virtual Processor * new_processor() { return new MyProcessor(); };
         };
     };

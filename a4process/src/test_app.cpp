@@ -9,10 +9,10 @@ using namespace a4::process;
 
 class MyProcessor : public ProcessorOf<TestHisto, TestHistoMetaData> {
     public:
-        virtual bool process(const TestHisto &);
+        virtual void process(const TestHisto &);
 };
 
-bool MyProcessor::process(const TestHisto & event) {
+void MyProcessor::process(const TestHisto & event) {
     cout << event.bin_number() << endl;
 }
 
