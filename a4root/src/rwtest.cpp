@@ -139,7 +139,7 @@ shared<Message> message_factory(const Message* default_instance, const Copiers& 
 {
     shared<Message> message(default_instance->New());
     
-    for (auto copier: copiers) copier(message.get());
+    foreach (const Copier& copier, copiers) copier(message.get());
     
     return message;
 }
@@ -151,7 +151,7 @@ void set_messages(Message** message, vector<T>* input)
     // function<void (T, Message*)> set_reflection_field = bind(test, r, _2, f, _1);
     
     size_t i = 0;
-    for (auto value: input)
+    foreach (const T& value, input)
         call_setter<T>(message[i++], value);
 }
 
@@ -178,7 +178,7 @@ void submessage_factory(
         //submessages[i]->GetReflection()->SetFloat(submessages[i], submessages[i]->GetDescriptor()->FindFieldByName("eta_s2"), 5.);
     }
     
-    for (auto submessage_setter: submessage_setters) 
+    foreach (const SubmessageSetter& submessage_setter, submessage_setters) 
         submessage_setter(submessages, count);
         
     delete [] submessages;
