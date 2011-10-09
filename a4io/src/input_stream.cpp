@@ -8,8 +8,16 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+using boost::bind;
+using boost::function;
+
 #include <google/protobuf/message.h>
+#include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/descriptor.h>
+#include <google/protobuf/descriptor.pb.h>
+#include <google/protobuf/descriptor_database.h>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/gzip_stream.h>
@@ -26,6 +34,16 @@ using std::endl;
 using google::protobuf::io::ZeroCopyInputStream;
 using google::protobuf::io::FileInputStream;
 using google::protobuf::io::CodedInputStream;
+
+using google::protobuf::DynamicMessageFactory;
+using google::protobuf::SimpleDescriptorDatabase;
+using google::protobuf::DescriptorPool;
+
+using google::protobuf::FileDescriptorProto;
+using google::protobuf::FileDescriptor;
+using google::protobuf::Descriptor;
+using google::protobuf::FieldDescriptor;
+
 using namespace a4::io;
 
 const string START_MAGIC = "A4STREAM";
@@ -71,10 +89,16 @@ void A4InputStream::init() {
     _items_read = 0;
     _content_class_id = 0;
     _metadata_class_id = 0;
-    _content_func = NULL;
+    _content_func = &a4::io::internal::bad_from_stream_func;
     _current_metadata_refers_forward = false;
     _current_header_index = 0;
     _current_metadata_index = 0;
+    _encountered_file_descriptors = shared<SimpleDescriptorDatabase>(new SimpleDescriptorDatabase());
+    //_encountered_file_descriptors.get()
+    _descriptor_pool = shared<DescriptorPool>(new DescriptorPool(DescriptorPool::generated_pool()));
+    _message_factory = shared<DynamicMessageFactory>(new DynamicMessageFactory(_descriptor_pool.get()));
+    // If the type is compiled in then use that! (urk, no worky? deprecated?)
+    _message_factory->SetDelegateToGeneratedFactory(true);
 }
 
 void A4InputStream::startup() {
@@ -144,7 +168,7 @@ bool A4InputStream::read_header()
     if (!h.ParseFromCodedStream(_coded_in.get()))
         return set_error();
     _coded_in->PopLimit(lim);
-
+    
     if (h.a4_version() != 1) {
         std::cerr << "ERROR - a4::io:A4InputStream - Unknown A4 stream version (";
         std::cerr << h.a4_version() << ")" << std::endl;
@@ -154,23 +178,24 @@ bool A4InputStream::read_header()
     // check the main content type from the header
     if (h.has_content_class_id()) {
         _content_class_id = h.content_class_id();
-        _content_func = internal::all_class_ids(_content_class_id);
+        _content_func = internal::all_class_ids(_content_class_id, NULL, false);
         if (!_content_func) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Content Class " << _content_class_id << " unknown!" << std::endl;
-            return set_error();
+            std::cerr << "WARNING - a4::io:A4InputStream - Content Class " << _content_class_id << " unknown!" << std::endl;
+            //return set_error();
         }
     } else {
         _content_class_id = 0;
-    };
+    }
+    
     if (h.has_metadata_class_id()) {
         _metadata_class_id = h.metadata_class_id();
-        if (!internal::all_class_ids(_metadata_class_id)) {
-            std::cerr << "ERROR - a4::io:A4InputStream - metadata Class " << _metadata_class_id << " unknown!" << std::endl;
-            return set_error();
+        if (internal::all_class_ids(_metadata_class_id) == &a4::io::internal::bad_from_stream_func) {
+            std::cerr << "WARNING - a4::io:A4InputStream - metadata Class " << _metadata_class_id << " unknown!" << std::endl;
+            //return set_error();
         }
     } else {
         _metadata_class_id = 0;
-    };
+    }
 
     _current_metadata_refers_forward = h.metadata_refers_forward();
     if (!_current_metadata_refers_forward && !_discovery_complete) {
@@ -224,6 +249,14 @@ bool A4InputStream::discover_all_metadata() {
             uint64_t metadata_start = footer_abs_start - footer->size() + offset;
             if (seek(metadata_start, SEEK_SET) == -1) return false;
             A4Message msg = next(true);
+            
+            while (msg.class_id == A4Proto::kCLASSIDFieldNumber) {
+                // Instead of getting metadata we might get class descriptions here
+                shared<A4Proto> a4proto = msg.as<A4Proto>();
+                generate_dynamic_classes(a4proto.get());
+                msg = next(true);
+            }
+            
             if (msg.class_id != _metadata_class_id) {
                 std::cerr << "ERROR - a4::io:A4InputStream - class_id is not metadata class_id: "
                           << msg.class_id << " != " << _metadata_class_id << std::endl;
@@ -298,6 +331,58 @@ void A4InputStream::reset_coded_stream() {
     _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
 }
 
+shared<Message> A4InputStream::message_factory(
+    const google::protobuf::Message* prototype,
+    google::protobuf::io::CodedInputStream* instr)
+{    
+    shared<Message> msg(prototype->New());
+    bool success = msg->ParseFromCodedStream(instr);
+    assert(success);
+    return msg;
+}
+
+void A4InputStream::generate_dynamic_classes(const A4Proto* a4proto)
+{
+    const FileDescriptorProto& fdp = a4proto->file_descriptor();
+    //std::cout << "Encountered a dynamic class: " << fdp.name() << std::endl;
+    
+    //std::cout << "Encountered an A4Proto on reading: " << fdp.name() << std::endl;
+    //std::cout << "Number of messages: " << fdp.message_type_size() << std::endl;
+    
+    {
+        google::protobuf::LogSilencer silencer;
+        if (not _encountered_file_descriptors->Add(fdp))
+            return;
+    }
+    
+    const FileDescriptor* file = _descriptor_pool->BuildFile(fdp);
+    
+    for (int i = 0; i < file->message_type_count(); i++) {
+        const Descriptor* d = file->message_type(i);
+        const FieldDescriptor* fd = d->FindFieldByName("CLASS_ID");
+        
+        if (!fd)
+            continue; // No CLASS_ID field, ignore this type
+            
+        // Bingo, we found a A4 message type
+        const int32_t class_id = fd->number();
+        if (a4::io::internal::all_class_ids(class_id, NULL, false) == &a4::io::internal::bad_from_stream_func) {
+            // No handler available, make a factory for it
+            
+            const Message* prototype = _message_factory->GetPrototype(d);
+            boost::function<shared<Message> (google::protobuf::io::CodedInputStream*)> factory = 
+                bind(&A4InputStream::message_factory, this, prototype, _1);
+                
+            a4::io::internal::all_class_ids(class_id, factory);
+            
+            if (class_id == _content_class_id) _content_func = factory;
+        }
+    }
+    
+    // This dumps the protobuf
+    // if (file) std::cout << file->DebugString() << std::endl;
+}
+
 /// \internal
 /// Do not do any processing on the message if internal=true
 /// \endinternal
@@ -347,7 +432,7 @@ A4Message A4InputStream::next(bool internal) {
     }
 
     internal::from_stream_func from_stream = internal::all_class_ids(message_type);
-    if (!from_stream) {
+    if (from_stream == &a4::io::internal::bad_from_stream_func) {
         std::cerr << "WARNING - a4::io:A4InputStream - Unknown message type: " << message_type << std::endl;
         if (!_coded_in->Skip(size)) {
             std::cerr << "ERROR - a4::io:A4InputStream - Read error while skipping unknown message!"  << std::endl;
@@ -411,6 +496,10 @@ A4Message A4InputStream::next(bool internal) {
         if(!stop_compression(*static_cast<A4EndCompressedSection*>(item.get()))) {
             return set_error(); // read error;
         }
+        return next();
+    } else if (message_type == A4Proto::kCLASSIDFieldNumber) {
+        shared<A4Proto> a4proto = static_shared_cast<A4Proto>(item);
+        generate_dynamic_classes(a4proto.get());
         return next();
     } else if (message_type == _metadata_class_id) {
         if (_current_metadata_refers_forward) {

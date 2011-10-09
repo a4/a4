@@ -3,6 +3,10 @@
 
 #include <a4/types.h>
 
+#include <google/protobuf/message.h>
+#include <google/protobuf/text_format.h>
+#include <string>
+#include <iostream>
 namespace google{namespace protobuf{ class Message; };};
 
 namespace a4{
@@ -35,6 +39,15 @@ namespace a4{
         template <typename ProtoClass> class RegisterClassID;
 
         using google::protobuf::Message;
+        
+        static const int FIRST_CUSTOM_MESSAGE_CLASS = 1000;
+        
+        inline void dump_message(const google::protobuf::Message* message)
+        {
+            std::string str;
+            google::protobuf::TextFormat::PrintToString(*message, &str);
+            std::cout << str << std::endl;
+        }
     }
 }
 

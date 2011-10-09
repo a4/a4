@@ -5,6 +5,7 @@
 #include <vector>
 #include <deque>
 
+#include <google/protobuf/message.h>
 #include <a4/a4io.h>
 
 // used internally
@@ -42,8 +43,14 @@ namespace a4{ namespace io{
             /// example: auto event = result.as<MyEvent>()
             template <class T>
             shared<T> as() const {
-                if (not is<T>()) return shared<T>(); 
-                else return static_pointer_cast<T>(message);
+                if (not is<T>()) return shared<T>();
+                // If this assertion isn't true then the generated message is
+                // (probably?) invalid. You can only then do things with the 
+                // message through its GetReflection(), and not through any 
+                // compiled in code.
+                // Did you mean to A4RegisterClass?
+                assert(T::descriptor() == message->GetDescriptor());
+                return static_pointer_cast<T>(message);
             }
     };
 };};
