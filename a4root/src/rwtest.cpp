@@ -373,8 +373,19 @@ public:
 
 void copy_tree(TTree& tree, shared<A4OutputStream> stream, Long64_t entries = -1)
 {
+    Long64_t tree_entries = tree.GetEntries();
+    if (entries > tree_entries)
+        entries = tree_entries;
     if (entries < 0)
-        entries = tree.GetEntries();
+        entries = tree_entries;
+    if (!entries)
+        return;
+        
+    cout << "Will process " << entries << " entries" << endl;
+    
+    // Nothing to do!
+    if (!entries)
+        return;
     
     tree.GetEntry(0); // Get one entry to make sure the branches are setup
     // Disable all branches to be enabled when we make the message factory
@@ -386,7 +397,6 @@ void copy_tree(TTree& tree, shared<A4OutputStream> stream, Long64_t entries = -1
     tree.SetNotify(&builder);
     builder.Notify(); // Make the first event factory type
     
-    cout << "Will process " << entries << " entries" << endl;
     size_t total_bytes_read = 0;
     
     for (Long64_t i = 0; i < entries; i++)
