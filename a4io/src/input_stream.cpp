@@ -24,9 +24,11 @@ using boost::function;
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
+#include "gzip_stream.h"
+#include "snappy_stream.h"
+
 #include "a4/proto/io/A4Stream.pb.h"
 #include "a4/input_stream.h"
-#include "gzip_stream.h"
 
 using std::string;
 using std::cerr;
@@ -299,6 +301,8 @@ bool A4InputStream::start_compression(const A4StartCompressedSection& cs) {
         _compressed_in.reset(new GzipInputStream(_raw_in.get(), GzipInputStream::ZLIB));
     } else if (cs.compression() == A4StartCompressedSection_Compression_GZIP) {
         _compressed_in.reset(new GzipInputStream(_raw_in.get(), GzipInputStream::GZIP));
+    } else if (cs.compression() == A4StartCompressedSection_Compression_SNAPPY) {
+        _compressed_in.reset(new SnappyInputStream(_raw_in.get()));
     } else {
         std::cerr << "ERROR - a4::io:A4InputStream - Unknown compression type " << cs.compression() << std::endl;
         return false;

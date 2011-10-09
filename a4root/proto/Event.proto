@@ -96,5 +96,6 @@ message Event {
     repeated EFElectron efelectrons = 738 [(root_prefix)="trig_EF_el_"]; 
     repeated EFPhoton efphotons = 739 [(root_prefix)="trig_EF_ph_"]; 
     repeated ChainEntry chain_entries = 740 [(root_prefix)="trig_Nav_"]; 
-    
+
 }
+

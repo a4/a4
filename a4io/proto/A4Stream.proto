@@ -29,6 +29,7 @@ message A4StartCompressedSection
         ZLIB = 0;
         GZIP = 1;
         BZIP2 = 2;
+        SNAPPY = 3;
     }
     optional Compression compression = 1;
 }

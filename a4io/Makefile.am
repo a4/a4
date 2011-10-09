@@ -18,19 +18,20 @@ a4python_PYTHON = python/a4/__init__.py python/a4/A4Stream.py
 a4pythonproto_PYTHON = python/a4/proto/__init__.py
 
 # Configuration options
-AM_CPPFLAGS+=$(PROTOBUF_CFLAGS) $(BOOST_CPPFLAGS)
-LDADD=liba4io.la $(PROTOBUF_LIBS) $(BOOST_LIBS)
+AM_CPPFLAGS+=$(PROTOBUF_CFLAGS) $(SNAPPY_CPPFLAGS) $(BOOST_CPPFLAGS)
+LDADD=liba4io.la $(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS) $(BOOST_LIBS)
 
 # Main a4io library
 LIBRARY_SOURCES=$(a4include_HEADERS) \
     src/string.cpp \
     src/gzip_stream.h src/gzip_stream.cpp \
+    src/snappy_stream.h src/snappy_stream.cpp \
     src/input_stream.cpp src/output_stream.cpp \
     src/register.cpp src/input.cpp src/output.cpp
 lib_LTLIBRARIES=liba4io.la
-nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
+nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H) 
 dist_liba4io_la_SOURCES=$(LIBRARY_SOURCES)
-liba4io_la_LIBADD=$(PROTOBUF_LIBS) $(BOOST_LIBS)
+liba4io_la_LIBADD=$(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS) $(BOOST_LIBS)
 
 ## Test programs
 check_PROGRAMS = test_io test_thread gtest

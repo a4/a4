@@ -7,6 +7,7 @@
 #include <set>
 
 #include <a4/register.h>
+#include <base_compressed_streams.h>
 
 
 namespace google{ namespace protobuf{ 
@@ -79,7 +80,8 @@ namespace a4{ namespace io{
         private:
             shared<google::protobuf::io::ZeroCopyOutputStream> _raw_out;
             shared<google::protobuf::io::FileOutputStream> _file_out;
-            unique<google::protobuf::io::GzipOutputStream> _compressed_out;
+            
+            unique<BaseCompressedOutputStream> _compressed_out;
             unique<google::protobuf::io::CodedOutputStream> _coded_out;
 
             bool open();

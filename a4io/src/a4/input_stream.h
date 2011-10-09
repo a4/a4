@@ -8,12 +8,13 @@
 #include <a4/register.h>
 #include <a4/message.h>
 
+//#include <base_compressed_streams.h>
+
 // used internally
 namespace google{ namespace protobuf{ 
     namespace io{
         class ZeroCopyInputStream;
         class FileInputStream;
-        class GzipInputStream;
         class CodedInputStream;
     };
     class SimpleDescriptorDatabase;
@@ -24,7 +25,7 @@ namespace google{ namespace protobuf{
 namespace a4{ namespace io{
 
     // used internally
-    class GzipInputStream;
+    class BaseCompressedInputStream;
     class A4StartCompressedSection;
     class A4EndCompressedSection;
     class A4Proto;
@@ -62,7 +63,7 @@ namespace a4{ namespace io{
         private:
             shared<google::protobuf::io::ZeroCopyInputStream> _raw_in;
             shared<google::protobuf::io::FileInputStream> _file_in;
-            shared<GzipInputStream> _compressed_in;
+            shared<BaseCompressedInputStream> _compressed_in;
             shared<google::protobuf::io::CodedInputStream> _coded_in;
 
             // variables set at construction time

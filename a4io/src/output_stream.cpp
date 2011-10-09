@@ -17,6 +17,7 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
 #include "a4/output_stream.h"
+#include "snappy_stream.h"
 #include "a4/proto/io/A4Stream.pb.h"
 
 using std::string;
@@ -151,14 +152,15 @@ void A4OutputStream::reset_coded_stream() {
 bool A4OutputStream::start_compression() {
     if (_compressed_out) return false;
     A4StartCompressedSection cs_header;
-    cs_header.set_compression(A4StartCompressedSection_Compression_ZLIB);
+    cs_header.set_compression(A4StartCompressedSection_Compression_SNAPPY);
     if (!write(A4StartCompressedSection::kCLASSIDFieldNumber, cs_header))
         throw a4::Fatal("Failed to start compression");
     _coded_out.reset();
-    GzipOutputStream::Options o;
-    o.format = GzipOutputStream::ZLIB;
-    o.compression_level = 9;
-    _compressed_out.reset(new GzipOutputStream(_raw_out.get(), o));
+    //GzipOutputStream::Options o;
+    //o.format = GzipOutputStream::ZLIB;
+    //o.compression_level = 9;
+    //_compressed_out.reset(new GzipOutputStream(_raw_out.get(), o));
+    _compressed_out.reset(new SnappyOutputStream(_raw_out.get()));
     _coded_out.reset(new CodedOutputStream(_compressed_out.get()));
     return true;
 };
