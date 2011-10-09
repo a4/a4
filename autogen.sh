@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if test -n `ls gtest`; then git submodule update --init gtest; fi
+if test -z "`ls gtest`"; then git submodule update --init gtest; fi
 
 if autoreconf -i --force; then
     rm -rf autom4te.cache/

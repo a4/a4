@@ -28,14 +28,6 @@ doxygen-dev:
 doc: doxygen-user doxygen-dev
 	echo "generated user and developer docs"
 
-# Build gtest before we build protobuf tests.  We don't add gtest to SUBDIRS
-# because then "make check" would also build and run all of gtest's own tests,
-# which takes a lot of time and is generally not useful to us.  Also, we don't
-# want "make install" to recurse into gtest since we don't want to overwrite
-# the installed version of gtest if there is one.
-check-local:
-	@echo "Making lib/libgtest.a lib/libgtest_main.a in gtest"
-	@cd gtest && $(MAKE) $(AM_MAKEFLAGS) lib/libgtest.la lib/libgtest_main.la
 
 # We would like to clean gtest when "make clean" is invoked.  But we have to
 # be careful because clean-local is also invoked during "make distclean", but

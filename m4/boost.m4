@@ -341,6 +341,10 @@ dnl start the for loops).
   boost_failed_libs=
 # Don't bother to ident the 6 nested for loops, only the 2 innermost ones
 # matter.
+
+# Add A4 tag
+boost_cv_lib_tag="-a4 $boost_cv_lib_tag"
+
 for boost_tag_ in -$boost_cv_lib_tag ''; do
 for boost_ver_ in -$boost_cv_lib_version ''; do
 for boost_mt_ in $boost_mt -mt ''; do

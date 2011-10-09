@@ -40,6 +40,8 @@ test_storable_SOURCES = src/test_storable.cpp
 test_app_SOURCES = src/test_app.cpp
 test_histo_SOURCES = src/test_histo.cpp
 
+CLEANFILES+=test_histos.a4 test_storable.a4
+
 dist_check_SCRIPTS = src/test_app.sh
 
 TESTS=$(plain_test_programs) src/test_app.sh
