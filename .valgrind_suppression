@@ -82,6 +82,26 @@
    fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
    fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
    fun:_ZNSs7reserveEm
+   fun:_ZNSs6appendEmc
+   fun:_ZN6google8protobuf17DescriptorBuilder9BuildEnumERKNS0_19EnumDescriptorProtoEPKNS0_10DescriptorEPNS0_14EnumDescriptorE
+}
+{
+   GoogleProtobufDescriptorPool10
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
+   fun:_ZNSs7reserveEm
+   fun:_ZNSs6appendERKSs
+   fun:_ZN6google8protobuf17DescriptorBuilder14BuildEnumValueERKNS0_24EnumValueDescriptorProtoEPKNS0_14EnumDescriptorEPNS0_19EnumValueDescriptorE
+}
+{
+   GoogleProtobufDescriptorPool11
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
+   fun:_ZNSs7reserveEm
    fun:_ZNSs6appendERKSs
    fun:_ZN6google8protobuf17DescriptorBuilder21BuildFieldOrExtensionERKNS0_20FieldDescriptorProtoEPKNS0_10DescriptorEPNS0_15FieldDescriptorEb
 }
