@@ -406,7 +406,7 @@ void copy_tree(TTree& tree, shared<A4OutputStream> stream, Long64_t entries = -1
         if (i % 100 == 0)
             cout << "Progress " << i << " / " << entries << " (" << read_data << ")" << endl;
         
-        shared<Event> event = dynamic_shared_cast<Event>(event_factory());
+        shared<Event> event = dynamic_pointer_cast<Event>(event_factory());
         stream->write(*event);
     }
     
