@@ -35,3 +35,9 @@ EXTRA_SCRIPTS = this_a4.sh
 EXTRA_DIST = ${A4_THIS_SCRIPT_IN}
 CLEANFILES = ${A4_THIS_SCRIPT}
 bin_SCRIPTS = ${A4_THIS_SCRIPT}
+
+
+gtest_main.cc:
+	$(LN_S) -f $(top_srcdir)/gtest/src/gtest_main.cc .
+
+GTEST_APP=gtest_main.cc

@@ -12,4 +12,8 @@ AC_CONFIG_FILES([a4io/Makefile])
 AC_CONFIG_FILES([a4process/Makefile])
 #AC_CONFIG_FILES([a4hist/Makefile])
 AC_CONFIG_FILES([a4atlas/Makefile])
+AC_CONFIG_SUBDIRS([gtest])
+AC_SUBST([GTEST_CPPFLAGS], ["-I\$(top_srcdir)/gtest/include -I\$(top_srcdir)/gtest -I\$(top_builddir)/gtest/include -pthread"])
+AC_SUBST([GTEST_LIBS], ["\$(top_builddir)/gtest/lib/libgtest.la -pthread"])
+
 AC_OUTPUT
