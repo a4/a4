@@ -264,6 +264,8 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
     // Return a function which will copy elements from `branch_element` into the
     // `field` of message `_1`, assuming it is a vector<T> of length `_2`.
     // This uses the `refl` argument.
+    
+    // TODO(pwaller): Extend this to work with vector types
     #define BIND(source_type, destination_type) \
         bind(submessage_setter<source_type, destination_type>, _1, _2, \
              branch_element, reflection_setter<destination_type>(reflection, field), field)
