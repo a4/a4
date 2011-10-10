@@ -66,11 +66,10 @@ const vector<const FieldDescriptor*> get_fields(const Descriptor* d) {
 
 
 
-template<typename T>
-void call_setter(
-    typename Setter<T>::msg setter, Message* message, void* value)
+template<typename SOURCE_TYPE, typename PROTOBUF_TYPE>
+void call_setter(typename Setter<PROTOBUF_TYPE>::msg setter, Message* message, void* value)
 {
-    setter(message, *reinterpret_cast<T*>(value));
+    setter(message, static_cast<PROTOBUF_TYPE>(*reinterpret_cast<SOURCE_TYPE*>(value)));
 }
 
 template<typename T> typename Setter<T>::type reflection_setter() { 
@@ -81,18 +80,14 @@ template<typename T> typename Setter<T>::type reflection_setter() {
         return bind(&::google::protobuf::Reflection::SetterName, _1, _2, _3, _4); \
     }
     
-DEFINE_SETTER(int32_t,   SetInt32);
-DEFINE_SETTER(short,    SetInt32);
-DEFINE_SETTER(int64_t,   SetInt64);
-DEFINE_SETTER(uint32_t,  SetUInt32);
-DEFINE_SETTER(unsigned short, SetUInt32);
-DEFINE_SETTER(uint64_t,  SetUInt64);
-DEFINE_SETTER(float,    SetFloat);
-DEFINE_SETTER(double,   SetDouble);
-DEFINE_SETTER(bool,     SetBool);
+DEFINE_SETTER(int32_t,     SetInt32);
+DEFINE_SETTER(int64_t,     SetInt64);
+DEFINE_SETTER(uint32_t,    SetUInt32);
+DEFINE_SETTER(uint64_t,    SetUInt64);
+DEFINE_SETTER(float,       SetFloat);
+DEFINE_SETTER(double,      SetDouble);
+DEFINE_SETTER(bool,        SetBool);
 DEFINE_SETTER(std::string, SetString);
-// TODO: SetString
-//        SetEnum
 
 template<typename T>
 typename Setter<T>::msg make_setter(const FieldDescriptor* f, const Reflection* r)
@@ -108,7 +103,7 @@ Copier generic_make_field_setter(void* p, const FieldDescriptor* f, const Reflec
     // This horrifying beastie returns a `F`=[function which takes a Message*].
     // `F` fills one field (`f`) of the message with the contents at `p`.
     typename Setter<T>::msg set_reflection_field = make_setter<T>(f, r);
-    function<void (typename Setter<T>::msg, Message*, void*)> set_pointer_inside_message = call_setter<T>;
+    function<void (typename Setter<T>::msg, Message*, void*)> set_pointer_inside_message = call_setter<T, T>;
     return bind(set_pointer_inside_message, set_reflection_field, _1, p);
 }
 
@@ -147,17 +142,6 @@ shared<Message> message_factory(const Message* default_instance, const Copiers& 
     return message;
 }
 
-template<typename T>
-void set_messages(Message** message, vector<T>* input)
-{
-    // typename FieldSetter<T>::type test = reflection_setter<T>();
-    // function<void (T, Message*)> set_reflection_field = bind(test, r, _2, f, _1);
-    
-    size_t i = 0;
-    foreach (const T& value, input)
-        call_setter<T>(message[i++], value);
-}
-
 typedef Message* MessageP;
 
 typedef function<void (Message**, size_t)> SubmessageSetter;
@@ -187,12 +171,13 @@ void submessage_factory(
     delete [] submessages;
 }
 
-template<typename T>
-void submessage_setter(Message** messages, size_t count, TBranchElement* br, const typename Setter<T>::msg& setter)
+template<typename SOURCE_TYPE, typename PROTOBUF_TYPE>
+void submessage_setter(Message** messages, size_t count, TBranchElement* br, 
+    const typename Setter<PROTOBUF_TYPE>::msg& setter, const FieldDescriptor* field)
 {
-    vector<T>* values = reinterpret_cast<vector<T>* >(br->GetObject());
+    vector<SOURCE_TYPE>* values = reinterpret_cast<vector<SOURCE_TYPE>* >(br->GetObject());
     for (size_t i = 0; i < count; i++)
-        setter(messages[i], values->at(i));
+        setter(messages[i], static_cast<PROTOBUF_TYPE>(values->at(i)));
 }
 
 /// Returns the current size of the `branch_element` which represents a type `T` 
@@ -236,59 +221,104 @@ function<size_t ()> make_count_getter(TBranchElement* branch_element)
 }
 
 /// Returns a function which will set one `field` of a protobuf 
-// "repeated Message" from the branch `branch_element`.
-SubmessageSetter make_submessage_setter(TBranchElement* br, 
+// "repeated Message" from the vector branch `branch_element`.
+SubmessageSetter make_submessage_setter(TBranchElement* branch_element, 
     const FieldDescriptor* field, const Reflection* refl)
 {
     // Return a function which will copy elements from `branch_element` into the
     // `field` of message `_1`, assuming it is a vector<T> of length `_2`.
     // This uses the `refl` argument.
-    #define BIND(T) \
-        return bind(submessage_setter<T>, _1, _2, br, make_setter<T>(field, refl))
-    #define FIELD(cpptype, T) \
-        case FieldDescriptor::cpptype: \
-            BIND(T)
+    #define BIND(source_type, destination_type) \
+        bind(submessage_setter<source_type, destination_type>, _1, _2, \
+             branch_element, make_setter<destination_type>(field, refl), field)
+    
+    // !Note!: `check_typestring` is expanded as a string!!
+    #define TRY_MATCH(source_type, protobuf_destination_type) \
+        if (branch_typename == "vector<" #source_type ">" ) \
+        { \
+            std::cerr << "Matching " << branch_element->GetName() << " (" \
+                      << branch_typename << ") to " << field->full_name() \
+                      << " (" << str_cat(typeid(protobuf_destination_type)) << ")" << std::endl; \
+            return BIND(source_type, protobuf_destination_type); \
+        }
+    
+    // This happens when we don't know how to deal with the combination of 
+    // {field->cpp_type(), root branch type}
+    #define FAILURE(protobuf_typename) \
+        throw Fatal(str_cat("a4root doesn't know how to convert the branch ", \
+            branch_element->GetName(), " to the protobuf field ", \
+            field->full_name(), " with types ROOT=", branch_typename, " and " \
+            "protobuf=", protobuf_typename, ". The .proto is probably wrong. " \
+            "Alternatively, if the types are compatible and conversion should " \
+            "be possible please contact the A4 developers, " \
+            "or fix it yourself at " __FILE__ ":", __LINE__, "."))
+    
+    const std::string branch_typename = branch_element->GetTypeName();
     
     switch (field->cpp_type())
     {
-        FIELD(CPPTYPE_BOOL,   bool);
+        case FieldDescriptor::CPPTYPE_BOOL:
+            TRY_MATCH(int,            bool);
+            TRY_MATCH(long,           bool);
+            TRY_MATCH(short,          bool);
+            TRY_MATCH(char,           bool);
+            TRY_MATCH(unsigned int,   bool);
+            TRY_MATCH(unsigned long,  bool);
+            TRY_MATCH(unsigned short, bool);
+            TRY_MATCH(unsigned char,  bool);
+            FAILURE("FieldDescriptor::CPPTYPE_BOOL");
         
         case FieldDescriptor::CPPTYPE_INT32:
-            if (br->GetTypeName() == std::string("vector<int>"))
-                BIND(int32_t);
-            else if (br->GetTypeName() == std::string("vector<long>"))
-                BIND(int32_t);
-            else if (br->GetTypeName() == std::string("vector<char>"))
-                BIND(char);
-            else if (br->GetTypeName() == std::string("vector<short>"))
-                BIND(short);
-            else
-                throw Fatal("Unknown type identifier on root file: ", br->GetTypeName());
+            TRY_MATCH(int,   int32_t);
+            TRY_MATCH(long,  int32_t);
+            TRY_MATCH(short, int32_t);
+            TRY_MATCH(char,  int32_t);
+            FAILURE("FieldDescriptor::CPPTYPE_INT32");
         
         case FieldDescriptor::CPPTYPE_UINT32:
-            if (br->GetTypeName() == std::string("vector<unsigned int>"))
-                BIND(uint32_t);
-            else if (br->GetTypeName() == std::string("vector<unsigned long>"))
-                BIND(uint32_t);
-            else if (br->GetTypeName() == std::string("vector<unsigned char>"))
-                BIND(unsigned char);
-            else if (br->GetTypeName() == std::string("vector<unsigned short>"))
-                BIND(unsigned short);
-            else
-                throw Fatal("Unknown type identifier on root file: ", br->GetTypeName());
+            TRY_MATCH(unsigned int,   uint32_t);
+            TRY_MATCH(unsigned long,  uint32_t);
+            TRY_MATCH(unsigned short, uint32_t);
+            TRY_MATCH(unsigned char,  uint32_t);
+            FAILURE("FieldDescriptor::CPPTYPE_UINT32");
         
-        FIELD(CPPTYPE_INT64,  int64_t);
-        FIELD(CPPTYPE_UINT64, uint64_t);
+        case FieldDescriptor::CPPTYPE_INT64:
+            TRY_MATCH(int,   int64_t);
+            TRY_MATCH(long,  int64_t);
+            TRY_MATCH(short, int64_t);
+            TRY_MATCH(char,  int64_t);
+            FAILURE("FieldDescriptor::CPPTYPE_INT64");
+            
+        case FieldDescriptor::CPPTYPE_UINT64:
+            TRY_MATCH(unsigned long long, uint64_t);
+            TRY_MATCH(unsigned int,       uint64_t);
+            TRY_MATCH(unsigned long,      uint64_t);
+            TRY_MATCH(unsigned short,     uint64_t);
+            TRY_MATCH(unsigned char,      uint64_t);
+            FAILURE("FieldDescriptor::CPPTYPE_UINT64");
         
-        FIELD(CPPTYPE_FLOAT,  float);
-        FIELD(CPPTYPE_DOUBLE, double);
+        case FieldDescriptor::CPPTYPE_FLOAT:
+            TRY_MATCH(float, float);
+            FAILURE("FieldDescriptor::CPPTYPE_FLOAT");
+            
+        case FieldDescriptor::CPPTYPE_DOUBLE:
+            TRY_MATCH(double, double);
+            TRY_MATCH(float,  double);
+            FAILURE("FieldDescriptor::CPPTYPE_DOUBLE");
         
-        FIELD(CPPTYPE_STRING, std::string);
+        case FieldDescriptor::CPPTYPE_STRING:
+        {
+            using std::string;
+            TRY_MATCH(string, std::string);
+            FAILURE("FieldDescriptor::CPPTYPE_STRING");
+        }
         
         default:
-            throw Fatal("Unknown field type in submsg setter ", field->cpp_type());
+            FAILURE(str_cat("field with typecode", field->cpp_type()));
     }
-    #undef FIELD
+    
+    #undef TRY_MATCH
+    #undef FAILURE
     #undef BIND
 }
 
