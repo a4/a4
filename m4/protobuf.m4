@@ -57,6 +57,9 @@ AC_DEFUN([A4_PROTOBUF_CHECK], [
       AC_SUBST([PROTOBUF_CFLAGS])
       AC_SUBST([PROTOBUF_ROOT], [$with_protobuf])
     ], [protobuf_not_there=yes])
+    if ! test x$protobuf_not_there == xyes; then
+        AC_SUBST([PROTOBUF_INCLUDE], [$($PKG_CONFIG --variable=includedir "protobuf")])
+    fi
   fi
   if test x$protobuf_not_there == xyes; then
     :
