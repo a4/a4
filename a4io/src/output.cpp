@@ -40,7 +40,7 @@ bool A4Output::close() {
     foreach(shared<A4OutputStream> s, _out_streams) {
         if (s->opened()) s->close();
     }
-    if (_out_streams.size() == 1) {
+    if (_out_streams.size() == 1 && _out_streams[0]->opened()) {
         const char * from = _filenames[0].c_str();
         const char * to = output_file.c_str();
         unlink(to);

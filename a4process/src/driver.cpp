@@ -167,7 +167,13 @@ try
     if (output.size()) out.reset(new A4Output(output, "A4 Output File"));
 
     shared<A4Output> a4results;
-    if (results.size()) res.reset(new A4Output(output, "A4 Results File"));
+    if (results.size()) {
+        if (results == output) {
+            res = out;
+        } else {
+            res.reset(new A4Output(results, "A4 Results File"));
+        }
+    }
 
     std::vector<boost::thread> threads;
     for (int i = 0; i < n_threads; i++) {
