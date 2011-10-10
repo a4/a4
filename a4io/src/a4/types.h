@@ -36,4 +36,12 @@ std::unique_ptr<T> && reinterpret_pointer_cast(std::unique_ptr<V> && p) {
     return std::unique_ptr<T>(reinterpret_cast<T>(p.release()));
 };
 
+// Provide an array deleter for shared and unique pointers
+template<typename T> struct array_delete {
+   void operator()(T* p) {
+      delete [] p;
+   }
+};
+
+
 #endif
