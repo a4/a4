@@ -15,6 +15,8 @@ using boost::function;
 #include <a4/output.h>
 #include <a4/input.h>
 #include <a4/string.h>
+#include <a4/exceptions.h>
+using a4::Fatal;
 
 #include <TBranch.h>
 #include <TBranchElement.h>
@@ -72,7 +74,7 @@ void call_setter(
 }
 
 template<typename T> typename Setter<T>::type reflection_setter() { 
-    throw std::runtime_error(str_cat("Unknown type: ", typeid(T), ", add a DEFINE_SETTER line in ", __FILE__)); 
+    throw Fatal("Unknown type: ", typeid(T), ", add a DEFINE_SETTER line in ", __FILE__); 
 };
 #define DEFINE_SETTER(T, SetterName) \
     template<> Setter<T>::type reflection_setter<T>() { \
@@ -130,7 +132,7 @@ Copier copier_from_field_descriptor(void* p, const FieldDescriptor* f, const Ref
         FIELD(CPPTYPE_STRING, std::string);
         
         default:
-            throw std::runtime_error(str_cat("Unknown field type in copier_from_field_descriptor ", f->cpp_type()));
+            throw Fatal("Unknown field type in copier_from_field_descriptor ", f->cpp_type());
     }
             
     #undef FIELD
@@ -204,11 +206,11 @@ size_t count_getter(TBranchElement* branch_element)
 }
 
 /// Returns a function which knows the current length of `branch_element`.
-function<size_t ()> make_count_getter(TBranchElement* branch_element_
+function<size_t ()> make_count_getter(TBranchElement* branch_element)
 {
     #define TRY_MATCH(ctype) \
         if (branch_typename == "vector<" #ctype ">") \
-            return bind(count_getter<T>, branch_element)
+            return bind(count_getter<ctype>, branch_element)
     
     const std::string branch_typename = branch_element->GetTypeName();
     
@@ -223,12 +225,12 @@ function<size_t ()> make_count_getter(TBranchElement* branch_element_
     TRY_MATCH(unsigned long long);
     TRY_MATCH(float);
     TRY_MATCH(double);
-    TRY_MATCH(string);
+    TRY_MATCH(std::string);
     
-    throw std::runtime_error(str_cat("a4root doesn't know how to count the ", 
-        "number of elements in a \"", branch_typename, "\" from a ROOT TTree. "RootToMessageFactory
+    throw Fatal("a4root doesn't know how to count the ", 
+        "number of elements in a \"", branch_typename, "\" from a ROOT TTree. "
         "If this should be possible please contact the A4 developers, " 
-        "or fix it yourself at " __FILE__ ":" __LINE__ "."))
+        "or fix it yourself at " __FILE__ ":", __LINE__, ".");
     
     #undef FIELD
 }
@@ -261,7 +263,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* br,
             else if (br->GetTypeName() == std::string("vector<short>"))
                 BIND(short);
             else
-                throw std::runtime_error(std::string("Unknown type identifier on root file: ") + br->GetTypeName());
+                throw Fatal("Unknown type identifier on root file: ", br->GetTypeName());
         
         case FieldDescriptor::CPPTYPE_UINT32:
             if (br->GetTypeName() == std::string("vector<unsigned int>"))
@@ -273,7 +275,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* br,
             else if (br->GetTypeName() == std::string("vector<unsigned short>"))
                 BIND(unsigned short);
             else
-                throw std::runtime_error(std::string("Unknown type identifier on root file: ") + br->GetTypeName());
+                throw Fatal("Unknown type identifier on root file: ", br->GetTypeName());
         
         FIELD(CPPTYPE_INT64,  int64_t);
         FIELD(CPPTYPE_UINT64, uint64_t);
@@ -284,7 +286,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* br,
         FIELD(CPPTYPE_STRING, std::string);
         
         default:
-            throw std::runtime_error(str_cat("Unknown field type in submsg setter ", field->cpp_type()));
+            throw Fatal("Unknown field type in submsg setter ", field->cpp_type());
     }
     #undef FIELD
     #undef BIND
@@ -312,7 +314,7 @@ Copier make_submessage_factory(TTree& tree, const Reflection* parent_refl, const
                 field->name(), "\")];.");
             std::cerr << warning << std::endl;
             continue;
-            //throw std::runtime_error(warning);
+            //throw Fatal(warning);
         }
         
         const std::string leafname = prefix + field->options().GetExtension(root_branch);
@@ -327,9 +329,9 @@ Copier make_submessage_factory(TTree& tree, const Reflection* parent_refl, const
         
         if (field->is_repeated())
         {
-            throw std::runtime_error(str_cat("Can't currently convert ", 
+            throw Fatal("Can't currently convert ", 
                 field->full_name(), " with ROOT branch ", leafname, " type ",
-                br->GetTypeName()));
+                br->GetTypeName());
             continue; // TODO(pwaller): it's a vector<vector<...
         }            
 
@@ -379,7 +381,7 @@ RootToMessageFactory make_message_factory(TTree& tree, const Descriptor* desc, c
                         field->name(), "\")];.");
                     std::cerr << warning << std::endl;
                     continue;
-                    //throw std::runtime_error(warning);
+                    //throw Fatal(warning);
                 }
             } else {
                 // Don't know what to do with these yet!
@@ -405,9 +407,9 @@ RootToMessageFactory make_message_factory(TTree& tree, const Descriptor* desc, c
                 
             } else if (field->options().HasExtension(root_prefix)) {
                 const std::string prefix = field->options().GetExtension(root_prefix);
-                throw std::runtime_error(str_cat(field->full_name(), 
+                throw Fatal(field->full_name(), 
                     " is not repeated but has a [(root_prefix=\"", prefix, "\")]. "
-                    "These are not compatible with one-another."));
+                    "These are not compatible with one-another.");
             } else {
                 // What to do here? Warn the user that we're ignoring the field?
                 const std::string warning = str_cat(field->full_name(), 
@@ -415,7 +417,7 @@ RootToMessageFactory make_message_factory(TTree& tree, const Descriptor* desc, c
                     field->name(), "\")];.");
                 std::cerr << warning << std::endl;
                 continue;
-                //throw std::runtime_error(warning);
+                //throw Fatal(warning);
             }
         }
     }
