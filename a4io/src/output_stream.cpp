@@ -17,13 +17,16 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
 #include "a4/output_stream.h"
+#ifdef HAVE_SNAPPY
 #include "snappy_stream.h"
+#endif
 #include "a4/proto/io/A4Stream.pb.h"
+
+#include "gzip_stream.h"
 
 using std::string;
 using google::protobuf::io::FileOutputStream;
 using google::protobuf::io::CodedOutputStream;
-using google::protobuf::io::GzipOutputStream;
 using google::protobuf::FileDescriptor;
 using namespace a4::io;
 
@@ -152,15 +155,22 @@ void A4OutputStream::reset_coded_stream() {
 bool A4OutputStream::start_compression() {
     if (_compressed_out) return false;
     A4StartCompressedSection cs_header;
+#ifdef HAVE_SNAPPY
     cs_header.set_compression(A4StartCompressedSection_Compression_SNAPPY);
+#else
+    cs_header.set_compression(A4StartCompressedSection_Compression_ZLIB);
+#endif
     if (!write(A4StartCompressedSection::kCLASSIDFieldNumber, cs_header))
         throw a4::Fatal("Failed to start compression");
     _coded_out.reset();
-    //GzipOutputStream::Options o;
-    //o.format = GzipOutputStream::ZLIB;
-    //o.compression_level = 9;
-    //_compressed_out.reset(new GzipOutputStream(_raw_out.get(), o));
+#ifdef HAVE_SNAPPY
     _compressed_out.reset(new SnappyOutputStream(_raw_out.get()));
+#else
+    a4::io::GzipOutputStream::Options o;
+    o.format = a4::io::GzipOutputStream::ZLIB;
+    o.compression_level = 9;
+    _compressed_out.reset(new a4::io::GzipOutputStream(_raw_out.get(), o));
+#endif
     _coded_out.reset(new CodedOutputStream(_compressed_out.get()));
     return true;
 };

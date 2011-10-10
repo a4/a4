@@ -113,7 +113,7 @@ class GzipInputStream : public BaseCompressedInputStream {
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(GzipInputStream);
 };
 
-class GzipOutputStream : public BaseCompressedInputStream {
+class GzipOutputStream : public BaseCompressedOutputStream {
  public:
   // Format key for constructor
   enum Format {

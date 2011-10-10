@@ -1,5 +1,7 @@
 #define _FILE_OFFSET_BITS 64
 
+#include <config.h>
+
 #include <iostream>
 
 #include <fcntl.h>
@@ -25,8 +27,9 @@ using boost::function;
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
 #include "gzip_stream.h"
+#ifdef HAVE_SNAPPY
 #include "snappy_stream.h"
-
+#endif
 #include "a4/proto/io/A4Stream.pb.h"
 #include "a4/input_stream.h"
 
@@ -302,7 +305,11 @@ bool A4InputStream::start_compression(const A4StartCompressedSection& cs) {
     } else if (cs.compression() == A4StartCompressedSection_Compression_GZIP) {
         _compressed_in.reset(new GzipInputStream(_raw_in.get(), GzipInputStream::GZIP));
     } else if (cs.compression() == A4StartCompressedSection_Compression_SNAPPY) {
+#ifdef HAVE_SNAPPY
         _compressed_in.reset(new SnappyInputStream(_raw_in.get()));
+#else
+        throw a4::Fatal("This file uses compression by the 'Snappy' library, which was not compiled in!");
+#endif
     } else {
         std::cerr << "ERROR - a4::io:A4InputStream - Unknown compression type " << cs.compression() << std::endl;
         return false;

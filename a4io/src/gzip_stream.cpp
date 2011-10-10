@@ -339,7 +339,7 @@ bool GzipOutputStream::Next(void** data, int* size) {
   return true;
 }
 void GzipOutputStream::BackUp(int count) {
-  GOOGLE_CHECK_GE(zcontext_.avail_in, count);
+  GOOGLE_CHECK_GE(int(zcontext_.avail_in), count);
   zcontext_.avail_in -= count;
 }
 int64 GzipOutputStream::ByteCount() const {
