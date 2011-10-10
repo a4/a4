@@ -204,31 +204,32 @@ size_t count_getter(TBranchElement* branch_element)
 }
 
 /// Returns a function which knows the current length of `branch_element`.
-function<size_t ()> make_count_getter(TBranchElement* branch_element, 
-    const FieldDescriptor* field)
+function<size_t ()> make_count_getter(TBranchElement* branch_element_
 {
-    #define FIELD(cpptype, T) \
-        case FieldDescriptor::cpptype: \
+    #define TRY_MATCH(ctype) \
+        if (branch_typename == "vector<" #ctype ">") \
             return bind(count_getter<T>, branch_element)
     
-    switch (field->cpp_type())
-    {
-        FIELD(CPPTYPE_BOOL,   bool);
-        
-        FIELD(CPPTYPE_INT32,  int32_t);
-        FIELD(CPPTYPE_INT64,  int64_t);
-        FIELD(CPPTYPE_UINT32, uint32_t);
-        FIELD(CPPTYPE_UINT64, uint64_t);
-        
-        FIELD(CPPTYPE_FLOAT,  float);
-        FIELD(CPPTYPE_DOUBLE, double);
-        
-        FIELD(CPPTYPE_STRING, std::string);
-        
-        default:
-            throw std::runtime_error(str_cat("Unknown field type in counter ", field->cpp_type()));
-    }
-            
+    const std::string branch_typename = branch_element->GetTypeName();
+    
+    TRY_MATCH(int);
+    TRY_MATCH(long);
+    TRY_MATCH(short);
+    TRY_MATCH(char);
+    TRY_MATCH(unsigned int);
+    TRY_MATCH(unsigned long);
+    TRY_MATCH(unsigned short);
+    TRY_MATCH(unsigned char);
+    TRY_MATCH(unsigned long long);
+    TRY_MATCH(float);
+    TRY_MATCH(double);
+    TRY_MATCH(string);
+    
+    throw std::runtime_error(str_cat("a4root doesn't know how to count the ", 
+        "number of elements in a \"", branch_typename, "\" from a ROOT TTree. "RootToMessageFactory
+        "If this should be possible please contact the A4 developers, " 
+        "or fix it yourself at " __FILE__ ":" __LINE__ "."))
+    
     #undef FIELD
 }
 
@@ -337,7 +338,7 @@ Copier make_submessage_factory(TTree& tree, const Reflection* parent_refl, const
         
         // Do this exactly once over the loop over get_fields(desc).
         if (!compute_count)
-            compute_count = make_count_getter(br, field);
+            compute_count = make_count_getter(br);
         
         // TODO(pwaller): At the moment, this assumes that br is a vector< type.
         // At some point it might be necessary to extend this to allow for
