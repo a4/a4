@@ -53,7 +53,7 @@ TEST(a4io, metadata_merge) {
                 if (current_md) {
                     std::cout << "CURRENT:\n" << current_md.message->ShortDebugString() << std::endl;
                     std::cout << "NEXT   :\n" << new_md.message->ShortDebugString() << std::endl;
-                    unique<TestMetaData> merged_md = r.merge_metadata(current_md, new_md);
+                    unique<Message> merged_md = r.merge_messages(current_md, new_md);
                     std::cout << "MERGED :\n" << merged_md->ShortDebugString() << std::endl;
                 }
                 current_md = new_md;

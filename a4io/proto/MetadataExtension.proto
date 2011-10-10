@@ -1,0 +1,15 @@
+package a4.io;
+
+import "google/protobuf/descriptor.proto";
+
+enum MetadataMergeOptions {
+    MERGE_BLOCK_IF_DIFFERENT = 0;
+    MERGE_ADD = 1;
+    MERGE_UNION = 2;
+}
+
+extend google.protobuf.FieldOptions {
+    optional MetadataMergeOptions merge = 50002;
+}
+
+
