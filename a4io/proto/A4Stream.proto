@@ -2,6 +2,10 @@ package a4.io;
 
 import "google/protobuf/descriptor.proto";
 
+extend google.protobuf.FieldOptions {
+    optional string merge = 50002;
+}
+
 message A4StreamHeader
 {
     optional int32 CLASS_ID = 100;
@@ -52,8 +56,18 @@ message TestEvent
     optional int32 event_number = 1;
     optional double event_data = 2;
 }
+
+message TestRunLB
+{
+    optional int32 run = 1;
+    optional int32 lumiblock = 2;
+}
+
 message TestMetaData
 {
     optional int32 CLASS_ID = 111;
-    optional int32 meta_data = 1;
+    optional int32 meta_data = 1 [(merge)="add"];
+    repeated TestRunLB run_data = 2 [(merge)="union"];
+    repeated int32 period = 3 [(merge)="union"];
+    optional bool simulation = 4 [(merge)="refuse_if_different"];
 }

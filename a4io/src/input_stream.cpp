@@ -374,9 +374,12 @@ void A4InputStream::generate_dynamic_classes(const A4Proto* a4proto)
         
         if (!fd)
             continue; // No CLASS_ID field, ignore this type
-            
+
         // Bingo, we found a A4 message type
         const uint32_t class_id = fd->number();
+
+        _descriptor_map[class_id] = d;
+
         if (a4::io::internal::all_class_ids(class_id, NULL, false) == &a4::io::internal::bad_from_stream_func) {
             // No handler available, make a factory for it
             
@@ -392,6 +395,12 @@ void A4InputStream::generate_dynamic_classes(const A4Proto* a4proto)
     
     // This dumps the protobuf
     // if (file) std::cout << file->DebugString() << std::endl;
+}
+
+const Descriptor* A4InputStream::dynamic_descriptor(uint32_t class_id) {
+    std::map<uint32_t, const Descriptor*>::const_iterator d = _descriptor_map.find(class_id);
+    if (d == _descriptor_map.end()) return NULL;
+    return d->second;
 }
 
 /// \internal

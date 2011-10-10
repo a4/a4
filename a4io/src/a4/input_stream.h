@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <deque>
+#include <map>
 
 #include <a4/register.h>
 #include <a4/message.h>
@@ -59,6 +60,12 @@ namespace a4{ namespace io{
 
             /// String representation of this stream for user output
             std::string str() { return std::string("A4InputStream(\"") + _inputname + "\")"; };
+
+            /// \internal returns the dynamic descriptor of the given class_id\endinternal
+            const google::protobuf::Descriptor* dynamic_descriptor(uint32_t class_id);
+
+            /// \internal Merge two protobuf messages, returns the merged one.\endinternal
+            unique<google::protobuf::Message> merge_metadata(A4Message m1, A4Message m2);
             
         private:
             shared<google::protobuf::io::ZeroCopyInputStream> _raw_in;
@@ -71,12 +78,13 @@ namespace a4{ namespace io{
             uint32_t _content_class_id;
             uint32_t _metadata_class_id;
             internal::from_stream_func _content_func;
-            
+
             shared<Message> message_factory(const google::protobuf::Message* prototype, google::protobuf::io::CodedInputStream *);
             void generate_dynamic_classes(const A4Proto* a4proto);
             shared<google::protobuf::SimpleDescriptorDatabase> _encountered_file_descriptors;
             shared<google::protobuf::DescriptorPool> _descriptor_pool;
             shared<google::protobuf::DynamicMessageFactory> _message_factory;
+            std::map<uint32_t, const google::protobuf::Descriptor*> _descriptor_map;
 
             // status variables
             bool _good, _error, _started,_discovery_complete;
