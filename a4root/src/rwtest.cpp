@@ -155,7 +155,7 @@ void submessage_factory(
     function<size_t ()> compute_count
     )
 {
-    size_t count = compute_count();
+    const size_t count = compute_count();
     
     MessageP* submessages = new MessageP[count];
     
@@ -217,7 +217,7 @@ function<size_t ()> make_count_getter(TBranchElement* branch_element)
         "If this should be possible please contact the A4 developers, " 
         "or fix it yourself at " __FILE__ ":", __LINE__, ".");
     
-    #undef FIELD
+    #undef TRY_MATCH    
 }
 
 /// Returns a function which will set one `field` of a protobuf 
@@ -324,9 +324,10 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
 
 /// Used to indicate that that it is not possible to copy this message.
 /// Gives an assertion failure if called.
-void null_copier(Message*) { assert(false); }
+void null_copier(Message*) { throw Fatal("null_coper called. This should never happen."); }
 
-Copier make_submessage_factory(TTree& tree, const Reflection* parent_refl, const FieldDescriptor* parent_field, const std::string& prefix="")
+Copier make_submessage_factory(TTree& tree, const Reflection* parent_refl, 
+    const FieldDescriptor* parent_field, const std::string& prefix="")
 {
     SubmessageSetters submessage_setters;
     const Descriptor* desc = parent_field->message_type();
