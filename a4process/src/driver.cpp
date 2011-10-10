@@ -46,8 +46,10 @@ SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) : configura
 
 void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Processor * p) {
     // This is MY processor! (makes sure processor is deleted on function exit)
-    shared<Processor> processor(p);
+    // The argument to this function should be a move into a unique...
+    unique<Processor> processor(p);
     // It is safe to get these, even if they are not used.
+    // The ownership of these is shared with A4Input/Output.
     shared<A4OutputStream> outstream, resstream;
     shared<ObjectBackStore> bs(new ObjectBackStore());
     if (self->out) self->set_outstream(p, self->out->get_stream());
@@ -56,7 +58,6 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
     self->set_store_prefix(p);
 
     // Try as long as there are inputs
-    
     while (shared<A4InputStream> instream = self->in->get_stream()) {
         self->set_instream(p, instream);
 
@@ -72,6 +73,8 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
             return;
         }
     }
+    // Stream store to output
+    if (self->res) bs->to_stream(*resstream);
 }
 
 Processor * SimpleCommandLineDriver::new_initialized_processor() {
