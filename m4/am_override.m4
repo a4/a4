@@ -36,7 +36,7 @@ AC_DEFUN([_AM_OUTPUT_DEPENDENCY_COMMANDS],
 
     # A4: Insert an error message
     ERROR_MESSAGE_1="A4: It seems that an error has occurred! :("
-    ERROR_MESSAGE_2="A4: Run \"\$(top_srcdir)\/common\/a4shout.sh --last\" to report this compilation error to the A4 devepers."
+    ERROR_MESSAGE_2="A4: Run \"\$(top_srcdir)\/common\/a4shout.sh --last\" to report this compilation error to the A4 developers."
     echo_SEP="echo \\\"-----------------\\\""
     cat $mf | sed -e "s/failcom='exit 1'/failcom='{ mv $LAST_MAKE $LAST_ERROR 2>\/dev\/null \&\& $echo_SEP \&\& echo \"$ERROR_MESSAGE_1\" \&\& echo \"$ERROR_MESSAGE_2\" \&\& $echo_SEP; exit 1; }'/" > $mf.tmp && mv $mf.tmp $mf
 
