@@ -98,10 +98,10 @@ void A4InputStream::init() {
     _current_metadata_refers_forward = false;
     _current_header_index = 0;
     _current_metadata_index = 0;
-    _encountered_file_descriptors = shared<SimpleDescriptorDatabase>(new SimpleDescriptorDatabase());
+    _encountered_file_descriptors.reset(new SimpleDescriptorDatabase());
     //_encountered_file_descriptors.get()
-    _descriptor_pool = shared<DescriptorPool>(new DescriptorPool(DescriptorPool::generated_pool()));
-    _message_factory = shared<DynamicMessageFactory>(new DynamicMessageFactory(_descriptor_pool.get()));
+    _descriptor_pool.reset(new DescriptorPool(DescriptorPool::generated_pool()));
+    _message_factory.reset(new DynamicMessageFactory(_descriptor_pool.get()));
     // If the type is compiled in then use that! (urk, no worky? deprecated?)
     _message_factory->SetDelegateToGeneratedFactory(true);
 }
