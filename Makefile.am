@@ -10,11 +10,12 @@ SUBDIRS = . a4io a4process a4atlas a4root
 DIST_SUBDIRS = gtest $(SUBDIRS)
 
 
+nodist_pkgconfig_DATA = m4/liba4.pc
 bin_SCRIPTS += this_a4.sh
+
 CLEANFILES += this_a4.sh m4/liba4.pc
 EXTRA_DIST+=$(srcdir)/tutorial/ $(srcdir)/doc/ m4/liba4.pc_in
-
-nodist_pkgconfig_DATA = m4/liba4.pc
+EXTRA_DIST+=get_miniboost.sh get_protobuf.sh get_snappy.sh
 
 # Rules for generating documentation
 doxygen-user:
