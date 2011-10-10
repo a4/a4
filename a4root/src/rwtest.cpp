@@ -97,40 +97,102 @@ typename Setter<T>::msg make_setter(const FieldDescriptor* f, const Reflection* 
     return set_reflection_field;
 }
 
-template<typename T>
-Copier generic_make_field_setter(void* p, const FieldDescriptor* f, const Reflection* r)
+template<typename SOURCE_TYPE, typename PROTOBUF_TYPE>
+Copier make_field_setter(void* p, const FieldDescriptor* f, const Reflection* r)
 {
     // This horrifying beastie returns a `F`=[function which takes a Message*].
     // `F` fills one field (`f`) of the message with the contents at `p`.
-    typename Setter<T>::msg set_reflection_field = make_setter<T>(f, r);
-    function<void (typename Setter<T>::msg, Message*, void*)> set_pointer_inside_message = call_setter<T, T>;
+    typename Setter<PROTOBUF_TYPE>::msg set_reflection_field = make_setter<PROTOBUF_TYPE>(f, r);
+    function<void (typename Setter<PROTOBUF_TYPE>::msg, Message*, void*)> set_pointer_inside_message = call_setter<SOURCE_TYPE, PROTOBUF_TYPE>;
     return bind(set_pointer_inside_message, set_reflection_field, _1, p);
 }
 
-Copier copier_from_field_descriptor(void* p, const FieldDescriptor* f, const Reflection*& r)
+Copier make_copier_from_leaf(TLeaf* leaf, const FieldDescriptor* field, 
+    const Reflection* refl)
 {
-    #define FIELD(cpptype, T) \
-        case FieldDescriptor::cpptype: return generic_make_field_setter<T>(p, f, r);
+    #define TRY_MATCH(source_type, dest_type) \
+        if (leaf_type == #source_type) \
+            return make_field_setter<source_type, dest_type>(pointer, field, refl);
+    
+    #define FAILURE(protobuf_typename) \
+        throw Fatal(str_cat("a4root doesn't know how to convert the branch ", \
+            leaf->GetName(), " to the protobuf field ", \
+            field->full_name(), " with types ROOT=", leaf_type, " and " \
+            "protobuf=", protobuf_typename, ". The .proto is probably wrong. " \
+            "Alternatively, if the types are compatible and conversion should " \
+            "be possible please contact the A4 developers, " \
+            "or fix it yourself at " __FILE__ ":", __LINE__, "."))
             
-    switch (f->cpp_type())
+    const std::string leaf_type = leaf->GetTypeName();
+    void* pointer = leaf->GetValuePointer();
+    
+    switch (field->cpp_type())
     {
-        FIELD(CPPTYPE_BOOL,   bool);
+        case FieldDescriptor::CPPTYPE_BOOL:
+            TRY_MATCH(Bool_t,   bool);
+            TRY_MATCH(Int_t,    bool);
+            TRY_MATCH(Long_t,   bool);
+            TRY_MATCH(Short_t,  bool);
+            TRY_MATCH(Char_t,   bool);
+            TRY_MATCH(UInt_t,   bool);
+            TRY_MATCH(ULong_t,  bool);
+            TRY_MATCH(UShort_t, bool);
+            TRY_MATCH(UChar_t,  bool);
+            FAILURE("FieldDescriptor::CPPTYPE_BOOL");
         
-        FIELD(CPPTYPE_INT32,  int32_t);
-        FIELD(CPPTYPE_INT64,  int64_t);
-        FIELD(CPPTYPE_UINT32, uint32_t);
-        FIELD(CPPTYPE_UINT64, uint64_t);
+        case FieldDescriptor::CPPTYPE_INT32:
+            TRY_MATCH(Int_t,   int32_t);
+            TRY_MATCH(Long_t,  int32_t);
+            TRY_MATCH(Short_t, int32_t);
+            TRY_MATCH(Char_t,  int32_t);
+            FAILURE("FieldDescriptor::CPPTYPE_INT32");
         
-        FIELD(CPPTYPE_FLOAT,  float);
-        FIELD(CPPTYPE_DOUBLE, double);
+        case FieldDescriptor::CPPTYPE_UINT32:
+            TRY_MATCH(UInt_t,   uint32_t);
+            TRY_MATCH(ULong_t,  uint32_t);
+            TRY_MATCH(UShort_t, uint32_t);
+            TRY_MATCH(UChar_t,  uint32_t);
+            FAILURE("FieldDescriptor::CPPTYPE_UINT32");
         
-        FIELD(CPPTYPE_STRING, std::string);
+        case FieldDescriptor::CPPTYPE_INT64:
+            TRY_MATCH(Long64_t, int64_t);
+            TRY_MATCH(Long_t,   int64_t);
+            TRY_MATCH(Int_t,    int64_t);
+            TRY_MATCH(Short_t,  int64_t);
+            TRY_MATCH(Char_t,   int64_t);
+            FAILURE("FieldDescriptor::CPPTYPE_INT64");
+            
+        case FieldDescriptor::CPPTYPE_UINT64:
+            TRY_MATCH(ULong64_t, uint64_t);
+            TRY_MATCH(ULong_t,   uint64_t);
+            TRY_MATCH(UInt_t,    uint64_t);
+            TRY_MATCH(UShort_t,  uint64_t);
+            TRY_MATCH(UChar_t,   uint64_t);
+            FAILURE("FieldDescriptor::CPPTYPE_UINT64");
+        
+        case FieldDescriptor::CPPTYPE_FLOAT:
+            TRY_MATCH(Float_t, float);
+            FAILURE("FieldDescriptor::CPPTYPE_FLOAT");
+            
+        case FieldDescriptor::CPPTYPE_DOUBLE:
+            TRY_MATCH(Double_t, double);
+            TRY_MATCH(Float_t,  double);
+            FAILURE("FieldDescriptor::CPPTYPE_DOUBLE");
+        
+        case FieldDescriptor::CPPTYPE_STRING:
+        {
+            using std::string;
+            TRY_MATCH(string, std::string);
+            FAILURE("FieldDescriptor::CPPTYPE_STRING");
+        }
+        
         
         default:
-            throw Fatal("Unknown field type in copier_from_field_descriptor ", f->cpp_type());
+            throw Fatal("Unknown field type in make_copier_from_branch ", field->cpp_type());
     }
-            
-    #undef FIELD
+     
+    #undef FAILURE
+    #undef TRY_MATCH
 }
 
 shared<Message> message_factory(const Message* default_instance, const Copiers& copiers)
@@ -424,8 +486,8 @@ RootToMessageFactory make_message_factory(TTree& tree, const Descriptor* desc, c
         
             if (field->options().HasExtension(root_branch)) {
                 auto leafname = prefix + field->options().GetExtension(root_branch);
-                TLeaf* b = tree.GetLeaf(leafname.c_str());
-                if (!b)
+                TLeaf* leaf = tree.GetLeaf(leafname.c_str());
+                if (!leaf)
                 {
                     std::cerr << "Branch specified in protobuf file but not in TTree: " << leafname << std::endl;
                     continue;
@@ -434,7 +496,7 @@ RootToMessageFactory make_message_factory(TTree& tree, const Descriptor* desc, c
                 // Enable this branch
                 tree.GetBranch(leafname.c_str())->ResetBit(kDoNotProcess);
                 
-                copiers.push_back(copier_from_field_descriptor(b->GetValuePointer(), field, refl));
+                copiers.push_back(make_copier_from_leaf(leaf, field, refl));
                 
             } else if (field->options().HasExtension(root_prefix)) {
                 const std::string prefix = field->options().GetExtension(root_prefix);
