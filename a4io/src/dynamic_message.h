@@ -195,12 +195,12 @@ class DynamicField {
             return r->FieldSize(m, f);
         }
 
-        void set(const FieldContent && c) {
+        void set(const FieldContent& c) {
             assert(!repeated());
             boost::apply_visitor( visit_setter(&m, f), c.content );
         };
 
-        void add(const FieldContent && c) {
+        void add(const FieldContent& c) {
             assert(repeated());
             if (c._message) {
                 r->AddMessage(&m, f)->CopyFrom(*(c.content_msg));
