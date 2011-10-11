@@ -61,6 +61,12 @@ message TestRunLB
     optional int32 lumiblock = 2;
 }
 
+message TestMetaDataNoFields
+{
+    optional int32 CLASS_ID = 18001;
+    optional int32 meta_data = 1 [(merge)=MERGE_ADD];
+}
+
 message TestMetaData
 {
     optional int32 CLASS_ID = 18001;
@@ -68,4 +74,8 @@ message TestMetaData
     repeated TestRunLB run_data = 2 [(merge)=MERGE_UNION];
     repeated int32 period = 3 [(merge)=MERGE_UNION];
     optional bool simulation = 4 [(merge)=MERGE_BLOCK_IF_DIFFERENT];
+    repeated string comments = 5 [(merge)=MERGE_APPEND];
+    optional string tags = 6 [(merge)=MERGE_ADD];
+    optional double efficiency = 7 [(merge)=MERGE_MULTIPLY];
+    optional bool error = 8 [(merge)=MERGE_AND];
 }

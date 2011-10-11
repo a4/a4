@@ -65,7 +65,7 @@ namespace a4{ namespace io{
             const google::protobuf::Descriptor* dynamic_descriptor(uint32_t class_id);
 
             /// \internal Merge two protobuf messages, returns the merged one.\endinternal
-            unique<google::protobuf::Message> merge_messages(A4Message m1, A4Message m2);
+            A4Message merge_messages(A4Message m1, A4Message m2);
             
         private:
             shared<google::protobuf::io::ZeroCopyInputStream> _raw_in;

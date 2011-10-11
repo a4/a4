@@ -12,7 +12,6 @@
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include <boost/variant.hpp>
 using boost::bind;
 using boost::function;
 
@@ -27,6 +26,7 @@ using boost::function;
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
+#include "dynamic_message.h"
 #include "gzip_stream.h"
 #ifdef HAVE_SNAPPY
 #include "snappy_stream.h"
@@ -405,66 +405,20 @@ const Descriptor* A4InputStream::dynamic_descriptor(uint32_t class_id) {
     return d->second;
 }
 
-typedef boost::variant<int32_t, int64_t, uint32_t, uint64_t, double, float, bool, std::string> FieldContent;
 
-FieldContent get_repeated_field(const Message & m, int field_number, int i) {
-    const Reflection * r = m.GetReflection();
-    const FieldDescriptor * f = m.GetDescriptor()->FindFieldByNumber(field_number);
-    switch (f->cpp_type()) {
-        case FieldDescriptor::CPPTYPE_INT32: return r->GetRepeatedInt32(m, f, i);
-        case FieldDescriptor::CPPTYPE_INT64: return r->GetRepeatedInt64(m, f, i);
-        case FieldDescriptor::CPPTYPE_UINT32: return r->GetRepeatedUInt32(m, f, i);
-        case FieldDescriptor::CPPTYPE_UINT64: return r->GetRepeatedUInt64(m, f, i);
-        case FieldDescriptor::CPPTYPE_DOUBLE: return r->GetRepeatedDouble(m, f, i);
-        case FieldDescriptor::CPPTYPE_FLOAT: return r->GetRepeatedFloat(m, f, i);
-        case FieldDescriptor::CPPTYPE_BOOL: return (uint32_t)r->GetRepeatedBool(m, f, i);
-        case FieldDescriptor::CPPTYPE_ENUM: return (uint32_t)r->GetRepeatedEnum(m, f, i)->number();
-        case FieldDescriptor::CPPTYPE_STRING: return r->GetRepeatedString(m, f, i);
-        case FieldDescriptor::CPPTYPE_MESSAGE: return r->GetRepeatedMessage(m, f, i).DebugString();
-    };
-    throw a4::Fatal("Unknown type ", f->cpp_type());
-}
-
-FieldContent get_field(const Message & m, int field_number) {
-    const Reflection * r = m.GetReflection();
-    const FieldDescriptor * f = m.GetDescriptor()->FindFieldByNumber(field_number);
-    switch (f->cpp_type()) {
-        case FieldDescriptor::CPPTYPE_INT32: return r->GetInt32(m, f);
-        case FieldDescriptor::CPPTYPE_INT64: return r->GetInt64(m, f);
-        case FieldDescriptor::CPPTYPE_UINT32: return r->GetUInt32(m, f);
-        case FieldDescriptor::CPPTYPE_UINT64: return r->GetUInt64(m, f);
-        case FieldDescriptor::CPPTYPE_DOUBLE: return r->GetDouble(m, f);
-        case FieldDescriptor::CPPTYPE_FLOAT: return r->GetFloat(m, f);
-        case FieldDescriptor::CPPTYPE_BOOL: return (uint32_t)r->GetBool(m, f);
-        case FieldDescriptor::CPPTYPE_ENUM: return (uint32_t)r->GetEnum(m, f)->number();
-        case FieldDescriptor::CPPTYPE_STRING: return r->GetString(m, f);
-        case FieldDescriptor::CPPTYPE_MESSAGE: return r->GetMessage(m, f).DebugString();
-    };
-    throw a4::Fatal("Unknown type ", f->cpp_type());
-}
-
-bool messages_field_equal(const Message & m1, const Message & m2, int field_number) {
-    const FieldDescriptor * fd1 = m1.GetDescriptor()->FindFieldByNumber(field_number);
-    const FieldDescriptor * fd2 = m1.GetDescriptor()->FindFieldByNumber(field_number);
-    assert(fd1 && fd2);
-    if (fd1->is_repeated()) {
-        int size1 = m1.GetReflection()->FieldSize(m1, fd1);
-        int size2 = m2.GetReflection()->FieldSize(m2, fd2);
-        assert(size1 == size2);
-        for (int i = 0; i < size1; i++) {
-            if (!(get_repeated_field(m1, field_number, i) == 
-                  get_repeated_field(m2, field_number, i))) return false;
-        }
-        return true;
-    }
-    return get_field(m1, field_number) == get_field(m2, field_number);
-}
-
-unique<Message> A4InputStream::merge_messages(A4Message m1, A4Message m2) {
-    assert(m1.class_id == m2.class_id);
-    const Descriptor * d = dynamic_descriptor(m1.class_id);
+A4Message A4InputStream::merge_messages(A4Message _m1, A4Message _m2) {
+    assert(_m1.class_id == _m2.class_id);
+    const Descriptor * d = dynamic_descriptor(_m1.class_id);
     assert(d != NULL);
-    unique<google::protobuf::Message> merged(_message_factory->GetPrototype(d)->New());
+
+    unique<google::protobuf::Message> m1(_message_factory->GetPrototype(d)->New());
+    unique<google::protobuf::Message> m2(_message_factory->GetPrototype(d)->New());
+    shared<google::protobuf::Message> merged(_message_factory->GetPrototype(d)->New());
+
+    m1->ParseFromString(_m1.message->SerializeAsString());
+    m2->ParseFromString(_m2.message->SerializeAsString());
+
+
     for (int i = 0; i < d->field_count(); i++) {
         const google::protobuf::FieldOptions & opt = d->field(i)->options();
         const Reflection * ref = opt.GetReflection();
@@ -472,25 +426,32 @@ unique<Message> A4InputStream::merge_messages(A4Message m1, A4Message m2) {
         const FieldDescriptor * fdm = ref->FindKnownExtensionByNumber(kMergeFieldNumber);
         const google::protobuf::EnumValueDescriptor * evd = ref->GetEnum(opt, fdm);
 
-        Message & msg1 = *m1.message;
-        Message & msg2 = *m2.message;
+        
+        DynamicField f1(*m1, d->field(i));
+        DynamicField f2(*m2, d->field(i));
+        DynamicField fm(*merged, d->field(i));
+
         switch(evd->number()) {
             case MERGE_BLOCK_IF_DIFFERENT:
-                if (!messages_field_equal(msg1, msg2, d->field(i)->number())) {
-                    throw a4::Fatal("Trying to merge two metadata objects with different ", d->field(i)->full_name());
-                }
+                if(!(f1 == f2)) throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name());
                 break;
             case MERGE_ADD:
-                std::cerr << " A " << d->field(i)->full_name() << std::endl;
+                add_fields(f1, f2, fm);
+                break;
+            case MERGE_MULTIPLY:
+                multiply_fields(f1, f2, fm);
                 break;
             case MERGE_UNION:
-                std::cerr << " U " << d->field(i)->full_name() << std::endl;
+                append_fields(f1, f2, fm, true);
+                break;
+            case MERGE_APPEND:
+                append_fields(f1, f2, fm, false);
                 break;
             default:
                 throw a4::Fatal("Unknown merge strategy: ", evd->name(), ". Recompilation should fix it.");
         }
     }
-    return merged;
+    return A4Message(_m1.class_id, merged);
 }
 
 
