@@ -71,7 +71,8 @@ message TestMetaData
 {
     optional int32 CLASS_ID = 18001;
     optional int32 meta_data = 1 [(merge)=MERGE_ADD];
-    repeated TestRunLB run_data = 2 [(merge)=MERGE_UNION];
+    repeated TestRunLB lumiblock = 2 [(merge)=MERGE_UNION];
+    repeated int32 run = 9 [(merge)=MERGE_UNION];
     repeated int32 period = 3 [(merge)=MERGE_UNION];
     optional bool simulation = 4 [(merge)=MERGE_BLOCK_IF_DIFFERENT];
     repeated string comments = 5 [(merge)=MERGE_APPEND];

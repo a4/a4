@@ -34,7 +34,6 @@ namespace a4{
                 virtual void process_message(const A4Message) = 0;
                 /// This function is called if new metadata is available
                 virtual void process_new_metadata() {};
-                const A4Message metadata_message();
                 bool write(const google::protobuf::Message& m) { if (_outstream) return _outstream->write(m); else return false; };
             protected:
                 virtual const int content_class_id() const { return 0; };
@@ -43,6 +42,7 @@ namespace a4{
                 shared<a4::io::A4OutputStream> _outstream;
                 shared<ObjectBackStore> _backstore;
                 ObjectStore S;
+                A4Message metadata_message;
                 friend class a4::process::Driver;
         };
 
@@ -70,7 +70,7 @@ namespace a4{
                     process(*pmsg);
                 };
                 const ProtoMetaData & metadata() {
-                    const A4Message msg = metadata_message();
+                    const A4Message msg = metadata_message;
                     if (!msg) throw a4::Fatal("No metadata at this time!"); // TODO: Should not be fatal
                     ProtoMetaData * meta = msg.as<ProtoMetaData>().get();
                     if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMetaData), ")");

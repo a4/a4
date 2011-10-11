@@ -58,13 +58,38 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
     self->set_store_prefix(p);
 
     // Try as long as there are inputs
+    A4Message current_metadata;
     while (shared<A4InputStream> instream = self->in->get_stream()) {
         self->set_instream(p, instream);
 
         while (A4Message msg = instream->next()) {
             if (instream->new_metadata()) {
+                A4Message new_metadata = instream->current_metadata();
+                if (current_metadata) {
+                    // Check if we merge the old into the new metadata
+                    // and wait with writing it.
+                    bool write = true;
+                    if (self->metakey) {
+                        
+                    }
+
+                    if (write) {
+                        if (self->out) p->write(*current_metadata.message);
+                        if (self->res) {
+                            bs->to_stream(*resstream);
+                            resstream->write(*current_metadata.message);
+                            bs.reset(new ObjectBackStore()); 
+                            self->set_backstore(p, bs);
+                            self->set_store_prefix(p);
+                        }
+                        current_metadata = new_metadata;
+                    } else {
+                        current_metadata = instream->merge_messages(current_metadata, new_metadata);
+                    }
+                } else current_metadata = new_metadata;
+
+                self->set_metadata(p, current_metadata);
                 p->process_new_metadata();
-                if (self->out) p->write(*instream->current_metadata().message);
             }
             p->process_message(msg);
         };
@@ -95,7 +120,7 @@ try
     po::options_description commandline_options;
     po::options_description config_file_options;
     string config_filename = string(argv[0]) + ".ini";
-    string output = "", results = "";
+    string output = "", results = "", metakey = "";
 
     // Define all 
     po::options_description popt("Processing options");
@@ -104,6 +129,7 @@ try
         ("input,i", po::value<FileList>(&inputs), "input file(s)")
         ("output,o", po::value<string>(&output), "output file")
         ("results,r", po::value<string>(&results), "result file")
+        ("per,p", po::value<string>(&metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
         ("config,c", po::value<string>(), (string("configuration file [default is '") + config_filename + "']").c_str());
 
     po::positional_options_description positional_options;

@@ -16,6 +16,7 @@ class Driver {
         };
         void set_backstore(Processor* p, shared<ObjectBackStore> bs) { p->_backstore = bs; };
         void set_store_prefix(Processor* p, const char * dir = "") { p->S = (*p->_backstore)(dir); };
+        void set_metadata(Processor* p, A4Message md) { p->metadata_message = md; };
 };
 
 };}; // namespace a4::process
