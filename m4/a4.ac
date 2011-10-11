@@ -38,4 +38,9 @@ if test x$PACKAGE_NAME != xa4; then
     AC_SUBST([A4_THIS_SCRIPT_IN],[m4/this_a4.sh.in])
 fi
 
+AC_ARG_ENABLE([gccfilt], AS_HELP_STRING([--disable-gccfilt], [Disables the use of gccfilter for error messages (Use 'make V=1' to disable it dynamically)]))
+AS_IF([test "x$enable_gccfilt" != "xno"], [
+    AC_SUBST([GCCFILTER_0], ["\$(top_srcdir)/common/gccfilter/gccfilter --colorize --remove-template-args --hide-with-clause --remove-namespaces -s std --remove-path "])
+])
+
 A4_INIT
