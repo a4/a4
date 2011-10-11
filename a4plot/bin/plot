@@ -24,7 +24,6 @@ sys.argv = []
 from sys import exit
 from rooplot import make_page
 from rooplot import atlas_style, get_legend, get_lumi_label, set_styles, stack_1D, plot_1D, draw_preliminary
-from a4.messages import Results
 from os.path import join as pjoin, basename, extsep
 from os import makedirs
 
