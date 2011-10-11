@@ -26,6 +26,7 @@ using boost::function;
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
+#include "dynamic_message.h"
 #include "gzip_stream.h"
 #ifdef HAVE_SNAPPY
 #include "snappy_stream.h"
@@ -48,6 +49,7 @@ using google::protobuf::FileDescriptorProto;
 using google::protobuf::FileDescriptor;
 using google::protobuf::Descriptor;
 using google::protobuf::FieldDescriptor;
+using google::protobuf::Reflection;
 
 using namespace a4::io;
 
@@ -374,9 +376,12 @@ void A4InputStream::generate_dynamic_classes(const A4Proto* a4proto)
         
         if (!fd)
             continue; // No CLASS_ID field, ignore this type
-            
+
         // Bingo, we found a A4 message type
         const uint32_t class_id = fd->number();
+
+        _descriptor_map[class_id] = d;
+
         if (a4::io::internal::all_class_ids(class_id, NULL, false) == &a4::io::internal::bad_from_stream_func) {
             // No handler available, make a factory for it
             
@@ -393,6 +398,62 @@ void A4InputStream::generate_dynamic_classes(const A4Proto* a4proto)
     // This dumps the protobuf
     // if (file) std::cout << file->DebugString() << std::endl;
 }
+
+const Descriptor* A4InputStream::dynamic_descriptor(uint32_t class_id) {
+    std::map<uint32_t, const Descriptor*>::const_iterator d = _descriptor_map.find(class_id);
+    if (d == _descriptor_map.end()) return NULL;
+    return d->second;
+}
+
+
+A4Message A4InputStream::merge_messages(A4Message _m1, A4Message _m2) {
+    assert(_m1.class_id == _m2.class_id);
+    const Descriptor * d = dynamic_descriptor(_m1.class_id);
+    assert(d != NULL);
+
+    unique<google::protobuf::Message> m1(_message_factory->GetPrototype(d)->New());
+    unique<google::protobuf::Message> m2(_message_factory->GetPrototype(d)->New());
+    shared<google::protobuf::Message> merged(_message_factory->GetPrototype(d)->New());
+
+    m1->ParseFromString(_m1.message->SerializeAsString());
+    m2->ParseFromString(_m2.message->SerializeAsString());
+
+
+    for (int i = 0; i < d->field_count(); i++) {
+        const google::protobuf::FieldOptions & opt = d->field(i)->options();
+        const Reflection * ref = opt.GetReflection();
+        assert(ref);
+        const FieldDescriptor * fdm = ref->FindKnownExtensionByNumber(kMergeFieldNumber);
+        const google::protobuf::EnumValueDescriptor * evd = ref->GetEnum(opt, fdm);
+
+        
+        DynamicField f1(*m1, d->field(i));
+        DynamicField f2(*m2, d->field(i));
+        DynamicField fm(*merged, d->field(i));
+
+        switch(evd->number()) {
+            case MERGE_BLOCK_IF_DIFFERENT:
+                if(!(f1 == f2)) throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name());
+                break;
+            case MERGE_ADD:
+                add_fields(f1, f2, fm);
+                break;
+            case MERGE_MULTIPLY:
+                multiply_fields(f1, f2, fm);
+                break;
+            case MERGE_UNION:
+                append_fields(f1, f2, fm, true);
+                break;
+            case MERGE_APPEND:
+                append_fields(f1, f2, fm, false);
+                break;
+            default:
+                throw a4::Fatal("Unknown merge strategy: ", evd->name(), ". Recompilation should fix it.");
+        }
+    }
+    return A4Message(_m1.class_id, merged);
+}
+
 
 /// \internal
 /// Do not do any processing on the message if internal=true

@@ -1,0 +1,18 @@
+package a4.io;
+
+import "google/protobuf/descriptor.proto";
+
+enum MetadataMergeOptions {
+    MERGE_BLOCK_IF_DIFFERENT = 0; // Throw exception if different, default
+    MERGE_ADD = 1;      // Add numeric values or strings together
+    MERGE_MULTIPLY = 2; // Multiply numeric values together
+    MERGE_AND = 2;      // Take the AND on booleans
+    MERGE_UNION = 3;    // Concatenate repeated fields (no duplicates)
+    MERGE_APPEND = 4;   // Concatenate repeated fields
+}
+
+extend google.protobuf.FieldOptions {
+    optional MetadataMergeOptions merge = 50002;
+}
+
+

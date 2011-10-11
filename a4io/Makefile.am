@@ -46,7 +46,7 @@ test_write_nomd_fw_SOURCES = src/test_write_nomd_fw.cpp
 test_write_nomd_bw_SOURCES = src/test_write_nomd_bw.cpp
 
 nodist_gtest_SOURCES = $(GTEST_APP)
-gtest_SOURCES = src/test_rw.cpp
+gtest_SOURCES = src/test_rw.cpp src/test_merge_metadata.cpp
 gtest_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
 gtest_LDADD = $(LDADD) $(GTEST_LIBS)
 

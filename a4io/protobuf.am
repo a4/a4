@@ -7,23 +7,23 @@ PYDIR=./python/a4/proto/$(A4PACK)
 CPPDIR=./src/a4/proto/$(A4PACK)
 PROTOBUF_CFLAGS += -I$(CPPDIR)
 
-PROTOBUF_PY=$(PYDIR)/A4Stream_pb2.py
-PROTOBUF_H=$(CPPDIR)/A4Stream.pb.h
-PROTOBUF_CC=$(CPPDIR)/A4Stream.pb.cc
-PROTOBUF_PROTO=$(srcdir)/proto/A4Stream.proto
+PROTOBUF_PY=$(PYDIR)/A4Stream_pb2.py $(PYDIR)/MetadataExtension_pb2.py
+PROTOBUF_H=$(CPPDIR)/A4Stream.pb.h $(CPPDIR)/MetadataExtension.pb.h
+PROTOBUF_CC=$(CPPDIR)/A4Stream.pb.cc $(CPPDIR)/MetadataExtension.pb.cc
+PROTOBUF_PROTO=$(srcdir)/proto/A4Stream.proto $(srcdir)/proto/MetadataExtension.proto
 
 CLEANFILES += $(PYDIR)/__init__.py
 
-dist_proto_DATA=$(srcdir)/proto/A4Stream.proto
-nodist_protoinclude_HEADERS=$(CPPDIR)/A4Stream.pb.h
-nodist_protopython_PYTHON=$(PYDIR)/A4Stream_pb2.py $(PYDIR)/__init__.py
+dist_proto_DATA=$(srcdir)/proto/MetadataExtension.proto $(srcdir)/proto/A4Stream.proto
+nodist_protoinclude_HEADERS=$(CPPDIR)/MetadataExtension.pb.h $(CPPDIR)/A4Stream.pb.h
+nodist_protopython_PYTHON=$(PYDIR)/MetadataExtension_pb2.py $(PYDIR)/A4Stream_pb2.py $(PYDIR)/__init__.py
 
 
 # how to make protobuf objects
 $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(srcdir)/proto/%.proto
 	@mkdir -p $(PYDIR)
 	@mkdir -p $(CPPDIR)
-	$(AM_V_PROTOC)${PROTOBUF_PROTOC} -I${PROTOBUF_ROOT}/include -I=$(srcdir)/proto --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
+	$(AM_V_PROTOC)${PROTOBUF_PROTOC} -I=$(srcdir)/proto -I${PROTOBUF_ROOT}/include --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
 
 # how to make the python __init__.py
 $(PYDIR)/__init__.py: $(PROTOBUF_PY)

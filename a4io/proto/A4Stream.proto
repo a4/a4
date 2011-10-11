@@ -2,6 +2,8 @@ package a4.io;
 
 import "google/protobuf/descriptor.proto";
 
+import "MetadataExtension.proto";
+
 message A4StreamHeader
 {
     optional int32 CLASS_ID = 100;
@@ -48,12 +50,32 @@ message A4Proto
 
 message TestEvent
 {
-    optional int32 CLASS_ID = 110;
+    optional int32 CLASS_ID = 18000;
     optional int32 event_number = 1;
     optional double event_data = 2;
 }
+
+message TestRunLB
+{
+    optional int32 run = 1;
+    optional int32 lumiblock = 2;
+}
+
+message TestMetaDataNoFields
+{
+    optional int32 CLASS_ID = 18001;
+    optional int32 meta_data = 1 [(merge)=MERGE_ADD];
+}
+
 message TestMetaData
 {
-    optional int32 CLASS_ID = 111;
-    optional int32 meta_data = 1;
+    optional int32 CLASS_ID = 18001;
+    optional int32 meta_data = 1 [(merge)=MERGE_ADD];
+    repeated TestRunLB run_data = 2 [(merge)=MERGE_UNION];
+    repeated int32 period = 3 [(merge)=MERGE_UNION];
+    optional bool simulation = 4 [(merge)=MERGE_BLOCK_IF_DIFFERENT];
+    repeated string comments = 5 [(merge)=MERGE_APPEND];
+    optional string tags = 6 [(merge)=MERGE_ADD];
+    optional double efficiency = 7 [(merge)=MERGE_MULTIPLY];
+    optional bool error = 8 [(merge)=MERGE_AND];
 }
