@@ -4,7 +4,7 @@ include m4/a4.am
 
 # Build . before src so that our all-local and clean-local hooks kicks in at
 # the right time.
-SUBDIRS = . a4io a4process a4atlas a4root
+SUBDIRS = . a4io a4process a4hist a4atlas a4root
 
 # Always include gtest in distributions.
 DIST_SUBDIRS = gtest $(SUBDIRS)

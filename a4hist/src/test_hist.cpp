@@ -1,4 +1,5 @@
+#include <gtest/gtest.h>
 
-int main() {
-    return 0;
+TEST(a4hist, dummy) {
+
 }

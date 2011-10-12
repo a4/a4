@@ -7,9 +7,7 @@ include protobuf.am
 
 # Files to distribute
 a4include_HEADERS = \
-    src/a4/alorentzvector.h \
-    src/a4/h1.h src/a4/h2.h \
-    src/a4/cutflow.h
+    src/a4/alorentzvector.h src/a4/histogram.h
 
 # Compilation options
 LIBS=$(A4_A4IO_LIBS) $(A4_A4PROCESS_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)
@@ -19,15 +17,15 @@ AM_CPPFLAGS+=$(A4_A4IO_CPPFLAGS) $(A4_A4PROCESS_CPPFLAGS) $(PROTOBUF_CFLAGS) $(B
 # Main a4process library
 lib_LTLIBRARIES=liba4hist.la
 nodist_liba4hist_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
-liba4hist_la_SOURCES= \
-    src/a4/h1.h src/h1.cpp \
-    src/a4/h2.h src/h2.cpp \
-    src/a4/cutflow.h src/cutflow.cpp
+liba4hist_la_SOURCES= src/histogram.cpp
 liba4hist_la_LIBADD=$(LIBS)
 
 ## Test programs
-check_PROGRAMS = test_hist
-test_hist_SOURCES = src/test_hist.cpp
+check_PROGRAMS = gtest
+nodist_gtest_SOURCES = $(GTEST_APP)
+gtest_SOURCES = src/test_hist.cpp
+gtest_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
+gtest_LDADD = $(LDADD) $(GTEST_LIBS)
 
 TESTS=$(check_PROGRAMS)
 
