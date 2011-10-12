@@ -15,12 +15,34 @@
 #error "No Standard int type header found!"
 #endif
 
-#if HAVE_MEMORY
+#include <a4/exceptions.h>
+
+#if HAVE_STD_SMART_PTR
+
 #include <memory>
-#elif HAVE_TR1_MEMORY
+// Since we are aiming for gcc 4.3, 
+// no template aliases yet.
+namespace std_memory_prefix = std;
+#define shared std::shared_ptr
+#define unique std::unique_ptr
+
+#elif HAVE_STD_TR1_SMART_PTR
+
 #include <tr1/memory>
+namespace std_memory_prefix = std::tr1;
+#define shared std::tr1::shared_ptr
+#define unique std::tr1::unique_ptr
+
+#elif HAVE_BOOST_SMART_PTR
+
+#include <boost/tr1/memory.hpp>
+#include <boost/scoped_ptr.hpp>
+namespace std_memory_prefix = std::tr1;
+#define shared std::tr1::shared_ptr
+#define unique boost::scoped_ptr
+
 #else
-#error "C++11 standard header <memory> not found!"
+#error "No implementation of C++11 smart pointers found!"
 #endif
 
 #ifndef foreach
@@ -28,38 +50,23 @@
 #define foreach BOOST_FOREACH
 #endif
 
-#include <a4/exceptions.h>
-
-#if HAVE_STD_SHARED_PTR
-// Since we are aiming for gcc 4.3, 
-// no template aliases yet.
-namespace std_memory_prefix = std;
-#define shared std::shared_ptr
-#define unique std::unique_ptr
-#elif HAVE_STD_TR1_SHARED_PTR
-namespace std_memory_prefix = std::tr1;
-#define shared std::tr1::shared_ptr
-#define unique std::tr1::unique_ptr
-#endif
-
-using std_memory_prefix::unique_ptr;
 using std_memory_prefix::static_pointer_cast;
 using std_memory_prefix::dynamic_pointer_cast;
 // also, no reinterpret_cast until gcc 4.4...
 
 template<typename T, typename V>
-unique_ptr<T> && static_pointer_cast(unique_ptr<V> && p) {
-    return unique_ptr<T>(static_cast<T>(p));
+unique<T> && static_pointer_cast(unique<V> && p) {
+    return unique<T>(static_cast<T>(p));
 };
 
 template<typename T, typename V>
-unique_ptr<T> && dynamic_pointer_cast(unique_ptr<V> && p) {
-    return unique_ptr<T>(dynamic_cast<T>(p.release()));
+unique<T> && dynamic_pointer_cast(unique<V> && p) {
+    return unique<T>(dynamic_cast<T>(p.release()));
 };
 
 template<typename T, typename V>
-unique_ptr<T> && reinterpret_pointer_cast(unique_ptr<V> && p) {
-    return unique_ptr<T>(reinterpret_cast<T>(p.release()));
+unique<T> && reinterpret_pointer_cast(unique<V> && p) {
+    return unique<T>(reinterpret_cast<T>(p.release()));
 };
 
 // Provide an array deleter for shared and unique pointers

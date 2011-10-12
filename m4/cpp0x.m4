@@ -208,30 +208,28 @@ AC_DEFUN([AC_HEADER_UNORDERED_SET], [
   fi
 ])
 
-AC_DEFUN([AC_NAMESPACE_SHARED_PTR], [
+AC_DEFUN([_CPP0X_SMART_PTR_IN], [
     AC_LANG(C++)
-    AC_MSG_CHECKING([for std::shared_ptr])
+    AC_MSG_CHECKING([for smart pointers in $1])
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-        [[#include <memory>]]
-        [[std::shared_ptr<int> have_shared_ptr;]])
+        [[$3]]
+        [[$2::shared_ptr<int> have_shared_ptr; $4<int> have_unique_ptr; using $2::static_pointer_cast; using $2::dynamic_pointer_cast;]])
     ], [
         AC_MSG_RESULT([yes])
-        AC_DEFINE_UNQUOTED([HAVE_STD_SHARED_PTR], 1, [Define to 1 if you have the `std::shared_ptr' class.])
+        AC_DEFINE_UNQUOTED([HAVE_$1_SMART_PTR], 1, [Define to 1 if smart pointers are in $1])
     ], [
         AC_MSG_RESULT([no])
-        AC_DEFINE_UNQUOTED([HAVE_STD_SHARED_PTR], 0, [Define to 1 if you have the `std::shared_ptr' class.])
+        AC_DEFINE_UNQUOTED([HAVE_$1_SMART_PTR], 0, [Define to 1 if smart pointers are in $1])
     ])
-    AC_MSG_CHECKING([for std::tr1::shared_ptr])
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-        [[#include <tr1/memory>]]
-        [[std::tr1::shared_ptr<int> have_shared_ptr;]])
-    ], [
-        AC_MSG_RESULT([yes])
-        AC_DEFINE_UNQUOTED([HAVE_STD_TR1_SHARED_PTR], 1, [Define to 1 if you have the `std::shared_ptr' class.])
-    ], [
-        AC_MSG_RESULT([no])
-        AC_DEFINE_UNQUOTED([HAVE_STD_TR1_SHARED_PTR], 0, [Define to 1 if you have the `std::shared_ptr' class.])
-    ])
+])
+
+AC_DEFUN([AC_NAMESPACE_SHARED_PTR], [
+    _CPP0X_SMART_PTR_IN([STD], [std], [#include <memory>],[std::unique_ptr])
+    _CPP0X_SMART_PTR_IN([STD_TR1], [std::tr1], [#include <tr1/memory>], [std::tr1::unique_ptr])
+    _CPP0X_SMART_PTR_IN([BOOST], [std::tr1], [
+#include <boost/tr1/memory.hpp>
+#include <boost/scoped_ptr.hpp>
+    ], [boost::scoped_ptr])
 ])
 
 
