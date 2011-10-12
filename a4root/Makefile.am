@@ -23,3 +23,16 @@ agnostic_dump_SOURCES = src/agnostic_dump.cpp
 
 
 
+# TODO(pwaller): Make use of EXTRA_xyz_SOURCES= in order to conditinally build A4ROOT.
+
+# By the way, I also want to make ROOT only a dependency for a4root
+# as a quick hack-around I made it a dependency for A4.
+# Do you know how to optionally build sources depending on HAVE_CERN_ROOT_SYSTEM ?
+
+# Johannes:  put them into EXTRA_xyz_SOURCES=
+# me:  That seems like it can only be part of the story
+# Johannes:  ...and then pass the mysource.lo to LDADD conditionally
+# me:  ah, if ROOT is available in the configure.ac?
+# Johannes:  http://www.gnu.org/s/hello/manual/automake/Program-and-Library-Variables.html
+#   so in configure.ac: AC_SUBST([CERN_ROOT_SYSTEM_SOURCES], [source1.lo source2.lo])
+#   and in Makefile.am: xyz_LDADD+=@CERN_ROOT_SYSTEM_SOURCES@
