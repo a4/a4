@@ -22,7 +22,7 @@ class H1 : public ResultType
         virtual void from_message(google::protobuf::Message & m);
         virtual MessagePtr get_message();
 
-        H1 & operator()(const uint32_t &bins, const double &min, const double &max);
+        void constructor(const uint32_t &bins, const double &min, const double &max);
 
 
         void fill(const double &, const double &weight = 1);

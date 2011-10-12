@@ -15,11 +15,14 @@ using std::vector;
 
 namespace a4{ namespace hist{
 
-Cutflow::Cutflow() {};
+Cutflow::Cutflow() : _current_weight(1.0) {};
+
+void Cutflow::constructor() {};
 
 Cutflow::Cutflow(const Cutflow & h):
-    _fast_access_bin(h._fast_access_bin),
-    _cut_names(h._cut_names)
+    _bin(h._bin),
+    _cut_names(h._cut_names),
+    _current_weight(h._current_weight)
 {
     if (h._weights_squared) {
         _weights_squared.reset(new std::vector<double>);
@@ -32,63 +35,54 @@ Cutflow::~Cutflow()
 }
 
 Cutflow & Cutflow::__mul__(const double & w) {
-    for(uint32_t bin = 0, bins = _fast_access_bin.size(); bins > bin; ++bin)
-        _fast_access_bin[bin] *= w;
+    for(uint32_t bin = 0, bins = _bin.size(); bins > bin; ++bin)
+        _bin[bin] *= w;
     if (!_weights_squared) {
         _weights_squared.reset(new vector<double>(_cut_names.size()));
-        for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _fast_access_bin[i];
+        for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _bin[i];
     }
     for(uint32_t bin = 0, bins = _cut_names.size(); bins > bin; ++bin)
         (*_weights_squared)[bin] *= w*w;
     return *this;
 }
 
-void Cutflow::fill(const int & id, const std::string & name, const double w) {
-    try {
-        double & current_value = _fast_access_bin.at(id);
-        if (current_value != 0) {
-            if (_weights_squared)
-                (*_weights_squared)[id] += w*w;
-            else if (w != 1.0) {
-                _weights_squared.reset(new vector<double>(_cut_names.size()));
-                for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _fast_access_bin[i];
-                (*_weights_squared)[id] += w*w;
-            }
-            current_value += w;
-            return;
-        }
-    } catch (std::out_of_range & oor) {
-        _fast_access_bin.resize(id+1);
-        if (_weights_squared) _weights_squared->resize(id+1);
-        _cut_names.resize(id+1);
-    }
-    // if we land here, we have to save the name
-    _cut_names[id] = name;
+
+void Cutflow::fill_internal(const uintptr_t & id, const double & w) {
+    double & current_value = _bin[id];
     if (_weights_squared)
         (*_weights_squared)[id] += w*w;
     else if (w != 1.0) {
         _weights_squared.reset(new vector<double>(_cut_names.size()));
-        for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _fast_access_bin[i];
+        for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _bin[i];
         (*_weights_squared)[id] += w*w;
     }
-    _fast_access_bin[id] += w;
+    current_value += w;
+}
+
+uintptr_t Cutflow::new_bin(std::string name) {
+    uintptr_t idx = _cut_names.size();
+    // if we land here, we have to save the name
+    _cut_names.push_back(name);
+    if (_weights_squared) (*_weights_squared).push_back(0);
+    _bin.push_back(0);
+    return idx;
 }
 
 std::vector<Cutflow::CutNameCount> Cutflow::content() const {
     std::vector<Cutflow::CutNameCount> result;
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
-        double w = _fast_access_bin[i];
+        double w = _bin[i];
         if (_weights_squared) w = (*_weights_squared)[i];
         bool doublet = false;
         for(uint32_t j = 0; j < i; j++) {
             if (_cut_names[i] == _cut_names[j]) {
-                result[j].count += _fast_access_bin[i];
+                result[j].count += _bin[i];
                 result[j].weights_squared += w;
                 doublet = true;
                 break;
             }
         }
-        if (!doublet) result.push_back(Cutflow::CutNameCount(_cut_names[i], _fast_access_bin[i], w));
+        if (!doublet) result.push_back(Cutflow::CutNameCount(_cut_names[i], _bin[i], w));
     }
     return result;
 }
@@ -101,7 +95,7 @@ void Cutflow::print(std::ostream &out) const
 
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
         if (_cut_names[i].size() != 0) {
-            out << std::setw(15) << setiosflags(ios::fixed) << setprecision(3) << _fast_access_bin[i];
+            out << std::setw(15) << setiosflags(ios::fixed) << setprecision(3) << _bin[i];
             out << " | ";
             out << _cut_names[i];
             out << endl;
@@ -118,17 +112,17 @@ Cutflow & Cutflow::__add__(const Cutflow & source) {
     }
     if (source._weights_squared && !_weights_squared) {
         _weights_squared.reset(new vector<double>(_cut_names.size()));
-        for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _fast_access_bin[i];
+        for(uint32_t i = 0; i < _cut_names.size(); i++) (*_weights_squared)[i] = _bin[i];
     }
 
     // Add all cuts
     for(uint32_t i = 0; i < source._cut_names.size(); i++) {
         std::string name = source._cut_names[i];
-        double count = source._fast_access_bin[i];
+        double count = source._bin[i];
         int index = cut_name_index[name] - 1;
         if (index == -1) {
             _cut_names.push_back(name);
-            _fast_access_bin.push_back(count);
+            _bin.push_back(count);
             if (_weights_squared) {
                 if (source._weights_squared) {
                     _weights_squared->push_back(source._weights_squared->operator[](i));
@@ -138,7 +132,7 @@ Cutflow & Cutflow::__add__(const Cutflow & source) {
             }
 
         } else {
-            _fast_access_bin[index] += count;
+            _bin[index] += count;
         }
     }
     return *this;
@@ -149,7 +143,7 @@ void Cutflow::to_pb(bool clear_pb) {
     if (!clear_pb) pb.reset(new pb::Cutflow);
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
         if (_cut_names[i].size() != 0) {
-            pb->add_counts_double(_fast_access_bin[i]);
+            pb->add_counts_double(_bin[i]);
             pb->add_counts_double_names(_cut_names[i]);
             if (_weights_squared) {
                 pb->add_weights_squared((*_weights_squared)[i]);
@@ -159,7 +153,7 @@ void Cutflow::to_pb(bool clear_pb) {
 }
 
 void Cutflow::from_pb() {
-    foreach(double d, pb->counts_double()) _fast_access_bin.push_back(d);
+    foreach(double d, pb->counts_double()) _bin.push_back(d);
     foreach(std::string s, pb->counts_double_names()) _cut_names.push_back(s);    
     if (pb->weights_squared_size() > 0) {
         _weights_squared.reset(new vector<double>);

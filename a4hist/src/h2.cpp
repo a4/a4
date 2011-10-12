@@ -19,15 +19,12 @@ H2::H2() :
     _initialized(false)
 {}
 
-H2 & H2::operator()(const uint32_t &xbins, const double &xmin, const double &xmax, const uint32_t &ybins, const double &ymin, const double &ymax) {
-    if (_initialized) return *this;
-    _initialized = true;
+void H2::constructor(const uint32_t &xbins, const double &xmin, const double &xmax, const uint32_t &ybins, const double &ymin, const double &ymax) {
     _x_axis = Axis(xbins, xmin, xmax);
     _y_axis = Axis(ybins, ymin, ymax);
     _entries = 0;
     const uint32_t total_bins = (xbins + 2)*(ybins + 2);
     _data.reset(new double[total_bins]());
-    return *this;
 }
 
 H2::H2(const H2 & h): 

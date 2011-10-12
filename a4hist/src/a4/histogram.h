@@ -6,7 +6,7 @@
 #include <a4/storable.h>
 #include <a4/axis.h>
 
-#include <Histograms.pb.h>
+#include <a4/proto/hist/Histograms.pb.h>
 
 namespace a4{ namespace hist{
 
@@ -22,7 +22,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         virtual void from_pb();
         virtual H1 & operator+=(const H1 &other);
 
-        H1 & operator()(const uint32_t &bins, const double &min, const double &max);
+        void constructor(const uint32_t &bins, const double &min, const double &max);
 
         void fill(const double &, const double &weight = 1);
         H1 & __add__(const H1 &);
@@ -64,7 +64,7 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         virtual void from_pb();
         virtual H2 & operator+=(const H2 &other);
 
-        H2 & operator()(const uint32_t &binsx, const double &minx, const double &maxx, const uint32_t &binsy, const double &miny, const double &maxy);
+        void constructor(const uint32_t &binsx, const double &minx, const double &maxx, const uint32_t &binsy, const double &miny, const double &maxy);
 
         void fill(const double &, const double &, const double &weight = 1);
         H2 & __add__(const H2 &);

@@ -5,8 +5,9 @@
 
 #include <a4/storable.h>
 #include <a4/axis.h>
+#include <a4/hash_lookup.h>
 
-#include <Cutflow.pb.h>
+#include <a4/proto/hist/Cutflow.pb.h>
 
 namespace a4{ namespace hist{
 
@@ -25,6 +26,7 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
         ~Cutflow();
 
         // Implements StorableAs
+        virtual void constructor();
         virtual void to_pb(bool blank_pb);
         virtual void from_pb();
         virtual Cutflow & operator+=(const Cutflow &other);
@@ -36,12 +38,26 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
 
         void print(std::ostream &) const;
 
-        void fill(const int & id, const std::string & name, const double w = 1.0);
+        void weight(const double & weight) { _current_weight = weight; };
 
+        template <typename... Args>
+        inline void fill(const Args& ...args) { fillw(_current_weight, args...); }
+
+        template <typename... Args>
+        void fillw(const double & w, const Args& ...args) {
+            void * & res = _fast_access.lookup(args...);
+            if (res != NULL) return fill_internal(uintptr_t(res)-1, w);
+            res = new_bin(str_cat(args...));
+            fill_internal(res-1, w);            
+        };
     private:
-        std::vector<double> _fast_access_bin;
+        void fill_internal(const uintptr_t & idx, const double & w);
+        uintptr_t new_bin(std::string name);
+        hash_lookup _fast_access;
+        std::vector<double> _bin;
         shared<std::vector<double> > _weights_squared;
         std::vector<std::string> _cut_names;
+        double _current_weight;
 };
 
 };}; //namespace a4::hist

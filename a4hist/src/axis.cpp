@@ -4,7 +4,7 @@
 #include "a4/proto/hist/Histograms.pb.h"
 
 using namespace std;
-using namespace a4::hist;
+namespace a4{ namespace hist{
 
 Axis::Axis() {};
 
@@ -69,3 +69,5 @@ ostream &operator<<(ostream &out, const Axis &axis)
     return out << axis.bins() << " bins in range ["
         << axis.min() << "," << axis.max() << "]";
 }
+
+};};
