@@ -49,7 +49,7 @@ namespace a4{ namespace process{
     /// Derive from this class if you want to write a result-type
     /// (like a histogram) that can be stored in an A4 Stream.
     /// Your derived class has to have four methods:
-    ///  * constructor (one or more, arbitrary arguments. See operator() ).
+    ///  * "constructor" (one or more, arbitrary arguments. See operator() ).
     ///  * MyClass & operator+=(const MyClass &other); // Merging
     ///  * to_pb(bool blank_pb) // write data to this->pb. 
     ///  * from_pb() // Read data from this->pb or initialize this->pb as data

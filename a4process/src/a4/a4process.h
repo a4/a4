@@ -24,12 +24,26 @@ namespace a4{
     /// smearing classes, ...) derive a configuration class from Configuration
     /// 
     namespace process{
+        //INTERNAL
+        template <class This, typename... TArgs> struct _test_process_as;
+        template <class This, class T, class... TArgs> struct _test_process_as<This, T, TArgs...> { 
+            static bool process(This* that, const std::string &n, Storable * s) { 
+                T* t = dynamic_cast<T*>(s);
+                if (t) {
+                    that->process(n, *t);
+                    return true;
+                } else return _test_process_as<This, TArgs...>::process(that, n, s);
+            }
+        };
+        template <class This> struct _test_process_as<This> { static bool process(This* that, const std::string &n, Storable * s) { return false; }; };
+
         using a4::io::A4Message;
 
         class Driver;
 
         class Processor {
             public:
+                virtual ~Processor() {};
                 /// Override this to proces raw A4 Messages without type checking
                 virtual void process_message(const A4Message) = 0;
                 /// This function is called if new metadata is available
@@ -47,7 +61,8 @@ namespace a4{
         };
 
         class Configuration {
-            public:
+            public: 
+                virtual ~Configuration() {};
                 /// Override this to add options to the command line and configuration file
                 virtual po::options_description get_options() { return po::options_description(); };
                 /// Override this to do further processing of the options from the command line or config file
@@ -81,6 +96,40 @@ namespace a4{
                 virtual const int metadata_class_id() const { return ProtoMetaData::kCLASSIDFieldNumber; };
                 friend class a4::process::Driver;
         };
+
+        template<class This, class ProtoMetaData = a4::io::NoProtoClass, class... Args>
+        class ResultsProcessor : public Processor {
+            public:
+                ResultsProcessor() { a4::io::RegisterClassID<ProtoMetaData> _m; have_name = false; };
+
+                // Generic storable processing
+                virtual void process(const std::string &, Storable &) {};
+
+                void process_message(const A4Message msg) {
+                    shared<Storable> next = _next_storable(msg);
+                    if (next) {
+                        if(!_test_process_as<This, Args...>::process((This*)this, next_name, next.get())) {
+                            process(next_name, *next);
+                        }
+                    }
+                };
+
+                shared<Storable> _next_storable(const A4Message msg);
+
+                const ProtoMetaData & metadata() {
+                    const A4Message msg = metadata_message;
+                    if (!msg) throw a4::Fatal("No metadata at this time!"); // TODO: Should not be fatal
+                    ProtoMetaData * meta = msg.as<ProtoMetaData>().get();
+                    if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    return *meta;
+                };
+            protected:
+                std::string next_name;
+                bool have_name;
+                virtual const int metadata_class_id() const { return ProtoMetaData::kCLASSIDFieldNumber; };
+                friend class a4::process::Driver;
+        };
+
 
         template<class MyProcessor>
         class ConfigurationOf : public Configuration {
