@@ -11,6 +11,7 @@ a4include_HEADERS = \
     src/a4/axis.h \
     src/a4/histogram.h \
     src/a4/cutflow.h \
+    src/a4/a4hist.h \
     $(PROTOBUF_H)
 
 # Compilation options

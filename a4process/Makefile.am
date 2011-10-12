@@ -12,7 +12,8 @@ a4include_HEADERS = \
     src/a4/storable.h \
     src/a4/a4process.h src/a4/driver.h src/a4/application.h \
     src/a4/hash_lookup.h src/a4/hash_lookup_impl.h\
-    src/a4/object_store.h src/a4/object_store_impl.h
+    src/a4/object_store.h src/a4/object_store_impl.h\
+    src/a4/results_processor.h
 
 # Compilation options
 LDADD=liba4process.la $(A4_A4IO_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)
