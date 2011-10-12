@@ -117,7 +117,6 @@ namespace a4{
                 act.sa_handler = &segfault_handler;
                 sigemptyset(&act.sa_mask);
                 act.sa_flags = 0;
-                act.sa_restorer = NULL;
                 return sigaction(SIGSEGV, &act, NULL) == 0;
             };
 
