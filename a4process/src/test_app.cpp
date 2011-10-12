@@ -2,10 +2,12 @@
 
 #include <a4/application.h>
 #include <a4/proto/process/A4Key.pb.h>
+#include <a4/proto/io/A4Stream.pb.h>
 
 using std::cout; using std::cerr; using std::endl;
 
 using namespace a4::process;
+using namespace a4::io;
 
 class ToyHist : public StorableAs<ToyHist, TestHisto> {
     public:
@@ -20,15 +22,22 @@ class ToyHist : public StorableAs<ToyHist, TestHisto> {
         float j;
 };
 
-class MyProcessor : public ProcessorOf<TestHisto, TestHistoMetaData> {
+//class MyProcessor : public ProcessorOf<TestHisto, TestHistoMetaData> {
+class MyProcessor : public ProcessorOf<TestEvent, TestMetaData> {
     public:
         virtual void process(const TestHisto &);
+        virtual void process(const TestEvent &);
 };
 
 void MyProcessor::process(const TestHisto & event) {
     cout << event.bin_number() << endl;
     write(event);
     S.T<ToyHist>("hugo")(4.2, 0, 1).add(event.bin_number());
+}
+
+void MyProcessor::process(const TestEvent & event) {
+    write(event);
+    S.T<ToyHist>("hugo")(4.2, 0, 1).add(event.event_number());
 }
 
 int main(int argc, const char * argv[]) {

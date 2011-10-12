@@ -25,7 +25,7 @@ TestMetaData meta(int d, int run, int lb, int period, bool simulation=false, boo
 
 TEST(a4io, metadata_merge) {
     {
-        A4OutputStream w("test_rw.a4", "TestEvent");
+        A4OutputStream w("test_mm.a4", "TestEvent");
         w.content_cls<TestEvent>().metadata_cls<TestMetaData>();
 
         const int N = 1000;
@@ -34,7 +34,7 @@ TEST(a4io, metadata_merge) {
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
         w.write(meta(1,1,1,1));
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
-        w.write(meta(1,1,1,1, true)); // will cause an exception
+        w.write(meta(1,10,1,1, true)); // will cause an exception
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
         w.write(meta(2,1,2,1));
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
@@ -47,7 +47,7 @@ TEST(a4io, metadata_merge) {
         w.write(meta(6,3,2,2));
     }
     {
-        A4InputStream r("test_rw.a4");
+        A4InputStream r("test_mm.a4");
         int cnt = 0;
         A4Message current_md;
         int mcnt = 0;

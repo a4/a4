@@ -68,12 +68,30 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
                 if (current_metadata) {
                     // Check if we merge the old into the new metadata
                     // and wait with writing it.
-                    bool write = true;
-                    if (self->metakey) {
-                        
+                    bool merge = false;
+
+                    // Determine if merging is necessary
+                    if (self->metakey != "") {
+                        google::protobuf::Message & m = *current_metadata.message;
+                        const google::protobuf::FieldDescriptor* fd = m.GetDescriptor()->FindFieldByName(self->metakey);
+                        if (!fd) {
+                            const std::string & classname = m.GetDescriptor()->full_name();
+                            throw a4::Fatal(classname, " has no member ", self->metakey, " necessary for metadata merging!");
+                        }
+                        if (fd->is_repeated() && (m.GetReflection()->FieldSize(m, fd)) > 1) {
+                            throw a4::Fatal(fd->full_name(), " has already multiple ", self->metakey, " entries - cannot achieve desired granularity!");
+                        }
+                        std::string s1 = instream->message_field_as_string(current_metadata, self->metakey);
+                        std::string s2 = instream->message_field_as_string(new_metadata, self->metakey);
+                        if (s1 == s2) merge = true;
                     }
 
-                    if (write) {
+                    if (merge) {
+                        std::cerr<< "Merging " << current_metadata.message->ShortDebugString() << "\n and " << new_metadata.message->ShortDebugString() << std::endl;
+                        current_metadata = instream->merge_messages(current_metadata, new_metadata);
+                        std::cerr << "to "<<current_metadata.message->ShortDebugString() << std::endl;
+
+                    } else {
                         if (self->out) p->write(*current_metadata.message);
                         if (self->res) {
                             bs->to_stream(*resstream);
@@ -83,8 +101,6 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
                             self->set_store_prefix(p);
                         }
                         current_metadata = new_metadata;
-                    } else {
-                        current_metadata = instream->merge_messages(current_metadata, new_metadata);
                     }
                 } else current_metadata = new_metadata;
 
@@ -120,7 +136,8 @@ try
     po::options_description commandline_options;
     po::options_description config_file_options;
     string config_filename = string(argv[0]) + ".ini";
-    string output = "", results = "", metakey = "";
+    string output = "", results = "";
+    metakey = "";
 
     // Define all 
     po::options_description popt("Processing options");

@@ -3,8 +3,4 @@
 
 namespace a4{ namespace process{
 
-const A4Message Processor::metadata_message() { 
-    return _instream->current_metadata();
-};
-
 };}; // namespace
