@@ -35,6 +35,6 @@ namespace a4{ namespace io{
     template class RegisterClassID<A4Proto>;
     template class RegisterClassID<TestEvent>;
     template class RegisterClassID<TestMetaData>;
-    template class RegisterClassID<TestMergeMetaDataNoFields>;
+    template class RegisterClassID<TestMergeMetaDataStatic>;
 
 }}

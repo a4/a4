@@ -9,8 +9,8 @@
 using namespace std;
 using namespace a4::io;
 
-TestMetaData meta(int d, int run, int lb, int period, bool simulation=false, bool error=false) {
-    TestMetaData m;
+TestMergeMetaData meta(int d, int run, int lb, int period, bool simulation=false, bool error=false) {
+    TestMergeMetaData m;
     m.set_meta_data(d);
     TestRunLB * rlb = m.add_lumiblock();
     rlb->set_run(run); rlb->set_lumiblock(lb);
@@ -26,7 +26,7 @@ TestMetaData meta(int d, int run, int lb, int period, bool simulation=false, boo
 TEST(a4io, metadata_merge) {
     {
         A4OutputStream w("test_mm.a4", "TestEvent");
-        w.content_cls<TestEvent>().metadata_cls<TestMetaData>();
+        w.content_cls<TestEvent>().metadata_cls<TestMergeMetaData>();
 
         const int N = 1000;
         int cnt = 0;

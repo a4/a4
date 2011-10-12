@@ -3,7 +3,7 @@ from bisect import bisect_right as bisect
 import zlib
 
 from a4.proto import class_ids
-from a4.proto.io import A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection
+from a4.proto.io import A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection, A4Proto
 
 START_MAGIC = "A4STREAM"
 END_MAGIC = "KTHXBYE4"
@@ -337,6 +337,8 @@ class A4InputStream(object):
         elif cls is A4EndCompressedSection:
             self.in_stream.close()
             self.in_stream = self._orig_in_stream
+            return self.next()
+        elif cls is A4Proto:
             return self.next()
         elif cls.CLASS_ID_FIELD_NUMBER == self.current_header.metadata_class_id:
             self.metadata[self.in_stream.tell() - message.ByteSize() - 8] = message
