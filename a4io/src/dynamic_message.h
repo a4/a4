@@ -2,12 +2,14 @@
 #define _DYNAMIC_MESSAGE_H_
 
 #include <unordered_set>
+#include <string>
 
 #include <boost/variant.hpp>
 
 #include <google/protobuf/message.h>
 
 #include <a4/types.h>
+#include <a4/string.h>
 
 using google::protobuf::Message;
 using google::protobuf::FieldDescriptor;
@@ -30,6 +32,14 @@ struct variant_multiplier : public boost::static_visitor<FieldContentVariant> {
     FieldContentVariant operator()(const T& i, const T& j) const { return i * j; };
     template <typename T, typename U>
     FieldContentVariant operator()( const T &, const U & ) const {return false;}
+};
+
+struct variant_str : public boost::static_visitor<std::string> {
+    std::string operator()() const { return ""; }
+    template <typename T>
+    std::string operator()(const T t) const { 
+        return str_cat<T>(t);
+    }
 };
 
 struct variant_hash : public boost::static_visitor<size_t> {
@@ -149,6 +159,14 @@ class FieldContent {
                 return std::hash<std::string>()(content_debug_str);
             } else {
                 return boost::apply_visitor(variant_hash(), content);
+            }
+        }
+        
+        std::string str() const {
+            if (_message) {
+                return content_debug_str;
+            } else {
+                return boost::apply_visitor(variant_str(), content);
             }
         }
 

@@ -455,6 +455,19 @@ A4Message A4InputStream::merge_messages(A4Message _m1, A4Message _m2) {
 }
 
 
+std::string A4InputStream::message_field_as_string(A4Message m, const std::string & field_name) {
+    const FieldDescriptor* fd = m.message->GetDescriptor()->FindFieldByName(field_name);
+    DynamicField f(*m.message, fd);
+    if (f.repeated()) {
+        std::stringstream ss;
+        for (int i = 0; i < f.size(); i++) ss << f.value(i).str();
+        return ss.str();
+    } else {
+        return f.value().str();
+    }
+}
+
+
 /// \internal
 /// Do not do any processing on the message if internal=true
 /// \endinternal

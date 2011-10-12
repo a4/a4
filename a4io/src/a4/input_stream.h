@@ -66,6 +66,7 @@ namespace a4{ namespace io{
 
             /// \internal Merge two protobuf messages, returns the merged one.\endinternal
             A4Message merge_messages(A4Message m1, A4Message m2);
+            std::string message_field_as_string(A4Message m, const std::string & field_name);
             
         private:
             shared<google::protobuf::io::ZeroCopyInputStream> _raw_in;
