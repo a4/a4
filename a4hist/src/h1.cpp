@@ -6,12 +6,13 @@
 #include <boost/foreach.hpp>
 
 #include "a4/axis.h"
-#include "a4/h1.h"
+#include "a4/histogram.h"
 
-#include "a4/proto/io/Histograms.pb.h"
+#include "Histograms.pb.h"
+
+namespace a4{ namespace hist{
 
 using namespace std;
-
 
 H1 & H1::operator()(const uint32_t &bins, const double &min, const double &max) {
     if (_initialized) return *this;
@@ -41,7 +42,7 @@ H1::~H1()
 {
 }
 
-ResultType & H1::__mul__(const double & w) {
+H1 & H1::__mul__(const double & w) {
     const uint32_t total_bins = _axis.bins() + 2;
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) *= w;
@@ -55,31 +56,35 @@ ResultType & H1::__mul__(const double & w) {
     return *this;
 }
 
-MessagePtr H1::get_message() {
-    boost::shared_ptr<a4::io::Histogram1> h1(new a4::io::Histogram1);
-    h1->mutable_x()->set_bins(_axis.bins());
-    h1->mutable_x()->set_min(_axis.min());
-    h1->mutable_x()->set_max(_axis.max());
-    const uint32_t total_bins = _axis.bins() + 2;
-    for(uint32_t i = 0; i < total_bins; i++) h1->add_data(_data[i]);
-    if (_weights_squared)
-        for(uint32_t i = 0; i < total_bins; i++) h1->add_weights_squared(_weights_squared[i]);
-    h1->set_entries(_entries);
-    return h1;
-}
 
-H1::H1(Message& m) : _axis(0,0,0) {
-    a4::io::Histogram1 * msg = dynamic_cast<a4::io::Histogram1*>(&m);
-    _axis = Axis(msg->x().bins(), msg->x().min(), msg->x().max());
-    _entries = msg->entries();
+// Implements StorableAs
+void H1::to_pb(bool blank_pb) {
+    if (!blank_pb) pb.reset(new pb::H1());
+    pb->mutable_x()->set_bins(_axis.bins());
+    pb->mutable_x()->set_min(_axis.min());
+    pb->mutable_x()->set_max(_axis.max());
+    const uint32_t total_bins = _axis.bins() + 2;
+    for(uint32_t i = 0; i < total_bins; i++) pb->add_data(_data[i]);
+    if (_weights_squared)
+        for(uint32_t i = 0; i < total_bins; i++) pb->add_weights_squared(_weights_squared[i]);
+    pb->set_entries(_entries);
+};
+
+void H1::from_pb() {
+    _axis = Axis(pb->x().bins(), pb->x().min(), pb->x().max());
+    _entries = pb->entries();
     const uint32_t total_bins = _axis.bins() + 2;
     _data.reset(new double[total_bins]);
-    for (int i = 0; i < total_bins; i++) _data[i] = msg->data(i);
-    if (msg->weights_squared_size() > 0) {
+    for (int i = 0; i < total_bins; i++) _data[i] = pb->data(i);
+    if (pb->weights_squared_size() > 0) {
         _weights_squared.reset(new double[total_bins]);
-        for (int i = 0; i < total_bins; i++) _weights_squared[i] = msg->weights_squared(i);
+        for (int i = 0; i < total_bins; i++) _weights_squared[i] = pb->weights_squared(i);
     }
-}
+};
+
+ H1 & H1::operator+=(const H1 &other) {
+    return this->__add__(other);
+};
 
 double H1::integral() const
 {
@@ -123,9 +128,8 @@ void H1::print(std::ostream &out) const
         out << "[" << setw(3) << bin << "]: " << setiosflags(ios::fixed) << setprecision(3) << *(_data.get() + bin) << endl;
 }
 
-ResultType & H1::__add__(const ResultType &_source)
+H1 & H1::__add__(const H1 & source)
 {
-    const H1 & source = dynamic_cast<const H1&>(_source);
     for(uint32_t bin = 0, bins = _axis.bins() + 2; bins > bin; ++bin)
         *(_data.get() + bin) += *(source._data.get() + bin);
     if (_weights_squared)
@@ -143,3 +147,5 @@ ostream &operator<<(ostream &out, const H1 &hist)
 
     return out;
 }
+
+};}; //namespace a4::hist;

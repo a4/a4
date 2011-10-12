@@ -1,17 +1,21 @@
 #ifndef AXIS_H
 #define AXIS_H
 
-#include <a4/streamable.h>
+#include <a4/types.h>
 
-class Axis : public Streamable {
+namespace a4{ namespace hist{
+
+namespace pb{class Axis;};
+
+class Axis {
     public:
         Axis();
         Axis(const uint32_t &bins, const double &min, const double &max);
         Axis(const Axis &);
+        Axis(pb::Axis &);
         ~Axis();
 
-        virtual void from_message(google::protobuf::Message &);
-        virtual MessagePtr get_message();
+        unique<pb::Axis> get_proto();
 
         double min() const {return _min;};
         double max() const {return _max;};
@@ -27,5 +31,7 @@ class Axis : public Streamable {
 };
 
 std::ostream &operator<<(std::ostream &, const Axis &);
+
+};};
 
 #endif

@@ -1,16 +1,9 @@
-#include <a4/cutflow.h>
-
-#include <google/protobuf/descriptor.h>
-
-#include <a4/proto/io/Cutflow.pb.h>
-
-#include <boost/foreach.hpp>
-#include <stdexcept>
 #include <iomanip>
 #include <algorithm>
 #include <map>
-#include <stdexcept>
-#include <inttypes.h>
+
+#include <a4/types.h>
+#include <a4/cutflow.h>
 
 using std::max;
 using std::ios;
@@ -20,7 +13,7 @@ using std::endl;
 using std::map;
 using std::vector;
 
-int Cutflow::_fast_access_id = 0;
+namespace a4{ namespace hist{
 
 Cutflow::Cutflow() {};
 
@@ -38,7 +31,7 @@ Cutflow::~Cutflow()
 {
 }
 
-ResultType & Cutflow::__mul__(const double & w) {
+Cutflow & Cutflow::__mul__(const double & w) {
     for(uint32_t bin = 0, bins = _fast_access_bin.size(); bins > bin; ++bin)
         _fast_access_bin[bin] *= w;
     if (!_weights_squared) {
@@ -116,8 +109,7 @@ void Cutflow::print(std::ostream &out) const
     }
 }
 
-ResultType & Cutflow::__add__(const ResultType & _source) {
-    const Cutflow & source = dynamic_cast<const Cutflow &>(_source);
+Cutflow & Cutflow::__add__(const Cutflow & source) {
     map<std::string, int> cut_name_index;
 
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
@@ -153,27 +145,30 @@ ResultType & Cutflow::__add__(const ResultType & _source) {
 }
 
 
-MessagePtr Cutflow::get_message() {
-    boost::shared_ptr<a4::io::Cutflow> cf(new a4::io::Cutflow);
+void Cutflow::to_pb(bool clear_pb) {
+    if (!clear_pb) pb.reset(new pb::Cutflow);
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
         if (_cut_names[i].size() != 0) {
-            cf->add_counts_double(_fast_access_bin[i]);
-            cf->add_counts_double_names(_cut_names[i]);
+            pb->add_counts_double(_fast_access_bin[i]);
+            pb->add_counts_double_names(_cut_names[i]);
             if (_weights_squared) {
-                cf->add_weights_squared((*_weights_squared)[i]);
+                pb->add_weights_squared((*_weights_squared)[i]);
             }
         }
     }
-    return cf;
 }
 
-Cutflow::Cutflow(Message& m) {
-    a4::io::Cutflow * msg = dynamic_cast<a4::io::Cutflow*>(&m);
-    BOOST_FOREACH(double d, msg->counts_double()) _fast_access_bin.push_back(d);
-    BOOST_FOREACH(std::string s, msg->counts_double_names()) _cut_names.push_back(s);    
-    if (msg->weights_squared_size() > 0) {
+void Cutflow::from_pb() {
+    foreach(double d, pb->counts_double()) _fast_access_bin.push_back(d);
+    foreach(std::string s, pb->counts_double_names()) _cut_names.push_back(s);    
+    if (pb->weights_squared_size() > 0) {
         _weights_squared.reset(new vector<double>);
-        BOOST_FOREACH(double d, msg->weights_squared()) _weights_squared->push_back(d);
+        foreach(double d, pb->weights_squared()) _weights_squared->push_back(d);
     }
 }
 
+Cutflow & Cutflow::operator+=(const Cutflow &other) {
+    return this->__add__(other);
+}
+
+};}; // namespace a4::hist;

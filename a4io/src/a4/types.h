@@ -17,6 +17,9 @@
 
 #include <a4/exceptions.h>
 
+#include <boost/shared_array.hpp>
+using boost::shared_array;
+
 #if HAVE_STD_SMART_PTR
 
 #include <memory>

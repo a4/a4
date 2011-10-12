@@ -16,4 +16,4 @@ CLASS_IDs
 The lower numbers 1-999 are reserved for A4 internal messages:
 100 - 299: Stream internal (0-19: a4io; 20-39: a4process)
 300 - 399: Test Messages (0-19: a4io; 20-39: a4process)
-
+400 - 499: Basic types

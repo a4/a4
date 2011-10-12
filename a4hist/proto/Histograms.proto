@@ -1,5 +1,4 @@
-package a4.hist;
-
+package a4.hist.pb;
 
 message Axis
 {
@@ -8,18 +7,18 @@ message Axis
     optional double max = 3;
 }
 
-message Histogram1
+message H1
 {
-    optional string name = 1;
+    optional int32 CLASS_ID = 400;
     repeated double data = 2 [packed=true];
     required Axis x = 3;
     repeated double weights_squared = 14 [packed=true];
     optional int64 entries = 15;
 }
 
-message Histogram2
+message H2
 {
-    optional string name = 1;
+    optional int32 CLASS_ID = 401;
     repeated double data = 2 [packed=true];
     required Axis x = 3;
     required Axis y = 4;

@@ -2,20 +2,18 @@
 #define _A4_CUTFLOW_H_
 
 #include <string>
-#include <vector>
 
-#include <boost/shared_ptr.hpp>
+#include <a4/storable.h>
+#include <a4/axis.h>
 
-#include <a4/streamable.h>
-#include <a4/result_type.h>
+#include <Cutflow.pb.h>
 
-class Cutflow;
-typedef boost::shared_ptr<Cutflow> CutflowPtr;
+namespace a4{ namespace hist{
 
-class Cutflow : public ResultType
+class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
 {
     public:
-        class CutNameCount { 
+        class CutNameCount {
             public: 
                 std::string name; 
                 double count, weights_squared; 
@@ -24,31 +22,29 @@ class Cutflow : public ResultType
 
         Cutflow();
         Cutflow(const Cutflow &);
-        Cutflow(Message &); 
         ~Cutflow();
 
-        virtual void from_message(google::protobuf::Message & m);
-        virtual MessagePtr get_message();
+        // Implements StorableAs
+        virtual void to_pb(bool blank_pb);
+        virtual void from_pb();
+        virtual Cutflow & operator+=(const Cutflow &other);
 
         std::vector<CutNameCount> content() const;
 
-        ResultType & __add__(const ResultType &);
-        ResultType & __mul__(const double &);
+        Cutflow & __add__(const Cutflow &);
+        Cutflow & __mul__(const double &);
 
         void print(std::ostream &) const;
 
         void fill(const int & id, const std::string & name, const double w = 1.0);
 
-        static int _fast_access_id;
-
-
-
     private:
         std::vector<double> _fast_access_bin;
-        boost::shared_ptr<std::vector<double> > _weights_squared;
+        shared<std::vector<double> > _weights_squared;
         std::vector<std::string> _cut_names;
 };
 
+};}; //namespace a4::hist
 
 #endif
 
