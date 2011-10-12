@@ -9,8 +9,6 @@
 #include <a4/register.h>
 #include <a4/message.h>
 
-//#include <base_compressed_streams.h>
-
 // used internally
 namespace google{ namespace protobuf{ 
     namespace io{

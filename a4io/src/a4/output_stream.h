@@ -7,7 +7,6 @@
 #include <set>
 
 #include <a4/register.h>
-#include <base_compressed_streams.h>
 
 
 namespace google{ namespace protobuf{ 
@@ -21,6 +20,8 @@ namespace google{ namespace protobuf{
 };};
 
 namespace a4{ namespace io{
+
+    class BaseCompressedOutputStream;
 
     /// Class to write Messages to files or streams.
     /// To write a message belonging to a certain class
