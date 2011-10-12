@@ -8,9 +8,9 @@ A4_REQUIRE([a4process], [a4process.h])
 #A4_REQUIRE([a4hist], [a4hist.h])
 A4_REQUIRE([a4atlas], [grl.h])
 
-AC_CONFIG_HEADER([config.h])
-# Needed so that the sources can find config.h
-AC_SUBST(AM_CPPFLAGS, [-I${PWD}])
+# place config.h in a4io (should be some common package)
+AC_CONFIG_HEADER([a4io/src/a4/config.h])
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([a4io/Makefile])
 AC_CONFIG_FILES([a4process/Makefile])

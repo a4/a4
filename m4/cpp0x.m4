@@ -212,13 +212,16 @@ AC_DEFUN([AC_LANG_CXX_0X], [
   AC_COMPILE_STDCXX_0X
   AC_HEADER_STDCXX_0X
   if test "x$ac_cv_cxx_compile_cxx0x_native" == "xyes"; then
-      : # do nothing
+      AC_SUBST([AM_CXXFLAGS],["$AM_CXXFLAGS"])
+      AC_SUBST([AM_CPPFLAGS],["$AM_CPPFLAGS"])
   elif test "x$ac_cv_cxx_compile_cxx0x_cxx" == "xyes"; then
-      AC_SUBST([AM_CXXFLAGS],["$AM_CXXFLAGS -std=c++0x "])
-      CXXFLAGS="$CXXFLAGS -std=c++0x"
+      AC_SUBST([AM_CXXFLAGS],["$AM_CXXFLAGS"])
+      AC_SUBST([AM_CPPFLAGS],["$AM_CPPFLAGS -std=c++0x "])
+      CPPFLAGS="$CPPFLAGS -std=c++0x"
   elif test "x$ac_cv_cxx_compile_cxx0x_gxx" == "xyes"; then
-      AC_SUBST([AM_CXXFLAGS],["$AM_CXXFLAGS -std=gnu++0x "])
-      CXXFLAGS="$CXXFLAGS -std=gnu++0x"
+      AC_SUBST([AM_CXXFLAGS],["$AM_CXXFLAGS"])
+      AC_SUBST([AM_CPPFLAGS],["$AM_CPPFLAGS -std=gnu++0x "])
+      CPPFLAGS="$CPPFLAGS -std=gnu++0x"
   else
       AC_MSG_FAILURE([Compiler does not support C++0x. A4 requires g++ 4.4 or later.])
   fi

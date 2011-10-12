@@ -1,7 +1,7 @@
 // Author: peter.waller@gmail.com (Peter Waller)
 // Author: johannes@ebke.org (Johannes Ebke)
 
-#include "config.h"
+#include <a4/config.h>
 
 #if HAVE_SNAPPY
 

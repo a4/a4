@@ -1,8 +1,23 @@
 #ifndef _A4_TYPES_H_
 #define _A4_TYPES_H_
 
+#if HAVE_CONFIG_H
+#include <a4/config.h>
+#endif
+
+#if HAVE_CSTDINT
 #include <cstdint>
+#elif HAVE_TR1_CSTDINT
+#include <tr1/cstdint>
+#elif HAVE_STDINT_H
+#include <stdint.h>
+#endif
+
+#if HAVE_MEMORY
 #include <memory>
+#elif HAVE_TR1_MEMORY
+#include <tr1/memory>
+#endif
 
 #ifndef foreach
 #include <boost/foreach.hpp>
