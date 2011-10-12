@@ -33,14 +33,6 @@ namespace std_memory_prefix = std::tr1;
 #define shared std::tr1::shared_ptr
 #define unique std::tr1::unique_ptr
 
-#elif HAVE_BOOST_SMART_PTR
-
-#include <boost/tr1/memory.hpp>
-#include <boost/scoped_ptr.hpp>
-namespace std_memory_prefix = std::tr1;
-#define shared std::tr1::shared_ptr
-#define unique boost::scoped_ptr
-
 #else
 #error "No implementation of C++11 smart pointers found!"
 #endif

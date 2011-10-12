@@ -226,10 +226,6 @@ AC_DEFUN([_CPP0X_SMART_PTR_IN], [
 AC_DEFUN([AC_NAMESPACE_SHARED_PTR], [
     _CPP0X_SMART_PTR_IN([STD], [std], [#include <memory>],[std::unique_ptr])
     _CPP0X_SMART_PTR_IN([STD_TR1], [std::tr1], [#include <tr1/memory>], [std::tr1::unique_ptr])
-    _CPP0X_SMART_PTR_IN([BOOST], [std::tr1], [
-#include <boost/tr1/memory.hpp>
-#include <boost/scoped_ptr.hpp>
-    ], [boost::scoped_ptr])
 ])
 
 
