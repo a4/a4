@@ -50,7 +50,7 @@ message A4Proto
 
 message TestEvent
 {
-    optional int32 CLASS_ID = 18000;
+    optional int32 CLASS_ID = 300;
     optional int32 event_number = 1;
     optional double event_data = 2;
 }
@@ -61,15 +61,21 @@ message TestRunLB
     optional int32 lumiblock = 2;
 }
 
-message TestMetaDataNoFields
+message TestMetaData
 {
-    optional int32 CLASS_ID = 18001;
+    optional int32 CLASS_ID = 301;
     optional int32 meta_data = 1 [(merge)=MERGE_ADD];
 }
 
-message TestMetaData
+message TestMergeMetaDataStatic
 {
-    optional int32 CLASS_ID = 18001;
+    optional int32 CLASS_ID = 302;
+    optional int32 meta_data = 1 [(merge)=MERGE_ADD];
+}
+
+message TestMergeMetaData
+{
+    optional int32 CLASS_ID = 302;
     optional int32 meta_data = 1 [(merge)=MERGE_ADD];
     repeated TestRunLB lumiblock = 2 [(merge)=MERGE_UNION];
     repeated int32 run = 9 [(merge)=MERGE_UNION];

@@ -1,0 +1,19 @@
+Protobuf Tags
+-------------
+
+No convention is required for normal messages.
+
+First user range: 1 - 18999
+
+1-15 get encoded in 1 byte
+16-2047 in 2 bytes
+
+Numbers 19000-19999 are reserved for internal protobuf use.
+
+CLASS_IDs
+---------
+
+The lower numbers 1-999 are reserved for A4 internal messages:
+100 - 299: Stream internal (0-19: a4io; 20-39: a4process)
+300 - 399: Test Messages (0-19: a4io; 20-39: a4process)
+

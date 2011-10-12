@@ -40,7 +40,7 @@ namespace a4{
 
         using google::protobuf::Message;
         
-        static const int FIRST_CUSTOM_MESSAGE_CLASS = 1000;
+        static const int FIRST_CUSTOM_MESSAGE_CLASS = 300;
         
         inline void dump_message(const google::protobuf::Message* message)
         {

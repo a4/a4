@@ -2,18 +2,18 @@ package a4.process;
 
 message A4Key
 {
-    optional int32 CLASS_ID = 104;
+    optional int32 CLASS_ID = 120;
     required string name = 1;
 }
 
 message TestHisto
 {
-    optional int32 CLASS_ID = 112;
+    optional int32 CLASS_ID = 320;
     optional int32 bin_number = 1;
     optional double data = 2;
 }
 message TestHistoMetaData
 {
-    optional int32 CLASS_ID = 113;
+    optional int32 CLASS_ID = 321;
     optional int32 meta_data = 1;
 }
