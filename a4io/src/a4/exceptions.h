@@ -100,7 +100,7 @@ namespace a4{
                     }
                     create_directories(dirname);
                     dirname /= "last-fatal-error";
-                    std::ofstream out(dirname.string());
+                    std::ofstream out(dirname.string().c_str());
                     out << sstr.str() << std::endl;
                     sstr << "\nNotice: Error has been written to " << dirname.string() << std::endl;
                 } catch (...) {};
