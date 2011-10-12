@@ -26,11 +26,11 @@ liba4hist_la_SOURCES=$(a4include_HEADERS) src/axis.cpp src/h1.cpp src/h2.cpp src
 liba4hist_la_LIBADD=$(LIBS)
 
 ## Test programs
-check_PROGRAMS = gtest
-nodist_gtest_SOURCES = $(GTEST_APP)
-gtest_SOURCES = src/test_hist.cpp
-gtest_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
-gtest_LDADD = $(LDADD) $(GTEST_LIBS)
+check_PROGRAMS = gtests
+nodist_gtests_SOURCES = $(GTEST_APP)
+gtests_SOURCES = src/test_hist.cpp
+gtests_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
+gtests_LDADD = $(LDADD) $(GTEST_LIBS)
 
 TESTS=$(check_PROGRAMS)
 

@@ -3,7 +3,7 @@ export NTHREADS=4
 chmod -R +w $A4INSTALL 2> /dev/null;
 rm $A4INSTALL -rf || exit 1;
 mkdir -p $A4INSTALL
-for pack in a4io a4process a4atlas; do
+for pack in a4io a4process a4atlas a4root; do
     pushd $pack || exit 1
     chmod -R +w _dcbuild 2> /dev/null;
     rm _dcbuild -rf || exit 1

@@ -18,6 +18,7 @@ nodist_rwtest_SOURCES = $(PROTOBUF_CC) $(PROTOBUF_H)
 rwtest_SOURCES = src/rwtest.cpp
 agnostic_dump_SOURCES = src/agnostic_dump.cpp
 
+EXTRA_DIST += src/convertable_types.cc
 #TESTS=$(check_PROGRAMS)
 
 

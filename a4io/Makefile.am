@@ -35,7 +35,7 @@ dist_liba4io_la_SOURCES=$(LIBRARY_SOURCES)
 liba4io_la_LIBADD=$(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS) $(BOOST_LIBS)
 
 ## Test programs
-check_PROGRAMS = test_io test_thread gtest
+check_PROGRAMS = test_io test_thread gtests
 test_bigwrite_SOURCES = src/test_bigwrite.cpp
 test_io_SOURCES = src/test_io.cpp
 test_thread_SOURCES = src/test_thread.cpp
@@ -46,10 +46,10 @@ test_write_bw_SOURCES = src/test_write_bw.cpp
 test_write_nomd_fw_SOURCES = src/test_write_nomd_fw.cpp
 test_write_nomd_bw_SOURCES = src/test_write_nomd_bw.cpp
 
-nodist_gtest_SOURCES = $(GTEST_APP)
-gtest_SOURCES = src/test_rw.cpp src/test_merge_metadata.cpp
-gtest_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
-gtest_LDADD = $(LDADD) $(GTEST_LIBS)
+nodist_gtests_SOURCES = $(GTEST_APP)
+gtests_SOURCES = src/test_rw.cpp src/test_merge_metadata.cpp
+gtests_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
+gtests_LDADD = $(LDADD) $(GTEST_LIBS)
 
 TESTS=$(check_PROGRAMS)
 

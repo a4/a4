@@ -8,43 +8,28 @@ AC_LANG_CXX_0X
 AC_NAMESPACE_SHARED_PTR
 AM_PATH_PYTHON([2.6])
 m4_ifdef([LT_INIT], [LT_INIT], [AC_PROG_LIBTOOL])
-
 AC_CHECK_HEADERS([cstdint tr1/cstdint stdint.h])
 AC_CHECK_HEADERS([memory tr1/memory])
+A4_SILENT
 
-# Conditionally enable silent rules
-m4_ifdef([AM_SILENT_RULES],[
-    AM_SILENT_RULES([yes])
-    # introduce manually the PROTOC prefix for silent rules if they are there.
-    # ‘@&t@’ expands to nothing, so we can use it to prevent warnings about
-    # a missing macro
-A4_SET_AM_V_PROTOC='
-A@&t@M_V_PROTOC = $(am__v_PROTOC_$(V))
-am__v_PROTOC_ = $(am__v_PROTOC_$(AM_DEFAULT_VERBOSITY))
-am__v_PROTOC_0 = @echo "  PROTOC" $@;'
-
-    AC_SUBST(A4_SET_AM_V_PROTOC)
-],[
-    AC_SUBST([A4_SET_AM_V_PROTOC],[])
-])
-
+# Check for dependencies
 A4_PROTOBUF_CHECK([:],[AC_MSG_ERROR([A4 requires the google protobuf library, which configure could not find! Run ./get_protobuf.sh in your a4 directory to setup a 'builtin' copy and rerun configure.])])
+
 A4_SNAPPY_CHECK([:],[AC_MSG_ERROR([A4 requires the google snappy library, which configure could not find! Run $srcdir/get_snappy.sh to setup a 'builtin' copy and rerun configure.])])
+
 A4_BOOST_CHECK([:],[AC_MSG_ERROR([A4 requires the C++ boost library version >= 1.43, which configure could not find! Run ./get_miniboost.sh" in your a4 directory to setup a 'builtin' copy of the required part of boost and rerun configure.])])
 
 A4_CERN_ROOT_SYSTEM_CHECK([:],[AC_MSG_ERROR([a4root requires the CERN ROOT library. http://root.cern.ch/])])
 
+A4_GTEST_CHECK
+
+# Enable this_a4.sh
 AC_CONFIG_FILES([m4/this_a4.sh.in:m4/this_a4.sh.ac])
 
-# only set the following variables if we configure an a4 package separately
-if test x$PACKAGE_NAME != xa4; then
+if test x${PACKAGE_NAME} != xa4; then
     AC_SUBST([A4_THIS_SCRIPT],[this_a4.sh])
     AC_SUBST([A4_THIS_SCRIPT_IN],[m4/this_a4.sh.in])
+    AC_SUBST([A4_GTEST_SUBDIR],[gtest])
 fi
-
-AC_ARG_ENABLE([gccfilt], AS_HELP_STRING([--disable-gccfilt], [Disables the use of gccfilter for error messages (Use 'make V=1' to disable it dynamically)]))
-AS_IF([test "x$enable_gccfilt" != "xno"], [
-    AC_SUBST([GCCFILTER_0], ["\$(top_srcdir)/common/gccfilter/gccfilter --colorize --remove-template-args --hide-with-clause --remove-namespaces -s std --remove-path "])
-])
 
 A4_INIT
