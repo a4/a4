@@ -24,8 +24,8 @@ AC_DEFUN([A4_CERN_ROOT_SYSTEM_CHECK], [
     if test x"$with_cern_root_system" != x; then
       AC_MSG_NOTICE([Using --with-cern-root-system=$with_cern_root_system])
     else
-      if test -d $srcdir/protobuf; then
-        with_cern_root_system=$(root-config --prefix)
+      with_cern_root_system=$(root-config --prefix)
+      if test -n "$with_cern_root_system"; then
         AC_MSG_NOTICE([Using found CERN Root system at $with_cern_root_system])
       else
         AC_MSG_NOTICE([No CERN Root system specified and none found!])
