@@ -135,7 +135,7 @@ class VariablePlain(VariableBase):
     def __init__(self, var):
         self.name = var.name.replace("::","_")
         self.arity, self.type = type_name(var.typecode)
-        self.comment = '// [root_branch="{0}{1}"]'.format(var.prefix, var.name)
+        self.extra = ' [(root_branch)="{0}{1}"]'.format(var.prefix, var.name)
         
 class VariableMessage(VariableBase):
     """
@@ -158,7 +158,7 @@ class VariableMessage(VariableBase):
             else:
                 self.name += "s"
             self.arity = "repeated"
-            self.comment = '// [root_branch_prefix="{0}"]'.format(obj.prefix)
+            self.extra = ' [(root_prefix)="{0}"]'.format(obj.prefix)
 
         if len(obj.prefix.split("_")) > 1:
             self.name = obj.prefix
@@ -225,7 +225,7 @@ class ProtoFile(object):
             }}
         """).strip()
         
-        includes = sorted(set(c.filename for c in self.children))
+        includes = ["RootExtension.proto"] + sorted(set(c.filename for c in self.children))
         return "\n".join(
             [PROTO_INCLUDES.format(name) for name in includes] +
             [""] +
@@ -266,7 +266,21 @@ def generate_proto(input_stream):
         files.append(f)
         
         #if i > 10: break
-        
+    from collections import namedtuple
+    root_extension = namedtuple('TextFile', ['filename', 'content'])
+    root_extension.filename = "RootExtension.proto"
+    root_extension.content = """
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions {
+    optional string root_branch = 50000;
+    optional string root_prefix = 50001;
+}
+
+"""
+
+    files.append(root_extension)
     return files
     
 
