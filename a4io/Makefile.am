@@ -8,7 +8,7 @@ include protobuf.am
 AM_CXXFLAGS+= -Wall -Werror
 
 # Files to distribute
-dist_bin_SCRIPTS = python/a4dump python/a4info
+dist_bin_SCRIPTS = python/a4dump.py python/a4info.py
 dist_pkgdata_SCRIPTS=python/test_pyrw
 pkgdata_PROGRAMS=test_read test_read test_read_nomd test_write_fw test_write_bw test_bigwrite test_write_nomd_fw test_write_nomd_bw
 a4include_HEADERS = src/a4/a4io.h src/a4/exceptions.h src/a4/types.h \
@@ -57,10 +57,10 @@ tests: $(TESTS)
 
 installcheck-local: python/test_pyrw test_read test_write_fw test_write_bw
 	source $(bindir)/this_a4.sh && $(pkgdatadir)/test_pyrw
-	source $(bindir)/this_a4.sh && a4info -m pytest_fw.a4 > /dev/null
-	source $(bindir)/this_a4.sh && a4info -m pytest_bw.a4 > /dev/null
-	source $(bindir)/this_a4.sh && a4dump -a pytest_fw.a4 > /dev/null
-	source $(bindir)/this_a4.sh && a4dump -a pytest_bw.a4 > /dev/null
+	source $(bindir)/this_a4.sh && a4info.py -m pytest_fw.a4 > /dev/null
+	source $(bindir)/this_a4.sh && a4info.py -m pytest_bw.a4 > /dev/null
+	source $(bindir)/this_a4.sh && a4dump.py -a pytest_fw.a4 > /dev/null
+	source $(bindir)/this_a4.sh && a4dump.py -a pytest_bw.a4 > /dev/null
 	./test_read pytest_fw.a4 > /dev/null
 	./test_read pytest_bw.a4 > /dev/null
 	./test_read pytest_fwfw.a4 > /dev/null
