@@ -99,15 +99,22 @@ class A4DumpAlg( D3PD__A4DumpAlg ):
                 # Skip those which already exist
                 in_tools = True
 
+            self.__logger.info("Encountered object of type '{0}'.".format(type(c)))
+            try:
+                class_name = c.ObjectName
+            except AttributeError:
+                self.__logger.info("No ObjectName: %s, prefix: %s" % (c, c.Prefix))
+                class_name = ""
+
             self.__logger.info("Adding D3PDObject with name '{0}' '{1}' '{2}'"
-                               .format(c.Prefix, c.ObjectName, c.getName()))
+                               .format(c.Prefix, class_name, c.getName()))
             
             if in_tools:
                 continue
                                           
             self.Tools      += [ c ]
             self.Prefixes   += [ c.Prefix ]
-            self.ClassNames += [ c.ObjectName ]
+            self.ClassNames += [ class_name ]
 
         super( A4DumpAlg, self ).__iadd__( config )
 
