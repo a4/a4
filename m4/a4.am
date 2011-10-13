@@ -65,4 +65,6 @@ GTEST_APP=gtest_main.cc
 # Always include gtest in distributions.
 DIST_SUBDIRS = $(A4_GTEST_SUBDIR) $(SUBDIRS)
 
-EXTRA_DIST += $(top_srcdir)/common
+dist-hook:
+	@if ! test -e $(distdir)/common; then cp -Lpr $(srcdir)/common $(distdir)/common; fi
+
