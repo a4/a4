@@ -1,6 +1,7 @@
 #define _FILE_OFFSET_BITS 64
 
 #include <a4/config.h>
+#include <a4/types.h>
 
 #include <iostream>
 
