@@ -1,6 +1,6 @@
 from logging import getLogger; log = getLogger("a4")
 
-from a4.messages import Atlas, EventStreamInfo, RunInfo
+from a4.proto.atlas import Atlas, EventStreamInfo, RunInfo
 
 from AthenaPython import PyAthena
 

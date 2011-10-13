@@ -1,7 +1,7 @@
 from math import sin, atan, atan2, exp, pi
 import gc
 
-from a4 import A4WriterStream
+from a4 import A4OutputStream
 from aod2a4 import AOD2A4Base, athena_setup
 
 from AthenaCommon.AppMgr import topSequence
@@ -10,9 +10,9 @@ from ROOT import gROOT, TLorentzVector
 from array import array
 from glob import glob
 
-from a4.messages import Trigger, TriggerFeature, Isolation, TrackHits, MuonTrackHits
-from a4.messages import Electron, Muon, Photon, Jet, Event
-from a4.messages import LorentzVector, Vertex, MissingEnergy, Perigee
+from a4.proto.atlas import Trigger, TriggerFeature, Isolation, TrackHits, MuonTrackHits
+from a4.proto.atlas import Electron, Muon, Photon, Jet, Event
+from a4.proto.atlas import LorentzVector, Vertex, MissingEnergy, Perigee
 
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
 
@@ -187,7 +187,7 @@ class AOD2A4(AOD2A4Base):
     try_hfor = True
 
     def init(self):
-        self.a4 = A4WriterStream(open(self.file_name, "w"), "Event", Event)
+        self.a4 = A4OutputStream(open(self.file_name, "w"), "Event", Event)
 
         import PyCintex
         PyCintex.loadDictionary("TrigMuonEvent")
