@@ -92,6 +92,7 @@ TYPECODE_MAP = {
     "D": "double",
     "c": "string",
     "O": "bool",
+    "B": "int32",
 }
 
 TYPE_MAP = {
@@ -112,7 +113,9 @@ def is_vector(t):
 
 def type_name(t):
     if len(t) == 1:
-        return 'optional', TYPECODE_MAP.get(t, "unk-{0}".format(t))
+        if not t in TYPECODE_MAP:
+            print "UNKNOWN TYPE: ", t
+        return 'optional', TYPECODE_MAP.get(t, "unk_{0}".format(t))
     
     vector, subtype = is_vector(t)
     ALL_TYPES_SEEN.add(subtype)
@@ -130,7 +133,7 @@ class VariablePlain(VariableBase):
     Represents a plain-old-data variable
     """
     def __init__(self, var):
-        self.name = var.name
+        self.name = var.name.replace("::","_")
         self.arity, self.type = type_name(var.typecode)
         self.comment = '// [root_branch="{0}{1}"]'.format(var.prefix, var.name)
         
@@ -140,8 +143,8 @@ class VariableMessage(VariableBase):
     """
     def __init__(self, f):
         obj = f.obj
-        self.name = space_out_camel_case(obj.classname)
-        
+        self.name = space_out_camel_case(obj.classname.replace("::","_"))
+
         if self.name == obj.classname:
             self.name = obj.classname.lower()
         
@@ -156,6 +159,10 @@ class VariableMessage(VariableBase):
                 self.name += "s"
             self.arity = "repeated"
             self.comment = '// [root_branch_prefix="{0}"]'.format(obj.prefix)
+
+        if len(obj.prefix.split("_")) > 1:
+            self.name = obj.prefix
+
         self.type = obj.classname
 
 class ProtoFile(object):
