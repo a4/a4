@@ -1,9 +1,7 @@
 #ifndef _A4_TYPES_H_
 #define _A4_TYPES_H_
 
-#if HAVE_CONFIG_H
 #include <a4/config.h>
-#endif
 
 #if HAVE_CSTDINT
 #include <cstdint>

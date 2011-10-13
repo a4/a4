@@ -11,7 +11,7 @@ from array import array
 from glob import glob
 
 from a4.proto.atlas import Trigger, TriggerFeature, Isolation, TrackHits, MuonTrackHits
-from a4.proto.atlas import Electron, Muon, Photon, Jet, Event
+from a4.proto.atlas import Electron, Muon, Photon, Jet, Event, EventStreamInfo
 from a4.proto.atlas import LorentzVector, Vertex, MissingEnergy, Perigee
 
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
@@ -187,7 +187,7 @@ class AOD2A4(AOD2A4Base):
     try_hfor = True
 
     def init(self):
-        self.a4 = A4OutputStream(open(self.file_name, "w"), "Event", Event)
+        self.a4 = A4OutputStream(open(self.file_name, "w"), "AOD2A4", Event, EventStreamInfo)
 
         import PyCintex
         PyCintex.loadDictionary("TrigMuonEvent")
@@ -583,5 +583,5 @@ def myjets():
 # do autoconfiguration of input
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-ana = AOD2A4("AOD2A4", year, options)
+ana = AOD2A4("AOD2A4", int(options["year"]), options)
 topSequence += ana
