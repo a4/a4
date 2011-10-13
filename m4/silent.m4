@@ -17,9 +17,11 @@ am__v_PROTOC_0 = @echo "  PROTOC" $@;'
     AC_SUBST([A4_SET_AM_V_PROTOC],[])
 ])
 
-AC_ARG_ENABLE([gccfilt], AS_HELP_STRING([--disable-gccfilt], [Disables the use of gccfilter for error messages (Use 'make V=1' to disable it dynamically)]))
+AC_ARG_ENABLE([gccfilter], AS_HELP_STRING([--disable-gccfilter], [Disables the use of gccfilter for error messages (Use 'make V=1' to disable it dynamically)]))
 AS_IF([test "x$enable_gccfilt" != "xno"], [
     AC_SUBST([GCCFILTER_0], ["\$(top_srcdir)/common/gccfilter/gccfilter --colorize --remove-template-args --hide-with-clause --remove-namespaces -s std --remove-path "])
+    AC_SUBST([GCCFILTER_], ["\$(GCCFILTER_\$(AM_DEFAULT_VERBOSITY))"])
+    AC_SUBST([GCCFILTER], ["\$(GCCFILTER_\$(V))"])
 ])
 
 ])

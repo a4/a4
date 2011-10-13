@@ -40,9 +40,9 @@ AC_DEFUN([_AM_OUTPUT_DEPENDENCY_COMMANDS],
     echo_SEP="echo \\\"-----------------\\\""
     cat $mf | sed -e "s/failcom='exit 1'/failcom='{ mv $LAST_MAKE $LAST_ERROR 2>\/dev\/null \&\& $echo_SEP \&\& echo \"$ERROR_MESSAGE_1\" \&\& echo \"$ERROR_MESSAGE_2\" \&\& $echo_SEP; exit 1; }'/" > $mf.tmp && mv $mf.tmp $mf
 
-    if test "x$enable_gccfilt" != "xno"; then :
+    if test "x$enable_gccfilt" != "xno"; then
         # A4: Enable gccfilter
-        cat $mf | sed -e 's/LTCXXCOMPILE = /GCCFILTER = \$(GCCFILTER_\$(V))\nGCCFILTER_ = \$(GCCFILTER_\$(AM_DEFAULT_VERBOSITY))\nLTCXXCOMPILE = \$(GCCFILTER) /g' > $mf.tmp && mv $mf.tmp $mf
+        cat $mf | sed -e 's/LTCXXCOMPILE = /LTCXXCOMPILE = \$(GCCFILTER) /g' > $mf.tmp && mv $mf.tmp $mf
     fi
 
     # Extract the definition of DEPDIR, am__include, and am__quote
