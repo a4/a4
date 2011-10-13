@@ -15,6 +15,16 @@
 #error "No Standard int type header found!"
 #endif
 
+#if HAVE_CSTRING
+#include <cstring>
+#elif HAVE_TR1_CSTRING
+#include <tr1/cstring>
+#elif HAVE_STRING_H
+#include <string.h>
+#else
+#error "No Standard cstring header found!"
+#endif
+
 #include <a4/exceptions.h>
 
 #include <boost/shared_array.hpp>

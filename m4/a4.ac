@@ -9,6 +9,7 @@ AC_NAMESPACE_SHARED_PTR
 AM_PATH_PYTHON([2.6])
 m4_ifdef([LT_INIT], [LT_INIT], [AC_PROG_LIBTOOL])
 AC_CHECK_HEADERS([cstdint tr1/cstdint stdint.h])
+AC_CHECK_HEADERS([cstring tr1/cstring string.h])
 AC_CHECK_HEADERS([memory tr1/memory])
 A4_SILENT
 
