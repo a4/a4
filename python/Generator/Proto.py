@@ -141,6 +141,8 @@ class VariableMessage(VariableBase):
     """
     Represents an (optionally) repeated message variable
     """
+    names = set()
+
     def __init__(self, f):
         obj = f.obj
         self.name = space_out_camel_case(obj.classname.replace("::","_"))
@@ -160,10 +162,11 @@ class VariableMessage(VariableBase):
             self.arity = "repeated"
             self.extra = ' [(root_prefix)="{0}"]'.format(obj.prefix)
 
-        if len(obj.prefix.strip("_").split("_")) > 1:
+        if len(obj.prefix.strip("_").split("_")) > 1 or self.name in self.names:
             self.name = obj.prefix.strip("_")
 
         self.type = obj.classname
+        self.names.add(self.name)
 
 class ProtoFile(object):
     def __init__(self, obj):
