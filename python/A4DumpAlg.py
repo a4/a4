@@ -21,8 +21,10 @@ class A4DumpAlg( D3PD__A4DumpAlg ):
                   seq = topSequence,
                   tuplename = None,
                   preD3PDAlgSeqName = D3PDMakerFlags.PreD3PDAlgSeqName(),
+                  orig_stream = None,
                   **kwargs ):
 
+        self.__orig_stream = orig_stream
         self.__logger = logging.getLogger( "A4DumpAlg" )
 
         # Work around initialization order issue.
@@ -84,6 +86,8 @@ class A4DumpAlg( D3PD__A4DumpAlg ):
 
     def __iadd__( self, config ):
         """Add a new IObjFillerTool to a tree."""
+        if self.__orig_stream:
+            self.__orig_stream.__iadd__(config)
 
         nchild = len( self )
         if type( config ) != type( [] ):
