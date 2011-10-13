@@ -160,8 +160,8 @@ class VariableMessage(VariableBase):
             self.arity = "repeated"
             self.extra = ' [(root_prefix)="{0}"]'.format(obj.prefix)
 
-        if len(obj.prefix.split("_")) > 1:
-            self.name = obj.prefix
+        if len(obj.prefix.strip("_").split("_")) > 1:
+            self.name = obj.prefix.strip("_")
 
         self.type = obj.classname
 
