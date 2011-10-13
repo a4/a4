@@ -1,0 +1,1 @@
+Reco_trf.py inputAODFile=AOD.pool.root outputNTUP_SMWZFile=NTUPWZ.root preInclude=override_d3pd.py maxEvents=10
