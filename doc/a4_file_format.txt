@@ -4,27 +4,19 @@ A4 Stream File Format
 Overview
 --------
 
-The A4 STREAM is a simple file format for sequences of 
-Google Protocol Buffer (PB) messages.
+The A4 STREAM is a file format for sequences of 
+Google Protocol Buffer (PB) messages. 
 
-Each top-level message type must have a unique CLASS ID
-between 1000 and 1073741823 (=2^30-1), specified as the field ID
-of the messages as follows:
+All definitions of the used Protocol Buffer Messages are also included,
+making A4 a completely self-contained format.
 
-message MyTopLevelMessage
-{
-    optional int32 CLASS_ID = 1042;
-    ...
-}
+Messages marked as metadata are accessible via an index, and the currently
+relevant metadata may be accessed during reading by a special function.
 
-An A4 STREAM has a DEFAULT CLASS ID, which is specified in the header.
-Messages of this type do not need to be prefixed with type information, 
-which should help cases where many small messages are streamed.
-
-Any A4 stream files also MUST have the property that concatenating them also
+Any A4 streams MUST have the property that concatenating them also
 produces a valid A4 file with correct metadata information. This has to be
 considered when adding metadata. Retrieved metadata from a concatenated file
-MUST be either not available or correct for the whole concatenated file.
+MUST be either be not available or correct for the whole concatenated file.
 
 Structure
 ---------
@@ -49,54 +41,85 @@ part of the message, and not included in the size estimate.
 
 The next SIZE bytes must be a valid PB message based on a shared specification.
 
-After the start magic bytes there MUST follow an A4StreamHeader message,
-including the size and type integers. The A4StreamHeader message has the
+After the start magic bytes there MUST follow a StreamHeader message,
+including the size and type integers. The StreamHeader message has the
 following protocol specification:
 
-message A4StreamHeader
+message StreamHeader
 {
-    optional int32 CLASS_ID = 100;
+    option (fixed_class_id) = 100;
     required int32 a4_version = 1;
-    optional string content = 2;
-    optional int32 content_class_id = 3;
+    optional string description = 2;
+
+    // if metadata_refers_forward is true, metadata refer
+    // to objects that follow them instead of precede them
+    optional bool metadata_refers_forward = 5 [default=false];
 }
 
-The a4_version field MUST be 1 for this version of the protocol, and the 
-content_class_id MAY indicate a default CLASS ID for messages in this file.
+The a4_version field MUST be set to 2 for this version of the protocol.
+fixed_class_id indicates the class id for StreamHeader messages.
 
-The content string is for human consumption only, and may contain a description
-of the file contents.
+The description string is for human consumption only, and SHOULD contain
+a description of the file contents.
 
 At the end of the stream/file, an A4StreamFooter message is expected:
 
-message A4StreamFooter
+message StreamFooter
 {
-    optional int32 CLASS_ID = 101;
+    option (fixed_class_id) = 101;
 
     // MUST be number of bytes written before the footer size byte
-    required int64 size = 1; 
+    required int64 size = 1;
 
-    // MAY contain the number of messages with default message class in this file
-    optional int32 content_count = 2; 
+    // MUST specify the offset from stream start of all metadata messages
+    repeated int64 metadata_offsets = 2;
 
-    // MAY specify the SIZE of an optional metadata message before this footer
-    optional int32 metadata_offset = 3; 
+    // MUST specify the offset from stream start of all FileDescriptor messages
+    repeated int64 file_descriptor_offsets = 3;
 }
 
-After an A4StreamFooter message, the size of that message is repeated as an
+After an StreamFooter message, the size of that message is repeated as an
 32-bit integer, to allow seeking backwards to the footer from the end of file.
+
+google.protobuf.FileDescriptor messages - packed into a ProtoClass message - 
+MUST be added with all its classes to to the descriptor pool for that Stream.
+That pool MUST be used ONLY for that part of the stream where it was found.
+The class_id specified in that message MUST NOT be used yet, and subsequently
+refers to that message in the file descriptors with the given full name.
+
+The reading should then be continued transparently.
+
+message ProtoClass
+{
+    option (fixed_class_id) = 105;
+    optional int32 class_id = 1;
+    optional string full_name = 2;
+    repeated google.protobuf.FileDescriptorProto file_descriptor = 3;
+}
+
+Messages that are intended to be written to A4 files at the top level MAY
+provide versioning information via 
+
+message MyEvent
+{
+    option (major_version) = "v2011.10";
+    option (minor_version) = "fix42";
+    option (patch_version) = "For my 83 run over the Data";
+}
+
+If this class is compiled in to an executable, it MUST check that the
+major_version matches the major_version in the data, and SHOULD warn the user
+in case the minor versions are different.
 
 Compression
 -----------
 
-NOT IMPLEMENTED YET
-
-If an A4StartCompressionSection message is read, the reader should treat the 
+If a StartCompressionSection message is read, the reader should treat the 
 file from that point as a compressed stream:
 
-message A4StartCompressedSection
+message StartCompressedSection
 {
-    optional int32 CLASS_ID = 102;
+    option (fixed_class_id) = 102;
     enum Compression {
         ZLIB = 0;
         GZIP = 1;
@@ -105,29 +128,27 @@ message A4StartCompressedSection
     optional Compression compression = 1;
 }
 
-In the future there may be a default compression.
-
 The reader should then continue to read messages from the compressed stream.
 This process MUST be transparent to the consumer of the messages (they should not
 have to call read() again, for example).
 
-If inside the compressed stream an A4EndCompressedSection message is read, after the
+If inside the compressed stream an EndCompressedSection message is read, after the
 end of that message the compression should be ended and regular reads should resume.
 
-message A4EndCompressedSection
+message EndCompressedSection
 {
-    optional int32 CLASS_ID = 103;
+    option (fixed_class_id) = 103;
 }
 
 Summary
 -------
 
 A4STREAM
-<size|HIGH_BIT> <classid=100> A4StreamHeader (default class = 1000)
-<size|HIGH_BIT> <classid=102> A4StartCompressedSection
+<size|HIGH_BIT> <classid=100> StreamHeader (default class = 1000)
+<size|HIGH_BIT> <classid=102> StartCompressedSection
   --start of compression--
-    <size|HIGH_BIT><classid=1040> Run Information Message
-    <size> Event (classid 1000 not specified)
+    <size|HIGH_BIT><classid=1> Run Information Message
+    <size> Event (classid 0 not specified)
     <size> Event
     <size> Event
     ...
