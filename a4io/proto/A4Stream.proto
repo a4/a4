@@ -2,34 +2,36 @@ package a4.io;
 
 import "google/protobuf/descriptor.proto";
 
-import "MetadataExtension.proto";
+import "A4.proto";
 
-message A4StreamHeader
+message StreamHeader
 {
-    optional int32 CLASS_ID = 100;
+    option (fixed_class_id) = 100;
     required int32 a4_version = 1;
     optional string description = 2;
-    optional int32 content_class_id = 3;
-    optional int32 metadata_class_id = 4;
-    // if metadata_refers_forward is true, metadata are referring 
+
+    // if metadata_refers_forward is true, metadata refer
     // to objects that follow them instead of precede them
-    optional bool metadata_refers_forward = 5 [default=false]; 
-    // File descriptors necessary to read content or metadata
-    repeated google.protobuf.FileDescriptorProto file_descriptors = 6;
+    optional bool metadata_refers_forward = 5 [default=false];
 }
 
-message A4StreamFooter
+message StreamFooter
 {
-    optional int32 CLASS_ID = 101;
-    required int64 size = 1; // number of bytes written before the footer
-    optional int32 content_count = 2; // number of 'content' events
-    repeated int64 metadata_offsets = 3; // position of the 'backward-facing' metadata messages in this file
-    optional bool metadata_refers_forward = 5 [default=false]; 
+    option (fixed_class_id) = 101;
+
+    // MUST be number of bytes written before the footer size byte
+    required int64 size = 1;
+
+    // MUST specify the offset from stream start of all metadata messages
+    repeated int64 metadata_offsets = 2;
+
+    // MUST specify the offset from stream start of all ProtoClass messages
+    repeated int64 file_descriptor_offsets = 3;
 }
 
-message A4StartCompressedSection
+message StartCompressedSection
 {
-    optional int32 CLASS_ID = 102;
+    option (fixed_class_id) = 102;
     enum Compression {
         ZLIB = 0;
         GZIP = 1;
@@ -39,21 +41,25 @@ message A4StartCompressedSection
     optional Compression compression = 1;
 }
 
-message A4EndCompressedSection
+message EndCompressedSection
 {
-    optional int32 CLASS_ID = 103;
+    option (fixed_class_id) = 103;
 }
 
-message A4Proto
+message ProtoClass
 {
-    optional int32 CLASS_ID = 105;
-    
-    optional google.protobuf.FileDescriptorProto file_descriptor = 1;
+    option (fixed_class_id) = 105;
+    optional int32 class_id = 1;
+    optional string full_name = 2;
+    repeated google.protobuf.FileDescriptorProto file_descriptor = 3;
 }
 
 message TestEvent
 {
-    optional int32 CLASS_ID = 300;
+    option (major_version) = "v2011.10";
+    option (minor_version) = "fix42";
+    option (patch_version) = "For my 83 run over the Data";
+
     optional int32 event_number = 1;
     optional double event_data = 2;
 }
@@ -66,18 +72,32 @@ message TestRunLB
 
 message TestMetaData
 {
+    option (major_version) = "v2011.10-MD";
+    option (minor_version) = "fix42";
+    option (patch_version) = "For my 83 run over the Data";
+
+
     optional int32 CLASS_ID = 301;
     optional int32 meta_data = 1 [(merge)=MERGE_ADD];
 }
 
 message TestMergeMetaDataStatic
 {
-    optional int32 CLASS_ID = 302;
+    option (fixed_class_id) = 42;
+
+    option (major_version) = "v2011.10-MD-MERGE";
+    option (patch_version) = "For my 83 run over the Data";
+
     optional int32 meta_data = 1 [(merge)=MERGE_ADD];
 }
 
 message TestMergeMetaData
 {
+    option (fixed_class_id) = 42;
+
+    option (major_version) = "v2011.10-MD-MERGE";
+    option (patch_version) = "For my 83 run over the Data";
+
     optional int32 CLASS_ID = 302;
     optional int32 meta_data = 1 [(merge)=MERGE_ADD];
     repeated TestRunLB lumiblock = 2 [(merge)=MERGE_UNION];

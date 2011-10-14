@@ -1,6 +1,6 @@
-package a4.io;
-
 import "google/protobuf/descriptor.proto";
+
+package a4;
 
 enum MetadataMergeOptions {
     MERGE_BLOCK_IF_DIFFERENT = 0; // Throw exception if different, default
@@ -15,4 +15,10 @@ extend google.protobuf.FieldOptions {
     optional MetadataMergeOptions merge = 50002;
 }
 
+extend google.protobuf.MessageOptions {
+    optional int32 fixed_class_id = 50000;
+    optional string major_version = 50010;
+    optional string minor_version = 50011;
+    optional string patch_version = 50012;
+}
 

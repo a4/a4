@@ -86,6 +86,8 @@ MUST be added with all its classes to to the descriptor pool for that Stream.
 That pool MUST be used ONLY for that part of the stream where it was found.
 The class_id specified in that message MUST NOT be used yet, and subsequently
 refers to that message in the file descriptors with the given full name.
+File descriptors SHOULD be given only once per Stream, the full_name MAY refer
+back to a file descriptor from a previous ProtoClass message.
 
 The reading should then be continued transparently.
 
