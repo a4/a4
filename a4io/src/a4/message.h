@@ -22,20 +22,26 @@ namespace a4{ namespace io{
             A4Message() : descriptor(NULL) { message.reset(); };
             /// Construct normal A4Message with class_id and protobuf Message
             A4Message(const google::protobuf::Descriptor* d, shared<Message> msg) : message(msg), descriptor(d) {};
-            /// shared protobuf message 
+
+            /// Shared protobuf message 
             shared<Message> message;
+            /// Pointer to the descriptor of that message, used for quick type checks.
             const google::protobuf::Descriptor* descriptor;
 
             /// true if the message pointer is None (end, unknown or no metadata)
             bool null() const {return message.get() == NULL; };
+
             /// this object can be used in if() expressions, it will be true if it contains a message
             operator bool() const { return !null(); }
             bool operator!() const { return null(); }
-            /// Check if the class ID matches.
+
+            /// Quick check if the message is of that class
             /// example: if (result.is<TestEvent>())
             template <class T>
             bool is() const { return T::descriptor() == descriptor; };
-            /// Check if the class ID matches and return the message, otherwise NULL.
+
+            /// Checked Cast of the message to the given class.
+            /// Returns null if the cast fails.
             /// example: auto event = result.as<MyEvent>()
             template <class T>
             shared<T> as() const {

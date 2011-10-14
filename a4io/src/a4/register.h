@@ -12,13 +12,13 @@ namespace google{ namespace protobuf{ namespace io{ class CodedInputStream; };};
 namespace a4{ namespace io{
 
     namespace internal {
+        typedef struct classreg_struct {
+            classreg_struct() : descriptor(NULL), from_stream(NULL) {};
+            const google::protobuf::Descriptor* descriptor;
+            boost::function<shared<Message> (google::protobuf::io::CodedInputStream*)> from_stream;
+        } classreg;
     
-        shared<Message> bad_from_stream_func(google::protobuf::io::CodedInputStream *);
-
-        // Wizardry to get class from ID
-        // typedef shared<Message> (*from_stream_func)(google::protobuf::io::CodedInputStream *);
-        typedef boost::function<shared<Message> (google::protobuf::io::CodedInputStream*)> from_stream_func;
-        from_stream_func all_class_ids(int, from_stream_func f = NULL, bool warn=true);
+        classreg map_class_by_name(std::string name, classreg=classreg(), bool warn=true);
 
         template <typename ProtoClass>
         shared<Message> from_stream(google::protobuf::io::CodedInputStream * instr) {
@@ -28,25 +28,27 @@ namespace a4{ namespace io{
         }
 
         template <typename ProtoClass>
-        int reg_protoclass_id() {
-            if (ProtoClass::kCLASSIDFieldNumber != 0) {
-                all_class_ids(ProtoClass::kCLASSIDFieldNumber, from_stream<ProtoClass>);
-            }
-            return ProtoClass::kCLASSIDFieldNumber;
+        classreg reg_protoclass() {
+            classreg r;
+            r.descriptor = ProtoClass::descriptor();
+            r.from_stream = from_stream<ProtoClass>;
+            return map_class_by_name(r.descriptor->full_name(), r);
         }
     }
 
     template <typename ProtoClass>
-    class RegisterClassID {
+    class RegisterClass {
         public:
-            static int class_id;
-            virtual uint32_t get_class_id() { return class_id; } // forces class_id to be inited
+            static internal::classreg registration;
+            // force static to be initialized
+            virtual internal::classreg _get_registration() { return registration; }
     };
 
     template <typename ProtoClass>
-    int RegisterClassID<ProtoClass>::class_id = internal::reg_protoclass_id<ProtoClass>();
+    internal::classreg RegisterClass<ProtoClass>::registration = internal::reg_protoclass<ProtoClass>();
 
     /// Class indicating that no MetaData is being used
+    /// Has to implement all pure virtual methods of Message :P
     class NoProtoClass : public Message {
         public:
             NoProtoClass() {};
