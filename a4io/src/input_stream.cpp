@@ -78,7 +78,7 @@ A4InputStream::A4InputStream(shared<ZeroCopyInputStream> in, std::string name) {
 A4Message A4InputStream::set_error() {
     _error = true;
     _good = false;
-    return A4Message(true);
+    return A4Message();
 }
 
 A4Message A4InputStream::set_end() {
@@ -246,7 +246,7 @@ bool A4InputStream::discover_all_metadata() {
         if (footer_abs_start == -1) return false;
         A4Message msg = next(true);
         if (!msg.is<A4StreamFooter>()) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Unknown footer class_id " << msg.class_id << std::endl;
+            std::cerr << "ERROR - a4::io:A4InputStream - Unknown footer class!" << std::endl;
             return false;
         }
         shared<A4StreamFooter> footer = msg.as<A4StreamFooter>();
@@ -258,17 +258,11 @@ bool A4InputStream::discover_all_metadata() {
             if (seek(metadata_start, SEEK_SET) == -1) return false;
             A4Message msg = next(true);
             
-            while (msg.class_id == uint32_t(A4Proto::kCLASSIDFieldNumber)) {
+            while (msg.is<A4Proto>()) {
                 // Instead of getting metadata we might get class descriptions here
                 shared<A4Proto> a4proto = msg.as<A4Proto>();
                 generate_dynamic_classes(a4proto.get());
                 msg = next(true);
-            }
-            
-            if (msg.class_id != _metadata_class_id) {
-                std::cerr << "ERROR - a4::io:A4InputStream - class_id is not metadata class_id: "
-                          << msg.class_id << " != " << _metadata_class_id << std::endl;
-                return false;
             }
             _this_headers_metadata.push_back(msg);
         }
@@ -408,8 +402,8 @@ const Descriptor* A4InputStream::dynamic_descriptor(uint32_t class_id) {
 
 
 A4Message A4InputStream::merge_messages(A4Message _m1, A4Message _m2) {
-    assert(_m1.class_id == _m2.class_id);
-    const Descriptor * d = dynamic_descriptor(_m1.class_id);
+    assert(_m1.descriptor == _m2.descriptor);
+    const Descriptor * d = _m1.descriptor; // TODO: Must be dynamic one
     assert(d != NULL);
 
     unique<google::protobuf::Message> m1(_message_factory->GetPrototype(d)->New());
@@ -452,7 +446,7 @@ A4Message A4InputStream::merge_messages(A4Message _m1, A4Message _m2) {
                 throw a4::Fatal("Unknown merge strategy: ", evd->name(), ". Recompilation should fix it.");
         }
     }
-    return A4Message(_m1.class_id, merged);
+    return A4Message(d, merged);
 }
 
 
@@ -476,7 +470,7 @@ A4Message A4InputStream::next(bool internal) {
     
     if (!_started) startup();
 
-    if (!_good) return A4Message(_error);
+    if (!_good) return A4Message();
 
     static int i = 0;
     if (i++ % 100 == 0) reset_coded_stream();
@@ -514,7 +508,7 @@ A4Message A4InputStream::next(bool internal) {
             return set_error();
         }
         ++_items_read;
-        return A4Message(message_type, item);
+        return A4Message(item->GetDescriptor(), item);
     }
 
     internal::from_stream_func from_stream = internal::all_class_ids(message_type);
@@ -534,7 +528,7 @@ A4Message A4InputStream::next(bool internal) {
         return set_error();
     }
     
-    if (internal) return A4Message(message_type, item);
+    if (internal) return A4Message(item->GetDescriptor(), item);
         
     if (message_type == uint32_t(A4StreamFooter::kCLASSIDFieldNumber)) {
         // TODO: Process footer
@@ -560,7 +554,7 @@ A4Message A4InputStream::next(bool internal) {
             if (_error) {
                 std::cerr << "ERROR - a4::io:A4InputStream - Corrupt header!" << std::endl;
             }
-            return A4Message(_error);
+            return A4Message();
         }
         _current_metadata = A4Message();
         if (!_current_metadata_refers_forward) {
@@ -589,7 +583,7 @@ A4Message A4InputStream::next(bool internal) {
         return next();
     } else if (message_type == _metadata_class_id) {
         if (_current_metadata_refers_forward) {
-            _current_metadata = A4Message(_metadata_class_id, item);
+            _current_metadata = A4Message(item->GetDescriptor(), item);
         } else {
             _current_metadata_index++;
             _current_metadata = A4Message();
@@ -599,6 +593,6 @@ A4Message A4InputStream::next(bool internal) {
         _new_metadata = true;
         return next();
     }
-    return A4Message(message_type, item);
+    return A4Message(item->GetDescriptor(), item);
 }
 

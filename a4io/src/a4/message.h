@@ -11,6 +11,7 @@
 // used internally
 namespace google{ namespace protobuf{
     class Message;
+    class Descriptor;
 };};
 
 namespace a4{ namespace io{
@@ -18,18 +19,13 @@ namespace a4{ namespace io{
     class A4Message {
         public:
             /// Construct A4Message that signifies end of stream or stream error
-            A4Message(bool error=false) { if (error) class_id = 1; else class_id = 0; message.reset(); };
+            A4Message() : descriptor(NULL) { message.reset(); };
             /// Construct normal A4Message with class_id and protobuf Message
-            A4Message(uint32_t cls, shared<Message> msg) : class_id(cls), message(msg) {};
-            /// Class ID of the message read
-            uint32_t class_id;
+            A4Message(const google::protobuf::Descriptor* d, shared<Message> msg) : message(msg), descriptor(d) {};
             /// shared protobuf message 
             shared<Message> message;
+            const google::protobuf::Descriptor* descriptor;
 
-            /// true if an error occurred
-            bool error() const {return class_id == 1; };
-            /// true if the stream has terminated correctly
-            bool end() const {return class_id == 0; };
             /// true if the message pointer is None (end, unknown or no metadata)
             bool null() const {return message.get() == NULL; };
             /// this object can be used in if() expressions, it will be true if it contains a message
@@ -38,18 +34,12 @@ namespace a4{ namespace io{
             /// Check if the class ID matches.
             /// example: if (result.is<TestEvent>())
             template <class T>
-            bool is() const { BOOST_STATIC_ASSERT(T::kCLASSIDFieldNumber >= 0); return uint32_t(T::kCLASSIDFieldNumber) == class_id; };
+            bool is() const { return T::descriptor() == descriptor; };
             /// Check if the class ID matches and return the message, otherwise NULL.
             /// example: auto event = result.as<MyEvent>()
             template <class T>
             shared<T> as() const {
                 if (not is<T>()) return shared<T>();
-                // If this assertion isn't true then the generated message is
-                // (probably?) invalid. You can only then do things with the 
-                // message through its GetReflection(), and not through any 
-                // compiled in code.
-                // Did you mean to A4RegisterClass?
-                assert(T::descriptor() == message->GetDescriptor());
                 return static_pointer_cast<T>(message);
             }
     };
