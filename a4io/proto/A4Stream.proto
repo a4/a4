@@ -11,8 +11,11 @@ message A4StreamHeader
     optional string description = 2;
     optional int32 content_class_id = 3;
     optional int32 metadata_class_id = 4;
+    // if metadata_refers_forward is true, metadata are referring 
+    // to objects that follow them instead of precede them
     optional bool metadata_refers_forward = 5 [default=false]; 
-    // if true, metadata are referring to objects that follow them instead of precede them
+    // File descriptors necessary to read content or metadata
+    repeated google.protobuf.FileDescriptorProto file_descriptors = 6;
 }
 
 message A4StreamFooter

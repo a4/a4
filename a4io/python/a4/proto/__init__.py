@@ -5,6 +5,7 @@ def init():
     from os import listdir, environ
     from os.path import abspath, isdir, dirname, join, exists
     import sys
+    global class_ids
     fd = abspath(dirname(__file__))
     for dir in listdir(fd):
         if isdir(join(fd, dir)):
@@ -28,6 +29,9 @@ def init():
                 classes = (getattr(mod, k) for k in mod.__dict__.keys() if not k.startswith("_"))
                 clsd = dict((c.CLASS_ID_FIELD_NUMBER, c) for c in classes if hasattr(c, "CLASS_ID_FIELD_NUMBER"))
                 class_ids.update(clsd)
+
+    # Only allow <300
+    class_ids = dict((a,b) for a,b in class_ids.iteritems() if a < 300)
 
 init()
 del init

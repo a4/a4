@@ -2,6 +2,11 @@ from struct import pack, unpack
 from bisect import bisect_right as bisect
 import zlib
 
+from google.protobuf.message import Message
+from google.protobuf.descriptor import Descriptor, FileDescriptor, FieldDescriptor, EnumDescriptor, EnumValueDescriptor
+from google.protobuf.descriptor_pb2 import FileDescriptorProto
+from google.protobuf.reflection import GeneratedProtocolMessageType
+
 from a4.proto import class_ids
 from a4.proto.io import A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection, A4Proto
 
@@ -9,6 +14,168 @@ START_MAGIC = "A4STREAM"
 END_MAGIC = "KTHXBYE4"
 HIGH_BIT = (1<<31)
 SEEK_END = 2
+FIRST_CUSTOM_MESSAGE_CLASS = 300
+
+class TYPE:
+    DOUBLE=1
+    FLOAT=2
+    INT64=3
+    UINT64=4
+    INT32=5
+    FIXED64=6
+    FIXED32=7
+    BOOL=8
+    STRING=9
+    GROUP=10
+    MESSAGE=11
+    BYTES=12
+    UINT32=13
+    ENUM=14
+    SFIXED32=15
+    SFIXED64=16
+    SINT32=17
+    SINT64=18
+
+class CPPTYPE:
+    INT32=1
+    INT64=2
+    UINT32=3
+    UINT64=4
+    DOUBLE=5
+    FLOAT=6
+    BOOL=7
+    ENUM=8
+    STRING=9
+    MESSAGE=10
+
+type_to_cpptype = {
+    TYPE.DOUBLE: CPPTYPE.DOUBLE ,
+    TYPE.FLOAT: CPPTYPE.FLOAT ,
+    TYPE.INT64: CPPTYPE.INT64 ,
+    TYPE.UINT64: CPPTYPE.UINT64 ,
+    TYPE.INT32: CPPTYPE.INT32 ,
+    TYPE.FIXED64: CPPTYPE.INT64 ,
+    TYPE.FIXED32: CPPTYPE.INT32 ,
+    TYPE.BOOL: CPPTYPE.BOOL ,
+    TYPE.STRING: CPPTYPE.STRING ,
+    TYPE.GROUP: CPPTYPE.MESSAGE ,
+    TYPE.MESSAGE: CPPTYPE.MESSAGE ,
+    TYPE.BYTES: CPPTYPE.STRING ,
+    TYPE.UINT32: CPPTYPE.UINT32 ,
+    TYPE.ENUM: CPPTYPE.ENUM ,
+    TYPE.SFIXED32: CPPTYPE.INT32 ,
+    TYPE.SFIXED64: CPPTYPE.INT64 ,
+    TYPE.SINT32: CPPTYPE.INT32 ,
+    TYPE.SINT64: CPPTYPE.INT64,
+    }
+    
+default_from_type = {
+    CPPTYPE.INT32: 0,
+    CPPTYPE.INT64: 0,
+    CPPTYPE.UINT32: 0,
+    CPPTYPE.UINT64: 0,
+    CPPTYPE.DOUBLE: 0.0,
+    CPPTYPE.FLOAT: 0.0,
+    CPPTYPE.BOOL: False,
+    CPPTYPE.ENUM: 0,
+    CPPTYPE.STRING: "",
+    CPPTYPE.MESSAGE: None
+}
+
+def field_from_proto(f, index, package, super_name):
+    f_full_name = super_name + "." + f.name
+    options = f.options
+    has_default = f.HasField("default_value")
+    if has_default:
+        if type_to_cpptype[f.type] == CPPTYPE.BOOL:
+            default = not (str(f.default_value).lower() in ("false", "0"))
+        elif type_to_cpptype[f.type] == CPPTYPE.STRING:
+            default = f.default_value
+        else:
+            default = f.default_value
+    elif f.label == 3: # 3 == REPEATED
+        default = []
+    else:
+        default = default_from_type[type_to_cpptype[f.type]]
+    message_type = None
+    enum_type = None
+    fqtn = f.type_name.strip(".")
+    message_type = fqtn if f.type in (TYPE.MESSAGE, TYPE.GROUP) else None
+    enum_type = fqtn if f.type == TYPE.ENUM else None
+    return FieldDescriptor(f.name, f_full_name, index, f.number, f.type, 
+        type_to_cpptype[f.type], f.label, default, message_type, 
+        enum_type=enum_type, containing_type=None,
+        is_extension=False, extension_scope=None, options=options)
+
+class ProtoPool(object):
+    def __init__(self):
+        self.files = []
+        self.classes = {}
+        self.classes["google.protobuf.FileDescriptorProto"] = FileDescriptorProto.DESCRIPTOR
+        self.enums = {}
+        self.clean = True
+        self._class_ids = {}
+
+    def enum_from_proto(self, e, package, filename, super_name=""):
+        full_name = ".".join((super_name, e.name)).strip(".")
+        values = [EnumValueDescriptor(evd.name, index, evd.number, options=evd.options) 
+                  for index, evd in enumerate(e.value)]
+        ed = EnumDescriptor(e.name, full_name, filename, values, containing_type=None, 
+                options=e.options, file=None, serialized_start=None, serialized_end=None)
+        fqn = ".".join((package, super_name, e.name)).replace("..",".")
+        self.enums[fqn] = ed
+        return ed
+
+    def type_from_proto(self, m, package, filename, super_name=""):
+        full_name = ".".join((super_name, m.name)).strip(".")
+        containing_type = None # Set by containing type constructor
+        fields = [field_from_proto(f, index, package, full_name) for index, f in enumerate(m.field)]
+        nested_types = [self.type_from_proto(e, package, filename, full_name) for e in m.nested_type]
+        enum_types = [self.enum_from_proto(e, package, filename, full_name) for e in m.enum_type]
+        extensions = [] #TODO m.extension
+        options = m.options
+        is_extendable = len(m.extension_range) != 0
+        ext_ranges = m.extension_range
+        # Note tht we cannot serialize this back if serialized_start/end is not set
+        d = Descriptor(m.name, full_name, filename, containing_type, fields,
+                       nested_types, enum_types, extensions, options=options,
+                       is_extendable=is_extendable, extension_ranges=ext_ranges,
+                       file=None, serialized_start=None, serialized_end=None)
+        fqn = ".".join((package, super_name, m.name)).replace("..",".")
+        self.classes[fqn] = d
+        return d
+
+    def add_file_descriptor(self, fdp):
+        if any(str(fdp.name) == fd.name for fd in self.files):
+            return
+        self.clean = False
+        fd = FileDescriptor(str(fdp.name), str(fdp.package), serialized_pb=fdp.SerializeToString())
+        for m in fdp.message_type:
+            fd.message_types_by_name[m.name] = self.type_from_proto(m, str(fdp.package), fdp.name)
+        self.files.append(fd)
+
+    @property
+    def class_ids(self):
+        if self.clean:
+            return self._class_ids
+        # First fixup message_type and enum_type
+        for d in self.classes.itervalues():
+            for f in d.fields:
+                if isinstance(f.message_type, basestring):
+                    f.message_type = self.classes[f.message_type]
+                if isinstance(f.enum_type, basestring):
+                    f.enum_type = self.enums[f.enum_type]
+        # Then recreate class_ids
+        self._class_ids = {}
+        for fd in self.files:
+            for name, d in fd.message_types_by_name.iteritems():
+                if not "CLASS_ID" in d.fields_by_name:
+                    continue # Doesn't have a CLASS_ID, ignore
+                class_id = d.fields_by_name["CLASS_ID"].number
+                protoclass = GeneratedProtocolMessageType(str(d.name), (Message,), {"DESCRIPTOR" : d})
+                self._class_ids[class_id] = protoclass
+        self.clean = True
+        return self._class_ids
 
 class ZlibOutputStream(object):
     def __init__(self, out_stream):
@@ -51,7 +218,7 @@ class ZlibInputStream(object):
 
 class A4OutputStream(object):
     def __init__(self, out_stream, description=None, content_cls=None, metadata_cls=None, compression=True, metadata_refers_forward=False):
-        self.compression = True
+        self.compression = compression
         self.compressed = False
         self.bytes_written = 0
         self.content_count = 0
@@ -61,13 +228,20 @@ class A4OutputStream(object):
         self.content_class_id = None
         self.metadata_class_id = None
         self.metadata_refers_forward = metadata_refers_forward
+        file_descriptors = []
+        self._written_class_ids = set()
+        self._written_fdps = set()
+        self.metadata_offsets = []
+
         if content_cls:
             self.content_class_id = content_cls.CLASS_ID_FIELD_NUMBER
+            self.get_descriptors_recursively(content_cls.DESCRIPTOR.file, file_descriptors)
         if metadata_cls:
             self.metadata_class_id = metadata_cls.CLASS_ID_FIELD_NUMBER
-        self.metadata_offsets = []
-        self.write_header(description)
+            self.get_descriptors_recursively(content_cls.DESCRIPTOR.file, file_descriptors)
+        self.write_header(description, file_descriptors)
         self.start_compression()
+
 
     def start_compression(self):
         assert not self.compressed
@@ -87,7 +261,7 @@ class A4OutputStream(object):
         self.out_stream = self._raw_out_stream
         self.compressed = False
 
-    def write_header(self, description=None):
+    def write_header(self, description=None, file_descriptors=None):
         self.out_stream.write(START_MAGIC)
         self.bytes_written += len(START_MAGIC)
         header = A4StreamHeader()
@@ -99,6 +273,8 @@ class A4OutputStream(object):
             header.content_class_id = self.content_class_id
         if self.metadata_class_id:
             header.metadata_class_id = self.metadata_class_id
+        if file_descriptors:
+            header.file_descriptors.extend(self.get_file_descriptor_protos(file_descriptors))
         self.write(header)
 
     def write_footer(self):
@@ -129,21 +305,64 @@ class A4OutputStream(object):
         return self.out_stream.flush()
     
     def metadata(self, o):
-
         self.write(o)
 
+    def get_descriptors_recursively(self, file_descriptor, file_descriptors=None, all_fds=None):
+        if file_descriptors is None:
+            file_descriptors = []
+        if all_fds is None:
+            import gc
+            all_fds = [fd for fd in gc.get_objects() if isinstance(fd, FileDescriptor)]
+        if any(file_descriptor.name == fd.name for fd in file_descriptors):
+            return # We have seen this one before
+        file_descriptors.append(file_descriptor)
+        fdp = FileDescriptorProto()
+        file_descriptor.CopyToProto(fdp)
+        for fd in all_fds:
+            if fd.name in fdp.dependency:
+                self.get_descriptors_recursively(fd, all_fds, file_descriptors)
+        return file_descriptors
+
+    def get_file_descriptor_protos(self, file_descriptors):
+        fdps = []
+        for fd in file_descriptors:
+            fdp = FileDescriptorProto()
+            fd.CopyToProto(fdp)
+            if fdp.name in self._written_fdps:
+                continue
+            self._written_fdps.add(fdp.name)
+            fdps.append(fdp)
+            for d in fdp.message_type:
+                clsids = [f for f in d.field if f.name == "CLASS_ID"]
+                if len(clsids) == 0:
+                    continue # Doesn't have a CLASS_ID, ignore
+                self._written_class_ids.add(clsids[0].number)
+        return fdps
+
+    def write_a4proto(self, o):
+        file_descriptors = self.get_descriptors_recursively(o.DESCRIPTOR.file)
+        for fdp in self.get_file_descriptor_protos(file_descriptors):
+            a4proto = A4Proto();
+            a4proto.file_descriptor.CopyFrom(fdp)
+            self.write(a4proto);
 
     def write(self, o):
         type = o.CLASS_ID_FIELD_NUMBER
-        size = o.ByteSize()
-        if type == self.content_class_id:
-            self.content_count += 1
         if type == self.metadata_class_id:
             if self.compressed:
                 self.stop_compression()
             self.metadata_offsets.append(self.bytes_written)
+        size = o.ByteSize()
+        if type == self.content_class_id:
+            self.content_count += 1
+
         assert 0 <= size < HIGH_BIT, "Message size not in range!"
         assert 0 < type < HIGH_BIT, "Type ID not in range!"
+
+
+        if (type >= FIRST_CUSTOM_MESSAGE_CLASS) and not type in self._written_class_ids:
+            self.write_a4proto(o)
+
         if type != self.content_class_id:
             self.out_stream.write(pack("<I", size | HIGH_BIT))
             self.out_stream.write(pack("<I", type))
@@ -167,6 +386,7 @@ class A4InputStream(object):
         self.headers = {}
         self.footers = {}
         self.metadata = {}
+        self.pool = ProtoPool()
         self.read_header()
         self.current_header = self.headers.values()[0]
         self._read_all_meta_info = False
@@ -236,6 +456,8 @@ class A4InputStream(object):
             self.content_class_id = header.content_class_id
         if header.metadata_class_id:
             self.metadata_class_id = header.metadata_class_id
+        for fdp in header.file_descriptors:
+            self.pool.add_file_descriptor(fdp)
         self.headers[header_position] = header
         #print "header at ", header_position, " is ", header
 
@@ -256,7 +478,9 @@ class A4InputStream(object):
         self.process_footer(footer, len(END_MAGIC) + 4 + footer_size + 8, self.in_stream.tell())
         # get metadata from footer
         if read_metadata:
-            for metadata in footer.metadata_offsets:
+            l = sorted(footer.metadata_offsets)
+            l.reverse()
+            for metadata in l: #sorted(footer.metadata_offsets):
                 metadata_start = footer_abs_start - footer.size + metadata
                 #print "SEEKING TO ", metadata_start, footer_abs_start, footer.size, metadata
                 self.in_stream.seek(metadata_start)
@@ -276,6 +500,8 @@ class A4InputStream(object):
         def cname(id):
             if id == 0:
                 return "None"
+            elif id in self.pool.class_ids:
+                return self.pool.class_ids[id].__name__
             elif id in class_ids:
                 return class_ids[id].__name__
             else:
@@ -307,17 +533,29 @@ class A4InputStream(object):
             type,  = unpack("<I", self.in_stream.read(4))
         else:
             type = self.content_class_id
-        cls = class_ids[type]
+        if type in self.pool.class_ids:
+            cls = self.pool.class_ids[type]
+        else:
+            cls = class_ids[type]
+        #print "READ NEXT ", cls, " AT ", self.in_stream.tell()
+        if cls.CLASS_ID_FIELD_NUMBER == A4Proto.CLASS_ID_FIELD_NUMBER:
+            fdp = cls.FromString(self.in_stream.read(size)).file_descriptor
+            self.pool.add_file_descriptor(fdp)
+            return self.read_message()
         return cls, cls.FromString(self.in_stream.read(size))
 
     def next(self):
         cls, message = self.read_message()
+        #print "READ NEXT ", cls, " AT ", self.in_stream.tell()
         #print "READ NEXT ", cls, message, " AT ", self.in_stream.tell()
-        if cls is A4StreamHeader:
+        def is_an(c):
+            return cls.CLASS_ID_FIELD_NUMBER == c.CLASS_ID_FIELD_NUMBER
+
+        if is_an(A4StreamHeader):
             self.process_header(message, self.in_stream.tell() - 8 - message.ByteSize())
             self.current_header = message
             return self.next()
-        elif cls is A4StreamFooter:
+        elif is_an(A4StreamFooter):
             self.process_footer(message, len(END_MAGIC) + 4 + message.ByteSize() + 8, self.in_stream.tell())
             footer_size,  = unpack("<I", self.in_stream.read(4))
             if not END_MAGIC == self.in_stream.read(len(END_MAGIC)):
@@ -330,16 +568,15 @@ class A4InputStream(object):
                 self._eof = True
                 raise StopIteration
             return self.next()
-        elif cls is A4StartCompressedSection:
+        elif is_an(A4StartCompressedSection):
             self._orig_in_stream = self.in_stream
             self.in_stream = ZlibInputStream(self._orig_in_stream)
             return self.next()
-        elif cls is A4EndCompressedSection:
+        elif is_an(A4EndCompressedSection):
             self.in_stream.close()
             self.in_stream = self._orig_in_stream
             return self.next()
-        elif cls is A4Proto:
-            return self.next()
+
         elif cls.CLASS_ID_FIELD_NUMBER == self.current_header.metadata_class_id:
             self.metadata[self.in_stream.tell() - message.ByteSize() - 8] = message
             self._metadata_change = True
