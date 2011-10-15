@@ -2,6 +2,7 @@
 #define _A4_STORABLE_H_
 
 #include <a4/a4io.h>
+#include <a4/types.h>
 #include <a4/message.h>
 
 namespace a4{ namespace process{

@@ -1,7 +1,7 @@
 #ifndef _RESULTS_PROCESSOR_
 #define _RESULTS_PROCESSOR_
 
-#include <a4/a4process.h>
+#include <a4/processor.h>
 #include <a4/input_stream.h>
 #include <a4/proto/process/A4Key.pb.h>
 

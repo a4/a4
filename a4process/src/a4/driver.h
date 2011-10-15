@@ -1,7 +1,7 @@
 #ifndef _A4_DRIVER_H_
 #define _A4_DRIVER_H_
 
-#include <a4/a4process.h>
+#include <a4/processor.h>
 
 namespace a4{ namespace process{
 

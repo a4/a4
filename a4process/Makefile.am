@@ -10,7 +10,7 @@ AM_CXXFLAGS+= -Wall -Werror
 # Files to distribute
 a4include_HEADERS = \
     src/a4/storable.h \
-    src/a4/a4process.h src/a4/driver.h src/a4/application.h \
+    src/a4/a4process.h src/a4/processor.h src/a4/driver.h src/a4/application.h \
     src/a4/hash_lookup.h src/a4/hash_lookup_impl.h\
     src/a4/object_store.h src/a4/object_store_impl.h\
     src/a4/results_processor.h
@@ -22,12 +22,12 @@ AM_CPPFLAGS+=$(A4_A4IO_CPPFLAGS) $(PROTOBUF_CFLAGS) $(BOOST_CPPFLAGS)
 # Main a4process library
 lib_LTLIBRARIES=liba4process.la
 nodist_liba4process_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
-liba4process_la_SOURCES= \
-    src/a4/storable.h src/storable.cpp \
-    src/a4/a4process.h src/a4process.cpp \
-    src/a4/hash_lookup.h src/a4/hash_lookup_impl.h src/hash_lookup.cpp \
-    src/a4/object_store.h src/a4/object_store_impl.h src/object_store.cpp \
-    src/a4/driver.h src/a4/application.h src/driver.cpp
+liba4process_la_SOURCES= $(a4include_HEADERS)\
+    src/storable.cpp \
+    src/processor.cpp \
+    src/hash_lookup.cpp \
+    src/object_store.cpp \
+    src/driver.cpp
 liba4process_la_LIBADD=$(A4_A4IO_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)
 
 

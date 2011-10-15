@@ -6,6 +6,7 @@
 #include <google/protobuf/message.h>
 
 #include <a4/a4io.h>
+#include <a4/types.h>
 
 #include <a4/proto/io/A4.pb.h>
 

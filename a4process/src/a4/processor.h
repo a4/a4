@@ -1,122 +1,137 @@
-#ifndef A4_PROCESSOR_H
-#define A4_PROCESSOR_H
+#ifndef _A4PROCESS_H_
+#define _A4PROCESS_H_
 
-#include <vector>
-#include <string>
-
-#include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
 
-#include "a4/worker.h"
-#include "a4/results.h"
-#include "a4/reader.h"
-#include "a4/writer.h"
+#include <a4/a4io.h>
+#include <a4/types.h>
+#include <a4/input_stream.h>
+#include <a4/output_stream.h>
+#include <a4/message.h>
+#include <a4/register.h>
+#include <a4/object_store.h>
 
-class Event;
-template <class MyProcessor> class JobConfiguration;
+namespace po = ::boost::program_options;
 
-/*
- * A Processor is a specialized Worker.
- * It reads events from A4 files, and processes them one by one.
- * The results are kept by default in a "Results" object, which is 
- * merged by the JobConfiguration at the end of processing.
- *
- * Override Processor::process_event and put your analysis there.
- */
-class Processor : public Worker
-{
-    public:
-        Processor();
-        virtual ~Processor() {}
-
-        // Override this for your Analysis
-        virtual void process_event(Event &event) {};
-
-        // You should not need to touch the rest...
-        void init_output(const std::string &outfile);
-        void event_passed(Event &);
-
-        virtual uint32_t eventsRead() const {return _events_read;};
-        virtual uint32_t eventsReadInLastFile() const {return _events_read_in_last_file;};
-
-        virtual void process_work_unit(std::string fn);
-        virtual ResultsPtr results() const {return _results;};
-
-    protected:
-        void write_event(Event &event) {if(_writer) _writer->write(event);};
-        ResultsPtr _results;
-        std::string _current_file;
-
-        static int _histogram_fast_access_id ;
-        std::vector<H1Ptr> _histogram_fast_access;
-        inline H1Ptr _hfast(int id, const char * name, int nbin, double xmin, double xmax) {
-            try {
-                H1Ptr & h = _histogram_fast_access.at(id);
-                if (h.get() != NULL) {
-                    return h;
-                }
-            } catch (std::out_of_range & oor) {
-                _histogram_fast_access.resize(id+1);
+namespace a4{
+    namespace process{
+        //INTERNAL
+        template <class This, typename... TArgs> struct _test_process_as;
+        template <class This, class T, class... TArgs> struct _test_process_as<This, T, TArgs...> { 
+            static bool process(This* that, const std::string &n, Storable * s) { 
+                T* t = dynamic_cast<T*>(s);
+                if (t) {
+                    that->process(n, *t);
+                    return true;
+                } else return _test_process_as<This, TArgs...>::process(that, n, s);
             }
-            H1Ptr h = _results->h1(name, nbin, xmin, xmax);
-            _histogram_fast_access[id] = h;
-            return h;
-        }
+        };
+        template <class This> struct _test_process_as<This> { static bool process(This* that, const std::string &n, Storable * s) { return false; }; };
 
-    private:
-        JobConfiguration * const config;
-        boost::shared_ptr<Writer> _writer;
-        uint32_t _events_read;
-        uint32_t _events_read_in_last_file;
+        using a4::io::A4Message;
 
-        friend class JobConfiguration;
-};
-typedef boost::shared_ptr<Processor> ProcessorPtr;
+        class Driver;
 
-template <MyProcessor>
-class JobConfiguration : public WorkerAgency
-{
-    public:
-        typedef std::vector<std::string> FileList;
-        typedef boost::program_options::variables_map ConfigArguments;
-        using boost::program_options::value;
-
-        JobConfiguration();
-        virtual ~JobConfiguration() {};
-
-        
-        // Override these three for your analysis
-        virtual boost::program_options get_options();
-        virtual bool initialize(ConfigArguments &);
-        virtual bool configure(MyProcessor &);
-
-        virtual WorkerPtr get_configured_worker() {return get_configured_processor();};
-
-        virtual ProcessorPtr get_configured_processor() {
-            MyProcessor * p = new MyProcessor();
-            p->set_shared(this);
-            assert(configure_processor(*p));
-            return ProcessorPtr(p)
+        class Processor {
+            public:
+                virtual ~Processor() {};
+                /// Override this to proces raw A4 Messages without type checking
+                virtual void process_message(const A4Message) = 0;
+                /// This function is called if new metadata is available
+                virtual void process_new_metadata() {};
+                bool write(const google::protobuf::Message& m) { if (_outstream) return _outstream->write(m); else return false; };
+            protected:
+                virtual const int content_class_id() const { return 0; };
+                virtual const int metadata_class_id() const { return 0; };
+                shared<a4::io::A4InputStream> _instream;
+                shared<a4::io::A4OutputStream> _outstream;
+                shared<ObjectBackStore> _backstore;
+                ObjectStore S;
+                A4Message metadata_message;
+                friend class a4::process::Driver;
         };
 
-        virtual void worker_finished(WorkerPtr);
+        class Configuration {
+            public: 
+                virtual ~Configuration() {};
+                /// Override this to add options to the command line and configuration file
+                virtual po::options_description get_options() { return po::options_description(); };
+                /// Override this to do further processing of the options from the command line or config file
+                virtual void read_arguments(po::variables_map &arguments) {};
 
-        bool process_files(FileList inputs);
+                virtual void setup_processor(Processor &g) {};
+                virtual Processor * new_processor() = 0;
+        };
 
-        virtual ResultsPtr results() const {return _results;};
-        virtual void set_output(std::string output) {_output = output;};
+        template<class ProtoMessage, class ProtoMetaData = a4::io::NoProtoClass>
+        class ProcessorOf : public Processor {
+            public:
+                ProcessorOf() { a4::io::RegisterClassID<ProtoMessage> _e; a4::io::RegisterClassID<ProtoMetaData> _m; };
+                /// Override this to proces only your requested messages
+                virtual void process(const ProtoMessage &) = 0;
+                void process_message(const A4Message msg) {
+                    if (!msg) throw a4::Fatal("No message!"); // TODO: Should not be fatal
+                    ProtoMessage * pmsg = msg.as<ProtoMessage>().get();
+                    if (!pmsg) throw a4::Fatal("Unexpected Message type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMessage), ")");
+                    process(*pmsg);
+                };
+                const ProtoMetaData & metadata() {
+                    const A4Message msg = metadata_message;
+                    if (!msg) throw a4::Fatal("No metadata at this time!"); // TODO: Should not be fatal
+                    ProtoMetaData * meta = msg.as<ProtoMetaData>().get();
+                    if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    return *meta;
+                };
+            protected:
+                virtual const int content_class_id() const { return ProtoMessage::kCLASSIDFieldNumber; };
+                virtual const int metadata_class_id() const { return ProtoMetaData::kCLASSIDFieldNumber; };
+                friend class a4::process::Driver;
+        };
 
-        virtual void finalize();
+        template<class This, class ProtoMetaData = a4::io::NoProtoClass, class... Args>
+        class ResultsProcessor : public Processor {
+            public:
+                ResultsProcessor() { a4::io::RegisterClassID<ProtoMetaData> _m; have_name = false; };
 
-    private:
-        int _num_processors;
-        FileList _inputs;
-        FileList _output_files;
-        std::string _output;
-        ResultsPtr _results;
+                // Generic storable processing
+                virtual void process(const std::string &, Storable &) {};
 
+                void process_message(const A4Message msg) {
+                    shared<Storable> next = _next_storable(msg);
+                    if (next) {
+                        if(!_test_process_as<This, Args...>::process((This*)this, next_name, next.get())) {
+                            process(next_name, *next);
+                        }
+                    }
+                };
+
+                shared<Storable> _next_storable(const A4Message msg);
+
+                const ProtoMetaData & metadata() {
+                    const A4Message msg = metadata_message;
+                    if (!msg) throw a4::Fatal("No metadata at this time!"); // TODO: Should not be fatal
+                    ProtoMetaData * meta = msg.as<ProtoMetaData>().get();
+                    if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    return *meta;
+                };
+            protected:
+                std::string next_name;
+                bool have_name;
+                virtual const int metadata_class_id() const { return ProtoMetaData::kCLASSIDFieldNumber; };
+                friend class a4::process::Driver;
+        };
+
+
+        template<class MyProcessor>
+        class ConfigurationOf : public Configuration {
+            public:
+                /// Override this to setup your thread-safe Processor!
+                virtual void setup_processor(MyProcessor &g) {};
+
+                virtual void setup_processor(Processor &g) { setup_processor(dynamic_cast<MyProcessor&>(g)); };
+                virtual Processor * new_processor() { return new MyProcessor(); };
+        };
+    };
 };
-
-typedef boost::shared_ptr<JobConfiguration> JobConfigurationPtr;
 
 #endif
