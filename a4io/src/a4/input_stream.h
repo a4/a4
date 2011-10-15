@@ -2,115 +2,59 @@
 #define _A4_INPUT_STREAM_H_
 
 #include <string>
-#include <vector>
-#include <deque>
-#include <map>
 
-#include <a4/register.h>
+#include <a4/types.h>
 #include <a4/message.h>
-
-// used internally
-namespace google{ namespace protobuf{ 
-    namespace io{
-        class ZeroCopyInputStream;
-        class FileInputStream;
-        class CodedInputStream;
-    };
-    class SimpleDescriptorDatabase;
-    class DescriptorPool;
-    class DynamicMessageFactory;
-};};
 
 namespace a4{ namespace io{
 
-    // used internally
-    class BaseCompressedInputStream;
-    class A4StartCompressedSection;
-    class A4EndCompressedSection;
-    class A4Proto;
+    class InputStreamImpl;
 
     /// A4 Input Stream - reads protobuf messages from file
 
     /// A stream has "content message" (aka events) and metadata.
     /// Get the next non-metadata message by calling next(),
     /// after that you can get the current_metadata().
-    class A4InputStream
+    /// Alternatively, call next(true)
+    class InputStream
     {
         public:
-            A4InputStream(shared<google::protobuf::io::ZeroCopyInputStream>, std::string name);
-            /// Open the file @input_file for reading
-            A4InputStream(const std::string & input_file);
-            ~A4InputStream();
+            InputStream(std::string);
+            InputStream(unique<InputStreamImpl>);
+            virtual ~InputStream();
 
-            /// Read the next message from the stream.
-            A4Message next(bool internal=false);
-            /// Return the current metadata message.
+            /// Returns the next regular message in the stream.
+            A4Message next();
+
+            /// Returns the next regular or metadata message.
+            /// This is needed to process all metadata in streams where 
+            /// metadata messages immediately follow each other.
+            /// ATTENTION: Metadata messages are reordered so that they 
+            /// always precede the data they refer to.
+            A4Message next_with_metadata();
+
+            /// Return the currently applicable metadata message.
             const A4Message current_metadata() {return _current_metadata; };
+
             /// True if new metadata has appeared since the last call to this function.
-            bool new_metadata() { if (_new_metadata) { _new_metadata = false; return true; } else return false;};
+            bool new_metadata();
 
             /// True if the stream has not ended or encountered an error.
-            bool good() { return _good; };
+            bool good();
+
             /// True if the stream has encountered an error.
-            bool error() {return _error;};
+            bool error();
+
             /// True if the stream has finished without error.
-            bool end() {return !_error && !_good;};
+            bool end();
 
-            /// String representation of this stream for user output
-            std::string str() { return std::string("A4InputStream(\"") + _inputname + "\")"; };
-
-            /// \internal returns the dynamic descriptor of the given class_id\endinternal
-            const google::protobuf::Descriptor* dynamic_descriptor(uint32_t class_id);
-
-            /// \internal Merge two protobuf messages, returns the merged one.\endinternal
-            A4Message merge_messages(A4Message m1, A4Message m2);
-            std::string message_field_as_string(A4Message m, const std::string & field_name);
-            
+            /// Human-readable string representation
+            std::string str();
         private:
-            shared<google::protobuf::io::ZeroCopyInputStream> _raw_in;
-            shared<google::protobuf::io::FileInputStream> _file_in;
-            shared<BaseCompressedInputStream> _compressed_in;
-            shared<google::protobuf::io::CodedInputStream> _coded_in;
-
-            // variables set at construction time
-            std::string _inputname;
-            uint32_t _content_class_id;
-            uint32_t _metadata_class_id;
-            internal::from_stream_func _content_func;
-
-            shared<Message> message_factory(const google::protobuf::Message* prototype, google::protobuf::io::CodedInputStream *);
-            void generate_dynamic_classes(const A4Proto* a4proto);
-            shared<google::protobuf::SimpleDescriptorDatabase> _encountered_file_descriptors;
-            shared<google::protobuf::DescriptorPool> _descriptor_pool;
-            shared<google::protobuf::DynamicMessageFactory> _message_factory;
-            std::map<uint32_t, const google::protobuf::Descriptor*> _descriptor_map;
-
-            // status variables
-            bool _good, _error, _started,_discovery_complete;
-            uint64_t _items_read;
-            int _current_header_index;
-            unsigned int _current_metadata_index;
-            int _fileno;
-
-            // metadata-related status
-            bool _new_metadata, _current_metadata_refers_forward;
-            A4Message _current_metadata;
-            std::deque<std::vector<A4Message>> _metadata_per_header;
-    
-            // internal functions
-            void init();
-            void startup();
-            void reset_coded_stream();
-            bool discover_all_metadata();
-            bool start_compression(const a4::io::A4StartCompressedSection& cs);
-            bool stop_compression(const a4::io::A4EndCompressedSection& cs);
-            bool read_header();
-            int64_t seek(int64_t position, int whence);
-
-            // set error/end status and return A4Message        
-            A4Message set_error();
-            A4Message set_end();
+            bool _new_metadata;
+            unique<InputStreamImpl> _impl;
     };
+
 };};
 
 #endif
