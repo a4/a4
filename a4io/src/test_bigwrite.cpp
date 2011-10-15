@@ -19,7 +19,7 @@ int main(int argc, char ** argv) {
     const bool forward = atoi(argv[1]) == 1;
     const bool compression = atoi(argv[2]) == 1;
     {
-        A4OutputStream w(argv[3], "TestEvent");
+        OutputStream w(argv[3], "TestEvent");
         w.set_compression(compression);
         if (forward) w.set_forward_metadata();
 

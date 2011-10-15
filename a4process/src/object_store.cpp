@@ -21,7 +21,7 @@ namespace a4{ namespace process{
 
     ObjectStore ObjectBackStore::store() { return ObjectStore(hl.get(), this); };
 
-    void ObjectBackStore::to_stream(a4::io::A4OutputStream &outs) const {
+    void ObjectBackStore::to_stream(a4::io::OutputStream &outs) const {
         std::map<std::string, shared<Storable>>::const_iterator i;
         for(i = _store->begin(); i != _store->end(); i++) {
             A4Key k;
@@ -34,7 +34,7 @@ namespace a4{ namespace process{
         } 
     };
 
-    void ObjectBackStore::from_stream(a4::io::A4InputStream & ins) {
+    void ObjectBackStore::from_stream(a4::io::InputStream & ins) {
         while (! ins.new_metadata() && ins.good()) {
             a4::io::A4Message key = ins.next();
             if (!key.is<A4Key>()) continue;

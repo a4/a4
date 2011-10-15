@@ -11,7 +11,7 @@ using namespace a4::io;
 
 TEST(a4io, read_write) {
     {
-        A4OutputStream w("test_rw.a4", "TestEvent");
+        OutputStream w("test_rw.a4", "TestEvent");
 
         const int N = 1000;
         TestEvent e;

@@ -10,7 +10,7 @@ using namespace a4::process;
 
 int main(int argc, char ** argv) {
     {
-        A4OutputStream w("test_histos.a4", "TestHisto");
+        OutputStream w("test_histos.a4", "TestHisto");
         w.content_cls<TestHisto>().metadata_cls<TestHistoMetaData>();
 
         const int N = 1000;
@@ -25,7 +25,7 @@ int main(int argc, char ** argv) {
 
     }
     {
-        A4InputStream r("test_histos.a4");
+        InputStream r("test_histos.a4");
         int cnt = 0;
         while (A4Message msg = r.next()) {
             if (shared<TestHisto> te = msg.as<TestHisto>()) {

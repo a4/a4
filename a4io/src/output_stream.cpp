@@ -35,7 +35,7 @@ const string END_MAGIC = "KTHXBYE4";
 const uint32_t HIGH_BIT = 1<<31;
 
 
-A4OutputStream::A4OutputStream(const string &output_file, 
+OutputStream::OutputStream(const string &output_file, 
                                const string description) : 
     _output_name(output_file),
     _description(description),
@@ -51,7 +51,7 @@ A4OutputStream::A4OutputStream(const string &output_file,
 
 }
 
-A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream> out,
+OutputStream::OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream> out,
                            const std::string outname,
                            const std::string description) : 
     _output_name(outname),
@@ -66,12 +66,12 @@ A4OutputStream::A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream
     _raw_out = out;
 }
 
-A4OutputStream::~A4OutputStream()
+OutputStream::~OutputStream()
 {
     if (!_closed && _opened) close();
 }
 
-bool A4OutputStream::open() {
+bool OutputStream::open() {
     if (_opened) return false;
     _opened = true;
     _compressed_out.reset();
@@ -79,7 +79,7 @@ bool A4OutputStream::open() {
     if (_fileno == -1) {
         int fd = ::open(_output_name.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (fd < 0) {
-            std::cerr << "ERROR - A4IO:A4OutputStream - Could not open '" << _output_name \
+            std::cerr << "ERROR - A4IO:OutputStream - Could not open '" << _output_name \
                       << "' - error: " << strerror(errno) << std::endl;
             return false;
         }
@@ -95,7 +95,7 @@ bool A4OutputStream::open() {
     return true;
 }
 
-bool A4OutputStream::close() {
+bool OutputStream::close() {
     assert(!_closed);
     assert(_opened);
     _closed = true;
@@ -103,7 +103,7 @@ bool A4OutputStream::close() {
     write_footer();
     _coded_out.reset();
     if (_file_out && !_file_out->Close()) {
-        std::cerr << "ERROR - A4IO:A4OutputStream - Error on closing: " << _file_out->GetErrno() << std::endl;
+        std::cerr << "ERROR - A4IO:OutputStream - Error on closing: " << _file_out->GetErrno() << std::endl;
         return false;
     }; // return false on error
     _file_out.reset();
@@ -111,7 +111,7 @@ bool A4OutputStream::close() {
     return true;
 }
 
-uint64_t A4OutputStream::get_bytes_written() {
+uint64_t OutputStream::get_bytes_written() {
     assert(!_compressed_out);
     _coded_out.reset();
     uint64_t size = _raw_out->ByteCount();
@@ -120,7 +120,7 @@ uint64_t A4OutputStream::get_bytes_written() {
 }
 
 /// Get a class ID. Even for data, Odd for Metadata.
-uint32_t A4OutputStream::find_class_id(const google::protobuf::Descriptor * d, bool metadata) {
+uint32_t OutputStream::find_class_id(const google::protobuf::Descriptor * d, bool metadata) {
     // I miss the auto keyword :(
     std::map<const google::protobuf::Descriptor *, uint32_t>::const_iterator i = _class_id.find(d);
     if (i != _class_id.end()) {
@@ -144,14 +144,14 @@ uint32_t A4OutputStream::find_class_id(const google::protobuf::Descriptor * d, b
     return class_id;
 }
 
-bool A4OutputStream::write(const google::protobuf::Message &msg)
+bool OutputStream::write(const google::protobuf::Message &msg)
 {
     if (!_opened) if(!open()) { return false; };
     uint32_t class_id = find_class_id(msg.GetDescriptor(), false);
     return write(class_id, msg);
 }
 
-bool A4OutputStream::metadata(const google::protobuf::Message &msg) {
+bool OutputStream::metadata(const google::protobuf::Message &msg) {
     if (!_opened) if(!open()) { return false; };
     uint32_t class_id = find_class_id(msg.GetDescriptor(), true);
     if (_compressed_out) {
@@ -165,7 +165,7 @@ bool A4OutputStream::metadata(const google::protobuf::Message &msg) {
     }
 }
 
-void A4OutputStream::reset_coded_stream() {
+void OutputStream::reset_coded_stream() {
     _coded_out.reset();
     if (_compressed_out) 
         _coded_out.reset(new CodedOutputStream(_compressed_out.get()));
@@ -173,7 +173,7 @@ void A4OutputStream::reset_coded_stream() {
         _coded_out.reset(new CodedOutputStream(_raw_out.get()));
 }
 
-bool A4OutputStream::start_compression() {
+bool OutputStream::start_compression() {
     if (_compressed_out) return false;
     StartCompressedSection cs_header;
 #ifdef HAVE_SNAPPY
@@ -196,7 +196,7 @@ bool A4OutputStream::start_compression() {
     return true;
 };
 
-bool A4OutputStream::stop_compression() {
+bool OutputStream::stop_compression() {
     if (!_compressed_out) return false;
     EndCompressedSection cs_footer;
     if (!write(_fixed_class_id<EndCompressedSection>(), cs_footer))
@@ -209,7 +209,7 @@ bool A4OutputStream::stop_compression() {
     return true;
 };
 
-bool A4OutputStream::write_header(string description) {
+bool OutputStream::write_header(string description) {
     _coded_out->WriteString(START_MAGIC);
     StreamHeader header;
     header.set_a4_version(2);
@@ -218,7 +218,7 @@ bool A4OutputStream::write_header(string description) {
     return write(_fixed_class_id<StreamHeader>(), header);
 }
 
-bool A4OutputStream::write_footer() {
+bool OutputStream::write_footer() {
     assert(!_compressed_out);
     StreamFooter footer;
     footer.set_size(get_bytes_written());
@@ -247,7 +247,7 @@ void get_descriptors_recursively(
     file_descriptors.push_back(file_descriptor);
 }
 
-void A4OutputStream::write_protoclass(uint32_t class_id, const google::protobuf::Descriptor * d)
+void OutputStream::write_protoclass(uint32_t class_id, const google::protobuf::Descriptor * d)
 {
     ProtoClass a4proto;
     a4proto.set_class_id(class_id);
@@ -276,7 +276,7 @@ void A4OutputStream::write_protoclass(uint32_t class_id, const google::protobuf:
     write(_fixed_class_id<ProtoClass>(), a4proto);
 }
 
-bool A4OutputStream::write(uint32_t class_id, const google::protobuf::Message &msg)
+bool OutputStream::write(uint32_t class_id, const google::protobuf::Message &msg)
 {
     if (_coded_out->ByteCount() > 100000000) reset_coded_stream();
 

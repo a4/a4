@@ -214,13 +214,13 @@ int main(int argv, char ** argc) {
     }
     std::cout << 1000*N*M << std::endl;
     {
-        A4OutputStream out("test_storable.a4", "Store Test");
+        OutputStream out("test_storable.a4", "Store Test");
         out.content_cls<A4Key>().metadata_cls<TestHistoMetaData>();
         backstore.to_stream(out);
     }
     ObjectBackStore inbs;
     {
-        A4InputStream in("test_storable.a4");
+        InputStream in("test_storable.a4");
         in.new_metadata();
         inbs.from_stream(in);
     }

@@ -83,9 +83,9 @@ namespace a4{ namespace process{
             /// Get a list of all keys in this store
             std::vector<std::string> list() const;
             /// Write all objects out into the given stream
-            void to_stream(a4::io::A4OutputStream &outs) const;
+            void to_stream(a4::io::OutputStream &outs) const;
             /// Read Storable Objects from input stream until new_metadata() is true
-            void from_stream(a4::io::A4InputStream & ins);
+            void from_stream(a4::io::InputStream & ins);
         protected:
             // The fast lookup table
             unique<hash_lookup> hl;

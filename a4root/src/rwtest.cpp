@@ -472,7 +472,7 @@ public:
 
 /// Copies `tree` into the `stream` using information taken from the compiled in
 /// Event class.
-void copy_tree(TTree& tree, shared<A4OutputStream> stream, Long64_t entries = -1)
+void copy_tree(TTree& tree, shared<OutputStream> stream, Long64_t entries = -1)
 {
     Long64_t tree_entries = tree.GetEntries();
     if (entries > tree_entries)
@@ -527,7 +527,7 @@ void copy_tree(TTree& tree, shared<A4OutputStream> stream, Long64_t entries = -1
 int main(int argc, char ** argv) {
     A4Output a4o("test_io.a4", "Event");
 
-    shared<A4OutputStream> stream = a4o.get_stream(); 
+    shared<OutputStream> stream = a4o.get_stream(); 
     stream->content_cls<Event>();
     stream->metadata_cls<Metadata>();
 

@@ -12,7 +12,7 @@ int main(int argc, char ** argv) {
     {
         A4Output a4o("test_io.a4", "TestEvent");
 
-        shared<A4OutputStream> stream = a4o.get_stream();
+        shared<OutputStream> stream = a4o.get_stream();
 
         TestEvent e;
         for(int i = 0; i < N; i++) {

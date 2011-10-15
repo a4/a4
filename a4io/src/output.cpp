@@ -24,11 +24,11 @@ A4Output::~A4Output() {
     if (!_closed) close();
 }
 
-shared<A4OutputStream> A4Output::get_stream() {
+shared<OutputStream> A4Output::get_stream() {
     Lock lock(_mutex);
     int count = _filenames.size() + 1;
     std::string fn = output_file + "." + boost::lexical_cast<std::string>(count);
-    shared<A4OutputStream> os(new A4OutputStream(fn, description));
+    shared<OutputStream> os(new OutputStream(fn, description));
     _out_streams.push_back(os);
     _filenames.push_back(fn);
     return os;
@@ -37,7 +37,7 @@ shared<A4OutputStream> A4Output::get_stream() {
 bool A4Output::close() {
     Lock lock(_mutex);
     _closed = true;
-    foreach(shared<A4OutputStream> s, _out_streams) {
+    foreach(shared<OutputStream> s, _out_streams) {
         if (s->opened()) s->close();
     }
     if (_out_streams.size() == 1 && _out_streams[0]->opened()) {
@@ -57,7 +57,7 @@ bool A4Output::close() {
         }
         for (uint32_t i = 0; i < _filenames.size(); i++) {
             std::string fn = _filenames[i];
-            shared<A4OutputStream> ostream = _out_streams[i];
+            shared<OutputStream> ostream = _out_streams[i];
             if (!ostream->opened()) continue; // maybe threads did not use their output
             std::fstream in(fn.c_str(), ios::in | ios::binary);
             if (!in) {

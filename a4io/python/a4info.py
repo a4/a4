@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from sys import argv, exit
-from a4 import A4InputStream
+from a4 import InputStream
 
 from optparse import OptionParser
 parser = OptionParser()
@@ -15,7 +15,7 @@ if len(args) == 0:
 run_infos = {}
 
 for fn in args:
-    r = A4InputStream(open(fn))
+    r = InputStream(open(fn))
     print("%s: %s" % (fn, r.info()))
     if options.metadata:
         for md in r.metadata.values():

@@ -14,7 +14,7 @@ int main(int argc, char ** argv) {
         fn = argv[1];
     } else assert(argc <= 2);
 
-    A4OutputStream w(fn, "TestEvent");
+    OutputStream w(fn, "TestEvent");
     w.set_forward_metadata();
 
     const int N = 500;

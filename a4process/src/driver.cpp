@@ -16,8 +16,8 @@ using std::cout; using std::cerr; using std::endl;
 using std::ifstream;
 using a4::io::A4Input;
 using a4::io::A4Output;
-using a4::io::A4InputStream;
-using a4::io::A4OutputStream;
+using a4::io::InputStream;
+using a4::io::OutputStream;
 
 typedef std::vector<string> FileList;
 
@@ -50,7 +50,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
     unique<Processor> processor(p);
     // It is safe to get these, even if they are not used.
     // The ownership of these is shared with A4Input/Output.
-    shared<A4OutputStream> outstream, resstream;
+    shared<OutputStream> outstream, resstream;
     shared<ObjectBackStore> bs(new ObjectBackStore());
     if (self->out) self->set_outstream(p, self->out->get_stream());
     if (self->res) resstream = self->res->get_stream();
@@ -59,7 +59,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
 
     // Try as long as there are inputs
     A4Message current_metadata;
-    while (shared<A4InputStream> instream = self->in->get_stream()) {
+    while (shared<InputStream> instream = self->in->get_stream()) {
         self->set_instream(p, instream);
 
         while (A4Message msg = instream->next()) {

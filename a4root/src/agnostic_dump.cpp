@@ -25,7 +25,7 @@ using namespace a4::io;
 int main(int argc, char ** argv) {
     A4Input in;
     in.add_file("test_io.a4");
-    while (shared<A4InputStream> stream = in.get_stream()) {
+    while (shared<InputStream> stream = in.get_stream()) {
         // Needed because the header isn't read before we try and read an event
         
         A4Message m = stream->next();

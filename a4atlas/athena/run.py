@@ -1,7 +1,7 @@
 from math import sin, atan, atan2, exp, pi
 import gc
 
-from a4 import A4OutputStream
+from a4 import OutputStream
 from aod2a4 import AOD2A4Base, athena_setup
 
 from AthenaCommon.AppMgr import topSequence
@@ -187,7 +187,7 @@ class AOD2A4(AOD2A4Base):
     try_hfor = True
 
     def init(self):
-        self.a4 = A4OutputStream(open(self.file_name, "w"), "AOD2A4", Event, EventStreamInfo)
+        self.a4 = OutputStream(open(self.file_name, "w"), "AOD2A4", Event, EventStreamInfo)
 
         import PyCintex
         PyCintex.loadDictionary("TrigMuonEvent")

@@ -31,8 +31,8 @@ namespace a4{
         class A4Message;
         class A4Input;
         class A4Output;
-        class A4InputStream;
-        class A4OutputStream;
+        class InputStream;
+        class OutputStream;
 
         template <typename ProtoClass> class RegisterClassID;
 

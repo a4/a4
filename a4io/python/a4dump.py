@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from sys import argv, exit
-from a4 import A4InputStream
+from a4 import InputStream
 from optparse import OptionParser
 
 parser = OptionParser()
@@ -19,7 +19,7 @@ events = map(int, options.event)
 do_events = (len(events) > 0)
 
 for fn in args:
-    infile = A4InputStream(open(fn))
+    infile = InputStream(open(fn))
     print("%s: %s" % (fn, infile.info()))
 
     for obj in infile:

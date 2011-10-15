@@ -28,15 +28,15 @@ namespace a4{ namespace io{
     /// make sure you told @UseClassID about it,
     /// by writing "template UseClassId<MyProtobufClass>;"
     /// somewhere in a cpp file.
-    class A4OutputStream
+    class OutputStream
     {
         public:
-            A4OutputStream(const std::string &output_file,
+            OutputStream(const std::string &output_file,
                            const std::string description="");
-            A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream>,
+            OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream>,
                            const std::string outname="<stream>",
                            const std::string description=""); 
-            ~A4OutputStream();
+            ~OutputStream();
 
             /// Write a message to the stream
             bool write(const google::protobuf::Message& m);
@@ -51,13 +51,13 @@ namespace a4{ namespace io{
             bool closed() { return _closed; };
             
             /// Set compression flag [default=true]
-            A4OutputStream & set_compression(bool c) { _compression = c; return *this; };
+            OutputStream & set_compression(bool c) { _compression = c; return *this; };
             /// If called, metadata will refer to the events following the metadata, instead of events before.
             /// Has to be called before writing is begun.
-            A4OutputStream & set_forward_metadata() { assert(!_opened); _metadata_refers_forward = true; return *this; };
+            OutputStream & set_forward_metadata() { assert(!_opened); _metadata_refers_forward = true; return *this; };
 
             /// String representation of this stream for user output
-            std::string str() { return std::string("A4OutputStream(\"") + _output_name + "\", \"" + _description + "\")"; };
+            std::string str() { return std::string("OutputStream(\"") + _output_name + "\", \"" + _description + "\")"; };
         private:
             shared<google::protobuf::io::ZeroCopyOutputStream> _raw_out;
             shared<google::protobuf::io::FileOutputStream> _file_out;

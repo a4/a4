@@ -216,7 +216,7 @@ class ZlibInputStream(object):
         if self.dco.unused_data:
             self.in_stream.seek(-len(self.dco.unused_data), 1)
 
-class A4OutputStream(object):
+class OutputStream(object):
     def __init__(self, out_stream, description=None, content_cls=None, metadata_cls=None, compression=True, metadata_refers_forward=False):
         self.compression = compression
         self.compressed = False
@@ -377,7 +377,7 @@ class A4OutputStream(object):
                 self.start_compression()
 
 
-class A4InputStream(object):
+class InputStream(object):
     def __init__(self, in_stream):
         self.in_stream = in_stream
         self._orig_in_stream = in_stream
@@ -637,7 +637,7 @@ def test_read(fn, n_events):
     """
 
     print "READ TEST NOSEEK"
-    r = A4InputStream(file(fn))
+    r = InputStream(file(fn))
     cnt = 0
     for e in r:
         #print "Event: ", e
@@ -649,7 +649,7 @@ def test_read(fn, n_events):
 
     print "READ TEST NOSEEK BY METADATA"
     cnt = 0
-    r = A4InputStream(file(fn))
+    r = InputStream(file(fn))
     for md, events in r.itermetadata():
         #print "ITER METADATA: ", md
         for e in events:
@@ -659,7 +659,7 @@ def test_read(fn, n_events):
     assert cnt == n_events
 
     print "READ TEST SEEK"
-    r = A4InputStream(file(fn))
+    r = InputStream(file(fn))
     r.info()
     cnt = 0
     for e in r:
@@ -671,7 +671,7 @@ def test_read(fn, n_events):
     assert cnt == n_events
 
     print "READ TEST SEEK BY METADATA"
-    r = A4InputStream(file(fn))
+    r = InputStream(file(fn))
     r.info()
     cnt = 0
     for md, events in r.itermetadata():
@@ -685,7 +685,7 @@ def test_read(fn, n_events):
 
 def test_rw_forward(fn):
     from a4.proto.io import TestEvent, TestMetaData
-    w = A4OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True, metadata_refers_forward=True)
+    w = OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True, metadata_refers_forward=True)
     e = TestEvent()
     m = TestMetaData()
     m.meta_data = 1
@@ -703,7 +703,7 @@ def test_rw_forward(fn):
 
 def test_rw_backward(fn):
     from a4.proto.io import TestEvent, TestMetaData
-    w = A4OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True)
+    w = OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True)
     e = TestEvent()
     for i in range(500):
         e.event_number = 1000+i

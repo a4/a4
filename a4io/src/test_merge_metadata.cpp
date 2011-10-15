@@ -25,7 +25,7 @@ TestMergeMetaData meta(int d, int run, int lb, int period, bool simulation=false
 
 TEST(a4io, metadata_merge) {
     {
-        A4OutputStream w("test_mm.a4", "TestEvent");
+        OutputStream w("test_mm.a4", "TestEvent");
 
         const int N = 1000;
         int cnt = 0;

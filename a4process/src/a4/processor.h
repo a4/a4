@@ -43,8 +43,8 @@ namespace a4{
             protected:
                 virtual const int content_class_id() const { return 0; };
                 virtual const int metadata_class_id() const { return 0; };
-                shared<a4::io::A4InputStream> _instream;
-                shared<a4::io::A4OutputStream> _outstream;
+                shared<a4::io::InputStream> _instream;
+                shared<a4::io::OutputStream> _outstream;
                 shared<ObjectBackStore> _backstore;
                 ObjectStore S;
                 A4Message metadata_message;

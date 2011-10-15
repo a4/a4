@@ -12,11 +12,11 @@ using namespace a4::io;
 const int N = 1000;
 
 void no_write(A4Output &a4o) {
-    shared<A4OutputStream> stream = a4o.get_stream();
+    shared<OutputStream> stream = a4o.get_stream();
 }
 
 void my_write(A4Output &a4o) {
-    shared<A4OutputStream> stream = a4o.get_stream();
+    shared<OutputStream> stream = a4o.get_stream();
 
     TestEvent e;
     for(int i = 0; i < N; i++) {

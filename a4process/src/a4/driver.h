@@ -7,8 +7,8 @@ namespace a4{ namespace process{
 
 class Driver {
     protected:
-        void set_instream(Processor* p, shared<a4::io::A4InputStream> instream) { p->_instream = instream; };
-        void set_outstream(Processor* p, shared<a4::io::A4OutputStream> outstream, bool fw=true) { 
+        void set_instream(Processor* p, shared<a4::io::InputStream> instream) { p->_instream = instream; };
+        void set_outstream(Processor* p, shared<a4::io::OutputStream> outstream, bool fw=true) { 
             if (fw) outstream->set_forward_metadata();
             outstream->content_cls(p->content_class_id());
             outstream->metadata_cls(p->metadata_class_id());
