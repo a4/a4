@@ -77,7 +77,7 @@ namespace a4{ namespace io{
     }
 
     void UnixFile::BackUp(int count) {
-        assert(count >= 0 && size_t(count) < _position);
+        assert(count >= 0 && size_t(count) <= _position);
         _position -= size_t(count);
     }
 

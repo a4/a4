@@ -144,18 +144,25 @@ bool InputStreamImpl::read_header()
     }
 
     _current_metadata_refers_forward = h.metadata_refers_forward();
-    if (!_current_metadata_refers_forward && !_discovery_complete) {
-        if (!_raw_in->seekable()) {
-            std::cerr << "ERROR - a4::io:InputStreamImpl - Cannot read reverse metadata from non-seekable stream!" << std::endl;
-            return set_error();
-        } else if (!discover_all_metadata()) {
-            std::cerr << "ERROR - a4::io:InputStreamImpl - Failed to discover metadata - file corrupted?" << std::endl;
-            return set_error();
-        }
-        _current_metadata_index = 0;
-        if (_metadata_per_header[_current_header_index].size() > 0) {
-            _current_metadata = _metadata_per_header[_current_header_index][0];
-            _new_metadata = true;
+    if (!_discovery_complete) {
+        if (!_current_metadata_refers_forward) {
+            if (!_raw_in->seekable()) {
+                std::cerr << "ERROR - a4::io:InputStreamImpl - Cannot read reverse metadata from non-seekable stream!" << std::endl;
+                return set_error();
+            } else if (!discover_all_metadata()) {
+                std::cerr << "ERROR - a4::io:InputStreamImpl - Failed to discover metadata - file corrupted?" << std::endl;
+                return set_error();
+            }
+
+            _current_metadata_index = 0;
+            if (_metadata_per_header[_current_header_index].size() > 0) {
+                _current_metadata = _metadata_per_header[_current_header_index][0];
+                _new_metadata = true;
+            }
+        } else {
+            assert(_current_header_index == _class_pools.size());
+            shared<ProtoClassPool> new_pool(new ProtoClassPool());
+            _class_pools.push_back(new_pool);
         }
     }
     return true;
@@ -163,10 +170,12 @@ bool InputStreamImpl::read_header()
 
 bool InputStreamImpl::discover_all_metadata() {
     assert(_metadata_per_header.size() == 0);
-    assert(_class_pools.size() == 0);
+    _class_pools.clear(); // Just drop them for now.
     // Temporary ProtoClassPool for reading static messages
     shared<ProtoClassPool> temp_pool(new ProtoClassPool());
     _class_pools.push_back(temp_pool);
+    unsigned int _temp_header_index = _current_header_index;
+    _current_header_index = 0;
 
     int64_t size = 0;
     std::deque<uint64_t> headers;
@@ -205,6 +214,7 @@ bool InputStreamImpl::discover_all_metadata() {
             uint64_t metadata_start = footer_abs_start - footer->size() + offset;
             if (seek(metadata_start) == -1) return false;
             A4Message msg = next_message_msg();
+            drop_compression();
             shared<ProtoClass> proto = msg.as<ProtoClass>();
             assert(proto);
             this_pool->add_protoclass(*proto);
@@ -215,6 +225,7 @@ bool InputStreamImpl::discover_all_metadata() {
             uint64_t metadata_start = footer_abs_start - footer->size() + offset;
             if (seek(metadata_start) == -1) return false;
             A4Message msg = next_message_msg();
+            drop_compression();
             _this_headers_metadata.push_back(msg);
         }
         _temp_metadata_per_header.push_front(_this_headers_metadata);
@@ -224,12 +235,14 @@ bool InputStreamImpl::discover_all_metadata() {
         if (tell == -1) return false;
         if (tell == 0) break;
     }
-    seek(headers[_current_header_index] + START_MAGIC_len);
+    // Seek back to original header
+    seek(headers[_temp_header_index] + START_MAGIC_len);
     next_message(); // read the header again
     _discovery_complete = true;
     _class_pools.clear();
     _class_pools.insert(_class_pools.end(), _temp_class_pools.begin(), _temp_class_pools.end());
     _metadata_per_header.insert(_metadata_per_header.end(), _temp_metadata_per_header.begin(), _temp_metadata_per_header.end());
+    _current_header_index = _temp_header_index;
     return true;
 }
 
@@ -275,6 +288,13 @@ bool InputStreamImpl::start_compression(const StartCompressedSection& cs) {
     _coded_in.reset(new CodedInputStream(_compressed_in.get()));
     _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
     return true;
+}
+
+void InputStreamImpl::drop_compression() {
+    if(!_compressed_in) return;
+    _coded_in.reset();
+    _compressed_in.reset();
+    _coded_in.reset(new CodedInputStream(_raw_in.get()));
 }
 
 bool InputStreamImpl::stop_compression(const EndCompressedSection& cs) {
@@ -328,6 +348,21 @@ std::tuple<A4Message,uint32_t> InputStreamImpl::next_message() {
     CodedInputStream::Limit lim = _coded_in->PushLimit(size);
     A4Message msg = _class_pools[_current_header_index]->read(class_id, _coded_in.get());
     _coded_in->PopLimit(lim);
+
+    //if (msg)std::cerr << "READ MESSAGE " << class_id << " - "<< msg.message->ShortDebugString() << std::endl;
+
+    if (class_id == _fixed_class_id<StartCompressedSection>()) {
+        if (!start_compression(*msg.as<StartCompressedSection>())) {
+            return std::make_tuple(A4Message(), 0);
+        }
+        return next_message();
+    } else if (class_id == _fixed_class_id<EndCompressedSection>()) {
+        if(!stop_compression(*msg.as<EndCompressedSection>())) {
+            return std::make_tuple(A4Message(), 0);
+        }
+        return next_message();
+    }
+
     return std::make_tuple(msg, class_id);
 }
 
@@ -382,16 +417,6 @@ A4Message InputStreamImpl::next(bool skip_metadata) {
             // should not happen???
             std::cerr << "ERROR - a4::io:InputStreamImpl - Unexpected header!" << std::endl; 
             return set_error();
-        } else if (class_id == _fixed_class_id<StartCompressedSection>()) {
-            if (!start_compression(*item.as<StartCompressedSection>())) {
-                return set_error();
-            }
-            return next();
-        } else if (class_id == _fixed_class_id<EndCompressedSection>()) {
-            if(!stop_compression(*item.as<EndCompressedSection>())) {
-                return set_error(); // read error;
-            }
-            return next();
         } else if (class_id == _fixed_class_id<ProtoClass>()) {
             _class_pools[_current_header_index]->add_protoclass(*item.as<ProtoClass>());
             return next();

@@ -47,14 +47,14 @@ namespace a4{ namespace io{
         foreach(const FileDescriptorProto& fdp, protoclass.file_descriptor()) {
             // Check if we already have this FD (unneccessary, should never be the case)
             std::string fqn = fdp.package() + "." + fdp.name();
-            std::cout << "Reading in file: " << fqn << std::endl;
+            //std::cout << "Reading in file: " << fqn << std::endl;
             assert(_encountered_file_descriptors.count(fqn) == 0);
             _encountered_file_descriptors.insert(fqn);
             _descriptor_pool->BuildFile(fdp);
         }
 
         // First, find the generated descriptor
-        std::cout << "Looking for " << protoclass.full_name() << std::endl;
+        //std::cout << "Looking for " << protoclass.full_name() << std::endl;
         const Descriptor * gd = _descriptor_pool->FindMessageTypeByName(protoclass.full_name());
         assert(gd);
 

@@ -46,7 +46,7 @@ namespace a4{ namespace io{
             // status variables
             bool _good, _error, _started, _discovery_complete;
             uint64_t _items_read;
-            int _current_header_index;
+            unsigned int _current_header_index;
             unsigned int _current_metadata_index;
             int _fileno;
 
@@ -61,6 +61,7 @@ namespace a4{ namespace io{
             bool discover_all_metadata();
             bool start_compression(const a4::io::StartCompressedSection& cs);
             bool stop_compression(const a4::io::EndCompressedSection& cs);
+            void drop_compression();
             bool read_header();
             int64_t seek(int64_t position);
             int64_t seek_back(int64_t position);
