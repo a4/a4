@@ -7,18 +7,21 @@
 
 #include <a4/a4io.h>
 
+#include <a4/proto/io/A4.pb.h>
+
 namespace google{ namespace protobuf{ namespace io{ class CodedInputStream; };};};
 
 namespace a4{ namespace io{
 
     namespace internal {
+        typedef boost::function<shared<Message> (google::protobuf::io::CodedInputStream*)> from_stream_func;
         typedef struct classreg_struct {
             classreg_struct() : descriptor(NULL), from_stream(NULL) {};
             const google::protobuf::Descriptor* descriptor;
-            boost::function<shared<Message> (google::protobuf::io::CodedInputStream*)> from_stream;
+            from_stream_func from_stream;
         } classreg;
     
-        classreg map_class_by_name(std::string name, classreg=classreg(), bool warn=true);
+        classreg map_class(std::string name, uint32_t class_id=0, classreg=classreg(), bool warn=true);
 
         template <typename ProtoClass>
         shared<Message> from_stream(google::protobuf::io::CodedInputStream * instr) {
@@ -32,7 +35,7 @@ namespace a4{ namespace io{
             classreg r;
             r.descriptor = ProtoClass::descriptor();
             r.from_stream = from_stream<ProtoClass>;
-            return map_class_by_name(r.descriptor->full_name(), r);
+            return map_class(r.descriptor->full_name(), 0, r);
         }
     }
 
@@ -43,6 +46,11 @@ namespace a4{ namespace io{
             // force static to be initialized
             virtual internal::classreg _get_registration() { return registration; }
     };
+
+    template <typename ProtoClass>
+    uint32_t _fixed_class_id() {
+        return ProtoClass::descriptor()->options().GetExtension(fixed_class_id);
+    }
 
     template <typename ProtoClass>
     internal::classreg RegisterClass<ProtoClass>::registration = internal::reg_protoclass<ProtoClass>();
