@@ -4,6 +4,7 @@
 #include <a4/types.h>
 
 #include <iostream>
+#include <tuple>
 
 #include <fcntl.h>
 #include <math.h>
@@ -11,9 +12,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <boost/bind.hpp>
 #include <boost/function.hpp>
-using boost::bind;
+
 using boost::function;
 
 #include <google/protobuf/message.h>
@@ -32,6 +32,8 @@ using boost::function;
 #ifdef HAVE_SNAPPY
 #include "snappy_stream.h"
 #endif
+#include "zero_copy_resource.h"
+#include "input_stream_impl.h"
 #include "a4/proto/io/A4Stream.pb.h"
 #include "a4/input_stream.h"
 
@@ -52,42 +54,18 @@ using google::protobuf::Descriptor;
 using google::protobuf::FieldDescriptor;
 using google::protobuf::Reflection;
 
-using namespace a4::io;
-
 const string START_MAGIC = "A4STREAM";
 const string END_MAGIC = "KTHXBYE4";
 const int START_MAGIC_len = 8;
 const int END_MAGIC_len = 8;
 const uint32_t HIGH_BIT = 1<<31;
 
-A4InputStream::A4InputStream(const string &input_file) {
-    _started = false;
-    _fileno = -1;
-    _inputname = input_file;
-    init();
-}
+namespace a4{ namespace io{
 
-A4InputStream::A4InputStream(shared<ZeroCopyInputStream> in, std::string name) {
+InputStreamImpl::InputStreamImpl(unique<ZeroCopyStreamResource> in, std::string name) {
     _started = false;
-    _fileno = 0;
-    _raw_in = in;
+    _raw_in = std::move(in);
     _inputname = name;
-    init();
-}
-
-A4Message A4InputStream::set_error() {
-    _error = true;
-    _good = false;
-    return A4Message();
-}
-
-A4Message A4InputStream::set_end() {
-    _good = false;
-    return A4Message();
-}
-
-void A4InputStream::init() {
-    _started = false;
     _compressed_in.reset();
     _coded_in.reset();
     _good = true;
@@ -95,59 +73,41 @@ void A4InputStream::init() {
     _new_metadata = false;
     _discovery_complete = false;
     _items_read = 0;
-    _content_class_id = 0;
-    _metadata_class_id = 0;
-    _content_func = &a4::io::internal::bad_from_stream_func;
     _current_metadata_refers_forward = false;
     _current_header_index = 0;
     _current_metadata_index = 0;
-    _encountered_file_descriptors.reset(new SimpleDescriptorDatabase());
-    //_encountered_file_descriptors.get()
-    _descriptor_pool.reset(new DescriptorPool(DescriptorPool::generated_pool()));
-    _message_factory.reset(new DynamicMessageFactory(_descriptor_pool.get()));
-    // If the type is compiled in then use that! (urk, no worky? deprecated?)
-    _message_factory->SetDelegateToGeneratedFactory(true);
 }
 
-void A4InputStream::startup() {
+InputStreamImpl::~InputStreamImpl() {};
+
+A4Message InputStreamImpl::set_error() {
+    _error = true;
+    _good = false;
+    return A4Message();
+}
+
+A4Message InputStreamImpl::set_end() {
+    _good = false;
+    return A4Message();
+}
+
+void InputStreamImpl::startup() {
     // Initialize to defined state
     _started = true;
-
-    if (_fileno == -1) {
-        _fileno = open(_inputname.c_str(), O_RDONLY);
-        _file_in.reset(new FileInputStream(_fileno));
-        _raw_in = _file_in;
-    } else {
-        _file_in.reset();
-    }
     _coded_in.reset(new CodedInputStream(_raw_in.get()));
-
     // Push limit of read bytes
     _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
 
     if (!read_header()) {
-        if(_error) std::cerr << "ERROR - a4::io:A4InputStream - Header corrupted!" << std::endl;
-        else std::cerr << "ERROR - a4::io:A4InputStream - File empty!" << std::endl;
-        set_error();
-        return;
-    }
-    if (_file_in && _file_in->GetErrno()) {
-        std::cerr << "ERROR - a4::io:A4InputStream - Could not open '"<< _inputname \
-                  << "' - error " << _file_in->GetErrno() << std::endl;
+        if(_error) std::cerr << "ERROR - a4::io:InputStreamImpl - Header corrupted!" << std::endl;
+        else std::cerr << "ERROR - a4::io:InputStreamImpl - File empty!" << std::endl;
         set_error();
         return;
     }
     _current_header_index = 0;
 }
 
-A4InputStream::~A4InputStream() {
-    _coded_in.reset();
-    _compressed_in.reset();
-    _raw_in.reset();
-    _file_in.reset();
-}
-
-bool A4InputStream::read_header()
+bool InputStreamImpl::read_header()
 {
     // Note: in the following i use that bool(set_end()) == false 
     // && bool(set_error()) == false
@@ -168,50 +128,28 @@ bool A4InputStream::read_header()
         if (!_coded_in->ReadLittleEndian32(&message_type))
             return set_error();
     }
-    if (!message_type == A4StreamHeader::kCLASSIDFieldNumber)
+    if (!message_type == _fixed_class_id<StreamHeader>())
         return set_error();
 
-    A4StreamHeader h;
+    StreamHeader h;
     CodedInputStream::Limit lim = _coded_in->PushLimit(size);
     if (!h.ParseFromCodedStream(_coded_in.get()))
         return set_error();
     _coded_in->PopLimit(lim);
     
-    if (h.a4_version() != 1) {
-        std::cerr << "ERROR - a4::io:A4InputStream - Unknown A4 stream version (";
+    if (h.a4_version() != 2) {
+        std::cerr << "ERROR - a4::io:InputStreamImpl - Unknown A4 stream version (";
         std::cerr << h.a4_version() << ")" << std::endl;
         return set_error();
     }
 
-    // check the main content type from the header
-    if (h.has_content_class_id()) {
-        _content_class_id = h.content_class_id();
-        _content_func = internal::all_class_ids(_content_class_id, NULL, false);
-        if (!_content_func) {
-            std::cerr << "WARNING - a4::io:A4InputStream - Content Class " << _content_class_id << " unknown!" << std::endl;
-            //return set_error();
-        }
-    } else {
-        _content_class_id = 0;
-    }
-    
-    if (h.has_metadata_class_id()) {
-        _metadata_class_id = h.metadata_class_id();
-        if (internal::all_class_ids(_metadata_class_id) == &a4::io::internal::bad_from_stream_func) {
-            std::cerr << "WARNING - a4::io:A4InputStream - metadata Class " << _metadata_class_id << " unknown!" << std::endl;
-            //return set_error();
-        }
-    } else {
-        _metadata_class_id = 0;
-    }
-
     _current_metadata_refers_forward = h.metadata_refers_forward();
     if (!_current_metadata_refers_forward && !_discovery_complete) {
-        if (!_file_in) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Cannot read reverse metadata from non-seekable stream!" << std::endl;
+        if (!_raw_in->seekable()) {
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Cannot read reverse metadata from non-seekable stream!" << std::endl;
             return set_error();
         } else if (!discover_all_metadata()) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Failed to discover metadata - file corrupted?" << std::endl;
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Failed to discover metadata - file corrupted?" << std::endl;
             return set_error();
         }
         _current_metadata_index = 0;
@@ -223,92 +161,114 @@ bool A4InputStream::read_header()
     return true;
 }
 
-bool A4InputStream::discover_all_metadata() {
+bool InputStreamImpl::discover_all_metadata() {
     assert(_metadata_per_header.size() == 0);
+    assert(_class_pools.size() == 0);
+    // Temporary ProtoClassPool for reading static messages
+    shared<ProtoClassPool> temp_pool(new ProtoClassPool());
+    _class_pools.push_back(temp_pool);
 
     int64_t size = 0;
     std::deque<uint64_t> headers;
+    std::deque<shared<ProtoClassPool>> _temp_class_pools;
+    std::deque<std::vector<A4Message>> _temp_metadata_per_header;
 
     while (true) {
-        if (seek(-size - END_MAGIC_len, SEEK_END) == -1) return false;
+        if (seek_back(-size - END_MAGIC_len) == -1) return false;
         string magic;
         if (!_coded_in->ReadString(&magic, 8)) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file during scan!" << std::endl; 
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Unexpected end of file during scan!" << std::endl; 
             return false;
         }
-        if (seek(-size - END_MAGIC_len - 4, SEEK_END) == -1) return false;
+        if (seek_back(-size - END_MAGIC_len - 4) == -1) return false;
+
+
 
         uint32_t footer_size = 0;
         if (!_coded_in->ReadLittleEndian32(&footer_size)) return false;
         uint32_t footer_msgsize  = END_MAGIC_len + 4 + footer_size + 8;
         uint64_t footer_start = - size - footer_msgsize;
-        int64_t footer_abs_start = seek(footer_start, SEEK_END);
+        int64_t footer_abs_start = seek_back(footer_start);
         if (footer_abs_start == -1) return false;
-        A4Message msg = next(true);
-        if (!msg.is<A4StreamFooter>()) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Unknown footer class!" << std::endl;
+        A4Message msg = next_message_msg();
+        if (!msg.is<StreamFooter>()) {
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Unknown footer class!" << std::endl;
             return false;
         }
-        shared<A4StreamFooter> footer = msg.as<A4StreamFooter>();
+        shared<StreamFooter> footer = msg.as<StreamFooter>();
         size += footer->size() + footer_msgsize;
+
+        shared<ProtoClassPool> this_pool(new ProtoClassPool());
+        _temp_class_pools.push_front(this_pool);
+        _class_pools[0] = this_pool;
+        foreach(uint64_t offset, footer->protoclass_offsets()) {
+            uint64_t metadata_start = footer_abs_start - footer->size() + offset;
+            if (seek(metadata_start) == -1) return false;
+            A4Message msg = next_message_msg();
+            shared<ProtoClass> proto = msg.as<ProtoClass>();
+            assert(proto);
+            this_pool->add_protoclass(*proto);
+        }
 
         std::vector<A4Message> _this_headers_metadata;
         foreach(uint64_t offset, footer->metadata_offsets()) {
             uint64_t metadata_start = footer_abs_start - footer->size() + offset;
-            if (seek(metadata_start, SEEK_SET) == -1) return false;
-            A4Message msg = next(true);
-            
-            while (msg.is<A4Proto>()) {
-                // Instead of getting metadata we might get class descriptions here
-                shared<A4Proto> a4proto = msg.as<A4Proto>();
-                generate_dynamic_classes(a4proto.get());
-                msg = next(true);
-            }
+            if (seek(metadata_start) == -1) return false;
+            A4Message msg = next_message_msg();
             _this_headers_metadata.push_back(msg);
         }
-        _metadata_per_header.push_front(_this_headers_metadata);
+        _temp_metadata_per_header.push_front(_this_headers_metadata);
 
-        int64_t tell = seek(-size, SEEK_END);
+        int64_t tell = seek_back(-size);
         headers.push_front(tell);
         if (tell == -1) return false;
         if (tell == 0) break;
     }
-    seek(headers[_current_header_index] + START_MAGIC_len, SEEK_SET);
-    next(true);
+    seek(headers[_current_header_index] + START_MAGIC_len);
+    next_message(); // read the header again
     _discovery_complete = true;
+    _class_pools.clear();
+    _class_pools.insert(_class_pools.end(), _temp_class_pools.begin(), _temp_class_pools.end());
+    _metadata_per_header.insert(_metadata_per_header.end(), _temp_metadata_per_header.begin(), _temp_metadata_per_header.end());
     return true;
 }
 
-int64_t A4InputStream::seek(int64_t position, int whence) {
-    assert(_fileno != 0);
+int64_t InputStreamImpl::seek_back(int64_t position) {
     assert(!_compressed_in);
     _coded_in.reset();
-    _file_in.reset();
-    _raw_in.reset();
-    int64_t pos = lseek(_fileno, position, whence);
-    _file_in.reset(new FileInputStream(_fileno));
-    _raw_in = _file_in;
+    if (!_raw_in->SeekBack(-position)) return -1;
+    int64_t pos = _raw_in->Tell();
     _coded_in.reset(new CodedInputStream(_raw_in.get()));
     _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
     return pos;
 };
 
-bool A4InputStream::start_compression(const A4StartCompressedSection& cs) {
+int64_t InputStreamImpl::seek(int64_t position) {
+    assert(!_compressed_in);
+    _coded_in.reset();
+    if (!_raw_in->Seek(position)) return -1;
+    int64_t pos = _raw_in->Tell();
+    _coded_in.reset(new CodedInputStream(_raw_in.get()));
+    _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
+    return pos;
+};
+
+bool InputStreamImpl::start_compression(const StartCompressedSection& cs) {
     assert(!_compressed_in);
     _coded_in.reset();
 
-    if (cs.compression() == A4StartCompressedSection_Compression_ZLIB) {
+    if (cs.compression() == StartCompressedSection_Compression_ZLIB) {
         _compressed_in.reset(new GzipInputStream(_raw_in.get(), GzipInputStream::ZLIB));
-    } else if (cs.compression() == A4StartCompressedSection_Compression_GZIP) {
+    } else if (cs.compression() == StartCompressedSection_Compression_GZIP) {
         _compressed_in.reset(new GzipInputStream(_raw_in.get(), GzipInputStream::GZIP));
-    } else if (cs.compression() == A4StartCompressedSection_Compression_SNAPPY) {
+    } else if (cs.compression() == StartCompressedSection_Compression_SNAPPY) {
 #ifdef HAVE_SNAPPY
         _compressed_in.reset(new SnappyInputStream(_raw_in.get()));
 #else
         throw a4::Fatal("This file uses compression by the 'Snappy' library, which was not compiled in!");
 #endif
     } else {
-        std::cerr << "ERROR - a4::io:A4InputStream - Unknown compression type " << cs.compression() << std::endl;
+        std::cerr << "ERROR - a4::io:InputStreamImpl - Unknown compression type " << cs.compression() << std::endl;
         return false;
     }
 
@@ -317,11 +277,11 @@ bool A4InputStream::start_compression(const A4StartCompressedSection& cs) {
     return true;
 }
 
-bool A4InputStream::stop_compression(const A4EndCompressedSection& cs) {
+bool InputStreamImpl::stop_compression(const EndCompressedSection& cs) {
     assert(_compressed_in);
     _coded_in.reset();
     if (!_compressed_in->ExpectAtEnd()) {
-        std::cerr << "ERROR - a4::io:A4InputStream - Compressed section did not end where it should!" << std::endl;
+        std::cerr << "ERROR - a4::io:InputStreamImpl - Compressed section did not end where it should!" << std::endl;
         return false;
     }
     _compressed_in.reset();
@@ -329,7 +289,7 @@ bool A4InputStream::stop_compression(const A4EndCompressedSection& cs) {
     return true;
 }
 
-void A4InputStream::reset_coded_stream() {
+void InputStreamImpl::reset_coded_stream() {
     _coded_in.reset();
     if (_compressed_in) {
         _coded_in.reset(new CodedInputStream(_compressed_in.get()));
@@ -339,138 +299,9 @@ void A4InputStream::reset_coded_stream() {
     _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
 }
 
-shared<Message> A4InputStream::message_factory(
-    const google::protobuf::Message* prototype,
-    google::protobuf::io::CodedInputStream* instr)
-{    
-    shared<Message> msg(prototype->New());
-    bool success = msg->ParseFromCodedStream(instr);
-    assert(success);
-    return msg;
-}
-
-void A4InputStream::generate_dynamic_classes(const A4Proto* a4proto)
-{
-    const FileDescriptorProto& fdp = a4proto->file_descriptor();
-    //std::cout << "Encountered a dynamic class: " << fdp.name() << std::endl;
-    
-    //std::cout << "Encountered an A4Proto on reading: " << fdp.name() << std::endl;
-    //std::cout << "Number of messages: " << fdp.message_type_size() << std::endl;
-    
-    {
-        google::protobuf::LogSilencer silencer;
-        if (not _encountered_file_descriptors->Add(fdp))
-            return;
-    }
-    
-    const FileDescriptor* file = _descriptor_pool->BuildFile(fdp);
-    
-    for (int i = 0; i < file->message_type_count(); i++) {
-        const Descriptor* d = file->message_type(i);
-        const FieldDescriptor* fd = d->FindFieldByName("CLASS_ID");
-        
-        if (!fd)
-            continue; // No CLASS_ID field, ignore this type
-
-        // Bingo, we found a A4 message type
-        const uint32_t class_id = fd->number();
-
-        _descriptor_map[class_id] = d;
-
-        if (a4::io::internal::all_class_ids(class_id, NULL, false) == &a4::io::internal::bad_from_stream_func) {
-            // No handler available, make a factory for it
-            
-            const Message* prototype = _message_factory->GetPrototype(d);
-            boost::function<shared<Message> (google::protobuf::io::CodedInputStream*)> factory = 
-                bind(&A4InputStream::message_factory, this, prototype, _1);
-                
-            a4::io::internal::all_class_ids(class_id, factory);
-            
-            if (class_id == _content_class_id) _content_func = factory;
-        }
-    }
-    
-    // This dumps the protobuf
-    // if (file) std::cout << file->DebugString() << std::endl;
-}
-
-const Descriptor* A4InputStream::dynamic_descriptor(uint32_t class_id) {
-    std::map<uint32_t, const Descriptor*>::const_iterator d = _descriptor_map.find(class_id);
-    if (d == _descriptor_map.end()) return NULL;
-    return d->second;
-}
-
-
-A4Message A4InputStream::merge_messages(A4Message _m1, A4Message _m2) {
-    assert(_m1.descriptor == _m2.descriptor);
-    const Descriptor * d = _m1.descriptor; // TODO: Must be dynamic one
-    assert(d != NULL);
-
-    unique<google::protobuf::Message> m1(_message_factory->GetPrototype(d)->New());
-    unique<google::protobuf::Message> m2(_message_factory->GetPrototype(d)->New());
-    shared<google::protobuf::Message> merged(_message_factory->GetPrototype(d)->New());
-
-    m1->ParseFromString(_m1.message->SerializeAsString());
-    m2->ParseFromString(_m2.message->SerializeAsString());
-
-
-    for (int i = 0; i < d->field_count(); i++) {
-        const google::protobuf::FieldOptions & opt = d->field(i)->options();
-        const Reflection * ref = opt.GetReflection();
-        assert(ref);
-        const FieldDescriptor * fdm = ref->FindKnownExtensionByNumber(kMergeFieldNumber);
-        const google::protobuf::EnumValueDescriptor * evd = ref->GetEnum(opt, fdm);
-
-        
-        DynamicField f1(*m1, d->field(i));
-        DynamicField f2(*m2, d->field(i));
-        DynamicField fm(*merged, d->field(i));
-
-        switch(evd->number()) {
-            case MERGE_BLOCK_IF_DIFFERENT:
-                if(!(f1 == f2)) throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name());
-                break;
-            case MERGE_ADD:
-                add_fields(f1, f2, fm);
-                break;
-            case MERGE_MULTIPLY:
-                multiply_fields(f1, f2, fm);
-                break;
-            case MERGE_UNION:
-                append_fields(f1, f2, fm, true);
-                break;
-            case MERGE_APPEND:
-                append_fields(f1, f2, fm, false);
-                break;
-            default:
-                throw a4::Fatal("Unknown merge strategy: ", evd->name(), ". Recompilation should fix it.");
-        }
-    }
-    return A4Message(d, merged);
-}
-
-
-std::string A4InputStream::message_field_as_string(A4Message m, const std::string & field_name) {
-    const FieldDescriptor* fd = m.message->GetDescriptor()->FindFieldByName(field_name);
-    DynamicField f(*m.message, fd);
-    if (f.repeated()) {
-        std::stringstream ss;
-        for (int i = 0; i < f.size(); i++) ss << f.value(i).str();
-        return ss.str();
-    } else {
-        return f.value().str();
-    }
-}
-
-
-/// \internal
-/// Do not do any processing on the message if internal=true
-/// \endinternal
-A4Message A4InputStream::next(bool internal) {
-    
+std::tuple<A4Message,uint32_t> InputStreamImpl::next_message() {
     if (!_started) startup();
-
-    if (!_good) return A4Message();
+    if (!_good) return std::make_tuple(A4Message(), 0);
 
     static int i = 0;
     if (i++ % 100 == 0) reset_coded_stream();
@@ -478,112 +309,98 @@ A4Message A4InputStream::next(bool internal) {
     uint32_t size = 0;
     if (!_coded_in->ReadLittleEndian32(&size)) {
         if (_compressed_in && _compressed_in->ByteCount() == 0) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Reading from compressed section failed!" << std::endl; 
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Reading from compressed section failed!" << std::endl; 
         } else {
-            std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file or corruption [0]!" << std::endl; 
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Unexpected end of file or corruption [0]!" << std::endl; 
         }
-        return set_error();
+        return std::make_tuple(A4Message(), 0);
     }
 
-    uint32_t message_type = _content_class_id;
+    uint32_t class_id = 0;
     if (size & HIGH_BIT) {
         size = size & (HIGH_BIT - 1);
-        if (!_coded_in->ReadLittleEndian32(&message_type)) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [1]!" << std::endl; 
-            return set_error();
+        if (!_coded_in->ReadLittleEndian32(&class_id)) {
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Unexpected end of file [1]!" << std::endl; 
+            return std::make_tuple(A4Message(), 0);
         }
-    } else if (message_type == 0) {
-        std::cerr << "ERROR - a4::io:A4InputStream - Default Object found while no default type is set!" << std::endl; 
-        return set_error();
     }
 
-    string magic;
-
-    if (message_type == _content_class_id) {
-        CodedInputStream::Limit lim = _coded_in->PushLimit(size);
-        shared<Message> item = _content_func(_coded_in.get());
-        _coded_in->PopLimit(lim);
-        if (!item) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Failure to parse Item!" << std::endl;
-            return set_error();
-        }
-        ++_items_read;
-        return A4Message(item->GetDescriptor(), item);
-    }
-
-    internal::from_stream_func from_stream = internal::all_class_ids(message_type);
-    if (from_stream == &a4::io::internal::bad_from_stream_func) {
-        std::cerr << "WARNING - a4::io:A4InputStream - Unknown message type: " << message_type << std::endl;
-        if (!_coded_in->Skip(size)) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Read error while skipping unknown message!"  << std::endl;
-            return set_error();
-        }
-        return next();
-    }
     CodedInputStream::Limit lim = _coded_in->PushLimit(size);
-    shared<Message> item = from_stream(_coded_in.get());
+    A4Message msg = _class_pools[_current_header_index]->read(class_id, _coded_in.get());
     _coded_in->PopLimit(lim);
+    return std::make_tuple(msg, class_id);
+}
+
+A4Message InputStreamImpl::next(bool skip_metadata) {
+    A4Message item;
+    uint32_t class_id;
+    std::tie(item, class_id) = next_message();
+
     if (!item) {
-        std::cerr << "ERROR - a4::io:A4InputStream - Failure to parse object!" << std::endl;
+        std::cerr << "ERROR - a4::io:InputStreamImpl - Failure to parse object!" << std::endl;
         return set_error();
     }
-    
-    if (internal) return A4Message(item->GetDescriptor(), item);
-        
-    if (message_type == uint32_t(A4StreamFooter::kCLASSIDFieldNumber)) {
-        // TODO: Process footer
-        shared<A4StreamFooter> foot = static_pointer_cast<A4StreamFooter>(item);
 
-        if (!_coded_in->ReadLittleEndian32(&size)) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [3]!" << std::endl; 
-            return set_error();
-        }
-        if (!_coded_in->ReadString(&magic, 8)) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Unexpected end of file [4]!" << std::endl; 
-            return set_error();
-        }
-        if (0 != magic.compare(END_MAGIC)) {
-            std::cerr << "ERROR - a4::io:A4InputStream - Corrupt footer! Read: "<< magic << std::endl; 
-            return set_error();
-        }
-        if (_coded_in->ExpectAtEnd()) {
-            return set_end();
-        }
-        _current_header_index++;
-        if (!read_header()) {
-            if (_error) {
-                std::cerr << "ERROR - a4::io:A4InputStream - Corrupt header!" << std::endl;
+
+
+    if (class_id > 100 && class_id < 200) {
+        if (class_id == _fixed_class_id<StreamFooter>()) {
+            // TODO: Process footer
+            shared<StreamFooter> foot = item.as<StreamFooter>();
+            uint32_t size;
+            if (!_coded_in->ReadLittleEndian32(&size)) {
+                std::cerr << "ERROR - a4::io:InputStreamImpl - Unexpected end of file [3]!" << std::endl; 
+                return set_error();
             }
-            return A4Message();
-        }
-        _current_metadata = A4Message();
-        if (!_current_metadata_refers_forward) {
-            _current_metadata_index = 0;
-            if (_metadata_per_header[_current_header_index].size() > 0)
-                _current_metadata = _metadata_per_header[_current_header_index][0];
-        }
-        return next();
-    } else if (message_type == uint32_t(A4StreamHeader::kCLASSIDFieldNumber)) {
-        // should not happen???
-        std::cerr << "ERROR - a4::io:A4InputStream - Unexpected header!" << std::endl; 
-        return set_error();
-    } else if (message_type == uint32_t(A4StartCompressedSection::kCLASSIDFieldNumber)) {
-        if (!start_compression(*static_cast<A4StartCompressedSection*>(item.get()))) {
+            string magic;
+            if (!_coded_in->ReadString(&magic, 8)) {
+                std::cerr << "ERROR - a4::io:InputStreamImpl - Unexpected end of file [4]!" << std::endl; 
+                return set_error();
+            }
+            if (0 != magic.compare(END_MAGIC)) {
+                std::cerr << "ERROR - a4::io:InputStreamImpl - Corrupt footer! Read: "<< magic << std::endl; 
+                return set_error();
+            }
+            if (_coded_in->ExpectAtEnd()) {
+                return set_end();
+            }
+            _current_header_index++;
+            if (!read_header()) {
+                if (_error) {
+                    std::cerr << "ERROR - a4::io:InputStreamImpl - Corrupt header!" << std::endl;
+                }
+                return A4Message();
+            }
+            _current_metadata = A4Message();
+            if (!_current_metadata_refers_forward) {
+                _current_metadata_index = 0;
+                if (_metadata_per_header[_current_header_index].size() > 0)
+                    _current_metadata = _metadata_per_header[_current_header_index][0];
+            }
+            return next();
+        } else if (class_id == _fixed_class_id<StreamHeader>()) {
+            // should not happen???
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Unexpected header!" << std::endl; 
             return set_error();
-        }
-        return next();
-    } else if (message_type == uint32_t(A4EndCompressedSection::kCLASSIDFieldNumber)) {
-        if(!stop_compression(*static_cast<A4EndCompressedSection*>(item.get()))) {
-            return set_error(); // read error;
-        }
-        return next();
-    } else if (message_type == uint32_t(A4Proto::kCLASSIDFieldNumber)) {
-        shared<A4Proto> a4proto = static_pointer_cast<A4Proto>(item);
-        generate_dynamic_classes(a4proto.get());
-        return next();
-    } else if (message_type == _metadata_class_id) {
+        } else if (class_id == _fixed_class_id<StartCompressedSection>()) {
+            if (!start_compression(*item.as<StartCompressedSection>())) {
+                return set_error();
+            }
+            return next();
+        } else if (class_id == _fixed_class_id<EndCompressedSection>()) {
+            if(!stop_compression(*item.as<EndCompressedSection>())) {
+                return set_error(); // read error;
+            }
+            return next();
+        } else if (class_id == _fixed_class_id<ProtoClass>()) {
+            _class_pools[_current_header_index]->add_protoclass(*item.as<ProtoClass>());
+            return next();
+        };
+    }
+
+    if (class_id % 2 == 1) { // Odd class_id's are metadata!
         if (_current_metadata_refers_forward) {
-            _current_metadata = A4Message(item->GetDescriptor(), item);
+            _current_metadata = item;
         } else {
             _current_metadata_index++;
             _current_metadata = A4Message();
@@ -591,8 +408,10 @@ A4Message A4InputStream::next(bool internal) {
                 _current_metadata = _metadata_per_header[_current_header_index][_current_metadata_index];
         }
         _new_metadata = true;
-        return next();
+        if (skip_metadata) return next();
     }
-    return A4Message(item->GetDescriptor(), item);
+
+    return item;
 }
 
+};}; // namespace a4::io

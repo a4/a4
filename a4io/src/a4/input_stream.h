@@ -34,7 +34,7 @@ namespace a4{ namespace io{
             A4Message next_with_metadata();
 
             /// Return the currently applicable metadata message.
-            const A4Message current_metadata() {return _current_metadata; };
+            const A4Message current_metadata();
 
             /// True if new metadata has appeared since the last call to this function.
             bool new_metadata();

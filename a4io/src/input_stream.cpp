@@ -5,10 +5,12 @@ namespace a4{ namespace io{
 
     // Forward everything to the implementation object.
     InputStream::InputStream(std::string url) {
-        _impl.reset(new InputStreamImpl(resource_from_url(url))
+        _impl.reset(new InputStreamImpl(resource_from_url(url), url));
     };
 
-    InputStream::InputStream(unique<InputStreamImpl> impl) : _impl(impl) {}
+    InputStream::InputStream(unique<InputStreamImpl> impl) {
+        _impl = std::move(impl);
+    }
     InputStream::~InputStream() {}
     A4Message InputStream::next() { return _impl->next(); }
     A4Message InputStream::next_with_metadata() {

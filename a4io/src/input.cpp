@@ -14,7 +14,7 @@ typedef boost::unique_lock<boost::mutex> Lock;
 A4Input::A4Input(std::string name) {};
 
 /// Add a stream to be processed, Returns this object again.
-A4Input & A4Input::add_stream(shared<A4InputStream> s) {
+A4Input & A4Input::add_stream(shared<InputStream> s) {
     _streams.push_back(s);
     _ready.push_front(s.get());
     return *this;
@@ -22,13 +22,13 @@ A4Input & A4Input::add_stream(shared<A4InputStream> s) {
 
 /// Add a file to be processed, Returns this object again.
 A4Input & A4Input::add_file(const std::string & filename) {
-    shared<A4InputStream> s(new A4InputStream(filename));
+    shared<InputStream> s(new InputStream(filename));
     _streams.push_back(s);
     _ready.push_front(s.get());
     return *this;
 };
 
-void A4Input::report_finished(A4Input * input, A4InputStream* _s) {
+void A4Input::report_finished(A4Input * input, InputStream* _s) {
     Lock l2(input->_mutex);
     if (_s->end()) {
         assert(input->_processing.erase(_s) == 1);
@@ -45,17 +45,17 @@ void A4Input::report_finished(A4Input * input, A4InputStream* _s) {
 
 /// Get a stream for processing, returns NULL if none are left (threadsafe).
 /// Optionally give your "name" (for debugging)
-shared<A4InputStream> A4Input::get_stream() {
+shared<InputStream> A4Input::get_stream() {
     Lock lock(_mutex);
-    if (_ready.empty()) return shared<A4InputStream>();
-    A4InputStream * s = _ready.back();
+    if (_ready.empty()) return shared<InputStream>();
+    InputStream * s = _ready.back();
     _ready.pop_back();
 
     _processing.insert(s);
 
-    //auto ret = shared<A4InputStream>(s, (new Callback(this))->Call);
-    std::function<void (A4InputStream*)> cb = std::bind(&A4Input::report_finished, this, std::placeholders::_1);
-    shared<A4InputStream> ret(s, cb);
+    //auto ret = shared<InputStream>(s, (new Callback(this))->Call);
+    std::function<void (InputStream*)> cb = std::bind(&A4Input::report_finished, this, std::placeholders::_1);
+    shared<InputStream> ret(s, cb);
     //std::cerr << "Input requested, returning " << s->str() << std::endl;
     return ret;
 }
