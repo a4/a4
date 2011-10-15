@@ -17,7 +17,7 @@ message StreamHeader
 
 message StreamFooter
 {
-    option (fixed_class_id) = 101;
+    option (fixed_class_id) = 102;
 
     // MUST be number of bytes written before the footer size byte
     required int64 size = 1;
@@ -26,12 +26,12 @@ message StreamFooter
     repeated int64 metadata_offsets = 2;
 
     // MUST specify the offset from stream start of all ProtoClass messages
-    repeated int64 file_descriptor_offsets = 3;
+    repeated int64 protoclass_offsets = 3;
 }
 
 message StartCompressedSection
 {
-    option (fixed_class_id) = 102;
+    option (fixed_class_id) = 104;
     enum Compression {
         ZLIB = 0;
         GZIP = 1;
@@ -43,12 +43,12 @@ message StartCompressedSection
 
 message EndCompressedSection
 {
-    option (fixed_class_id) = 103;
+    option (fixed_class_id) = 106;
 }
 
 message ProtoClass
 {
-    option (fixed_class_id) = 105;
+    option (fixed_class_id) = 108;
     optional int32 class_id = 1;
     optional string full_name = 2;
     repeated google.protobuf.FileDescriptorProto file_descriptor = 3;
@@ -83,7 +83,7 @@ message TestMetaData
 
 message TestMergeMetaDataStatic
 {
-    option (fixed_class_id) = 42;
+    option (fixed_class_id) = 41;
 
     option (major_version) = "v2011.10-MD-MERGE";
     option (patch_version) = "For my 83 run over the Data";
@@ -93,7 +93,7 @@ message TestMergeMetaDataStatic
 
 message TestMergeMetaData
 {
-    option (fixed_class_id) = 42;
+    option (fixed_class_id) = 41;
 
     option (major_version) = "v2011.10-MD-MERGE";
     option (patch_version) = "For my 83 run over the Data";

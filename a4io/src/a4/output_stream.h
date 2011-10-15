@@ -32,20 +32,18 @@ namespace a4{ namespace io{
     {
         public:
             A4OutputStream(const std::string &output_file,
-                           const std::string description="", 
-                           uint32_t content_class_id=0, 
-                           uint32_t metadata_class_id=0);
+                           const std::string description="");
             A4OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream>,
                            const std::string outname="<stream>",
-                           const std::string description="", 
-                           uint32_t content_class_id=0,
-                           uint32_t metadata_class_id=0);
+                           const std::string description=""); 
             ~A4OutputStream();
 
             /// Write a message to the stream
-            /// Take care to respect the metadata message direction - forward means the events following
-            /// the metadata are described, otherwise the previous events are referred to.
             bool write(const google::protobuf::Message& m);
+
+            /// Write a metadata message to the stream
+            /// Take care to respect the metadata message direction - forward means the events following
+            bool metadata(const google::protobuf::Message& m);
 
             /// \internal Explicitly close the file. \endinternal
             bool close();
@@ -57,24 +55,6 @@ namespace a4{ namespace io{
             /// If called, metadata will refer to the events following the metadata, instead of events before.
             /// Has to be called before writing is begun.
             A4OutputStream & set_forward_metadata() { assert(!_opened); _metadata_refers_forward = true; return *this; };
-            /// Set the content message object ( s->content_cls<TestEvent>(); ).
-            /// Has to be called before writing is begun.
-            A4OutputStream & content_cls(uint32_t id) { assert(!_opened); _content_class_id = id; return *this; };
-            template<class ProtoClass>
-            A4OutputStream & content_cls() {
-                assert(!_opened);
-                _content_class_id = ProtoClass::kCLASSIDFieldNumber;
-                return *this;
-            };
-            /// Set the metadata message object ( s->metadata_cls<TestEvent>(); ).
-            /// Has to be called before writing is begun.
-            A4OutputStream & metadata_cls(uint32_t id) { assert(!_opened); _metadata_class_id = id; return *this; };
-            template<class ProtoClass>
-            A4OutputStream & metadata_cls() {
-                assert(!_opened);
-                _metadata_class_id = ProtoClass::kCLASSIDFieldNumber;
-                return *this;
-            };
 
             /// String representation of this stream for user output
             std::string str() { return std::string("A4OutputStream(\"") + _output_name + "\", \"" + _description + "\")"; };
@@ -100,16 +80,18 @@ namespace a4{ namespace io{
             bool _compression;
             bool _opened, _closed;
             bool _metadata_refers_forward;
-            uint32_t _content_count;
-            uint32_t _content_class_id;
-            uint32_t _metadata_class_id;
             std::vector<uint64_t> metadata_positions;
+            std::vector<uint64_t> protoclass_positions;
             
             shared<google::protobuf::SimpleDescriptorDatabase> _written_file_descriptors;
-            
-            void write_a4proto(const google::protobuf::Message &msg);
-            
             std::set<uint32_t> _written_classids;
+            uint32_t _next_class_id;
+            uint32_t _next_metadata_class_id;
+            
+            void write_protoclass(uint32_t class_id, const google::protobuf::Descriptor * d);
+            uint32_t find_class_id(const google::protobuf::Descriptor * d, bool metadata);
+            
+            std::map<const google::protobuf::Descriptor *, uint32_t> _class_id;
             bool have_written_classid(const uint32_t& classid) { return _written_classids.find(classid) != _written_classids.end(); }
             void set_written_classid(const uint32_t& classid) { _written_classids.insert(classid); }
     };
