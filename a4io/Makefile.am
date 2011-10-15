@@ -27,6 +27,8 @@ LIBRARY_SOURCES=$(a4include_HEADERS) \
     src/message.cpp \
     src/zero_copy_resource.h src/zero_copy_resource.cpp \
     src/proto_class_pool.h src/proto_class_pool.cpp \
+    src/dynamic_message.h src/dynamic_message.cpp \
+    src/input_stream_impl.h src/input_stream_impl.cpp \
     src/base_compressed_streams.h src/string.cpp \
     src/gzip_stream.h src/gzip_stream.cpp \
     src/snappy_stream.h src/snappy_stream.cpp \
