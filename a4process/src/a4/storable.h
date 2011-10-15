@@ -33,7 +33,7 @@ namespace a4{ namespace process{
     namespace internal {
 
         typedef shared<Storable> (*from_message_func)(const google::protobuf::Message&);
-        from_message_func as_storable(int, from_message_func f = NULL);
+        from_message_func as_storable(const google::protobuf::Descriptor*, from_message_func f = NULL);
 
         template <typename Class>
         shared<Storable> from_message(const google::protobuf::Message& msg) {

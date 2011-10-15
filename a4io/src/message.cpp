@@ -14,12 +14,12 @@ namespace a4{ namespace io{
 
         using google::protobuf::DynamicMessageFactory;
 
-        if (d == _descriptor) return message;
+        if (d == descriptor) return message;
         unique<DynamicMessageFactory> _message_factory(new DynamicMessageFactory(p));
         shared<Message> m(_message_factory->GetPrototype(d)->New());
         // Do version checking if the dynamic descriptors are different
         if (d != _dynamic_descriptor) {
-            const google::protobuf::Descriptor* my_d = _dynamic_descriptor ? _dynamic_descriptor : _descriptor;
+            const google::protobuf::Descriptor* my_d = _dynamic_descriptor ? _dynamic_descriptor : descriptor;
 
             std::string mymajor = my_d->options().GetExtension(major_version);
             std::string myminor = my_d->options().GetExtension(minor_version);
@@ -55,7 +55,7 @@ namespace a4{ namespace io{
             sp = _m2._pool;
             p = sp.get();
         } else {
-            d = _descriptor;
+            d = descriptor;
             p = DescriptorPool::generated_pool();
         }
 
@@ -94,7 +94,7 @@ namespace a4{ namespace io{
     }
     
     std::string A4Message::field_as_string(const std::string & field_name) {
-        const FieldDescriptor* fd = _descriptor->FindFieldByName(field_name);
+        const FieldDescriptor* fd = descriptor->FindFieldByName(field_name);
         DynamicField f(*message, fd);
         if (f.repeated()) {
             std::stringstream ss;
