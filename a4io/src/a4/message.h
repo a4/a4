@@ -2,16 +2,15 @@
 #define _A4_MESSAGE_H_
 
 #include <string>
-#include <vector>
-#include <deque>
 
 #include <google/protobuf/message.h>
-#include <a4/a4io.h>
+
+#include <a4/types.h>
 
 // used internally
 namespace google{ namespace protobuf{
-    class Message;
     class Descriptor;
+    class DescriptorPool;
 };};
 
 namespace a4{ namespace io{
@@ -19,14 +18,18 @@ namespace a4{ namespace io{
     class A4Message {
         public:
             /// Construct A4Message that signifies end of stream or stream error
-            A4Message() : descriptor(NULL) { message.reset(); };
-            /// Construct normal A4Message with class_id and protobuf Message
-            A4Message(const google::protobuf::Descriptor* d, shared<Message> msg) : message(msg), descriptor(d) {};
+            A4Message() :  _descriptor(NULL), _dynamic_descriptor(NULL) { message.reset(); _pool.reset(); };
+
+            /// Construct normal A4Message with message, (static) descriptor, 
+            /// dynamic descriptor and  class_id and protobuf Message
+            A4Message(shared<google::protobuf::Message> msg,
+                      const google::protobuf::Descriptor* d,
+                      const google::protobuf::Descriptor* dd=NULL,
+                      shared<google::protobuf::DescriptorPool> pool=shared<google::protobuf::DescriptorPool>())
+                : message(msg), _descriptor(d), _dynamic_descriptor(dd), _pool(pool) {};
 
             /// Shared protobuf message 
-            shared<Message> message;
-            /// Pointer to the descriptor of that message, used for quick type checks.
-            const google::protobuf::Descriptor* descriptor;
+            shared<google::protobuf::Message> message;
 
             /// true if the message pointer is None (end, unknown or no metadata)
             bool null() const {return message.get() == NULL; };
@@ -38,7 +41,7 @@ namespace a4{ namespace io{
             /// Quick check if the message is of that class
             /// example: if (result.is<TestEvent>())
             template <class T>
-            bool is() const { return T::descriptor() == descriptor; };
+            bool is() const { return T::descriptor() == _descriptor; };
 
             /// Checked Cast of the message to the given class.
             /// Returns null if the cast fails.
@@ -48,6 +51,21 @@ namespace a4{ namespace io{
                 if (not is<T>()) return shared<T>();
                 return static_pointer_cast<T>(message);
             }
+
+            /// Merge two messages that support it via the "merge" field extension
+            A4Message operator+(const A4Message & rhs) const;
+
+            /// Return a field of this message in string representation
+            std::string field_as_string(const std::string & field_name);
+        private:
+            shared<google::protobuf::Message> as_dynamic_message(const google::protobuf::Descriptor* d, const google::protobuf::DescriptorPool* p) const;
+            /// Pointer to the descriptor of that message, used for quick type checks.
+            const google::protobuf::Descriptor* _descriptor;
+            /// Pointer to the dynamically loaded descriptor, used for merging
+            const google::protobuf::Descriptor* _dynamic_descriptor;
+            /// Shared pointer to the descriptor pool of that message, so that it does not disappear on us.
+            shared<google::protobuf::DescriptorPool> _pool;
+
     };
 };};
 
