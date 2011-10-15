@@ -24,6 +24,9 @@ LDADD=liba4io.la $(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS) $(BOOST_LIBS)
 
 # Main a4io library
 LIBRARY_SOURCES=$(a4include_HEADERS) \
+    src/message.cpp \
+    src/zero_copy_resource.h src/zero_copy_resource.cpp \
+    src/proto_class_pool.h src/proto_class_pool.cpp \
     src/base_compressed_streams.h src/string.cpp \
     src/gzip_stream.h src/gzip_stream.cpp \
     src/snappy_stream.h src/snappy_stream.cpp \
