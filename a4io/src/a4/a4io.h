@@ -1,13 +1,13 @@
 #ifndef HAVE_A4IO
 #define HAVE_A4IO
 
-#include <a4/types.h>
+#include <string>
+#include <iostream>
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/text_format.h>
-#include <string>
-#include <iostream>
-namespace google{namespace protobuf{ class Message; };};
+
+#include <a4/types.h>
 
 namespace a4{
     /// A4IO
