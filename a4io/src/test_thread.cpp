@@ -13,14 +13,10 @@ const int N = 1000;
 
 void no_write(A4Output &a4o) {
     shared<A4OutputStream> stream = a4o.get_stream();
-    stream->content_cls<TestEvent>();
-    stream->metadata_cls<TestMetaData>();
 }
 
 void my_write(A4Output &a4o) {
     shared<A4OutputStream> stream = a4o.get_stream();
-    stream->content_cls<TestEvent>();
-    stream->metadata_cls<TestMetaData>();
 
     TestEvent e;
     for(int i = 0; i < N; i++) {
@@ -29,11 +25,11 @@ void my_write(A4Output &a4o) {
     }
     TestMetaData m;
     m.set_meta_data(N);
-    stream->write(m);
+    stream->metadata(m);
 }
 
 void my_read(A4Input &in) {
-    shared<A4InputStream> stream = in.get_stream();
+    shared<InputStream> stream = in.get_stream();
     if (!stream) return;
     int cnt = 0;
     while (A4Message msg = stream->next()) {
@@ -46,7 +42,7 @@ void my_read(A4Input &in) {
 }
 
 void no_read(A4Input &in) {
-    shared<A4InputStream> stream = in.get_stream();
+    shared<InputStream> stream = in.get_stream();
     if (!stream) return;
     assert(stream->good());
     if (stream->error()) {

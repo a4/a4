@@ -13,8 +13,6 @@ int main(int argc, char ** argv) {
         A4Output a4o("test_io.a4", "TestEvent");
 
         shared<A4OutputStream> stream = a4o.get_stream();
-        stream->content_cls<TestEvent>();
-        stream->metadata_cls<TestMetaData>();
 
         TestEvent e;
         for(int i = 0; i < N; i++) {
@@ -23,14 +21,14 @@ int main(int argc, char ** argv) {
         }
         TestMetaData m;
         m.set_meta_data(N);
-        stream->write(m);
+        stream->metadata(m);
     }
     {
         A4Input in;
         in.add_file("test_io.a4");
         in.add_file("test_io.a4");
         int cnt = 0;
-        while (shared<A4InputStream> stream = in.get_stream()) {
+        while (shared<InputStream> stream = in.get_stream()) {
             while (A4Message msg = stream->next()) {
                 if (shared<TestEvent> te = msg.as<TestEvent>()) {
                     assert((cnt++%N) == te->event_number());

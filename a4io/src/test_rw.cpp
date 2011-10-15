@@ -12,7 +12,6 @@ using namespace a4::io;
 TEST(a4io, read_write) {
     {
         A4OutputStream w("test_rw.a4", "TestEvent");
-        w.content_cls<TestEvent>().metadata_cls<TestMetaData>();
 
         const int N = 1000;
         TestEvent e;
@@ -22,11 +21,11 @@ TEST(a4io, read_write) {
         }
         TestMetaData m;
         m.set_meta_data(N);
-        w.write(m);
+        w.metadata(m);
 
     }
     {
-        A4InputStream r("test_rw.a4");
+        InputStream r("test_rw.a4");
         int cnt = 0;
         while (A4Message msg = r.next()) {
             if (shared<TestEvent> te = msg.as<TestEvent>()) {

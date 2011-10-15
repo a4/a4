@@ -20,7 +20,6 @@ int main(int argc, char ** argv) {
     const bool compression = atoi(argv[2]) == 1;
     {
         A4OutputStream w(argv[3], "TestEvent");
-        w.content_cls<TestEvent>().metadata_cls<TestMetaData>();
         w.set_compression(compression);
         if (forward) w.set_forward_metadata();
 
@@ -31,7 +30,7 @@ int main(int argc, char ** argv) {
         TestEvent e;
         TestMetaData m;
         m.set_meta_data(0);
-        if (forward) w.write(m);
+        if (forward) w.metadata(m);
         for(uint64_t i = 0; i < N; i++) {
             int32_t en = i%mod;
             if (i % 1000000 == 0) cout << "..." << i << endl;
@@ -43,7 +42,7 @@ int main(int argc, char ** argv) {
             e.set_event_number(en);
             w.write(e);
         }
-        if (!forward) w.write(m);
+        if (!forward) w.metadata(m);
         cout << "...done." << endl;
     }
 }

@@ -26,28 +26,27 @@ TestMergeMetaData meta(int d, int run, int lb, int period, bool simulation=false
 TEST(a4io, metadata_merge) {
     {
         A4OutputStream w("test_mm.a4", "TestEvent");
-        w.content_cls<TestEvent>().metadata_cls<TestMergeMetaData>();
 
         const int N = 1000;
         int cnt = 0;
         TestEvent e;
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
-        w.write(meta(1,1,1,1));
+        w.metadata(meta(1,1,1,1));
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
-        w.write(meta(1,10,1,1, true)); // will cause an exception
+        w.metadata(meta(1,10,1,1, true)); // will cause an exception
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
-        w.write(meta(2,1,2,1));
+        w.metadata(meta(2,1,2,1));
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
-        w.write(meta(3,2,1,1));
+        w.metadata(meta(3,2,1,1));
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
-        w.write(meta(4,2,2,1));
+        w.metadata(meta(4,2,2,1));
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
-        w.write(meta(5,3,1,2));
+        w.metadata(meta(5,3,1,2));
         for(int i = 0; i < N; i++) {e.set_event_number(cnt++); w.write(e);};
-        w.write(meta(6,3,2,2));
+        w.metadata(meta(6,3,2,2));
     }
     {
-        A4InputStream r("test_mm.a4");
+        InputStream r("test_mm.a4");
         int cnt = 0;
         A4Message current_md;
         int mcnt = 0;
@@ -62,10 +61,10 @@ TEST(a4io, metadata_merge) {
                     std::cout << "CURRENT:\n" << current_md.message->ShortDebugString() << std::endl;
                     std::cout << "NEXT   :\n" << new_md.message->ShortDebugString() << std::endl;
                     if (mcnt == 1) {
-                        EXPECT_THROW(std::cout << "ERRONEOUS: " << r.merge_messages(current_md, new_md).message->ShortDebugString() << std::endl;, a4::Fatal);
+                        EXPECT_THROW(std::cout << "ERRONEOUS: " << (current_md + new_md).message->ShortDebugString() << std::endl;, a4::Fatal);
 
                     } else {
-                        current_md = r.merge_messages(current_md, new_md);
+                        current_md = current_md + new_md;
                         std::cout << "MERGED :\n" << current_md.message->ShortDebugString() << std::endl;
                     }
                 } else current_md = new_md;

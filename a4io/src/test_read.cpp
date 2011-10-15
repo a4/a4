@@ -14,7 +14,7 @@ int main(int argc, char ** argv) {
         fn = argv[1];
     } else assert(argc <= 2);
 
-    A4InputStream r(fn);
+    InputStream r(fn);
 
     int cnt = 0;
     while (A4Message rr = r.next()) {

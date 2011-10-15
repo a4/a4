@@ -15,7 +15,6 @@ int main(int argc, char ** argv) {
     } else assert(argc <= 2);
 
     A4OutputStream w(fn, "TestEvent");
-    w.content_cls<TestEvent>().metadata_cls<TestMetaData>();
     w.set_forward_metadata();
 
     const int N = 500;
