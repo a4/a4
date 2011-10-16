@@ -137,7 +137,7 @@ if [[ -n "${1-}" ]]; then
     fi
 
     # File specified on commandline
-    INPUT="${1}"
+    INPUT="${1-}"
     if [[ "$INPUT" == "--last" ]]; then
         INPUT="${LAST_ERROR_FILE}"
         USING_LAST_ERROR_FILE=true
