@@ -36,6 +36,11 @@ function color {
     fi
 }
 
+function filter_colors {
+    # Remove ANSI colour codes
+    sed -r "s:\x1B\[[0-9;]*[mK]::g"
+}
+
 function bold { color bold "$@"; }
 
 function debug {
@@ -145,7 +150,7 @@ if [[ -n "${1-}" ]]; then
     if [[ ! -e "${INPUT}" && "${INPUT}" != "-" ]]; then
         die "Filename \"${INPUT}\" does not exist!"; 
     fi
-    CONTENTS="$(cat "$INPUT")"
+    CONTENTS="$(cat "$INPUT" | filter_colors)"
     shift
     if [[ -n "${1-}" ]]; then
         ISSUE_TITLE="$@"
@@ -157,7 +162,7 @@ else
 fi
 
 # Format contents using awk to give indentation
-CONTENTS="$(echo -n "$CONTENTS" | awk '{ print "    "$0 }')"
+CONTENTS="$(echo -n "$CONTENTS" | filter_colors | awk '{ print "    "$0 }')"
 
 function github {
     CONTENTS_VAR=$1
