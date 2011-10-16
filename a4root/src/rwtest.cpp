@@ -32,12 +32,13 @@ using google::protobuf::Descriptor;
 using google::protobuf::FieldDescriptor;
 using google::protobuf::Reflection;
 
-#include "Event.pb.h"
-#include "Metadata.pb.h"
+#include "atlas/ntup_photon/Event.pb.h"
+#include "atlas/ntup_photon/Metadata.pb.h"
+
+#include "test/Event.pb.h"
 
 //using namespace std;
 using namespace a4::io;
-using namespace a4::example::root;
 
 using namespace google;
 
@@ -56,8 +57,8 @@ typedef function<shared<Message> ()> RootToMessageFactory;
 typedef function<void (Message*)>    Copier;
 typedef vector<Copier>               Copiers;
 
-A4RegisterClass(Event);
-A4RegisterClass(Metadata);
+A4RegisterClass(a4root::test::Event);
+A4RegisterClass(a4root::atlas::ntup_photon::Metadata);
 
 const vector<const FieldDescriptor*> get_fields(const Descriptor* d) {
     vector<const FieldDescriptor*> result;
@@ -496,7 +497,7 @@ void copy_tree(TTree& tree, shared<OutputStream> stream, Long64_t entries = -1)
     
     // This is the only place where we say that we're wanting to build the 
     // Event class.
-    EventFactoryBuilder builder(tree, Event::descriptor(), &event_factory);
+    EventFactoryBuilder builder(tree, a4root::test::Event::descriptor(), &event_factory);
     
     tree.SetNotify(&builder);
     // This line is needed. It seems to sometimes not get called automatically 

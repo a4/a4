@@ -1,28 +1,29 @@
-package a4.example.root;
+package a4root.atlas.ntup_photon;
 
-import "BeamSpot.proto";
-import "BunchConfigID.proto";
-import "ChainEntry.proto";
-import "Cluster.proto";
-import "CollisionDecision.proto";
-import "D3PDObject1.proto";
-import "D3PDObject2.proto";
-import "DiPhoton.proto";
-import "EFElectron.proto";
-import "EFPhoton.proto";
-import "Electron.proto";
-import "EmTauROI.proto";
-import "Jet.proto";
-import "MBTS.proto";
-import "MBTSTime.proto";
-import "Muon.proto";
-import "Photon.proto";
-import "TrackParticle.proto";
-import "TrigEMCluster.proto";
-import "TrigElectron.proto";
-import "TrigInDetTrack.proto";
-import "TrigPhoton.proto";
 import "RootExtension.proto";
+
+import "atlas/ntup_photon/BeamSpot.proto";
+import "atlas/ntup_photon/BunchConfigID.proto";
+import "atlas/ntup_photon/ChainEntry.proto";
+import "atlas/ntup_photon/Cluster.proto";
+import "atlas/ntup_photon/CollisionDecision.proto";
+import "atlas/ntup_photon/D3PDObject1.proto";
+import "atlas/ntup_photon/D3PDObject2.proto";
+import "atlas/ntup_photon/DiPhoton.proto";
+import "atlas/ntup_photon/EFElectron.proto";
+import "atlas/ntup_photon/EFPhoton.proto";
+import "atlas/ntup_photon/Electron.proto";
+import "atlas/ntup_photon/EmTauROI.proto";
+import "atlas/ntup_photon/Jet.proto";
+import "atlas/ntup_photon/MBTS.proto";
+import "atlas/ntup_photon/MBTSTime.proto";
+import "atlas/ntup_photon/Muon.proto";
+import "atlas/ntup_photon/Photon.proto";
+import "atlas/ntup_photon/TrackParticle.proto";
+import "atlas/ntup_photon/TrigEMCluster.proto";
+import "atlas/ntup_photon/TrigElectron.proto";
+import "atlas/ntup_photon/TrigInDetTrack.proto";
+import "atlas/ntup_photon/TrigPhoton.proto";
 
 message Event {
     

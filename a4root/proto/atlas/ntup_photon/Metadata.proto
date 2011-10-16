@@ -1,3 +1,4 @@
+package a4root.atlas.ntup_photon;
 
 message Metadata
 {    
