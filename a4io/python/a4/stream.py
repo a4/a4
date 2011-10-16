@@ -8,8 +8,7 @@ from google.protobuf.reflection import GeneratedProtocolMessageType
 
 from a4.zlib_stream import ZlibInputStream, ZlibOutputStream
 from a4.proto_class_pool import ProtoClassPool
-from a4.proto import class_ids
-from a4.proto.io import StreamHeader, StreamFooter, StartCompressedSection, EndCompressedSection, Proto
+from a4.proto.io import StreamHeader, StreamFooter, StartCompressedSection, EndCompressedSection, ProtoClass
 
 START_MAGIC = "A4STREAM"
 END_MAGIC = "KTHXBYE4"
@@ -21,25 +20,19 @@ class OutputStream(object):
         self.compression = compression
         self.compressed = False
         self.bytes_written = 0
-        self.content_count = 0
-        self.content_class_id = None
         self._raw_out_stream = out_stream
         self.out_stream = out_stream
-        self.content_class_id = None
-        self.metadata_class_id = None
         self.metadata_refers_forward = metadata_refers_forward
         file_descriptors = []
         self._written_class_ids = set()
         self._written_fdps = set()
         self.metadata_offsets = []
+        self.protoclass_offsets = []
+        self.next_class_id = 0
+        self.next_metadata_class_id = 1
+        self.class_id_map = {}
 
-        if content_cls:
-            self.content_class_id = content_cls.CLASS_ID_FIELD_NUMBER
-            self.get_descriptors_recursively(content_cls.DESCRIPTOR.file, file_descriptors)
-        if metadata_cls:
-            self.metadata_class_id = metadata_cls.CLASS_ID_FIELD_NUMBER
-            self.get_descriptors_recursively(content_cls.DESCRIPTOR.file, file_descriptors)
-        self.write_header(description, file_descriptors)
+        self.write_header(description)
         self.start_compression()
 
 
@@ -61,29 +54,21 @@ class OutputStream(object):
         self.out_stream = self._raw_out_stream
         self.compressed = False
 
-    def write_header(self, description=None, file_descriptors=None):
+    def write_header(self, description=None):
         self.out_stream.write(START_MAGIC)
         self.bytes_written += len(START_MAGIC)
         header = StreamHeader()
-        header.a4_version = 1
+        header.a4_version = 2
         header.metadata_refers_forward = self.metadata_refers_forward
         if description:
             header.description = description
-        if self.content_class_id:
-            header.content_class_id = self.content_class_id
-        if self.metadata_class_id:
-            header.metadata_class_id = self.metadata_class_id
-        if file_descriptors:
-            header.file_descriptors.extend(self.get_file_descriptor_protos(file_descriptors))
         self.write(header)
 
     def write_footer(self):
         footer = StreamFooter()
         footer.size = self.bytes_written
         footer.metadata_offsets.extend(self.metadata_offsets)
-        footer.metadata_refers_forward = self.metadata_refers_forward
-        if self.content_class_id:
-            footer.content_count = self.content_count
+        footer.protoclass_offsets.extend(self.protoclass_offsets)
         self.write(footer)
         self.out_stream.write(pack("<I", footer.ByteSize()))
         self.out_stream.write(END_MAGIC)
@@ -103,9 +88,6 @@ class OutputStream(object):
 
     def flush(self):
         return self.out_stream.flush()
-    
-    def metadata(self, o):
-        self.write(o)
 
     def get_descriptors_recursively(self, file_descriptor, file_descriptors=None, all_fds=None):
         if file_descriptors is None:
@@ -132,49 +114,58 @@ class OutputStream(object):
                 continue
             self._written_fdps.add(fdp.name)
             fdps.append(fdp)
-            for d in fdp.message_type:
-                clsids = [f for f in d.field if f.name == "CLASS_ID"]
-                if len(clsids) == 0:
-                    continue # Doesn't have a CLASS_ID, ignore
-                self._written_class_ids.add(clsids[0].number)
         return fdps
 
-    def write_a4proto(self, o):
+    def write_proto_class(self, o, class_id):
         file_descriptors = self.get_descriptors_recursively(o.DESCRIPTOR.file)
-        for fdp in self.get_file_descriptor_protos(file_descriptors):
-            a4proto = Proto();
-            a4proto.file_descriptor.CopyFrom(fdp)
-            self.write(a4proto);
+        protoclass = ProtoClass();
+        protoclass.file_descriptor.extend(self.get_file_descriptor_protos(file_descriptors))
+        protoclass.class_id = class_id
+        protoclass.full_name = ".".join((o.DESCRIPTOR.file.package, o.DESCRIPTOR.name))
+        self.write(protoclass);
+
+    def get_class_id(self, o, metadata):
+        try:
+            class_id = self.class_id_map[o.__class__]
+        except KeyError:
+            class_id = ProtoClassPool.static_class_id(o.__class__)
+            if class_id is None:
+                if metadata:
+                    class_id = self.next_metadata_class_id
+                    self.next_metadata_class_id += 1
+                else:
+                    class_id = self.next_class_id
+                    self.next_class_id += 1
+                self.write_proto_class(o, class_id)
+            self.class_id_map[o.__class__] = class_id
+        return class_id
+
+    def metadata(self, o):
+        class_id = self.get_class_id(o, metadata=True)
+        if self.compressed:
+            self.stop_compression()
+        self.metadata_offsets.append(self.bytes_written)
+        self.write_message(class_id, o)
+        if self.compression:
+            self.start_compression()
 
     def write(self, o):
-        type = o.CLASS_ID_FIELD_NUMBER
-        if type == self.metadata_class_id:
-            if self.compressed:
-                self.stop_compression()
-            self.metadata_offsets.append(self.bytes_written)
+        class_id = self.get_class_id(o, metadata=False)
+        self.write_message(class_id, o)
+
+    def write_message(self, class_id, o):
         size = o.ByteSize()
-        if type == self.content_class_id:
-            self.content_count += 1
-
         assert 0 <= size < HIGH_BIT, "Message size not in range!"
-        assert 0 < type < HIGH_BIT, "Type ID not in range!"
-
-
-        if (type >= FIRST_CUSTOM_MESSAGE_CLASS) and not type in self._written_class_ids:
-            self.write_a4proto(o)
-
-        if type != self.content_class_id:
+        assert 0 <= class_id < HIGH_BIT, "Class ID not in range: %s" %class_id
+        if class_id != 0:
             self.out_stream.write(pack("<I", size | HIGH_BIT))
-            self.out_stream.write(pack("<I", type))
+            self.out_stream.write(pack("<I", class_id))
             self.bytes_written += 8
         else:
             self.out_stream.write(pack("<I", size))
             self.bytes_written += 4
         self.out_stream.write(o.SerializeToString())
         self.bytes_written += size
-        if type == self.metadata_class_id:
-            if self.compression:
-                self.start_compression()
 
 
 class InputStream(object):
@@ -186,7 +177,7 @@ class InputStream(object):
         self.headers = {}
         self.footers = {}
         self.metadata = {}
-        self.pool = ProtoPool()
+        self.pool = ProtoClassPool()
         self.read_header()
         self.current_header = self.headers.values()[0]
         self._read_all_meta_info = False
@@ -247,17 +238,11 @@ class InputStream(object):
         magic = self.in_stream.read(len(START_MAGIC))
         assert START_MAGIC == magic, "Not an A4 file: Magic %s!" % magic
         header_position = self.in_stream.tell()
-        cls, header = self.read_message()
+        cls, header, meta = self.read_message()
         self.process_header(header, header_position)
 
     def process_header(self, header, header_position):
-        assert header.a4_version == 1, "Incompatible stream version :( Upgrade your client?"
-        if header.content_class_id:
-            self.content_class_id = header.content_class_id
-        if header.metadata_class_id:
-            self.metadata_class_id = header.metadata_class_id
-        for fdp in header.file_descriptors:
-            self.pool.add_file_descriptor(fdp)
+        assert header.a4_version == 2, "Incompatible stream version :( Upgrade your client?"
         self.headers[header_position] = header
         #print "header at ", header_position, " is ", header
 
@@ -272,20 +257,26 @@ class InputStream(object):
         footer_start = - neg_offset - len(END_MAGIC) - 4 - footer_size - 8
         self.in_stream.seek(footer_start, SEEK_END)
         footer_abs_start = self.in_stream.tell()
-        cls, footer = self.read_message()
+        cls, footer, meta = self.read_message()
         #print "FOOTER SIZE = 20 + ", footer_size
         #print "FOOTER START = ", footer_start
         self.process_footer(footer, len(END_MAGIC) + 4 + footer_size + 8, self.in_stream.tell())
         # get metadata from footer
         if read_metadata:
-            l = sorted(footer.metadata_offsets)
-            l.reverse()
-            for metadata in l: #sorted(footer.metadata_offsets):
+            for protoclass in sorted(footer.protoclass_offsets):
+                protoclass_start = footer_abs_start - footer.size + protoclass
+                self.in_stream.seek(protoclass_start)
+                cls, protoclass, meta = self.read_message()
+                self.pool.report_proto_class(protoclass)
+                self.drop_compression()
+            for metadata in sorted(footer.metadata_offsets):
                 metadata_start = footer_abs_start - footer.size + metadata
                 #print "SEEKING TO ", metadata_start, footer_abs_start, footer.size, metadata
                 self.in_stream.seek(metadata_start)
-                cls, metadata = self.read_message()
+                cls, metadata, meta = self.read_message()
+                assert meta
                 self.metadata[metadata_start] = metadata
+                self.drop_compression()
                 #print "metadata at ", metadata_start, " is ", metadata
         return True
 
@@ -298,12 +289,8 @@ class InputStream(object):
 
     def info(self):
         def cname(id):
-            if id == 0:
-                return "None"
-            elif id in self.pool.class_ids:
+            if id in self.pool.class_ids:
                 return self.pool.class_ids[id].__name__
-            elif id in class_ids:
-                return class_ids[id].__name__
             else:
                 return "<unknow class %i>" % id
         self.read_all_meta_info()
@@ -326,36 +313,40 @@ class InputStream(object):
             info.append("%i %s%s" % (cccd[content], content, ms))
         return ", ".join(info)
 
+    def drop_compression(self):
+        self.in_stream.close()
+        self.in_stream = self._orig_in_stream
+
     def read_message(self):
         size, = unpack("<I", self.in_stream.read(4))
         if size & HIGH_BIT:
             size = size & (HIGH_BIT - 1)
             type,  = unpack("<I", self.in_stream.read(4))
         else:
-            type = self.content_class_id
-        if type in self.pool.class_ids:
-            cls = self.pool.class_ids[type]
-        else:
-            cls = class_ids[type]
+            type = 0
+        cls = self.pool.class_ids[type]
+
         #print "READ NEXT ", cls, " AT ", self.in_stream.tell()
-        if cls.CLASS_ID_FIELD_NUMBER == Proto.CLASS_ID_FIELD_NUMBER:
-            fdp = cls.FromString(self.in_stream.read(size)).file_descriptor
-            self.pool.add_file_descriptor(fdp)
+        if cls == StartCompressedSection:
+            self._orig_in_stream = self.in_stream
+            self.in_stream = ZlibInputStream(self._orig_in_stream)
             return self.read_message()
-        return cls, cls.FromString(self.in_stream.read(size))
+        elif cls == EndCompressedSection:
+            self.in_stream.close()
+            self.in_stream = self._orig_in_stream
+            return self.read_message()
+
+        return cls, cls.FromString(self.in_stream.read(size)), (type%2==1)#metadata has odd class_ids
 
     def next(self):
-        cls, message = self.read_message()
+        cls, message, metadata = self.read_message()
         #print "READ NEXT ", cls, " AT ", self.in_stream.tell()
         #print "READ NEXT ", cls, message, " AT ", self.in_stream.tell()
-        def is_an(c):
-            return cls.CLASS_ID_FIELD_NUMBER == c.CLASS_ID_FIELD_NUMBER
-
-        if is_an(StreamHeader):
+        if c == StreamHeader:
             self.process_header(message, self.in_stream.tell() - 8 - message.ByteSize())
             self.current_header = message
             return self.next()
-        elif is_an(StreamFooter):
+        elif c == StreamFooter:
             self.process_footer(message, len(END_MAGIC) + 4 + message.ByteSize() + 8, self.in_stream.tell())
             footer_size,  = unpack("<I", self.in_stream.read(4))
             if not END_MAGIC == self.in_stream.read(len(END_MAGIC)):
@@ -368,16 +359,10 @@ class InputStream(object):
                 self._eof = True
                 raise StopIteration
             return self.next()
-        elif is_an(StartCompressedSection):
-            self._orig_in_stream = self.in_stream
-            self.in_stream = ZlibInputStream(self._orig_in_stream)
-            return self.next()
-        elif is_an(EndCompressedSection):
-            self.in_stream.close()
-            self.in_stream = self._orig_in_stream
-            return self.next()
-
-        elif cls.CLASS_ID_FIELD_NUMBER == self.current_header.metadata_class_id:
+        elif c == ProtoClass:
+            self.pool.report_proto_class(message)
+            return self.read_message()
+        elif metadata:
             self.metadata[self.in_stream.tell() - message.ByteSize() - 8] = message
             self._metadata_change = True
             if self.current_header.metadata_refers_forward:

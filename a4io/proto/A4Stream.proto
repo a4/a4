@@ -76,8 +76,6 @@ message TestMetaData
     option (minor_version) = "fix42";
     option (patch_version) = "For my 83 run over the Data";
 
-
-    optional int32 CLASS_ID = 301;
     optional int32 meta_data = 1 [(merge)=MERGE_ADD];
 }
 
@@ -98,7 +96,6 @@ message TestMergeMetaData
     option (major_version) = "v2011.10-MD-MERGE";
     option (patch_version) = "For my 83 run over the Data";
 
-    optional int32 CLASS_ID = 302;
     optional int32 meta_data = 1 [(merge)=MERGE_ADD];
     repeated TestRunLB lumiblock = 2 [(merge)=MERGE_UNION];
     repeated int32 run = 9 [(merge)=MERGE_UNION];

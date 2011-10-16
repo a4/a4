@@ -1,7 +1,11 @@
+
 from google.protobuf.message import Message
 from google.protobuf.descriptor import Descriptor, FileDescriptor, FieldDescriptor, EnumDescriptor, EnumValueDescriptor
 from google.protobuf.descriptor_pb2 import FileDescriptorProto
 from google.protobuf.reflection import GeneratedProtocolMessageType
+
+from a4.proto import fixed_class_ids
+from a4.proto.io import ProtoClass
 
 class TYPE:
     DOUBLE=1
@@ -71,6 +75,14 @@ default_from_type = {
 
 
 class ProtoClassPool(object):
+
+    @classmethod
+    def static_class_id(c, cls):
+        for fclsid, fcls in fixed_class_ids.iteritems():
+            if fcls == cls:
+                return fclsid
+        return None
+
     def __init__(self):
         self.files = []
         self.classes = {}
@@ -78,6 +90,7 @@ class ProtoClassPool(object):
         self.enums = {}
         self.clean = True
         self._class_ids = {}
+        self._class_ids.update(fixed_class_ids)
 
     def field_from_proto(self, f, index, package, super_name):
         f_full_name = super_name + "." + f.name
@@ -136,11 +149,16 @@ class ProtoClassPool(object):
     def add_file_descriptor(self, fdp):
         if any(str(fdp.name) == fd.name for fd in self.files):
             return
-        self.clean = False
         fd = FileDescriptor(str(fdp.name), str(fdp.package), serialized_pb=fdp.SerializeToString())
         for m in fdp.message_type:
             fd.message_types_by_name[m.name] = self.type_from_proto(m, str(fdp.package), fdp.name)
         self.files.append(fd)
+
+    def report_proto_class(self, protoclass):
+        self.clean = False
+        for fdp in protoclass.file_descriptor:
+            self.add_file_descriptor(fdp)
+        self._class_ids[protoclass.class_id] = self.classes[protoclass.full_name]
 
     @property
     def class_ids(self):
@@ -153,15 +171,6 @@ class ProtoClassPool(object):
                     f.message_type = self.classes[f.message_type]
                 if isinstance(f.enum_type, basestring):
                     f.enum_type = self.enums[f.enum_type]
-        # Then recreate class_ids
-        self._class_ids = {}
-        for fd in self.files:
-            for name, d in fd.message_types_by_name.iteritems():
-                if not "CLASS_ID" in d.fields_by_name:
-                    continue # Doesn't have a CLASS_ID, ignore
-                class_id = d.fields_by_name["CLASS_ID"].number
-                protoclass = GeneratedProtocolMessageType(str(d.name), (Message,), {"DESCRIPTOR" : d})
-                self._class_ids[class_id] = protoclass
         self.clean = True
         return self._class_ids
 

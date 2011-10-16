@@ -1,5 +1,5 @@
 #!/usr/bin/env python
 
-from a4.A4Stream import test_rw
+from a4.stream import test_rw
 
 test_rw()
