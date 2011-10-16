@@ -8,7 +8,7 @@ from google.protobuf.descriptor_pb2 import FileDescriptorProto
 from google.protobuf.reflection import GeneratedProtocolMessageType
 
 from a4.proto import class_ids
-from a4.proto.io import A4StreamHeader, A4StreamFooter, A4StartCompressedSection, A4EndCompressedSection, A4Proto
+from a4.proto.io import StreamHeader, StreamFooter, StartCompressedSection, EndCompressedSection, Proto
 
 START_MAGIC = "A4STREAM"
 END_MAGIC = "KTHXBYE4"
@@ -245,7 +245,7 @@ class OutputStream(object):
 
     def start_compression(self):
         assert not self.compressed
-        sc = A4StartCompressedSection()
+        sc = StartCompressedSection()
         sc.compression = sc.ZLIB
         self.write(sc)
         self._pre_compress_bytes_written = self.bytes_written
@@ -254,7 +254,7 @@ class OutputStream(object):
     
     def stop_compression(self):
         assert self.compressed
-        sc = A4EndCompressedSection()
+        sc = EndCompressedSection()
         self.write(sc)
         self.out_stream.close()
         self.bytes_written = self.out_stream.bytes_written + self._pre_compress_bytes_written
@@ -264,7 +264,7 @@ class OutputStream(object):
     def write_header(self, description=None, file_descriptors=None):
         self.out_stream.write(START_MAGIC)
         self.bytes_written += len(START_MAGIC)
-        header = A4StreamHeader()
+        header = StreamHeader()
         header.a4_version = 1
         header.metadata_refers_forward = self.metadata_refers_forward
         if description:
@@ -278,7 +278,7 @@ class OutputStream(object):
         self.write(header)
 
     def write_footer(self):
-        footer = A4StreamFooter()
+        footer = StreamFooter()
         footer.size = self.bytes_written
         footer.metadata_offsets.extend(self.metadata_offsets)
         footer.metadata_refers_forward = self.metadata_refers_forward
@@ -342,7 +342,7 @@ class OutputStream(object):
     def write_a4proto(self, o):
         file_descriptors = self.get_descriptors_recursively(o.DESCRIPTOR.file)
         for fdp in self.get_file_descriptor_protos(file_descriptors):
-            a4proto = A4Proto();
+            a4proto = Proto();
             a4proto.file_descriptor.CopyFrom(fdp)
             self.write(a4proto);
 
@@ -538,7 +538,7 @@ class InputStream(object):
         else:
             cls = class_ids[type]
         #print "READ NEXT ", cls, " AT ", self.in_stream.tell()
-        if cls.CLASS_ID_FIELD_NUMBER == A4Proto.CLASS_ID_FIELD_NUMBER:
+        if cls.CLASS_ID_FIELD_NUMBER == Proto.CLASS_ID_FIELD_NUMBER:
             fdp = cls.FromString(self.in_stream.read(size)).file_descriptor
             self.pool.add_file_descriptor(fdp)
             return self.read_message()
@@ -551,11 +551,11 @@ class InputStream(object):
         def is_an(c):
             return cls.CLASS_ID_FIELD_NUMBER == c.CLASS_ID_FIELD_NUMBER
 
-        if is_an(A4StreamHeader):
+        if is_an(StreamHeader):
             self.process_header(message, self.in_stream.tell() - 8 - message.ByteSize())
             self.current_header = message
             return self.next()
-        elif is_an(A4StreamFooter):
+        elif is_an(StreamFooter):
             self.process_footer(message, len(END_MAGIC) + 4 + message.ByteSize() + 8, self.in_stream.tell())
             footer_size,  = unpack("<I", self.in_stream.read(4))
             if not END_MAGIC == self.in_stream.read(len(END_MAGIC)):
@@ -568,11 +568,11 @@ class InputStream(object):
                 self._eof = True
                 raise StopIteration
             return self.next()
-        elif is_an(A4StartCompressedSection):
+        elif is_an(StartCompressedSection):
             self._orig_in_stream = self.in_stream
             self.in_stream = ZlibInputStream(self._orig_in_stream)
             return self.next()
-        elif is_an(A4EndCompressedSection):
+        elif is_an(EndCompressedSection):
             self.in_stream.close()
             self.in_stream = self._orig_in_stream
             return self.next()
