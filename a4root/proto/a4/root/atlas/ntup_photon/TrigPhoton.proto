@@ -1,4 +1,4 @@
-import "RootExtension.proto";
+import "a4/root/RootExtension.proto";
 
 message TrigPhoton {
     
