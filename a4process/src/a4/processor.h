@@ -40,9 +40,8 @@ namespace a4{
                 /// This function is called if new metadata is available
                 virtual void process_new_metadata() {};
                 bool write(const google::protobuf::Message& m) { if (_outstream) return _outstream->write(m); else return false; };
+                bool metadata(const google::protobuf::Message& m) { if (_outstream) return _outstream->metadata(m); else return false; };
             protected:
-                virtual const int content_class_id() const { return 0; };
-                virtual const int metadata_class_id() const { return 0; };
                 shared<a4::io::InputStream> _instream;
                 shared<a4::io::OutputStream> _outstream;
                 shared<ObjectBackStore> _backstore;
@@ -66,7 +65,7 @@ namespace a4{
         template<class ProtoMessage, class ProtoMetaData = a4::io::NoProtoClass>
         class ProcessorOf : public Processor {
             public:
-                ProcessorOf() { a4::io::RegisterClassID<ProtoMessage> _e; a4::io::RegisterClassID<ProtoMetaData> _m; };
+                ProcessorOf() { a4::io::RegisterClass<ProtoMessage> _e; a4::io::RegisterClass<ProtoMetaData> _m; };
                 /// Override this to proces only your requested messages
                 virtual void process(const ProtoMessage &) = 0;
                 void process_message(const A4Message msg) {
@@ -83,15 +82,13 @@ namespace a4{
                     return *meta;
                 };
             protected:
-                virtual const int content_class_id() const { return ProtoMessage::kCLASSIDFieldNumber; };
-                virtual const int metadata_class_id() const { return ProtoMetaData::kCLASSIDFieldNumber; };
                 friend class a4::process::Driver;
         };
 
         template<class This, class ProtoMetaData = a4::io::NoProtoClass, class... Args>
         class ResultsProcessor : public Processor {
             public:
-                ResultsProcessor() { a4::io::RegisterClassID<ProtoMetaData> _m; have_name = false; };
+                ResultsProcessor() { a4::io::RegisterClass<ProtoMetaData> _m; have_name = false; };
 
                 // Generic storable processing
                 virtual void process(const std::string &, Storable &) {};

@@ -34,7 +34,7 @@ namespace a4{
         class InputStream;
         class OutputStream;
 
-        template <typename ProtoClass> class RegisterClassID;
+        template <typename ProtoClass> class RegisterClass;
 
         using google::protobuf::Message;
         

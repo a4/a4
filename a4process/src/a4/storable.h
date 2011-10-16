@@ -42,7 +42,7 @@ namespace a4{ namespace process{
 
         template <typename Class, typename ProtoClass>
         int reg_storable() {
-            as_storable(ProtoClass::kCLASSIDFieldNumber, from_message<Class>);
+            as_storable(ProtoClass::descriptor(), from_message<Class>);
             return true;
         }
     }

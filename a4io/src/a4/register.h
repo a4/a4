@@ -66,10 +66,11 @@ namespace a4{ namespace io{
             virtual google::protobuf::Metadata GetMetadata() const { return google::protobuf::Metadata(); };
             static const int kCLASSIDFieldNumber = 0;
             void ParseFromCodedStream(google::protobuf::io::CodedInputStream *) {};
+            static const google::protobuf::Descriptor * descriptor() {return NULL;}
     };
 
 };};
 
-#define A4RegisterClass(X) template class a4::io::RegisterClassID<X>;
+#define A4RegisterClass(X) template class a4::io::RegisterClass<X>;
 
 #endif

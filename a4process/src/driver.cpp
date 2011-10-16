@@ -81,21 +81,21 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
                         if (fd->is_repeated() && (m.GetReflection()->FieldSize(m, fd)) > 1) {
                             throw a4::Fatal(fd->full_name(), " has already multiple ", self->metakey, " entries - cannot achieve desired granularity!");
                         }
-                        std::string s1 = instream->message_field_as_string(current_metadata, self->metakey);
-                        std::string s2 = instream->message_field_as_string(new_metadata, self->metakey);
+                        std::string s1 = current_metadata.field_as_string(self->metakey);
+                        std::string s2 = new_metadata.field_as_string(self->metakey);
                         if (s1 == s2) merge = true;
                     }
 
                     if (merge) {
                         std::cerr<< "Merging " << current_metadata.message->ShortDebugString() << "\n and " << new_metadata.message->ShortDebugString() << std::endl;
-                        current_metadata = instream->merge_messages(current_metadata, new_metadata);
+                        current_metadata = current_metadata + new_metadata;
                         std::cerr << "to "<<current_metadata.message->ShortDebugString() << std::endl;
 
                     } else {
-                        if (self->out) p->write(*current_metadata.message);
+                        if (self->out) p->metadata(*current_metadata.message);
                         if (self->res) {
                             bs->to_stream(*resstream);
-                            resstream->write(*current_metadata.message);
+                            resstream->metadata(*current_metadata.message);
                             bs.reset(new ObjectBackStore()); 
                             self->set_backstore(p, bs);
                             self->set_store_prefix(p);

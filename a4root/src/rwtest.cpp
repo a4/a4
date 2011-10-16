@@ -528,8 +528,6 @@ int main(int argc, char ** argv) {
     A4Output a4o("test_io.a4", "Event");
 
     shared<OutputStream> stream = a4o.get_stream(); 
-    stream->content_cls<Event>();
-    stream->metadata_cls<Metadata>();
 
     TChain input("photon");
     input.Add("input/*.root*");

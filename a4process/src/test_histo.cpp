@@ -11,7 +11,6 @@ using namespace a4::process;
 int main(int argc, char ** argv) {
     {
         OutputStream w("test_histos.a4", "TestHisto");
-        w.content_cls<TestHisto>().metadata_cls<TestHistoMetaData>();
 
         const int N = 1000;
         TestHisto e;
@@ -21,7 +20,7 @@ int main(int argc, char ** argv) {
         }
         TestHistoMetaData m;
         m.set_meta_data(N);
-        w.write(m);
+        w.metadata(m);
 
     }
     {
