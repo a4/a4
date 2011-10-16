@@ -158,7 +158,10 @@ class ProtoClassPool(object):
         self.clean = False
         for fdp in protoclass.file_descriptor:
             self.add_file_descriptor(fdp)
-        self._class_ids[protoclass.class_id] = self.classes[protoclass.full_name]
+
+        name = protoclass.full_name.split(".")[-1]
+        cls = GeneratedProtocolMessageType(str(name), (Message,), {"DESCRIPTOR" : self.classes[protoclass.full_name]})
+        self._class_ids[protoclass.class_id] = cls
 
     @property
     def class_ids(self):

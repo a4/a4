@@ -4,7 +4,7 @@ from bisect import bisect_right as bisect
 from google.protobuf.message import Message
 from google.protobuf.descriptor import Descriptor, FileDescriptor, FieldDescriptor, EnumDescriptor, EnumValueDescriptor
 from google.protobuf.descriptor_pb2 import FileDescriptorProto
-from google.protobuf.reflection import GeneratedProtocolMessageType
+
 
 from a4.zlib_stream import ZlibInputStream, ZlibOutputStream
 from a4.proto_class_pool import ProtoClassPool
@@ -122,7 +122,13 @@ class OutputStream(object):
         protoclass.file_descriptor.extend(self.get_file_descriptor_protos(file_descriptors))
         protoclass.class_id = class_id
         protoclass.full_name = ".".join((o.DESCRIPTOR.file.package, o.DESCRIPTOR.name))
-        self.write(protoclass);
+        class_id = self.get_class_id(protoclass, metadata=False)
+        if self.compressed:
+            self.stop_compression()
+        self.protoclass_offsets.append(self.bytes_written)
+        if self.compression:
+            self.start_compression()
+        self.write_message(class_id, protoclass)
 
     def get_class_id(self, o, metadata):
         try:
@@ -145,9 +151,10 @@ class OutputStream(object):
         if self.compressed:
             self.stop_compression()
         self.metadata_offsets.append(self.bytes_written)
-        self.write_message(class_id, o)
         if self.compression:
             self.start_compression()
+        self.write_message(class_id, o)
+
 
     def write(self, o):
         class_id = self.get_class_id(o, metadata=False)
@@ -177,10 +184,11 @@ class InputStream(object):
         self.headers = {}
         self.footers = {}
         self.metadata = {}
+        self._read_all_meta_info = False
         self.pool = ProtoClassPool()
+
         self.read_header()
         self.current_header = self.headers.values()[0]
-        self._read_all_meta_info = False
         self._metadata_change = True
         self.current_metadata = None
 
@@ -188,6 +196,7 @@ class InputStream(object):
     def read_all_meta_info(self):
         if self._read_all_meta_info:
             return
+        self._read_all_meta_info = True
         cached_state = self._orig_in_stream.tell(), self.in_stream
         self.in_stream = self._orig_in_stream
         self.headers = {}
@@ -299,18 +308,7 @@ class InputStream(object):
         info.append("A4 file v%i" % version[0])
         info.append("size: %s bytes" % self.size)
         info.append("description: %s" % self.headers.values()[0].description)
-        info.append("metadata: %s" % cname(self.headers.values()[0].metadata_class_id))
         hf = zip(self.headers.values(), self.footers.values())
-        cccd = {}
-        for c, cc in ((h.content_class_id, f.content_count) for h, f in hf):
-            cccd[cname(c)] = cccd.get(cname(c), 0) + cc
-        for content in sorted(cccd.keys()):
-            cc = cccd[content]
-            if cc != 1:
-                ms = "s"
-            else:
-                ms = ""
-            info.append("%i %s%s" % (cccd[content], content, ms))
         return ", ".join(info)
 
     def drop_compression(self):
@@ -321,12 +319,14 @@ class InputStream(object):
         size, = unpack("<I", self.in_stream.read(4))
         if size & HIGH_BIT:
             size = size & (HIGH_BIT - 1)
-            type,  = unpack("<I", self.in_stream.read(4))
+            class_id,  = unpack("<I", self.in_stream.read(4))
         else:
-            type = 0
-        cls = self.pool.class_ids[type]
+            class_id = 0
+        cls = self.pool.class_ids[class_id]
 
         #print "READ NEXT ", cls, " AT ", self.in_stream.tell()
+        msg = cls.FromString(self.in_stream.read(size))
+
         if cls == StartCompressedSection:
             self._orig_in_stream = self.in_stream
             self.in_stream = ZlibInputStream(self._orig_in_stream)
@@ -335,12 +335,11 @@ class InputStream(object):
             self.in_stream.close()
             self.in_stream = self._orig_in_stream
             return self.read_message()
-
-        return cls, cls.FromString(self.in_stream.read(size)), (type%2==1)#metadata has odd class_ids
+        return cls, msg, (class_id%2==1)#metadata has odd class_ids
 
     def next(self):
-        cls, message, metadata = self.read_message()
-        #print "READ NEXT ", cls, " AT ", self.in_stream.tell()
+        c, message, metadata = self.read_message()
+        #print "READ NEXT ", c, " Metadata: ", metadata, " AT ", self.in_stream.tell()
         #print "READ NEXT ", cls, message, " AT ", self.in_stream.tell()
         if c == StreamHeader:
             self.process_header(message, self.in_stream.tell() - 8 - message.ByteSize())
@@ -361,7 +360,7 @@ class InputStream(object):
             return self.next()
         elif c == ProtoClass:
             self.pool.report_proto_class(message)
-            return self.read_message()
+            return self.next()
         elif metadata:
             self.metadata[self.in_stream.tell() - message.ByteSize() - 8] = message
             self._metadata_change = True
@@ -474,12 +473,12 @@ def test_rw_forward(fn):
     e = TestEvent()
     m = TestMetaData()
     m.meta_data = 1
-    w.write(m)
+    w.metadata(m)
     for i in range(500):
         e.event_number = 1000+i
         w.write(e)
     m.meta_data = 2
-    w.write(m)
+    w.metadata(m)
     for i in range(500):
         e.event_number = 2000+i
         w.write(e)
@@ -495,12 +494,12 @@ def test_rw_backward(fn):
         w.write(e)
     m = TestMetaData()
     m.meta_data = 1
-    w.write(m)
+    w.metadata(m)
     for i in range(500):
         e.event_number = 2000+i
         w.write(e)
     m.meta_data = 2
-    w.write(m)
+    w.metadata(m)
     w.close()
 
 
