@@ -329,7 +329,8 @@ class InputStream(object):
 
         if cls == StartCompressedSection:
             self._orig_in_stream = self.in_stream
-            self.in_stream = ZlibInputStream(self._orig_in_stream)
+            from .snappy_stream import SnappyInputStream
+            self.in_stream = SnappyInputStream(self._orig_in_stream)
             return self.read_message()
         elif cls == EndCompressedSection:
             self.in_stream.close()
