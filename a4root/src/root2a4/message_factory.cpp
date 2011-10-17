@@ -37,9 +37,14 @@ using google::protobuf::Reflection;
 using namespace google;
 
 template<typename SOURCE_TYPE, typename PROTOBUF_TYPE>
-void call_setter(typename Setter<PROTOBUF_TYPE>::ProtobufSetter setter, Message* message, void* value)
+void call_setter(typename Setter<PROTOBUF_TYPE>::ProtobufSetter setter,
+    typename Setter<PROTOBUF_TYPE>::ProtobufGetter getter,  
+    Message* message, void* value)
 {
-    setter(message, static_cast<PROTOBUF_TYPE>(*reinterpret_cast<SOURCE_TYPE*>(value)));
+    const PROTOBUF_TYPE& val = static_cast<PROTOBUF_TYPE>(*reinterpret_cast<SOURCE_TYPE*>(value));
+    // Check that it's not equal to the default value
+    if (getter(*message) != val)
+        setter(message, val);
 }
 
 template<typename SOURCE_TYPE, typename PROTOBUF_TYPE>
@@ -60,6 +65,13 @@ typename Setter<T>::ProtobufSetter reflection_setter(
 };
 
 template<typename T> 
+typename Setter<T>::ProtobufGetter reflection_getter(
+    const Reflection* reflection, const FieldDescriptor* field) { 
+    throw a4::Fatal("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
+                __FILE__); 
+};
+
+template<typename T> 
 typename Setter<T>::ProtobufAdder reflection_adder(
     const Reflection* reflection, const FieldDescriptor* field) { 
     throw a4::Fatal("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
@@ -70,6 +82,11 @@ typename Setter<T>::ProtobufAdder reflection_adder(
     template<> Setter<T>::ProtobufSetter reflection_setter<T>( \
       const Reflection* reflection, const FieldDescriptor* field) { \
         return bind(&::google::protobuf::Reflection::Set ## ProtobufTypename, reflection, _1, field, _2); \
+    } \
+    \
+    template<> Setter<T>::ProtobufGetter reflection_getter<T>( \
+      const Reflection* reflection, const FieldDescriptor* field) { \
+        return bind(&::google::protobuf::Reflection::Get ## ProtobufTypename, reflection, _1, field); \
     } \
     \
     template<> Setter<T>::ProtobufAdder reflection_adder<T>( \
@@ -99,9 +116,10 @@ Copier make_field_setter(TBranch* branch, TLeaf* leaf, const FieldDescriptor* f,
         return bind(adder, _1, (TBranchElement*)branch, protobuf_rsetter, f);
     }
     typename Setter<PROTOBUF_TYPE>::ProtobufSetter protobuf_setter = reflection_setter<PROTOBUF_TYPE>(r, f);
+    typename Setter<PROTOBUF_TYPE>::ProtobufGetter protobuf_getter = reflection_getter<PROTOBUF_TYPE>(r, f);
     typename Setter<PROTOBUF_TYPE>::SetterCaller setter_caller = call_setter<SOURCE_TYPE, PROTOBUF_TYPE>;
     void* pointer = leaf->GetValuePointer();
-    return bind(setter_caller, protobuf_setter, _1, pointer);
+    return bind(setter_caller, protobuf_setter, protobuf_getter, _1, pointer);
 }
 
 

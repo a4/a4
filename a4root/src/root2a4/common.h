@@ -16,7 +16,8 @@ class Setter
 {
 public:
     typedef function<void (Message*, T)> ProtobufSetter;
-    typedef function<void (ProtobufSetter, Message*, void*)> SetterCaller;
+    typedef function<T (const Message&)> ProtobufGetter;
+    typedef function<void (ProtobufSetter, ProtobufGetter, Message*, void*)> SetterCaller;
     
     typedef function<void (Message*, T)> ProtobufAdder;
     typedef function<void (Message*, TBranchElement*, const ProtobufAdder&, const FieldDescriptor*)> RepeatedSetterCaller;
