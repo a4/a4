@@ -20,7 +20,7 @@
 #ifdef HAVE_SNAPPY
 #include "snappy_stream.h"
 #endif
-#include "a4/proto/io/A4Stream.pb.h"
+#include "a4/io/A4Stream.pb.h"
 
 #include "gzip_stream.h"
 

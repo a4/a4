@@ -8,7 +8,7 @@ from google.protobuf.descriptor_pb2 import FileDescriptorProto
 
 from a4.zlib_stream import ZlibInputStream, ZlibOutputStream
 from a4.proto_class_pool import ProtoClassPool
-from a4.proto.io import StreamHeader, StreamFooter, StartCompressedSection, EndCompressedSection, ProtoClass
+from a4.io.A4Stream_pb2 import StreamHeader, StreamFooter, StartCompressedSection, EndCompressedSection, ProtoClass
 
 START_MAGIC = "A4STREAM"
 END_MAGIC = "KTHXBYE4"
@@ -468,7 +468,7 @@ def test_read(fn, n_events):
     assert cnt == n_events
 
 def test_rw_forward(fn):
-    from a4.proto.io import TestEvent, TestMetaData
+    from a4.io.A4Stream_pb2 import TestEvent, TestMetaData
     w = OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True, metadata_refers_forward=True)
     e = TestEvent()
     m = TestMetaData()
@@ -486,7 +486,7 @@ def test_rw_forward(fn):
 
 
 def test_rw_backward(fn):
-    from a4.proto.io import TestEvent, TestMetaData
+    from a4.io.A4Stream_pb2 import TestEvent, TestMetaData
     w = OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True)
     e = TestEvent()
     for i in range(500):

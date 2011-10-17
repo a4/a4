@@ -1,33 +1,41 @@
 @A4_SET_AM_V_PROTOC@
-protodir=${localstatedir}/a4/proto/$(A4PACK)
-protoincludedir=${includedir}/a4/proto/$(A4PACK)
-protopythondir=${pythondir}/a4/proto/$(A4PACK)
+protodir=${localstatedir}
+protoincludedir=${includedir}
+protopythondir=${pythondir}
 
-PYDIR=./python/a4/proto/$(A4PACK)
-CPPDIR=./src/a4/proto/$(A4PACK)
-PROTOBUF_CFLAGS += -I$(CPPDIR)
+PROTOSRCDIR=./proto
+PYDIR=./python
+CPPDIR=./src
+PROTOBUF_CFLAGS += -I$(CPPDIR)/a4/$(A4PACK)
 
-PROTOBUF_PY=$(PYDIR)/A4Stream_pb2.py $(PYDIR)/A4_pb2.py
-PROTOBUF_H=$(CPPDIR)/A4Stream.pb.h $(CPPDIR)/A4.pb.h
-PROTOBUF_CC=$(CPPDIR)/A4Stream.pb.cc $(CPPDIR)/A4.pb.cc
-PROTOBUF_PROTO=$(srcdir)/proto/A4Stream.proto $(srcdir)/proto/A4.proto
+PROTOBUF_PY=$(PYDIR)/a4/io/A4Stream_pb2.py $(PYDIR)/a4/io/A4_pb2.py
+PROTOBUF_H=$(CPPDIR)/a4/io/A4Stream.pb.h $(CPPDIR)/a4/io/A4.pb.h
+PROTOBUF_CC=$(CPPDIR)/a4/io/A4Stream.pb.cc $(CPPDIR)/a4/io/A4.pb.cc
+PROTOBUF_PROTO=$(PROTOSRCDIR)/a4/io/A4Stream.proto $(PROTOSRCDIR)/a4/io/A4.proto
 
-CLEANFILES += $(PYDIR)/__init__.py
+protoa4iodir=${protodir}/a4/io
+protoincludea4iodir=${protoincludedir}/a4/io
+protopythona4iodir=${protopythondir}/a4/io
 
-dist_proto_DATA=$(srcdir)/proto/A4.proto $(srcdir)/proto/A4Stream.proto
-nodist_protoinclude_HEADERS=$(CPPDIR)/A4.pb.h $(CPPDIR)/A4Stream.pb.h
-nodist_protopython_PYTHON=$(PYDIR)/A4_pb2.py $(PYDIR)/A4Stream_pb2.py $(PYDIR)/__init__.py
+CLEANFILES += $(PYDIR)/a4/io/__init__.py
+
+$(PYDIR)/a4/io/__init__.py:
+	touch $@
+
+dist_protoa4io_DATA=$(PROTOSRCDIR)/a4/io/A4.proto $(PROTOSRCDIR)/a4/io/A4Stream.proto
+nodist_protoincludea4io_HEADERS=$(CPPDIR)/a4/io/A4.pb.h $(CPPDIR)/a4/io/A4Stream.pb.h
+nodist_protopythona4io_PYTHON=$(PYDIR)/a4/io/A4_pb2.py $(PYDIR)/a4/io/A4Stream_pb2.py $(PYDIR)/a4/io/__init__.py
 
 
 # how to make protobuf objects
-$(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(srcdir)/proto/%.proto
+$(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(PROTOSRCDIR)/%.proto
 	@mkdir -p $(PYDIR)
 	@mkdir -p $(CPPDIR)
-	$(AM_V_PROTOC)${PROTOBUF_PROTOC} -I=$(srcdir)/proto -I${PROTOBUF_INCLUDE} --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
+	$(AM_V_PROTOC)${PROTOBUF_PROTOC} -I$(srcdir)/proto -I${PROTOBUF_INCLUDE} --python_out $(PYDIR) --cpp_out $(CPPDIR) $<
 
 # how to make the python __init__.py
-$(PYDIR)/__init__.py: $(PROTOBUF_PY)
-	$(AM_V_PROTOC)grep -Ho 'class [A-Za-z0-9]*' $^ | sed 's/.py:class/ import/' | sed "s/python\/a4\/proto\/$(A4PACK)\//from ./" | sed 's/\//./g' > $@
+#$(PYDIR)/a4/$(A4PACK)/__init__.py: $(PROTOBUF_PY)
+#	$(AM_V_PROTOC)grep -Ho 'class [A-Za-z0-9]*' $^ | sed 's/.py:class/ import/' | sed 's/python\//from /' | sed 's/\//./g' > $@
 
 # make sure all protobuf are generated before they are built!
 BUILT_SOURCES=$(PROTOBUF_H) $(PROTOBUF_CC)

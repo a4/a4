@@ -1,5 +1,5 @@
 #include <a4/object_store.h>
-#include <a4/proto/process/A4Key.pb.h>
+#include <a4/process/A4Key.pb.h>
 #include <a4/register.h>
 #include <a4/message.h>
 #include <a4/output_stream.h>

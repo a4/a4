@@ -1,10 +1,10 @@
-import "Physics.proto";
+import "a4/atlas/Physics.proto";
 
-import "Atlas/Isolation.proto";
-import "Atlas/ShowerShape.proto";
-import "Atlas/TrackHits.proto";
-import "Atlas/DataQuality.proto";
-import "Atlas/Trigger.proto";
+import "a4/atlas/Atlas/Isolation.proto";
+import "a4/atlas/Atlas/ShowerShape.proto";
+import "a4/atlas/Atlas/TrackHits.proto";
+import "a4/atlas/Atlas/DataQuality.proto";
+import "a4/atlas/Atlas/Trigger.proto";
 
 message Electron
 {

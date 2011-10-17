@@ -4,8 +4,32 @@ from google.protobuf.descriptor import Descriptor, FileDescriptor, FieldDescript
 from google.protobuf.descriptor_pb2 import FileDescriptorProto
 from google.protobuf.reflection import GeneratedProtocolMessageType
 
-from a4.proto import fixed_class_ids
-from a4.proto.io import ProtoClass
+from io.A4_pb2 import fixed_class_id
+from io.A4Stream_pb2 import ProtoClass
+
+fixed_class_ids = {}
+def init():
+    from os import listdir, environ
+    from os.path import abspath, isdir, dirname, join, exists
+    import sys
+    global fixed_class_ids
+
+    fd = abspath(dirname(__file__))
+    for dir in listdir(fd):
+        if isdir(join(fd, dir)):
+            dir = "a4."+dir.strip()
+            mod = __import__(dir, globals(), locals(), ["*"])
+            mods = (getattr(mod, k) for k in mod.__dict__.keys() if not k.startswith("_"))
+            for m in mods:
+                for c in m.__dict__.values():
+                    if isinstance(c, type(int)): # skip modules
+                        opts = c.DESCRIPTOR.GetOptions()
+                        if opts.HasExtension(fixed_class_id):
+                            fixed_class_ids[opts.Extensions[fixed_class_id]] = c
+
+init()
+del init
+del fixed_class_id
 
 class TYPE:
     DOUBLE=1

@@ -10,7 +10,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "a4/proto/io/A4Stream.pb.h"
+#include "a4/io/A4Stream.pb.h"
 
 #include "a4/objectstore.h"
 #include "a4/streamable.h"

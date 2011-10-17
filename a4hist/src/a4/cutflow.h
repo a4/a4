@@ -7,7 +7,7 @@
 #include <a4/axis.h>
 #include <a4/hash_lookup.h>
 
-#include <a4/proto/hist/Cutflow.pb.h>
+#include <a4/hist/Cutflow.pb.h>
 
 namespace a4{ namespace hist{
 

@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "a4/axis.h"
-#include "a4/proto/hist/Histograms.pb.h"
+#include "a4/hist/Histograms.pb.h"
 
 using namespace std;
 namespace a4{ namespace hist{

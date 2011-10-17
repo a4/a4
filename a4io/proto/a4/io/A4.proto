@@ -1,6 +1,6 @@
 import "google/protobuf/descriptor.proto";
 
-package a4;
+package a4.io;
 
 enum MetadataMergeOptions {
     MERGE_BLOCK_IF_DIFFERENT = 0; // Throw exception if different, default

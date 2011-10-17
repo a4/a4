@@ -34,7 +34,7 @@ using boost::function;
 #endif
 #include "zero_copy_resource.h"
 #include "input_stream_impl.h"
-#include "a4/proto/io/A4Stream.pb.h"
+#include "a4/io/A4Stream.pb.h"
 #include "a4/input_stream.h"
 
 using std::string;

@@ -21,8 +21,8 @@ namespace a4{ namespace io{
             typedef std::pair<std::string, internal::classreg> Iter;
             foreach(const Iter & i, all_classes) {
                 assert(fixed_class_id.number() == kFixedClassIdFieldNumber);
-                if (i.second.descriptor->options().HasExtension(a4::fixed_class_id)) {
-                    uint32_t class_id = i.second.descriptor->options().GetExtension(a4::fixed_class_id);
+                if (i.second.descriptor->options().HasExtension(a4::io::fixed_class_id)) {
+                    uint32_t class_id = i.second.descriptor->options().GetExtension(a4::io::fixed_class_id);
                     if (class_id == lookup_class_id) {
                         return i.second;
                     }

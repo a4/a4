@@ -2,7 +2,7 @@ package a4.io;
 
 import "google/protobuf/descriptor.proto";
 
-import "A4.proto";
+import "a4/io/A4.proto";
 
 message StreamHeader
 {

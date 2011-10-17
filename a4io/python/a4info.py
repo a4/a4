@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from sys import argv, exit
-from a4 import InputStream
+from a4.stream import InputStream
 
 from optparse import OptionParser
 parser = OptionParser()

@@ -1,12 +1,12 @@
-import "Physics.proto";
+import "a4/atlas/Physics.proto";
 
-import "Atlas/Trigger.proto";
-import "Atlas/EventStreamInfo.proto";
+import "a4/atlas/Atlas/Trigger.proto";
+import "a4/atlas/Atlas/EventStreamInfo.proto";
 
-import "Photon.proto";
-import "Electron.proto";
-import "Muon.proto";
-import "Jet.proto";
+import "a4/atlas/Photon.proto";
+import "a4/atlas/Electron.proto";
+import "a4/atlas/Muon.proto";
+import "a4/atlas/Jet.proto";
 
 
 message Event

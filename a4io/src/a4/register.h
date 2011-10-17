@@ -8,7 +8,7 @@
 #include <a4/a4io.h>
 #include <a4/types.h>
 
-#include <a4/proto/io/A4.pb.h>
+#include <a4/io/A4.pb.h>
 
 namespace google{ namespace protobuf{ namespace io{ class CodedInputStream; };};};
 

@@ -2,7 +2,7 @@
 #include <functional>
 #include <boost/thread.hpp>
 
-#include "a4/proto/io/A4Stream.pb.h"
+#include "a4/io/A4Stream.pb.h"
 #include "a4/output.h"
 #include "a4/input.h"
 

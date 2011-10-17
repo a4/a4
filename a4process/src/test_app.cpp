@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include <a4/application.h>
-#include <a4/proto/process/A4Key.pb.h>
-#include <a4/proto/io/A4Stream.pb.h>
+#include <a4/process/A4Key.pb.h>
+#include <a4/io/A4Stream.pb.h>
 
 using std::cout; using std::cerr; using std::endl;
 

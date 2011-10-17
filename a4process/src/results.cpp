@@ -8,7 +8,7 @@
 #include "a4/results.h"
 #include "a4/writer.h"
 #include "a4/reader.h"
-#include "a4/proto/io/A4Stream.pb.h"
+#include "a4/io/A4Stream.pb.h"
 
 class A4Key : public StreamableTo<a4::io::A4Key, A4Key> {
     public:

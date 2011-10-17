@@ -16,7 +16,6 @@ a4include_HEADERS = src/a4/a4io.h src/a4/exceptions.h src/a4/types.h \
     src/a4/input_stream.h src/a4/output_stream.h src/a4/input.h src/a4/output.h
 nodist_a4include_HEADERS = src/a4/config.h
 a4python_PYTHON = python/a4/__init__.py python/a4/stream.py python/a4/zlib_stream.py python/a4/proto_class_pool.py
-a4pythonproto_PYTHON = python/a4/proto/__init__.py
 
 # Configuration options
 AM_CPPFLAGS+=$(PROTOBUF_CFLAGS) $(SNAPPY_CPPFLAGS) $(BOOST_CPPFLAGS)
@@ -36,7 +35,7 @@ LIBRARY_SOURCES=$(a4include_HEADERS) \
     src/register.cpp src/input.cpp src/output.cpp \
     src/dynamic_message.h
 lib_LTLIBRARIES=liba4io.la
-nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H) 
+nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
 dist_liba4io_la_SOURCES=$(LIBRARY_SOURCES)
 liba4io_la_LIBADD=$(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS) $(BOOST_LIBS)
 

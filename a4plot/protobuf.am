@@ -8,23 +8,11 @@ PYDIR=./python
 CPPDIR=./src
 PROTOBUF_CFLAGS += -I$(CPPDIR)/a4/$(A4PACK)
 
-PROTOBUF_PY=$(PYDIR)/a4/process/A4Key_pb2.py
-PROTOBUF_H=$(CPPDIR)/a4/process/A4Key.pb.h
-PROTOBUF_CC=$(CPPDIR)/a4/process/A4Key.pb.cc
-PROTOBUF_PROTO=$(PROTOSRCDIR)/a4/process/A4Key.proto
+PROTOBUF_PY=
+PROTOBUF_H=
+PROTOBUF_CC=
+PROTOBUF_PROTO=
 
-protoa4processdir=${protodir}/a4/process
-protoincludea4processdir=${protoincludedir}/a4/process
-protopythona4processdir=${protopythondir}/a4/process
-
-CLEANFILES += $(PYDIR)/a4/process/__init__.py
-
-$(PYDIR)/a4/process/__init__.py:
-	touch $@
-
-dist_protoa4process_DATA=$(PROTOSRCDIR)/a4/process/A4Key.proto
-nodist_protoincludea4process_HEADERS=$(CPPDIR)/a4/process/A4Key.pb.h
-nodist_protopythona4process_PYTHON=$(PYDIR)/a4/process/A4Key_pb2.py $(PYDIR)/a4/process/__init__.py
 
 
 # how to make protobuf objects
