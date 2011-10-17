@@ -1,0 +1,109 @@
+package ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message Jet {
+    optional float E = 1 [(root_branch)="E"];
+    optional float pt = 2 [(root_branch)="pt"];
+    optional float m = 3 [(root_branch)="m"];
+    optional float eta = 4 [(root_branch)="eta"];
+    optional float phi = 5 [(root_branch)="phi"];
+    
+    optional float EtaOrigin = 100 [(root_branch)="EtaOrigin"];
+    optional float PhiOrigin = 101 [(root_branch)="PhiOrigin"];
+    optional float MOrigin = 102 [(root_branch)="MOrigin"];
+    optional float EtaOriginEM = 103 [(root_branch)="EtaOriginEM", default=0.0];
+    optional float PhiOriginEM = 104 [(root_branch)="PhiOriginEM", default=0.0];
+    optional float MOriginEM = 105 [(root_branch)="MOriginEM", default=0.0];
+    
+    optional float WIDTH = 200 [(root_branch)="WIDTH", default=0.0];
+    
+    optional float n90 = 300 [(root_branch)="n90", default=10.0];
+    
+    optional float Timing = 400 [(root_branch)="Timing", default=0.0];
+    
+    optional float LArQuality = 500 [(root_branch)="LArQuality", default=0.0];
+    
+    optional float nTrk = 600 [(root_branch)="nTrk", default=0.0];
+    optional float sumPtTrk = 601 [(root_branch)="sumPtTrk", default=0.0];
+    
+    optional float OriginIndex = 700 [(root_branch)="OriginIndex", default=0.0];
+    
+    optional float HECQuality = 800 [(root_branch)="HECQuality", default=0.0];
+    
+    optional float NegativeE = 900 [(root_branch)="NegativeE", default=0.0];
+    
+    optional float AverageLArQF = 1000 [(root_branch)="AverageLArQF"];
+    
+    optional float YFlip12 = 1100 [(root_branch)="YFlip12"];
+    optional float YFlip23 = 1101 [(root_branch)="YFlip23"];
+    
+    optional float BCH_CORR_CELL = 1200 [(root_branch)="BCH_CORR_CELL"];
+    optional float BCH_CORR_DOTX = 1201 [(root_branch)="BCH_CORR_DOTX"];
+    optional float BCH_CORR_JET = 1202 [(root_branch)="BCH_CORR_JET"];
+    optional float BCH_CORR_JET_FORCELL = 1203 [(root_branch)="BCH_CORR_JET_FORCELL"];
+    
+    optional float ENG_BAD_CELLS = 1300 [(root_branch)="ENG_BAD_CELLS"];
+    optional float N_BAD_CELLS = 1301 [(root_branch)="N_BAD_CELLS"];
+    optional float N_BAD_CELLS_CORR = 1302 [(root_branch)="N_BAD_CELLS_CORR"];
+    optional float BAD_CELLS_CORR_E = 1303 [(root_branch)="BAD_CELLS_CORR_E"];
+    
+    optional float NumTowers = 1400 [(root_branch)="NumTowers"];
+    
+    optional int32 SamplingMax = 1500 [(root_branch)="SamplingMax", default=2];
+    optional float fracSamplingMax = 1501 [(root_branch)="fracSamplingMax"];
+    
+    optional float hecf = 1600 [(root_branch)="hecf", default=0.0];
+    
+    optional float tgap3f = 1700 [(root_branch)="tgap3f", default=0.0];
+    
+    optional int32 isUgly = 1800 [(root_branch)="isUgly", default=0];
+    
+    optional int32 isBadLoose = 1900 [(root_branch)="isBadLoose", default=0];
+    optional int32 isBadMedium = 1901 [(root_branch)="isBadMedium", default=0];
+    optional int32 isBadTight = 1902 [(root_branch)="isBadTight", default=0];
+    
+    optional float emfrac = 2000 [(root_branch)="emfrac", default=1.0];
+    
+    optional float Offset = 2100 [(root_branch)="Offset"];
+    
+    optional float EMJES = 2200 [(root_branch)="EMJES"];
+    optional float EMJES_EtaCorr = 2201 [(root_branch)="EMJES_EtaCorr"];
+    optional float EMJESnooffset = 2202 [(root_branch)="EMJESnooffset"];
+    
+    optional float GCWJES = 2300 [(root_branch)="GCWJES"];
+    optional float GCWJES_EtaCorr = 2301 [(root_branch)="GCWJES_EtaCorr"];
+    
+    optional float CB = 2400 [(root_branch)="CB"];
+    
+    optional float LCJES = 2500 [(root_branch)="LCJES"];
+    
+    optional float emscale_E = 2600 [(root_branch)="emscale_E"];
+    optional float emscale_pt = 2601 [(root_branch)="emscale_pt"];
+    optional float emscale_m = 2602 [(root_branch)="emscale_m"];
+    optional float emscale_eta = 2603 [(root_branch)="emscale_eta"];
+    optional float emscale_phi = 2604 [(root_branch)="emscale_phi"];
+    
+    optional float jvtx_x = 2700 [(root_branch)="jvtx_x", default=0.0];
+    optional float jvtx_y = 2701 [(root_branch)="jvtx_y", default=0.0];
+    optional float jvtx_z = 2702 [(root_branch)="jvtx_z", default=0.0];
+    optional float jvtxf = 2703 [(root_branch)="jvtxf", default=0.0];
+    repeated float jvtxfFull = 2704 [(root_branch)="jvtxfFull"];
+    
+    optional float GSCFactorF = 2800 [(root_branch)="GSCFactorF"];
+    optional float WidthFraction = 2801 [(root_branch)="WidthFraction"];
+    
+    optional float el_dr = 2900 [(root_branch)="el_dr", default=-1.0];
+    optional int32 el_matched = 2901 [(root_branch)="el_matched", default=0];
+    
+    optional float mu_dr = 3000 [(root_branch)="mu_dr", default=-1.0];
+    optional int32 mu_matched = 3001 [(root_branch)="mu_matched", default=0];
+    
+    optional float L1_dr = 3100 [(root_branch)="L1_dr", default=-1.0];
+    optional int32 L1_matched = 3101 [(root_branch)="L1_matched", default=0];
+    optional float L2_dr = 3102 [(root_branch)="L2_dr", default=-1.0];
+    optional int32 L2_matched = 3103 [(root_branch)="L2_matched", default=0];
+    
+    optional float EF_dr = 3200 [(root_branch)="EF_dr", default=-1.0];
+    optional int32 EF_matched = 3201 [(root_branch)="EF_matched", default=1];
+    
+}

@@ -1,0 +1,36 @@
+package ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message CombLinksD3PDObjectL2_mu {
+    optional int32 type = 1 [(root_branch)="type"];
+    optional int32 active = 2 [(root_branch)="active"];
+    optional int32 lastStep = 3 [(root_branch)="lastStep"];
+    
+    optional int32 TENumber = 100 [(root_branch)="TENumber"];
+    optional int32 roiNumber = 101 [(root_branch)="roiNumber"];
+    
+    optional int32 TrigRoiDescriptor_forID = 200 [(root_branch)="TrigRoiDescriptor_forID"];
+    optional int32 TrigRoiDescriptor_forIDStatus = 201 [(root_branch)="TrigRoiDescriptor_forIDStatus"];
+    
+    optional int32 MuonFeature = 300 [(root_branch)="MuonFeature"];
+    optional int32 MuonFeatureStatus = 301 [(root_branch)="MuonFeatureStatus"];
+    optional int32 MuonFeatureDetails = 302 [(root_branch)="MuonFeatureDetails"];
+    optional int32 MuonFeatureDetailsStatus = 303 [(root_branch)="MuonFeatureDetailsStatus"];
+    optional int32 CombinedMuonFeature = 304 [(root_branch)="CombinedMuonFeature"];
+    optional int32 CombinedMuonFeatureStatus = 305 [(root_branch)="CombinedMuonFeatureStatus"];
+    optional int32 IsoMuonFeature = 306 [(root_branch)="IsoMuonFeature"];
+    optional int32 IsoMuonFeatureStatus = 307 [(root_branch)="IsoMuonFeatureStatus"];
+    
+    optional int32 Muon_ROI = 400 [(root_branch)="Muon_ROI"];
+    optional int32 Muon_ROIStatus = 401 [(root_branch)="Muon_ROIStatus"];
+    
+    repeated int32 TrigInDetTrackCollection_TrigSiTrack_Muon = 500 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_Muon"];
+    repeated int32 TrigInDetTrackCollection_TrigSiTrack_MuonStatus = 501 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_MuonStatus"];
+    repeated int32 TrigInDetTrackCollection_TrigIDSCAN_Muon = 502 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_Muon"];
+    repeated int32 TrigInDetTrackCollection_TrigIDSCAN_MuonStatus = 503 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_MuonStatus"];
+    repeated int32 TrigInDetTrackCollection_TrigSiTrack_muonIso = 504 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_muonIso"];
+    repeated int32 TrigInDetTrackCollection_TrigSiTrack_muonIsoStatus = 505 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_muonIsoStatus"];
+    repeated int32 TrigInDetTrackCollection_TrigIDSCAN_muonIso = 506 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_muonIso"];
+    repeated int32 TrigInDetTrackCollection_TrigIDSCAN_muonIsoStatus = 507 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_muonIsoStatus"];
+    
+}

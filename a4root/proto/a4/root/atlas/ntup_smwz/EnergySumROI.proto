@@ -1,0 +1,20 @@
+package ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message EnergySumROI {
+    optional string thrNames = 1 [(root_branch)="thrNames"];
+    
+    optional float ExMiss = 100 [(root_branch)="ExMiss"];
+    optional float EyMiss = 101 [(root_branch)="EyMiss"];
+    
+    optional float energyT = 200 [(root_branch)="energyT"];
+    
+    optional bool overflowX = 300 [(root_branch)="overflowX"];
+    optional bool overflowY = 301 [(root_branch)="overflowY"];
+    optional bool overflowT = 302 [(root_branch)="overflowT"];
+    
+    optional uint32 RoIWord0 = 400 [(root_branch)="RoIWord0"];
+    optional uint32 RoIWord1 = 401 [(root_branch)="RoIWord1"];
+    optional uint32 RoIWord2 = 402 [(root_branch)="RoIWord2"];
+    
+}

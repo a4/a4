@@ -1,0 +1,64 @@
+package ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message Electron {
+    optional float E = 1 [(root_branch)="E"];
+    optional float Et = 2 [(root_branch)="Et"];
+    optional float pt = 3 [(root_branch)="pt"];
+    optional float m = 4 [(root_branch)="m", default=0.0];
+    optional float eta = 5 [(root_branch)="eta"];
+    optional float phi = 6 [(root_branch)="phi"];
+    optional float px = 7 [(root_branch)="px"];
+    optional float py = 8 [(root_branch)="py"];
+    optional float pz = 9 [(root_branch)="pz"];
+    
+    optional float charge = 100 [(root_branch)="charge", default=1.0];
+    
+    optional int32 author = 200 [(root_branch)="author", default=1];
+    
+    optional uint32 isEM = 300 [(root_branch)="isEM", default=127];
+    optional uint32 isEMLoose = 301 [(root_branch)="isEMLoose"];
+    optional uint32 isEMMedium = 302 [(root_branch)="isEMMedium"];
+    optional uint32 isEMTight = 303 [(root_branch)="isEMTight"];
+    
+    optional uint32 OQ = 400 [(root_branch)="OQ", default=0];
+    
+    optional int32 convFlag = 500 [(root_branch)="convFlag", default=0];
+    optional int32 isConv = 501 [(root_branch)="isConv", default=0];
+    optional int32 nConv = 502 [(root_branch)="nConv", default=0];
+    optional int32 nSingleTrackConv = 503 [(root_branch)="nSingleTrackConv", default=0];
+    optional int32 nDoubleTrackConv = 504 [(root_branch)="nDoubleTrackConv", default=0];
+    
+    optional uint32 OQRecalc = 600 [(root_branch)="OQRecalc", default=0];
+    
+    optional int32 mediumWithoutTrack = 700 [(root_branch)="mediumWithoutTrack"];
+    optional int32 mediumIsoWithoutTrack = 701 [(root_branch)="mediumIsoWithoutTrack"];
+    optional int32 tightWithoutTrack = 702 [(root_branch)="tightWithoutTrack"];
+    optional int32 tightIsoWithoutTrack = 703 [(root_branch)="tightIsoWithoutTrack"];
+    
+    optional int32 loose = 800 [(root_branch)="loose", default=0];
+    optional int32 looseIso = 801 [(root_branch)="looseIso"];
+    
+    optional int32 medium = 900 [(root_branch)="medium", default=0];
+    optional int32 mediumIso = 901 [(root_branch)="mediumIso", default=0];
+    optional int32 tight = 902 [(root_branch)="tight", default=0];
+    optional int32 tightIso = 903 [(root_branch)="tightIso", default=0];
+    
+    optional int32 loosePP = 1000 [(root_branch)="loosePP"];
+    optional int32 loosePPIso = 1001 [(root_branch)="loosePPIso"];
+    
+    optional int32 mediumPP = 1100 [(root_branch)="mediumPP"];
+    optional int32 mediumPPIso = 1101 [(root_branch)="mediumPPIso"];
+    
+    optional int32 tightPP = 1200 [(root_branch)="tightPP"];
+    optional int32 tightPPIso = 1201 [(root_branch)="tightPPIso"];
+    
+    optional int32 goodOQ = 1300 [(root_branch)="goodOQ", default=1];
+    
+    optional int32 refittedTrack_n = 1400 [(root_branch)="refittedTrack_n", default=0];
+    
+    optional float vertweight = 1500 [(root_branch)="vertweight", default=0.0];
+    
+    optional int32 hastrack = 1600 [(root_branch)="hastrack", default=1];
+    
+}

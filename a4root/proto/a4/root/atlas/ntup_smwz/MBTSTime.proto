@@ -1,0 +1,12 @@
+package ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message MBTSTime {
+    optional float timeDiff = 1 [(root_branch)="timeDiff"];
+    optional float timeA = 2 [(root_branch)="timeA"];
+    optional float timeC = 3 [(root_branch)="timeC"];
+    
+    optional int32 countA = 100 [(root_branch)="countA"];
+    optional int32 countC = 101 [(root_branch)="countC"];
+    
+}

@@ -1,0 +1,31 @@
+package ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message TrigDecision {
+    optional uint32 L1_TAV = 1 [(root_branch)="L1_TAV"];
+    
+    optional int32 L2_passedPhysics = 100 [(root_branch)="L2_passedPhysics"];
+    optional int32 EF_passedPhysics = 101 [(root_branch)="EF_passedPhysics"];
+    
+    optional uint32 L1_TBP = 200 [(root_branch)="L1_TBP"];
+    optional uint32 L1_TAP = 201 [(root_branch)="L1_TAP"];
+    
+    optional int32 L2_passedRaw = 300 [(root_branch)="L2_passedRaw"];
+    optional int32 EF_passedRaw = 301 [(root_branch)="EF_passedRaw"];
+    
+    optional bool L2_truncated = 400 [(root_branch)="L2_truncated"];
+    optional bool EF_truncated = 401 [(root_branch)="EF_truncated"];
+    optional int32 L2_resurrected = 402 [(root_branch)="L2_resurrected"];
+    optional int32 EF_resurrected = 403 [(root_branch)="EF_resurrected"];
+    
+    optional int32 L2_passedThrough = 500 [(root_branch)="L2_passedThrough"];
+    optional int32 EF_passedThrough = 501 [(root_branch)="EF_passedThrough"];
+    
+    optional int32 L2_wasPrescaled = 600 [(root_branch)="L2_wasPrescaled"];
+    optional int32 L2_wasResurrected = 601 [(root_branch)="L2_wasResurrected"];
+    optional int32 EF_wasPrescaled = 602 [(root_branch)="EF_wasPrescaled"];
+    optional int32 EF_wasResurrected = 603 [(root_branch)="EF_wasResurrected"];
+    
+    optional int32 bgCode = 700 [(root_branch)="bgCode"];
+    
+}

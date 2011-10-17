@@ -1,0 +1,6 @@
+package ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message MuonFeatureDetails {
+    
+}

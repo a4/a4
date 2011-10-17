@@ -1,0 +1,41 @@
+package ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message TrigPhoton {
+    optional float E = 1 [(root_branch)="E"];
+    optional float Et = 2 [(root_branch)="Et"];
+    optional float pt = 3 [(root_branch)="pt"];
+    optional float eta = 4 [(root_branch)="eta"];
+    optional float phi = 5 [(root_branch)="phi"];
+    
+    optional int32 RoIWord = 100 [(root_branch)="RoIWord", default=0];
+    
+    optional float HadEt1 = 200 [(root_branch)="HadEt1"];
+    
+    optional float Eratio = 300 [(root_branch)="Eratio"];
+    optional float Reta = 301 [(root_branch)="Reta"];
+    optional float dPhi = 302 [(root_branch)="dPhi"];
+    optional float dEta = 303 [(root_branch)="dEta"];
+    optional float F1 = 304 [(root_branch)="F1"];
+    
+    optional int32 L2_2g15_loose = 400 [(root_branch)="L2_2g15_loose"];
+    optional int32 L2_2g20_loose = 401 [(root_branch)="L2_2g20_loose"];
+    
+    optional int32 L2_g100_etcut_g50_etcut = 500 [(root_branch)="L2_g100_etcut_g50_etcut"];
+    optional int32 L2_g10_NoCut_cosmic = 501 [(root_branch)="L2_g10_NoCut_cosmic"];
+    optional int32 L2_g11_etcut = 502 [(root_branch)="L2_g11_etcut"];
+    optional int32 L2_g150_etcut = 503 [(root_branch)="L2_g150_etcut"];
+    optional int32 L2_g15_loose = 504 [(root_branch)="L2_g15_loose"];
+    optional int32 L2_g20_etcut = 505 [(root_branch)="L2_g20_etcut"];
+    optional int32 L2_g20_etcut_xe30_noMu = 506 [(root_branch)="L2_g20_etcut_xe30_noMu"];
+    optional int32 L2_g20_loose = 507 [(root_branch)="L2_g20_loose"];
+    optional int32 L2_g40_loose = 508 [(root_branch)="L2_g40_loose"];
+    optional int32 L2_g40_loose_EFxe40_noMu = 509 [(root_branch)="L2_g40_loose_EFxe40_noMu"];
+    
+    optional int32 L2_g40_tight = 600 [(root_branch)="L2_g40_tight"];
+    optional int32 L2_g40_tight_b10_medium = 601 [(root_branch)="L2_g40_tight_b10_medium"];
+    optional int32 L2_g5_NoCut_cosmic = 602 [(root_branch)="L2_g5_NoCut_cosmic"];
+    optional int32 L2_g60_loose = 603 [(root_branch)="L2_g60_loose"];
+    optional int32 L2_g80_loose = 604 [(root_branch)="L2_g80_loose"];
+    
+}
