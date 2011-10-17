@@ -23,7 +23,8 @@ namespace a4{ namespace io{
         if (class_id < _class_id_reader.size()) {
             internal::from_stream_func factory = _class_id_reader[class_id];
             if (factory) {
-                return A4Message(_class_id_reader[class_id](instream),
+                return A4Message(class_id,
+                                 _class_id_reader[class_id](instream),
                                  _class_id_descriptor[class_id],
                                  _dynamic_descriptor[class_id],
                                  _descriptor_pool);
@@ -40,7 +41,7 @@ namespace a4{ namespace io{
             _class_id_descriptor[class_id] = reg.descriptor;
             _dynamic_descriptor[class_id] = NULL;
         }
-        return A4Message(reg.from_stream(instream), reg.descriptor);
+        return A4Message(class_id, reg.from_stream(instream), reg.descriptor);
     };
 
     void ProtoClassPool::add_protoclass(const ProtoClass & protoclass) {
