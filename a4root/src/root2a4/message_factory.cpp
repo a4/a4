@@ -12,17 +12,6 @@ using std::vector;
 using boost::bind;
 using boost::function;
 
-#include <a4/output.h>
-#include <a4/input.h>
-#include <a4/string.h>
-#include <a4/exceptions.h>
-
-#include <TBranch.h>
-#include <TBranchElement.h>
-#include <TChain.h>
-#include <TLeaf.h>
-#include <TVirtualCollectionProxy.h>
-
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
@@ -32,40 +21,20 @@ using google::protobuf::Descriptor;
 using google::protobuf::FieldDescriptor;
 using google::protobuf::Reflection;
 
-#include "a4/root/atlas/ntup_photon/Event.pb.h"
-#include "a4/root/atlas/ntup_photon/Metadata.pb.h"
+#include <TBranch.h>
+#include <TBranchElement.h>
+#include <TChain.h>
+#include <TLeaf.h>
+#include <TVirtualCollectionProxy.h>
 
-#include "a4/root/test/Event.pb.h"
+#include <a4/string.h>
+#include <a4/exceptions.h>
 
-//using namespace std;
-using namespace a4::io;
+#include "common.h"
+
+#include "a4/root/RootExtension.pb.h"
 
 using namespace google;
-
-template<typename T>
-class Setter
-{
-public:
-    typedef function<void (Message*, T)> ProtobufSetter;
-    typedef function<void (ProtobufSetter, Message*, void*)> SetterCaller;
-    
-    typedef function<void (Message*, T)> ProtobufAdder;
-    typedef function<void (Message*, TBranchElement*, const ProtobufAdder&, const FieldDescriptor*)> RepeatedSetterCaller;
-};
-
-typedef function<shared<Message> ()> RootToMessageFactory;
-typedef function<void (Message*)>    Copier;
-typedef vector<Copier>               Copiers;
-
-A4RegisterClass(a4::root::test::Event);
-A4RegisterClass(a4::root::atlas::ntup_photon::Metadata);
-
-const vector<const FieldDescriptor*> get_fields(const Descriptor* d) {
-    vector<const FieldDescriptor*> result;
-    for (int i = 0; i < d->field_count(); i++)
-        result.push_back(d->field(i));
-    return result;
-}
 
 template<typename SOURCE_TYPE, typename PROTOBUF_TYPE>
 void call_setter(typename Setter<PROTOBUF_TYPE>::ProtobufSetter setter, Message* message, void* value)
@@ -74,13 +43,13 @@ void call_setter(typename Setter<PROTOBUF_TYPE>::ProtobufSetter setter, Message*
 }
 
 template<typename SOURCE_TYPE, typename PROTOBUF_TYPE>
-void call_repeated_setter(Message* message, TBranchElement* br,
-    const typename Setter<PROTOBUF_TYPE>::ProtobufAdder& setter,
+void call_adder(Message* message, TBranchElement* br,
+    const typename Setter<PROTOBUF_TYPE>::ProtobufAdder& adder,
     const FieldDescriptor* field)
 {
     const vector<SOURCE_TYPE>& values = *reinterpret_cast<vector<SOURCE_TYPE>* >(br->GetObject());
     foreach (const SOURCE_TYPE& value, values)
-        setter(message, static_cast<PROTOBUF_TYPE>(value));
+        adder(message, static_cast<PROTOBUF_TYPE>(value));
 }
 
 template<typename T> 
@@ -126,8 +95,8 @@ Copier make_field_setter(TBranch* branch, TLeaf* leaf, const FieldDescriptor* f,
     if (f->is_repeated())
     {   
         typename Setter<PROTOBUF_TYPE>::ProtobufSetter protobuf_rsetter = reflection_adder<PROTOBUF_TYPE>(r, f);
-        typename Setter<PROTOBUF_TYPE>::RepeatedSetterCaller setter_rcaller = call_repeated_setter<SOURCE_TYPE, PROTOBUF_TYPE>;
-        return bind(setter_rcaller, _1, (TBranchElement*)branch, protobuf_rsetter, f);
+        typename Setter<PROTOBUF_TYPE>::RepeatedSetterCaller adder = call_adder<SOURCE_TYPE, PROTOBUF_TYPE>;
+        return bind(adder, _1, (TBranchElement*)branch, protobuf_rsetter, f);
     }
     typename Setter<PROTOBUF_TYPE>::ProtobufSetter protobuf_setter = reflection_setter<PROTOBUF_TYPE>(r, f);
     typename Setter<PROTOBUF_TYPE>::SetterCaller setter_caller = call_setter<SOURCE_TYPE, PROTOBUF_TYPE>;
@@ -136,8 +105,8 @@ Copier make_field_setter(TBranch* branch, TLeaf* leaf, const FieldDescriptor* f,
 }
 
 
-Copier make_copier_from_leaf(TBranch* branch, TLeaf* leaf, const FieldDescriptor* field, 
-    const Reflection* refl)
+Copier make_copier_from_leaf(TBranch* branch, TLeaf* leaf, 
+    const FieldDescriptor* field, const Reflection* refl)
 {
     #define TRY_MATCH(root_source_type, plain_source_type, dest_type) \
         if (leaf_type == #plain_source_type || leaf_type == "vector<" #plain_source_type ">") \
@@ -178,18 +147,10 @@ shared<Message> message_factory(const Message* default_instance, const Copiers& 
     return message;
 }
 
-typedef Message* MessageP;
-
-typedef function<void (Message**, size_t)> SubmessageSetter;
-typedef vector<SubmessageSetter> SubmessageSetters;
-
-void submessage_factory(
-    Message* parent,
-    const Reflection* parent_refl,
+void submessage_factory(Message* parent, const Reflection* parent_refl,
     const FieldDescriptor* field_desc,
     const SubmessageSetters& submessage_setters,
-    function<size_t ()> compute_count
-    )
+    function<size_t ()> compute_count)
 {
     const size_t count = compute_count();
     
@@ -206,11 +167,23 @@ void submessage_factory(
 
 template<typename SOURCE_TYPE, typename PROTOBUF_TYPE>
 void submessage_setter(Message** messages, size_t count, TBranchElement* br, 
-    const typename Setter<PROTOBUF_TYPE>::ProtobufSetter& setter, const FieldDescriptor* field)
+    const typename Setter<PROTOBUF_TYPE>::ProtobufSetter& setter, 
+    const FieldDescriptor* field)
 {
     vector<SOURCE_TYPE>* values = reinterpret_cast<vector<SOURCE_TYPE>* >(br->GetObject());
     for (size_t i = 0; i < count; i++)
         setter(messages[i], static_cast<PROTOBUF_TYPE>(values->at(i)));
+}
+
+template<typename SOURCE_TYPE, typename PROTOBUF_TYPE>
+void submessage_adder(Message** messages, size_t count, TBranchElement* br, 
+    const typename Setter<PROTOBUF_TYPE>::ProtobufAdder& adder,
+    const FieldDescriptor* field)
+{
+    const vector<vector<SOURCE_TYPE> >* values = reinterpret_cast<vector<vector<SOURCE_TYPE> >* >(br->GetObject());
+    for (size_t i = 0; i < count; i++)
+        foreach (const SOURCE_TYPE& value, values->at(i))
+            adder(messages[i], static_cast<PROTOBUF_TYPE>(value));
 }
 
 /// Returns the current size of the `branch_element` which represents a type `T` 
@@ -269,6 +242,10 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
     #define BIND(source_type, destination_type) \
         bind(submessage_setter<source_type, destination_type>, _1, _2, \
              branch_element, reflection_setter<destination_type>(reflection, field), field)
+             
+    #define VBIND(source_type, destination_type) \
+        bind(submessage_adder<source_type, destination_type>, _1, _2, \
+             branch_element, reflection_adder<destination_type>(reflection, field), field)
     
     // !Note!: `source_type` is expanded as a string!!
     #define TRY_MATCH(root_source_type, plain_source_type, protobuf_destination_type) \
@@ -279,9 +256,9 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
         \
         \
         else if (branch_typename == "vector<vector<" #root_source_type "> >" ) \
-            return BIND(root_source_type, protobuf_destination_type); \
+            return VBIND(root_source_type, protobuf_destination_type); \
         else if (branch_typename == "vector<vector<" #plain_source_type "> >" ) \
-            return BIND(plain_source_type, protobuf_destination_type);
+            return VBIND(plain_source_type, protobuf_destination_type);
     
     // This happens when we don't know how to deal with the combination of 
     // {field->cpp_type(), root branch type}
@@ -313,7 +290,15 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
 /// Gives an assertion failure if called.
 void null_copier(Message*) { throw a4::Fatal("null_coper called. This should never happen."); }
 
-Copier make_submessage_factory(TTree& tree, const Reflection* parent_refl, 
+
+const vector<const FieldDescriptor*> get_fields(const Descriptor* d) {
+    vector<const FieldDescriptor*> result;
+    for (int i = 0; i < d->field_count(); i++)
+        result.push_back(d->field(i));
+    return result;
+}
+
+Copier make_submessage_factory(TTree* tree, const Reflection* parent_refl, 
     const FieldDescriptor* parent_field, const std::string& prefix="")
 {
     SubmessageSetters submessage_setters;
@@ -337,7 +322,7 @@ Copier make_submessage_factory(TTree& tree, const Reflection* parent_refl,
         
         const std::string leafname = prefix + field->options().GetExtension(root_branch);
         
-        TBranchElement* br = dynamic_cast<TBranchElement*>(tree.GetBranch(leafname.c_str()));
+        TBranchElement* br = dynamic_cast<TBranchElement*>(tree->GetBranch(leafname.c_str()));
         if (!br) {
             std::cerr << "WARNING: " << "[" << parent_field->full_name() << " / "
                       << field->full_name() << "]"
@@ -352,17 +337,6 @@ Copier make_submessage_factory(TTree& tree, const Reflection* parent_refl,
         if (!compute_count)
             compute_count = make_count_getter(br);
         
-        //if (field->is_repeated())
-        //{
-            //continue; // TODO(pwaller): it's a vector<vector<...
-            //throw a4::Fatal("Can't currently convert ", 
-                //field->full_name(), " with ROOT branch ", leafname, " type ",
-                //br->GetTypeName());
-        //}
-        
-        // TODO(pwaller): At the moment, this assumes that br is a vector< type.
-        // At some point it might be necessary to extend this to allow for
-        // other classes.
         submessage_setters.push_back(make_submessage_setter(br, field, refl));
     }
     
@@ -376,7 +350,10 @@ Copier make_submessage_factory(TTree& tree, const Reflection* parent_refl,
     return copier;
 }
 
-RootToMessageFactory make_message_factory(TTree& tree, const Descriptor* desc, const std::string& prefix="")
+/// Creates a function (RootToMessageFactory) which returns a Message* generated
+/// from the current `tree`'s entry.
+RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc, 
+    const std::string& prefix)
 {
     Copiers copiers;
     
@@ -391,7 +368,7 @@ RootToMessageFactory make_message_factory(TTree& tree, const Descriptor* desc, c
         if (field->options().HasExtension(root_branch)) {
             auto leafname = prefix + field->options().GetExtension(root_branch);
             
-            TLeaf* leaf = tree.GetLeaf(leafname.c_str());
+            TLeaf* leaf = tree->GetLeaf(leafname.c_str());
             if (!leaf)
             {
                 std::cerr << "Branch specified in protobuf file but not in TTree: " << leafname << std::endl;
@@ -399,39 +376,28 @@ RootToMessageFactory make_message_factory(TTree& tree, const Descriptor* desc, c
             }
             
             // Enable this branch
-            TBranch* branch = tree.GetBranch(leafname.c_str());
+            TBranch* branch = tree->GetBranch(leafname.c_str());
             assert(branch);
             branch->ResetBit(kDoNotProcess);
             
             copiers.push_back(make_copier_from_leaf(branch, leaf, field, refl));
             continue;
-        }
-    
-        if (field->is_repeated()) {
-            if (field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE) {
-                if (field->options().HasExtension(root_prefix)) {
-                    const std::string this_prefix = prefix + field->options().GetExtension(root_prefix);
-                    copiers.push_back(make_submessage_factory(tree, refl, field, this_prefix));
-                } else {
-                    const std::string warning = str_cat(field->full_name(), 
-                        " has no conversion specifier, e.g. [(root_prefix=\"", 
-                        field->name(), "\")];.");
-                    std::cerr << warning << std::endl;
-                    continue;
-                    //throw a4::Fatal(warning);
-                }
-            } else {
-                // Don't know what to do with these yet!
-                // These are non-message repeated fields on the Event message class.
-                
-                assert(false);
-            }
+            
+        } else if (field->is_repeated() && 
+          field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE &&
+          field->options().HasExtension(root_prefix)) {
+            
+            const std::string this_prefix = prefix + field->options().GetExtension(root_prefix);
+            copiers.push_back(make_submessage_factory(tree, refl, field, this_prefix));
         
-        } else if (field->options().HasExtension(root_prefix)) {
+        } else if (!field->is_repeated() &&
+          field->options().HasExtension(root_prefix)) {
+          
             const std::string prefix = field->options().GetExtension(root_prefix);
             throw a4::Fatal(field->full_name(), 
                 " is not repeated but has a [(root_prefix=\"", prefix, "\")]. "
                 "These are not compatible with one-another.");
+                
         } else {
             // What to do here? Warn the user that we're ignoring the field?
             const std::string warning = str_cat(field->full_name(), 
@@ -445,96 +411,4 @@ RootToMessageFactory make_message_factory(TTree& tree, const Descriptor* desc, c
     
     return bind(message_factory, default_instance, copiers);
 }
-
-/// Builds a RootToMessageFactory when Notify() is called.
-class EventFactoryBuilder : public TObject
-{
-TTree& _tree;
-const Descriptor* _descriptor;
-RootToMessageFactory* _factory;
-
-public:
-
-    EventFactoryBuilder(TTree& t, const Descriptor* d, RootToMessageFactory* f) :
-        _tree(t), _descriptor(d), _factory(f)
-    {}
-
-    /// Called when the TTree branch addresses change. 
-    /// Generates a new message factory for the _tree.
-    Bool_t Notify() 
-    { 
-        assert(_descriptor);
-        //std::cout << "Notify start" << std::endl;
-        (*_factory) = make_message_factory(_tree, _descriptor);
-        //std::cout << "Notify end" << std::endl;
-        return true;
-    }
-};
-
-/// Copies `tree` into the `stream` using information taken from the compiled in
-/// Event class.
-void copy_tree(TTree& tree, shared<OutputStream> stream, 
-    const Descriptor* message_descriptor, Long64_t entries = -1)
-{
-    Long64_t tree_entries = tree.GetEntries();
-    if (entries > tree_entries)
-        entries = tree_entries;
-    if (entries < 0)
-        entries = tree_entries;
-        
-    std::cout << "Will process " << entries << " entries" << std::endl;
-    
-    // Nothing to do!
-    if (!entries)
-        return;
-    
-    // Disable all branches. Branches get enabled through 
-    // TBranch::ResetBit(kDoNotProcess) we make the message factory.
-    tree.SetBranchStatus("*", false);
-    
-    // An event_factory is automatically created when the branch pointers change
-    // through the Tree Notify() call.
-    RootToMessageFactory event_factory;
-    
-    // This is the only place where we say that we're wanting to build the 
-    // Event class.
-    EventFactoryBuilder builder(tree, message_descriptor, &event_factory);
-    
-    tree.SetNotify(&builder);
-    // This line is needed. It seems to sometimes not get called automatically 
-    // depending on the underlying TTree.
-    builder.Notify();
-    
-    size_t total_bytes_read = 0;
-    
-    for (Long64_t i = 0; i < entries; i++)
-    {
-        //std::cout << "Reading event " << i << std::endl;
-        size_t read_data = tree.GetEntry(i);
-        total_bytes_read += read_data;
-        if (i % 100 == 0)
-            std::cout << "Progress " << i << " / " << entries << " (" << read_data << ")" << std::endl;
-        
-        // Write out one event.
-        stream->write(*event_factory());
-    }
-    
-    //Metadata m;
-    //m.set_total_events(entries);
-    //stream->metadata(m);
-    
-    std::cout << "Copied " << entries << " entries (" << total_bytes_read << ")" << std::endl;
-}
-
-int main(int argc, char ** argv) {
-    A4Output a4o("test_io.a4", "Event");
-
-    shared<OutputStream> stream = a4o.get_stream(); 
-
-    TChain input("photon");
-    input.Add("input/*.root*");
-
-    copy_tree(input, stream, a4::root::test::Event::descriptor(), 2000);
-}
-
 

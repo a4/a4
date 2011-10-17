@@ -10,9 +10,10 @@ AM_CPPFLAGS+=$(A4_A4IO_CPPFLAGS) $(A4_A4PROCESS_CPPFLAGS) $(A4_A4HIST_CPPFLAGS) 
 LDADD=$(A4_A4IO_LIBS) $(A4_A4PROCESS_LIBS) $(A4_A4HIST_LIBS) $(CERN_ROOT_SYSTEM_LIBS) $(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS) $(BOOST_LIBS)
 
 bin_PROGRAMS=a4results2root root2a4
+
 a4results2root_SOURCES = src/a4results2root.cpp
 
-root2a4_SOURCES = src/root2a4.cpp
+root2a4_SOURCES = src/root2a4/main.cpp src/root2a4/message_factory.cpp
 nodist_root2a4_SOURCES = $(PROTOBUF_CC) $(PROTOBUF_H)
 
 EXTRA_DIST += src/convertable_types.cc
