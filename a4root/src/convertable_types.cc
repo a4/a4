@@ -1,4 +1,5 @@
 case FieldDescriptor::CPPTYPE_BOOL:
+    TRY_MATCH(Bool_t,   bool,           bool);
     TRY_MATCH(Int_t,    int,            bool);  
     TRY_MATCH(Long_t,   long,           bool);
     TRY_MATCH(Short_t,  short,          bool);

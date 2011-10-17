@@ -12,12 +12,13 @@ subdirs = dict((nm, "/".join(nm.split("/")[:-1])) for nm in names)
 
 lines = []
 lines.append("@A4_SET_AM_V_PROTOC@")
-lines.append("protodir=${localstatedir}/a4/proto/$(A4PACK)")
-lines.append("protoincludedir=${includedir}/a4/proto/$(A4PACK)")
-lines.append("protopythondir=${pythondir}/a4/proto/$(A4PACK)")
+lines.append("A4PACK_OBSOLETE=")
+lines.append("protodir=${localstatedir}/a4/proto/$(A4PACK_OBSOLETE)")
+lines.append("protoincludedir=${includedir}/a4/proto/$(A4PACK_OBSOLETE)")
+lines.append("protopythondir=${pythondir}/a4/proto/$(A4PACK_OBSOLETE)")
 lines.append("")
-lines.append("PYDIR=./python/a4/proto/$(A4PACK)")
-lines.append("CPPDIR=./src/a4/proto/$(A4PACK)")
+lines.append("PYDIR=./python/a4/proto/$(A4PACK_OBSOLETE)")
+lines.append("CPPDIR=./src/a4/proto/$(A4PACK_OBSOLETE)")
 lines.append("PROTOBUF_CFLAGS += -I$(CPPDIR)")
 lines.append("")
 lines.append('PROTOBUF_PY=' + " ".join('$(PYDIR)/%s_pb2.py' % n for n in names))
@@ -57,7 +58,7 @@ $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(srcdir)/proto/%.proto
 
 # how to make the python __init__.py
 $(PYDIR)/__init__.py: $(PROTOBUF_PY)
-	$(AM_V_PROTOC)grep -Ho 'class [A-Za-z0-9]*' $^ | sed 's/.py:class/ import/' | sed "s/python\/a4\/proto\/$(A4PACK)\//from ./" | sed 's/\//./g' > $@
+	$(AM_V_PROTOC)grep -Ho 'class [A-Za-z0-9]*' $^ | sed 's/.py:class/ import/' | sed "s/python\/a4\/proto\/$(A4PACK_OBSOLETE)\//from ./" | sed 's/\//./g' > $@
 
 # make sure all protobuf are generated before they are built!
 BUILT_SOURCES=$(PROTOBUF_H) $(PROTOBUF_CC)

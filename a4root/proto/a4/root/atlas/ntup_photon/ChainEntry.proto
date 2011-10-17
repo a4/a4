@@ -1,0 +1,10 @@
+import "a4/root/RootExtension.proto";
+
+message ChainEntry {
+    
+    optional int32 chain_ChainId = 1 [(root_branch)="chain_ChainId"]; 
+    repeated int32 chain_RoIType = 2 [(root_branch)="chain_RoIType"]; 
+    repeated int32 chain_RoIIndex = 3 [(root_branch)="chain_RoIIndex"]; 
+    
+    
+}

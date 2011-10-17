@@ -1,0 +1,102 @@
+package a4.root.atlas.ntup_photon;
+
+import "a4/root/RootExtension.proto";
+
+import "a4/root/atlas/ntup_photon/BeamSpot.proto";
+import "a4/root/atlas/ntup_photon/BunchConfigID.proto";
+import "a4/root/atlas/ntup_photon/ChainEntry.proto";
+import "a4/root/atlas/ntup_photon/Cluster.proto";
+import "a4/root/atlas/ntup_photon/CollisionDecision.proto";
+import "a4/root/atlas/ntup_photon/D3PDObject1.proto";
+import "a4/root/atlas/ntup_photon/D3PDObject2.proto";
+import "a4/root/atlas/ntup_photon/DiPhoton.proto";
+import "a4/root/atlas/ntup_photon/EFElectron.proto";
+import "a4/root/atlas/ntup_photon/EFPhoton.proto";
+import "a4/root/atlas/ntup_photon/Electron.proto";
+import "a4/root/atlas/ntup_photon/EmTauROI.proto";
+import "a4/root/atlas/ntup_photon/Jet.proto";
+import "a4/root/atlas/ntup_photon/MBTS.proto";
+import "a4/root/atlas/ntup_photon/MBTSTime.proto";
+import "a4/root/atlas/ntup_photon/Muon.proto";
+import "a4/root/atlas/ntup_photon/Photon.proto";
+import "a4/root/atlas/ntup_photon/TrackParticle.proto";
+import "a4/root/atlas/ntup_photon/TrigEMCluster.proto";
+import "a4/root/atlas/ntup_photon/TrigElectron.proto";
+import "a4/root/atlas/ntup_photon/TrigInDetTrack.proto";
+import "a4/root/atlas/ntup_photon/TrigPhoton.proto";
+
+message Event {
+    
+    optional int32 CLASS_ID = 0xBEEF;
+    
+    optional uint32 run_number = 1 [(root_branch)="RunNumber"]; 
+    optional uint32 event_number = 2 [(root_branch)="EventNumber"]; 
+    
+    optional uint32 timestamp = 100 [(root_branch)="timestamp"]; 
+    optional uint32 timestamp_ns = 101 [(root_branch)="timestamp_ns"]; 
+    
+    optional uint32 lbn = 200 [(root_branch)="lbn"]; 
+    
+    optional uint32 bcid = 300 [(root_branch)="bcid"]; 
+    
+    optional uint32 detmask0 = 400 [(root_branch)="detmask0"]; 
+    optional uint32 detmask1 = 401 [(root_branch)="detmask1"]; 
+    
+    optional float actualIntPerXing = 500 [(root_branch)="actualIntPerXing"]; 
+    optional float averageIntPerXing = 501 [(root_branch)="averageIntPerXing"]; 
+    
+    optional uint32 pixelFlags = 600 [(root_branch)="pixelFlags"]; 
+    optional uint32 sctFlags = 601 [(root_branch)="sctFlags"]; 
+    optional uint32 trtFlags = 602 [(root_branch)="trtFlags"]; 
+    optional uint32 larFlags = 603 [(root_branch)="larFlags"]; 
+    optional uint32 tileFlags = 604 [(root_branch)="tileFlags"]; 
+    optional uint32 muonFlags = 605 [(root_branch)="muonFlags"]; 
+    optional uint32 fwdFlags = 606 [(root_branch)="fwdFlags"]; 
+    optional uint32 coreFlags = 607 [(root_branch)="coreFlags"]; 
+    
+    optional uint32 pixelError = 700 [(root_branch)="pixelError"]; 
+    optional uint32 sctError = 701 [(root_branch)="sctError"]; 
+    optional uint32 trtError = 702 [(root_branch)="trtError"]; 
+    optional uint32 larError = 703 [(root_branch)="larError"]; 
+    optional uint32 tileError = 704 [(root_branch)="tileError"]; 
+    optional uint32 muonError = 705 [(root_branch)="muonError"]; 
+    optional uint32 fwdError = 706 [(root_branch)="fwdError"]; 
+    optional uint32 coreError = 707 [(root_branch)="coreError"]; 
+    
+    optional bool L1_MBTS_1 = 708 [(root_branch)="L1_MBTS_1"]; 
+    optional bool L1_MBTS_1_1 = 709 [(root_branch)="L1_MBTS_1_1"]; 
+    optional bool L1_MBTS_1_1_UNPAIRED_ISO = 710 [(root_branch)="L1_MBTS_1_1_UNPAIRED_ISO"]; 
+    optional bool L1_MBTS_2 = 711 [(root_branch)="L1_MBTS_2"]; 
+    optional bool L1_MBTS_2_BGRP7 = 712 [(root_branch)="L1_MBTS_2_BGRP7"]; 
+    optional bool L1_MBTS_2_UNPAIRED_ISO = 713 [(root_branch)="L1_MBTS_2_UNPAIRED_ISO"]; 
+    optional bool L1_MBTS_4_4 = 714 [(root_branch)="L1_MBTS_4_4"]; 
+    optional bool L1_MBTS_4_4_EMPTY = 715 [(root_branch)="L1_MBTS_4_4_EMPTY"]; 
+    
+    repeated MBTS mbtses = 716 [(root_prefix)="mb_"]; 
+    optional MBTSTime mbtstime = 717; 
+    optional CollisionDecision collision_decision = 718; 
+    optional BeamSpot beam_spot = 719; 
+    repeated Muon muons = 720 [(root_prefix)="mu_"]; 
+    repeated DiPhoton di_photons = 721 [(root_prefix)="diphoton_"]; 
+    repeated Jet jets_4 = 722 [(root_prefix)="jet_AntiKt4TopoEMJets_"]; 
+    repeated Jet jets_6 = 723 [(root_prefix)="jet_AntiKt6TopoEMJets_"]; 
+    optional BunchConfigID bunch_config_id = 724; 
+    repeated D3PDObject1 d3pdobject_1s = 725 [(root_prefix)="el_as_unconv_ph_"]; 
+    repeated D3PDObject2 d3pdobject_2s = 726 [(root_prefix)="el_as_conv_ph_"]; 
+    repeated Photon photons = 727 [(root_prefix)="ph_"]; 
+    repeated Electron electrons = 728 [(root_prefix)="el_"]; 
+    repeated TrackParticle track_particles = 729 [(root_prefix)="trk_"]; 
+    repeated EmTauROI em_tau_rois = 730 [(root_prefix)="trig_L1_emtau_"]; 
+    repeated TrigEMCluster trig_emclusters = 731 [(root_prefix)="trig_L2_emcl_"]; 
+    repeated TrigInDetTrack trig_in_det_tracks_idscan = 732 [(root_prefix)="trig_L2_trk_idscan_eGamma_"]; 
+    repeated TrigInDetTrack trig_in_det_tracks_sitrack = 733 [(root_prefix)="trig_L2_trk_sitrack_eGamma_"]; 
+    repeated TrigElectron trig_electrons = 734 [(root_prefix)="trig_L2_el_"]; 
+    repeated TrigPhoton trig_photons = 735 [(root_prefix)="trig_L2_ph_"]; 
+    repeated Cluster clusters = 736 [(root_prefix)="trig_EF_emcl_"]; 
+    repeated Cluster clusters_slw = 737 [(root_prefix)="trig_EF_emcl_slw_"]; 
+    repeated EFElectron efelectrons = 738 [(root_prefix)="trig_EF_el_"]; 
+    repeated EFPhoton efphotons = 739 [(root_prefix)="trig_EF_ph_"]; 
+    repeated ChainEntry chain_entries = 740 [(root_prefix)="trig_Nav_"]; 
+
+}
+

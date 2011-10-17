@@ -6,6 +6,7 @@
 #if HAVE_SNAPPY
 
 #include <iostream>
+#include <cmath>
 
 #include <google/protobuf/stubs/common.h>
 

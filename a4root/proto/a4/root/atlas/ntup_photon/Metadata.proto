@@ -1,0 +1,7 @@
+package a4.root.atlas.ntup_photon;
+
+message Metadata
+{    
+    optional int32 CLASS_ID = 1103; //0xBEEF002;
+    optional int32 total_events = 1;
+}

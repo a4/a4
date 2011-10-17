@@ -1,0 +1,23 @@
+package a4.root.test;
+
+import "a4/root/RootExtension.proto";
+
+message Photon {
+    optional double pt = 1 [(root_branch)="pt"];
+}
+
+message DiPhoton {
+    repeated int32 index = 1 [(root_branch)="index"];
+}
+
+message Event {    
+    optional int32 CLASS_ID = 0xBEEF;
+    
+    optional uint32 run_number = 1 [(root_branch)="RunNumber"]; 
+    optional uint32 event_number = 2 [(root_branch)="EventNumber"]; 
+    
+    repeated Photon photons = 100 [(root_prefix)="ph_"];
+    repeated double photon_pts = 101 [(root_branch)="ph_pt"];
+    
+    repeated DiPhoton di_photons = 102 [(root_prefix)="diphoton_ph_"];
+}
