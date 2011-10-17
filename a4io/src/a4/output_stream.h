@@ -92,6 +92,7 @@ namespace a4{ namespace io{
             uint32_t find_class_id(const google::protobuf::Descriptor * d, bool metadata);
             
             std::map<const google::protobuf::Descriptor *, uint32_t> _class_id;
+            std::vector<int> _class_id_counts;
             bool have_written_classid(const uint32_t& classid) { return _written_classids.find(classid) != _written_classids.end(); }
             void set_written_classid(const uint32_t& classid) { _written_classids.insert(classid); }
     };

@@ -48,7 +48,7 @@ OutputStream::OutputStream(const string &output_file,
     _next_class_id(0),
     _next_metadata_class_id(1)
 {
-
+    _class_id_counts.resize(200);
 }
 
 OutputStream::OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream> out,
@@ -64,6 +64,7 @@ OutputStream::OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream> ou
     _written_file_descriptors(new ::google::protobuf::SimpleDescriptorDatabase())
 {
     _raw_out = out;
+    _class_id_counts.resize(200);
 }
 
 OutputStream::~OutputStream()
@@ -226,6 +227,13 @@ bool OutputStream::write_footer() {
         footer.add_metadata_offsets(metadata_positions[i]);
     for (uint32_t i = 0; i < protoclass_positions.size(); i++)
         footer.add_protoclass_offsets(protoclass_positions[i]);
+    for (uint32_t i = 0; i < _class_id_counts.size(); i++) {
+        if (_class_id_counts[i] > 0) {
+            ClassCount * cc = footer.add_class_count();
+            cc->set_class_id(i);
+            cc->set_count(_class_id_counts[i]);
+        }
+    }
     write(_fixed_class_id<StreamFooter>(), footer);
     _coded_out->WriteLittleEndian32(footer.ByteSize());
     _coded_out->WriteString(END_MAGIC);
@@ -273,12 +281,16 @@ void OutputStream::write_protoclass(uint32_t class_id, const google::protobuf::D
     } else {
         protoclass_positions.push_back(get_bytes_written());
     }
+    if (class_id >= _class_id_counts.size()) {
+        _class_id_counts.resize(class_id+1);
+    }
     write(_fixed_class_id<ProtoClass>(), a4proto);
 }
 
 bool OutputStream::write(uint32_t class_id, const google::protobuf::Message &msg)
 {
     if (_coded_out->ByteCount() > 100000000) reset_coded_stream();
+    _class_id_counts[class_id]++;
 
     string message;
     if (!msg.SerializeToString(&message))
