@@ -93,7 +93,7 @@ class D3PDObject(object):
         self.variables = [v for v in self.variables if v.name != "n"]
 
 class VariableBase(object):
-    arity, type, name, number, extra, comment = "optional", "unk", "unk", "#", "", ""
+    label, type, name, number, extra, comment = "optional", "unk", "unk", "#", "", ""
 
 TYPECODE_MAP = {
     "I": "int32",
@@ -141,7 +141,7 @@ class VariablePlain(VariableBase):
     """
     def __init__(self, var, parent, defaults):
         self.name = MANUAL_FIXUP.get(var.name, var.name)
-        self.arity, self.type = type_name(var.typecode)
+        self.label, self.type = type_name(var.typecode)
         self.parent = parent
         default = ""
         name = parent.classname + "." + self.name
@@ -175,7 +175,7 @@ class VariableMessage(VariableBase):
                 self.name += "es"
             else:
                 self.name += "s"
-            self.arity = "repeated"
+            self.label = "repeated"
             self.extra = ' [(root_prefix)="{0}"]'.format(obj.prefix)
         self.type = obj.classname
 
@@ -194,7 +194,7 @@ class ProtoFile(object):
     @property
     def content_variables(self):
         PROTO_VARIABLE = dedent("""
-            {v.arity} {v.type} {v.name} = {count}{v.extra}; {v.comment}
+            {v.label} {v.type} {v.name} = {count}{v.extra};{v.comment}
         """).strip()
         
         variables = []
