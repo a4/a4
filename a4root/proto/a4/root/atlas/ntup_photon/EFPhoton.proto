@@ -5,7 +5,7 @@ message EFPhoton {
     optional float E = 1 [(root_branch)="E"]; 
     optional float Et = 2 [(root_branch)="Et"]; 
     optional float pt = 3 [(root_branch)="pt"]; 
-    optional float m = 4 [(root_branch)="m"]; 
+    optional float m = 4 [(root_branch)="m", default=0.0]; 
     optional float eta = 5 [(root_branch)="eta"]; 
     optional float phi = 6 [(root_branch)="phi"]; 
     optional float px = 7 [(root_branch)="px"]; 
@@ -54,21 +54,21 @@ message EFPhoton {
     optional int32 EF_g80_loose = 211 [(root_branch)="EF_g80_loose"]; 
     optional int32 EF_g80_loose_larcalib = 212 [(root_branch)="EF_g80_loose_larcalib"]; 
     
-    optional int32 author = 300 [(root_branch)="author"]; 
+    optional int32 author = 300 [(root_branch)="author", default=64]; 
     
-    optional int32 isRecovered = 400 [(root_branch)="isRecovered"]; 
+    optional int32 isRecovered = 400 [(root_branch)="isRecovered", default=0]; 
     
-    optional uint32 isEM = 500 [(root_branch)="isEM"]; 
+    optional uint32 isEM = 500 [(root_branch)="isEM", default=0]; 
     
-    optional int32 convFlag = 600 [(root_branch)="convFlag"]; 
-    optional int32 isConv = 601 [(root_branch)="isConv"]; 
-    optional int32 nConv = 602 [(root_branch)="nConv"]; 
-    optional int32 nSingleTrackConv = 603 [(root_branch)="nSingleTrackConv"]; 
-    optional int32 nDoubleTrackConv = 604 [(root_branch)="nDoubleTrackConv"]; 
+    optional int32 convFlag = 600 [(root_branch)="convFlag", default=0]; 
+    optional int32 isConv = 601 [(root_branch)="isConv", default=0]; 
+    optional int32 nConv = 602 [(root_branch)="nConv", default=0]; 
+    optional int32 nSingleTrackConv = 603 [(root_branch)="nSingleTrackConv", default=0]; 
+    optional int32 nDoubleTrackConv = 604 [(root_branch)="nDoubleTrackConv", default=0]; 
     
-    optional int32 loose = 700 [(root_branch)="loose"]; 
-    optional int32 tight = 701 [(root_branch)="tight"]; 
-    optional int32 tightIso = 702 [(root_branch)="tightIso"]; 
+    optional int32 loose = 700 [(root_branch)="loose", default=1]; 
+    optional int32 tight = 701 [(root_branch)="tight", default=1]; 
+    optional int32 tightIso = 702 [(root_branch)="tightIso", default=1]; 
     
     optional float Ethad = 800 [(root_branch)="Ethad"]; 
     optional float Ethad1 = 801 [(root_branch)="Ethad1"]; 

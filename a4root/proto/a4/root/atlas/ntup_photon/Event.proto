@@ -1,7 +1,5 @@
 package a4.root.atlas.ntup_photon;
-
 import "a4/root/RootExtension.proto";
-
 import "a4/root/atlas/ntup_photon/BeamSpot.proto";
 import "a4/root/atlas/ntup_photon/BunchConfigID.proto";
 import "a4/root/atlas/ntup_photon/ChainEntry.proto";
@@ -27,7 +25,6 @@ import "a4/root/atlas/ntup_photon/TrigPhoton.proto";
 
 message Event {
     
-    optional int32 CLASS_ID = 0xBEEF;
     
     optional uint32 run_number = 1 [(root_branch)="RunNumber"]; 
     optional uint32 event_number = 2 [(root_branch)="EventNumber"]; 
@@ -35,9 +32,9 @@ message Event {
     optional uint32 timestamp = 100 [(root_branch)="timestamp"]; 
     optional uint32 timestamp_ns = 101 [(root_branch)="timestamp_ns"]; 
     
-    optional uint32 lbn = 200 [(root_branch)="lbn"]; 
+    optional uint32 lbn = 200 [(root_branch)="lbn", default=10]; 
     
-    optional uint32 bcid = 300 [(root_branch)="bcid"]; 
+    optional uint32 bcid = 300 [(root_branch)="bcid", default=148]; 
     
     optional uint32 detmask0 = 400 [(root_branch)="detmask0"]; 
     optional uint32 detmask1 = 401 [(root_branch)="detmask1"]; 
@@ -58,7 +55,7 @@ message Event {
     optional uint32 sctError = 701 [(root_branch)="sctError"]; 
     optional uint32 trtError = 702 [(root_branch)="trtError"]; 
     optional uint32 larError = 703 [(root_branch)="larError"]; 
-    optional uint32 tileError = 704 [(root_branch)="tileError"]; 
+    optional uint32 tileError = 704 [(root_branch)="tileError", default=0]; 
     optional uint32 muonError = 705 [(root_branch)="muonError"]; 
     optional uint32 fwdError = 706 [(root_branch)="fwdError"]; 
     optional uint32 coreError = 707 [(root_branch)="coreError"]; 
@@ -97,6 +94,5 @@ message Event {
     repeated EFElectron efelectrons = 738 [(root_prefix)="trig_EF_el_"]; 
     repeated EFPhoton efphotons = 739 [(root_prefix)="trig_EF_ph_"]; 
     repeated ChainEntry chain_entries = 740 [(root_prefix)="trig_Nav_"]; 
-
+    
 }
-
