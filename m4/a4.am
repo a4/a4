@@ -15,14 +15,10 @@ install-exec-hook:
 	$(AM_V_GEN)if ! test -f $(DESTDIR)$(bindir)/python; then $(LN_S) -f `which $(PYTHON)` $(DESTDIR)$(bindir)/python; fi
 
 .pc_in.pc:
-	$(AM_V_GEN)sed -e 's![@]prefix[@]!$(prefix)!g' \
-            -e 's![@]exec_prefix[@]!$(exec_prefix)!g' \
-            -e 's![@]includedir[@]!$(includedir)!g' \
-            -e 's![@]libdir[@]!$(libdir)!g' \
-            -e 's![@]PACKAGE_VERSION[@]!$(PACKAGE_VERSION)!g' \
-            -e 's![@]PROTOBUF_ROOT[@]!$(PROTOBUF_ROOT)!g' \
-            -e 's![@]BOOST_LDFLAGS[@]!$(BOOST_LDFLAGS)!g' \
-            -e 's![@]BOOST_LIBS[@]!$(BOOST_LIBS)!g' \
+	$(AM_V_GEN)sed -e 's![$$](prefix)!$(prefix)!g' \
+            -e 's![$$](exec_prefix)!$(exec_prefix)!g' \
+            -e 's![$$](includedir)!$(includedir)!g' \
+            -e 's![$$](libdir)!$(libdir)!g' \
             $< > $@
 
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 build-aux/compile \

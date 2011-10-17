@@ -27,6 +27,7 @@ A4_GTEST_CHECK
 
 # Enable this_a4.sh
 AC_CONFIG_FILES([m4/this_a4.sh.in:m4/this_a4.sh.ac])
+AC_CONFIG_FILES([m4/a4.pc_in:m4/a4.pc_ac])
 
 if test x${PACKAGE_NAME} != xa4; then
     AC_SUBST([A4_THIS_SCRIPT],[this_a4.sh])

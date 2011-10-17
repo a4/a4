@@ -1,4 +1,5 @@
 alias protoc=@PROTOBUF_PROTOC@
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:${prefix}/lib/pkgconfig
 export PROTOBUF_PROTOC=@PROTOBUF_PROTOC@
 
 if test "x@PROTOBUF_ROOT@" != "x"; then
