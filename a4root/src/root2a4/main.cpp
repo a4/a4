@@ -19,13 +19,11 @@ using google::protobuf::Descriptor;
 #include "common.h"
 
 #include "a4/root/atlas/ntup_photon/Event.pb.h"
-#include "a4/root/atlas/ntup_photon/Metadata.pb.h"
 
 #include "a4/root/test/Event.pb.h"
 
 A4RegisterClass(a4::root::test::Event);
 A4RegisterClass(a4::root::atlas::ntup_photon::Event);
-A4RegisterClass(a4::root::atlas::ntup_photon::Metadata);
 
 
 /// Builds a RootToMessageFactory when Notify() is called.
