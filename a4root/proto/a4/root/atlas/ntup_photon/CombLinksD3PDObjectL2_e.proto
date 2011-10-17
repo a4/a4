@@ -1,0 +1,30 @@
+import "a4/root/RootExtension.proto";
+
+message CombLinksD3PDObjectL2_e {
+    optional int32 type = 1 [(root_branch)="type"];
+    optional int32 active = 2 [(root_branch)="active"];
+    optional int32 lastStep = 3 [(root_branch)="lastStep"];
+    
+    optional int32 TENumber = 100 [(root_branch)="TENumber"];
+    optional int32 roiNumber = 101 [(root_branch)="roiNumber"];
+    
+    optional int32 TrigRoiDescriptor_TrigT2CaloEgamma = 200 [(root_branch)="TrigRoiDescriptor_TrigT2CaloEgamma"];
+    optional int32 TrigRoiDescriptor_TrigT2CaloEgammaStatus = 201 [(root_branch)="TrigRoiDescriptor_TrigT2CaloEgammaStatus"];
+    
+    optional int32 TrigEMCluster = 300 [(root_branch)="TrigEMCluster"];
+    optional int32 TrigEMClusterStatus = 301 [(root_branch)="TrigEMClusterStatus"];
+    
+    optional int32 EmTau_ROI = 400 [(root_branch)="EmTau_ROI"];
+    optional int32 EmTau_ROIStatus = 401 [(root_branch)="EmTau_ROIStatus"];
+    
+    repeated int32 TrigInDetTrackCollection_TrigSiTrack_eGamma = 500 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_eGamma"];
+    repeated int32 TrigInDetTrackCollection_TrigSiTrack_eGammaStatus = 501 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_eGammaStatus"];
+    repeated int32 TrigInDetTrackCollection_TrigIDSCAN_eGamma = 502 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_eGamma"];
+    repeated int32 TrigInDetTrackCollection_TrigIDSCAN_eGammaStatus = 503 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_eGammaStatus"];
+    
+    repeated int32 TrigElectronContainer = 600 [(root_branch)="TrigElectronContainer"];
+    repeated int32 TrigElectronContainerStatus = 601 [(root_branch)="TrigElectronContainerStatus"];
+    repeated int32 TrigPhotonContainer = 602 [(root_branch)="TrigPhotonContainer"];
+    repeated int32 TrigPhotonContainerStatus = 603 [(root_branch)="TrigPhotonContainerStatus"];
+    
+}

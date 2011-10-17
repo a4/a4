@@ -3,6 +3,7 @@
 import re
 
 from difflib import SequenceMatcher
+from os.path import exists
 from sys import argv
 from textwrap import dedent
 
@@ -26,7 +27,36 @@ MANUAL_FIXUP = {
     "jet_AntiKt6TopoEMJets_": "jets_6",
     "trig_L2_trk_idscan_eGamma_": "trig_in_det_tracks_idscan",
     "trig_L2_trk_sitrack_eGamma_": "trig_in_det_tracks_sitrack",
-    "trig_EF_emcl_slw_": "clusters_slw",    
+    "trig_EF_emcl_": "clusters_emcl",
+    "trig_EF_emcl_slw_": "clusters_emcl_slw",
+    "jet_AntiKt4TruthJets_": "truth_jets_4",
+    "jet_AntiKt6TruthJets_": "truth_jets_6",
+    "jet_AntiKt4TruthWithMuNoIntJets_": "truth_jets_4_mu_noint",
+    "jet_AntiKt6TruthWithMuNoIntJets_": "truth_jets_6_mu_noint",
+    """
+    "MET_LocHadTopo_": "lochad_top_met",
+    "MET_Cryo_": "met_cryo",
+    "MET_RefFinal_": "met_reffinal",
+    "MET_RefEle_": "met_ele",
+    "MET_RefJet_": "met_jet",
+    "MET_RefMuon_": "met_muon",
+    "MET_RefMuon_Staco_": "met_muon_staco",
+    "MET_RefMuon_Muid_": "met_muon_muid",
+    "MET_RefGamma_": "met_gamma",
+    "MET_RefTau_": "met_tau",
+    "MET_CellOut_": "met_cellout",
+    "MET_MuonBoy_": "met_muonboy",
+    "MET_MuonBoy_Track_": "met_muonboy_track",
+    "MET_Final_": "met_final",
+    """:None
+}
+
+# Mappings from prefixes to class names
+MANUAL_CLASSNAME_FIXUP = {
+    "PhotonPV_": "PhotonPrimaryVertex",
+    "jet_AntiKt4TruthJets_" : "JetTruth",
+    "met_": "MET",
+    "el_as_conv_ph_": "ElAsPh",
 }
 
 def space_out_camel_case(stringAsCamelCase):
@@ -72,19 +102,14 @@ def similarity(prev, this):
 class D3PDVariable(object):
     def __init__(self, args, parent):
         self.typecode, self.name, self.primitive, self.has_root_tclass = args
-        self.parent = parent
-    
-    @property
-    def prefix(self):
-        return self.parent.prefix
-        
+        self.name = self.name.replace("::", "_")
+        self.parent = parent        
 
-class D3PDObject(object):
+class D3PDObjectClass(object):
     def __init__(self, args):
-        self.prefix = args["prefix"] or ""
-        self.classname = args["classname"]
-        if self.classname.endswith("D3PDObject"):
-            self.classname = self.classname[:-len("D3PDObject")]
+        self.name = args["classname"].replace("::", "_")
+        if self.name.endswith("D3PDObject"):
+            self.name = self.name[:-len("D3PDObject")]
         self.is_container = args["is_container"]
         self._variables = args["variables"] or []
         self.variables = [D3PDVariable(v, self) for v in self._variables]
@@ -97,6 +122,7 @@ class VariableBase(object):
 
 TYPECODE_MAP = {
     "I": "int32",
+    "B": "int32",
     "i": "uint32",
     "F": "float",
     "D": "double",
@@ -140,50 +166,56 @@ class VariablePlain(VariableBase):
     Represents a plain-old-data variable
     """
     def __init__(self, var, parent, defaults):
+        self.orig_name = var.name
         self.name = MANUAL_FIXUP.get(var.name, var.name)
         self.label, self.type = type_name(var.typecode)
         self.parent = parent
         default = ""
-        name = parent.classname + "." + self.name
+        name = parent.name + "." + self.name
         if name in defaults:
             best_count, best_value = defaults[name][-1]
             if isinstance(best_value, bool):
                 best_value = str(best_value).lower()
             if best_count > 10:
                 default = ', default={0}'.format(best_value)
-        self.extra = ' [(root_branch)="{1}"{2}]'.format(var.prefix, var.name, default)
+        self.extra = ' [(root_branch)="{0}"{1}]'.format(var.name, default)
         
 class VariableMessage(VariableBase):
     """
     Represents an (optionally) repeated message variable
     """
-    def __init__(self, f):
-        obj = f.obj
-        self.name = space_out_camel_case(obj.classname)
+    def __init__(self, f, prefix, cls):
+        self.name = space_out_camel_case(cls.name)
+        self.orig_name = prefix
         
-        if self.name == obj.classname:
-            self.name = obj.classname.lower()
+        if self.name == cls.name:
+            self.name = cls.name.lower()
         
-        assert self.name != obj.classname, "{0} {1}".format(self.name, obj.classname)
-        if obj.is_container:
-            if obj.prefix in MANUAL_FIXUP:
-                self.name = MANUAL_FIXUP[obj.prefix]
-                
+        # Ensure that the name is different to the class name
+        assert self.name != cls.name, "{0} {1}".format(self.name, cls.name)
+        self.name = MANUAL_FIXUP.get(prefix, self.name)
+        
+        if cls.is_container:
+            if prefix in MANUAL_FIXUP:
+                "Don't correction"
             elif self.name.endswith("y"): # Pluralize
                 self.name = self.name[:-1] + "ies"
             elif self.name.endswith("s"):
                 self.name += "es"
+            elif self.name.endswith("ex"):
+                self.name =  self.name[:-len("ex")] + "ices"
             else:
                 self.name += "s"
             self.label = "repeated"
-            self.extra = ' [(root_prefix)="{0}"]'.format(obj.prefix)
-        self.type = obj.classname
+            
+        self.extra = ' [(root_prefix)="{0}"]'.format(prefix)
+        self.type = cls.name
 
 class ProtoFile(object):
-    def __init__(self, obj):
-        self.obj = obj
+    def __init__(self, cls):
+        self.cls = cls
         self.package = None
-        self.name = obj.classname
+        self.name = cls.name
         self.children = []
         self.extensions = []
     
@@ -197,47 +229,65 @@ class ProtoFile(object):
             {v.label} {v.type} {v.name} = {count}{v.extra};{v.comment}
         """).strip()
         
-        variables = []
-        extend, append = variables.extend, variables.append
+        content = []
+        extend, append = content.extend, content.append
         newline = lambda: append("")
         
         count = 1
-        from json import load
-        defaults = load(open("defaults"))
+        if exists("defaults"):
+            from json import load
+            defaults = load(open("defaults"))
+        
+        variables = []
         
         # Us and our extensions
-        for e in [self.obj] + self.extensions:
-            newline()
-            prev = None
-            for v in e.variables:
-                if prev and similarity(prev.name, v.name) < 0.4:
-                    newline()
-                    count += 100
-                    count = count - (count % 100)
-                s = similarity(prev.name if prev else "", v.name)
-                append(PROTO_VARIABLE.format(v=VariablePlain(v, self.obj, defaults), s=s, count=count))
-                prev = v
-                count += 1
+        for extension in [self.cls] + self.extensions:
+            for variable in extension.variables:
+                variables.append(VariablePlain(variable, self.cls, defaults))
         
-        newline()
+        # Subclasses 
+        for prefix, cls in self.children:
+            variables.append(VariableMessage(self, prefix, cls))
         
-        # Child objects
-        for c in self.children:
-            append(PROTO_VARIABLE.format(v=VariableMessage(c), count=count))
+        collisions = {}
+        for variable in variables:
+            collisions.setdefault(variable.name, []).append(variable)
+        
+        # Fix collisions
+        for name, vs in sorted(collisions.iteritems()):
+            if len(vs) <= 1:
+                # It's okay, we only have one name
+                continue
+            
+            for v in vs:
+                v.name = v.orig_name.lower().rstrip("_")
+        
+        # Generate the text (body of the message) for these variables
+        prev = None
+        for variable in variables:            
+            if not variable:
+                continue
+                       
+            if prev and similarity(prev.name, variable.name) < 0.4:
+                newline()
+                count += 100
+                count = count - (count % 100)
+                
+            append(PROTO_VARIABLE.format(v=variable, count=count))
+            prev = variable
             count += 1
         
         newline()
             
-        return "\n    ".join(variables)
+        return "\n    ".join(content)
         
-    @property
-    def content(self):
+    def content(self, package_name):
         PROTO_HEADER = dedent("""
             import "a4/root/RootExtension.proto";
         """).strip()
     
         PROTO_INCLUDES = dedent("""
-            import "a4/root/atlas/ntup_photon/{0}";
+            import "a4/root/atlas/{0}/{1}.proto";
         """).strip()
 
         PROTO_MESSAGE = dedent("""
@@ -246,11 +296,11 @@ class ProtoFile(object):
             }}
         """).strip()
         
-        includes = sorted(set(c.filename for c in self.children))
+        includes = sorted(set(c.file.name for _, c in self.children))
         return "\n".join(
-            ([] if not self.package else ["package {0};".format(self.package)]) +
+            ["package {0};".format(package_name)] +
             [PROTO_HEADER] +
-            [PROTO_INCLUDES.format(name) for name in includes] +
+            [PROTO_INCLUDES.format(package_name, name) for name in includes] +
             [""] +
             [PROTO_MESSAGE.format(m=self)]
         )
@@ -263,29 +313,46 @@ class ProtoFile(object):
 
 def generate_proto(input_stream):
     class Event:
-        classname = "Event"
+        name = "Event"
         variables = []
         
     event = ProtoFile(Event)
     files, file_map = [event], {'': event}
     
     # TODO: Also need a mapping between classname (+ crosscheck)
-    
+        
+    from pprint import pprint
+        
+    class_lookup = {}
+        
     for i, obj in enumerate(load_all(input_stream)):
-        obj = D3PDObject(obj)
-        print "Read one: {0:20s} {1}".format(obj.classname, obj.prefix)
-        
-        if not obj.variables:
-            print " -- skipping"
+        #pprint(obj)
+        if not obj["variables"]:
+            print " -- skipping", obj["classname"], "because no variables"
             continue
-        
-        if obj.prefix in file_map:
             
-            file_map[obj.prefix].extend(obj)
+        prefix = obj["prefix"] or ""
+        
+        varset = frozenset(map(tuple, obj["variables"]))
+        if varset in class_lookup:
+            cls = class_lookup[varset]
+        else:
+            cls = class_lookup[varset] = D3PDObjectClass(obj)
+        print "Read one: {0:20s} {1}".format(cls.name, prefix)
+        
+        if cls.name.startswith("D3PDObject"):
+            if prefix in MANUAL_CLASSNAME_FIXUP:
+                cls.name = MANUAL_CLASSNAME_FIXUP[prefix]
+        
+        if prefix in file_map:
+            # This shares a prefix with an existing object, so it extends the
+            # fields of that object
+            file_map[prefix].extend(cls)
+            cls.file = file_map[prefix]
             continue
         
-        f = file_map[obj.prefix] = ProtoFile(obj)
-        event.append(f)
+        cls.file = f = file_map[prefix] = ProtoFile(cls)
+        event.append((prefix, cls))
         files.append(f)
         
         #if i > 10: break
@@ -294,16 +361,20 @@ def generate_proto(input_stream):
     
 
 def main():
-    for filename in argv[1:]:
+    #package_name = "ntup_photon"
+    
+    package_name = argv[1]
+
+    for filename in argv[2:]:
         with open(filename) as fd:
             files = generate_proto(fd)
             
     for output in files:
         if output.name == "Event":
-            output.package = "a4.root.atlas.ntup_photon"
+            output.package = "a4.root.atlas." + package_name
             
-        with open("ntup_photon/" + output.filename, "w") as fd:
-            fd.write(output.content)
+        with open(package_name + "/" + output.filename, "w") as fd:
+            fd.write(output.content(package_name))
     
     print "All types seen:"
     print " ", "\n  ".join(sorted(ALL_TYPES_SEEN))

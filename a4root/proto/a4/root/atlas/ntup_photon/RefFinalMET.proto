@@ -1,0 +1,27 @@
+import "a4/root/RootExtension.proto";
+
+message RefFinalMET {
+    optional float etx = 1 [(root_branch)="etx"];
+    optional float ety = 2 [(root_branch)="ety"];
+    
+    optional float phi = 100 [(root_branch)="phi"];
+    
+    optional float et = 200 [(root_branch)="et"];
+    optional float sumet = 201 [(root_branch)="sumet"];
+    
+    optional float etx_CentralReg = 300 [(root_branch)="etx_CentralReg"];
+    optional float ety_CentralReg = 301 [(root_branch)="ety_CentralReg"];
+    optional float sumet_CentralReg = 302 [(root_branch)="sumet_CentralReg"];
+    optional float phi_CentralReg = 303 [(root_branch)="phi_CentralReg"];
+    
+    optional float etx_EndcapRegion = 400 [(root_branch)="etx_EndcapRegion"];
+    optional float ety_EndcapRegion = 401 [(root_branch)="ety_EndcapRegion"];
+    optional float sumet_EndcapRegion = 402 [(root_branch)="sumet_EndcapRegion"];
+    optional float phi_EndcapRegion = 403 [(root_branch)="phi_EndcapRegion"];
+    
+    optional float etx_ForwardReg = 500 [(root_branch)="etx_ForwardReg"];
+    optional float ety_ForwardReg = 501 [(root_branch)="ety_ForwardReg"];
+    optional float sumet_ForwardReg = 502 [(root_branch)="sumet_ForwardReg"];
+    optional float phi_ForwardReg = 503 [(root_branch)="phi_ForwardReg"];
+    
+}

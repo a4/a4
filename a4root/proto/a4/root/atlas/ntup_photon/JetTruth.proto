@@ -1,0 +1,18 @@
+import "a4/root/RootExtension.proto";
+
+message JetTruth {
+    optional float E = 1 [(root_branch)="E"];
+    optional float pt = 2 [(root_branch)="pt"];
+    optional float m = 3 [(root_branch)="m"];
+    optional float eta = 4 [(root_branch)="eta"];
+    optional float phi = 5 [(root_branch)="phi"];
+    
+    repeated float shapeBins = 100 [(root_branch)="shapeBins"];
+    
+    optional double flavor_truth_dRminToB = 200 [(root_branch)="flavor_truth_dRminToB"];
+    optional double flavor_truth_dRminToC = 201 [(root_branch)="flavor_truth_dRminToC"];
+    optional double flavor_truth_dRminToT = 202 [(root_branch)="flavor_truth_dRminToT"];
+    optional int32 flavor_truth_BHadronpdg = 203 [(root_branch)="flavor_truth_BHadronpdg"];
+    optional int32 flavor_truth_trueflav = 204 [(root_branch)="flavor_truth_trueflav"];
+    
+}

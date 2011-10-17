@@ -1,0 +1,21 @@
+import "a4/root/RootExtension.proto";
+
+message CombLinksD3PDObjectEF_e {
+    optional int32 type = 1 [(root_branch)="type"];
+    optional int32 active = 2 [(root_branch)="active"];
+    optional int32 lastStep = 3 [(root_branch)="lastStep"];
+    
+    optional int32 TENumber = 100 [(root_branch)="TENumber"];
+    optional int32 roiNumber = 101 [(root_branch)="roiNumber"];
+    
+    optional int32 EmTau_ROI = 200 [(root_branch)="EmTau_ROI"];
+    optional int32 EmTau_ROIStatus = 201 [(root_branch)="EmTau_ROIStatus"];
+    
+    repeated int32 Rec::TrackParticleContainer_HLT_InDetTrigParticleCreation_Electron_EFID = 300 [(root_branch)="Rec::TrackParticleContainer_HLT_InDetTrigParticleCreation_Electron_EFID"];
+    repeated int32 Rec::TrackParticleContainer_HLT_InDetTrigParticleCreation_Electron_EFIDStatus = 301 [(root_branch)="Rec::TrackParticleContainer_HLT_InDetTrigParticleCreation_Electron_EFIDStatus"];
+    repeated int32 egammaContainer_egamma_Electrons = 302 [(root_branch)="egammaContainer_egamma_Electrons"];
+    repeated int32 egammaContainer_egamma_ElectronsStatus = 303 [(root_branch)="egammaContainer_egamma_ElectronsStatus"];
+    repeated int32 egammaContainer_egamma_Photons = 304 [(root_branch)="egammaContainer_egamma_Photons"];
+    repeated int32 egammaContainer_egamma_PhotonsStatus = 305 [(root_branch)="egammaContainer_egamma_PhotonsStatus"];
+    
+}
