@@ -14,12 +14,12 @@ namespace a4{ namespace io{
 
         using google::protobuf::DynamicMessageFactory;
 
-        if (d == descriptor) return message;
+        if (d == descriptor()) return message;
         unique<DynamicMessageFactory> _message_factory(new DynamicMessageFactory(p));
         shared<Message> m(_message_factory->GetPrototype(d)->New());
         // Do version checking if the dynamic descriptors are different
         if (d != _dynamic_descriptor) {
-            const google::protobuf::Descriptor* my_d = _dynamic_descriptor ? _dynamic_descriptor : descriptor;
+            const google::protobuf::Descriptor* my_d = _dynamic_descriptor ? _dynamic_descriptor : descriptor();
 
             std::string mymajor = my_d->options().GetExtension(major_version);
             std::string myminor = my_d->options().GetExtension(minor_version);
@@ -43,19 +43,23 @@ namespace a4{ namespace io{
 
         // Find out which descriptor to use. Prefer dynamic descriptors
         // since they are probably contain all fields.
+        uint32_t clsid;
         const Descriptor * d;
         shared<DescriptorPool> sp;
         const DescriptorPool * p;
         if (_dynamic_descriptor) {
+            clsid = class_id();
             d = _dynamic_descriptor;
             sp = _pool;
             p = sp.get(); 
         } else if (_m2._dynamic_descriptor) {
+            clsid = _m2.class_id();
             d = _m2._dynamic_descriptor;
             sp = _m2._pool;
             p = sp.get();
         } else {
-            d = descriptor;
+            clsid = class_id();
+            d = descriptor();
             p = DescriptorPool::generated_pool();
         }
 
@@ -90,11 +94,11 @@ namespace a4{ namespace io{
                     throw a4::Fatal("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
             }
         }
-        return A4Message(merged, d, d, sp);
+        return A4Message(clsid, merged, d, d, sp);
     }
     
     std::string A4Message::field_as_string(const std::string & field_name) {
-        const FieldDescriptor* fd = descriptor->FindFieldByName(field_name);
+        const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         DynamicField f(*message, fd);
         if (f.repeated()) {
             std::stringstream ss;

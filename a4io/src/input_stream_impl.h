@@ -65,8 +65,11 @@ namespace a4{ namespace io{
             bool read_header();
             int64_t seek(int64_t position);
             int64_t seek_back(int64_t position);
-            std::tuple<A4Message,uint32_t> next_message();
-            A4Message next_message_msg() {return std::get<0>(next_message());};
+            A4Message bare_message();
+            A4Message next_message();
+            bool handle_compressed_section(A4Message & msg);
+            bool handle_stream_command(A4Message & msg);
+            bool handle_metadata(A4Message & msg);
 
             // set error/end status and return A4Message
             A4Message set_error();
