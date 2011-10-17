@@ -1,7 +1,7 @@
 ---
 prefix: 
 classname: EventInfoD3PDObject
-tool: A4DumpAlg_PhotonD3PD.Unnamed_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.Unnamed_Filler
 is_container: 0
 variables: 
   - ['i', 'RunNumber', True, False]
@@ -14,6 +14,9 @@ variables:
   - ['i', 'detmask1', True, False]
   - ['F', 'actualIntPerXing', True, False]
   - ['F', 'averageIntPerXing', True, False]
+  - ['i', 'mc_channel_number', True, False]
+  - ['i', 'mc_event_number', True, False]
+  - ['F', 'mc_event_weight', True, False]
   - ['i', 'pixelFlags', True, False]
   - ['i', 'sctFlags', True, False]
   - ['i', 'trtFlags', True, False]
@@ -30,16 +33,19 @@ variables:
   - ['i', 'muonError', True, False]
   - ['i', 'fwdError', True, False]
   - ['i', 'coreError', True, False]
+  - ['O', 'isSimulation', True, False]
+  - ['O', 'isCalibration', True, False]
+  - ['O', 'isTestBeam', True, False]
 ---
 prefix: lar_
 classname: LArCollisionTimeD3PDObject
-tool: A4DumpAlg_PhotonD3PD.lar_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.lar_Filler
 is_container: 0
 variables: 
 ---
 prefix: mb_
 classname: MBTSD3PDObject
-tool: A4DumpAlg_PhotonD3PD.mb_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.mb_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -54,7 +60,7 @@ variables:
 ---
 prefix: mbtime_
 classname: MBTSTimeD3PDObject
-tool: A4DumpAlg_PhotonD3PD.mbtime_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.mbtime_Filler
 is_container: 0
 variables: 
   - ['F', 'timeDiff', True, False]
@@ -65,12 +71,9 @@ variables:
 ---
 prefix: 
 classname: MBTSTriggerBitsD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MBTSTriggerBits
+tool: A4DumpAlgStreamNTUP_PHOTON.MBTSTriggerBits
 is_container: 0
 variables: 
-  - ['O', 'L1_MBTS_1', True, False]
-  - ['O', 'L1_MBTS_1_1', True, False]
-  - ['O', 'L1_MBTS_1_1_UNPAIRED_ISO', True, False]
   - ['O', 'L1_MBTS_2', True, False]
   - ['O', 'L1_MBTS_2_BGRP7', True, False]
   - ['O', 'L1_MBTS_2_UNPAIRED_ISO', True, False]
@@ -79,7 +82,7 @@ variables:
 ---
 prefix: collcand_
 classname: CollisionDecisionD3PDObject
-tool: A4DumpAlg_PhotonD3PD.collcand_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.collcand_Filler
 is_container: 0
 variables: 
   - ['O', 'passCaloTime', True, False]
@@ -87,9 +90,55 @@ variables:
   - ['O', 'passTrigger', True, False]
   - ['O', 'pass', True, False]
 ---
+prefix: trk_
+classname: TrackParticleD3PDObject
+tool: A4DumpAlgStreamNTUP_PHOTON.trk_Filler
+is_container: 1
+variables: 
+  - ['I', 'n', True, False]
+  - ['std::vector<float,std::allocator<float> >*', 'd0', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'z0', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'phi', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'theta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'qoverp', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'pt', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'eta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'd0_wrtPV', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'z0_wrtPV', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'phi_wrtPV', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'd0_wrtBS', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'z0_wrtBS', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'phi_wrtBS', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'chi2', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'ndof', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nBLHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nPixHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nSCTHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTRTHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTRTHighTHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nPixHoles', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nSCTHoles', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTRTHoles', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'expectBLayerHit', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nMDTHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nCSCEtaHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nCSCPhiHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nRPCEtaHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nRPCPhiHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTGCEtaHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTGCPhiHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nHits', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nHoles', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'hitPattern', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'TRTHighTHitsRatio', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'TRTHighTOutliersRatio', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'mc_probability', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'mc_barcode', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_weight', False, True]
+---
 prefix: beamSpot_
 classname: BeamSpotD3PDObject
-tool: A4DumpAlg_PhotonD3PD.beamSpot_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.beamSpot_Filler
 is_container: 0
 variables: 
   - ['F', 'x', True, False]
@@ -101,7 +150,7 @@ variables:
 ---
 prefix: mu_
 classname: MuonD3PDObject
-tool: A4DumpAlg_PhotonD3PD.mu_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.mu_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -161,7 +210,7 @@ variables:
 ---
 prefix: diphoton_
 classname: DiPhotonD3PDObject
-tool: A4DumpAlg_PhotonD3PD.diphoton_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.diphoton_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -230,7 +279,7 @@ variables:
 ---
 prefix: jet_AntiKt4TopoEMJets_
 classname: JetD3PDObject
-tool: A4DumpAlg_PhotonD3PD.jet_AntiKt4TopoEMJets_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.jet_AntiKt4TopoEMJets_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -239,6 +288,62 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'm', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'eta', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'phi', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'EtaOrigin', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PhiOrigin', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'MOrigin', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'EtaOriginEM', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PhiOriginEM', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'MOriginEM', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'WIDTH', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'n90', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'Timing', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'LArQuality', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'nTrk', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'sumPtTrk', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'OriginIndex', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'HECQuality', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'NegativeE', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'AverageLArQF', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'YFlip12', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'YFlip23', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'BCH_CORR_CELL', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'BCH_CORR_DOTX', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'BCH_CORR_JET', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'BCH_CORR_JET_FORCELL', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ENG_BAD_CELLS', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'N_BAD_CELLS', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'N_BAD_CELLS_CORR', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'BAD_CELLS_CORR_E', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'NumTowers', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'SamplingMax', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'fracSamplingMax', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'hecf', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'tgap3f', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'isUgly', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'isBadLoose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'isBadMedium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'isBadTight', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emfrac', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'Offset', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'EMJES', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'EMJES_EtaCorr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'EMJESnooffset', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'GCWJES', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'GCWJES_EtaCorr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'CB', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'LCJES', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emscale_E', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emscale_pt', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emscale_m', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emscale_eta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emscale_phi', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'jvtx_x', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'jvtx_y', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'jvtx_z', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'jvtxf', False, True]
+  - ['std::vector<std::vector<float,std::allocator<float> >,std::allocator<std::vector<float,std::allocator<float> > > >*', 'jvtxfFull', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'GSCFactorF', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'WidthFraction', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'el_dr', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'el_matched', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'mu_dr', False, True]
@@ -249,44 +354,10 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'L2_matched', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'EF_dr', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_matched', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'WIDTH', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'n90', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'Timing', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'LArQuality', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'nTrk', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'sumPtTrk', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'OriginIndex', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'EMJES', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'HECQuality', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'NegativeE', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emfrac', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emscale_E', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emscale_pt', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emscale_m', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emscale_eta', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emscale_phi', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'hecf', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'tgap3f', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'isUgly', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'isBadLoose', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'isBadMedium', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'isBadTight', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'SamplingMax', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'fracSamplingMax', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'EtaOrigin', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'PhiOrigin', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'MOrigin', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'EtaOriginEM', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'PhiOriginEM', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'MOriginEM', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'jvtxf', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'jvtx_x', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'jvtx_y', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'jvtx_z', False, True]
 ---
 prefix: jet_AntiKt6TopoEMJets_
 classname: JetD3PDObject
-tool: A4DumpAlg_PhotonD3PD.jet_AntiKt6TopoEMJets_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.jet_AntiKt6TopoEMJets_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -295,6 +366,62 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'm', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'eta', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'phi', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'EtaOrigin', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PhiOrigin', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'MOrigin', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'EtaOriginEM', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PhiOriginEM', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'MOriginEM', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'WIDTH', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'n90', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'Timing', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'LArQuality', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'nTrk', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'sumPtTrk', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'OriginIndex', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'HECQuality', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'NegativeE', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'AverageLArQF', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'YFlip12', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'YFlip23', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'BCH_CORR_CELL', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'BCH_CORR_DOTX', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'BCH_CORR_JET', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'BCH_CORR_JET_FORCELL', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ENG_BAD_CELLS', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'N_BAD_CELLS', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'N_BAD_CELLS_CORR', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'BAD_CELLS_CORR_E', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'NumTowers', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'SamplingMax', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'fracSamplingMax', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'hecf', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'tgap3f', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'isUgly', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'isBadLoose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'isBadMedium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'isBadTight', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emfrac', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'Offset', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'EMJES', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'EMJES_EtaCorr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'EMJESnooffset', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'GCWJES', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'GCWJES_EtaCorr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'CB', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'LCJES', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emscale_E', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emscale_pt', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emscale_m', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emscale_eta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'emscale_phi', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'jvtx_x', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'jvtx_y', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'jvtx_z', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'jvtxf', False, True]
+  - ['std::vector<std::vector<float,std::allocator<float> >,std::allocator<std::vector<float,std::allocator<float> > > >*', 'jvtxfFull', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'GSCFactorF', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'WidthFraction', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'el_dr', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'el_matched', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'mu_dr', False, True]
@@ -305,51 +432,17 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'L2_matched', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'EF_dr', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_matched', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'WIDTH', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'n90', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'Timing', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'LArQuality', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'nTrk', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'sumPtTrk', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'OriginIndex', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'EMJES', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'HECQuality', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'NegativeE', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emfrac', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emscale_E', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emscale_pt', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emscale_m', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emscale_eta', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'emscale_phi', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'hecf', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'tgap3f', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'isUgly', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'isBadLoose', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'isBadMedium', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'isBadTight', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'SamplingMax', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'fracSamplingMax', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'EtaOrigin', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'PhiOrigin', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'MOrigin', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'EtaOriginEM', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'PhiOriginEM', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'MOriginEM', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'jvtxf', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'jvtx_x', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'jvtx_y', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'jvtx_z', False, True]
 ---
 prefix: bunch_
 classname: BunchConfigIDD3PDObject
-tool: A4DumpAlg_PhotonD3PD.BunchConfigIDFiller
+tool: A4DumpAlgStreamNTUP_PHOTON.BunchConfigIDFiller
 is_container: 0
 variables: 
   - ['i', 'configID', True, False]
 ---
 prefix: el_as_unconv_ph_
 classname: D3PDObject1
-tool: A4DumpAlg_PhotonD3PD.el_as_unconv_ph_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.el_as_unconv_ph_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -370,6 +463,9 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'etas3', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'phis3', False, True]
   - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEM', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMLoose', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMMedium', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMTight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tightIso', False, True]
@@ -393,7 +489,7 @@ variables:
 ---
 prefix: el_as_conv_ph_
 classname: D3PDObject2
-tool: A4DumpAlg_PhotonD3PD.el_as_conv_ph_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.el_as_conv_ph_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -414,6 +510,9 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'etas3', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'phis3', False, True]
   - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEM', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMLoose', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMMedium', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMTight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tightIso', False, True]
@@ -437,7 +536,7 @@ variables:
 ---
 prefix: ph_
 classname: PhotonD3PDObject
-tool: A4DumpAlg_PhotonD3PD.ph_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.ph_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -453,6 +552,9 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'author', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'isRecovered', False, True]
   - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEM', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMLoose', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMMedium', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMTight', False, True]
   - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'OQ', False, True]
   - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'OQRecalc', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'convFlag', False, True]
@@ -475,8 +577,13 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'truth_index', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'truth_matched', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'looseIso', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tightIso', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'looseAR', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'looseARIso', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightAR', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightARIso', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'goodOQ', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Ethad', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Ethad1', False, True]
@@ -721,6 +828,24 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'conv_dphi', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'conv_dist', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'conv_DR1R2', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_p', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_phi', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_theta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_perr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_phierr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_thetaerr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_GSF_p', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_GSF_phi', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_GSF_theta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_GSF_perr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_GSF_phierr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_GSF_thetaerr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_DNA_p', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_DNA_phi', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_DNA_theta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_DNA_perr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_DNA_phierr', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'conv_DNA_thetaerr', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone10_ED_corrected', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone15_ED_corrected', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone20_ED_corrected', False, True]
@@ -801,10 +926,16 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'el_index', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'etconoisedR04Sig2', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'etconoisedR04Sig3', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'convTrk_n', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'convTrk_index', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'convTrk_trackfitter', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'convTrk_trackpatternReco1', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'convTrk_trackpatternReco2', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'convTrk_trackseedFinder', False, True]
 ---
 prefix: el_
 classname: ElectronD3PDObject
-tool: A4DumpAlg_PhotonD3PD.el_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.el_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -820,6 +951,9 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'charge', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'author', False, True]
   - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEM', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMLoose', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMMedium', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMTight', False, True]
   - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'OQ', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'convFlag', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'isConv', False, True]
@@ -843,13 +977,22 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'truth_hasHardBrem', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'truth_index', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'truth_matched', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'mediumWithoutTrack', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'mediumIsoWithoutTrack', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightWithoutTrack', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightIsoWithoutTrack', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'looseIso', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'mediumIso', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tightIso', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'mediumWithTrack', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'tightWithTrack', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'loosePP', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'loosePPIso', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'mediumPP', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'mediumPPIso', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightPP', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightPPIso', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'goodOQ', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Ethad', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Ethad1', False, True]
@@ -912,6 +1055,7 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'deltaPhiRot', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'expectHitInBLayer', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'trackd0_physics', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'etaSampling1', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'reta', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'rphi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'refittedTrack_n', False, True]
@@ -1009,12 +1153,16 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'tracksigz0pv', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'trackIPEstimate_d0_biasedpvunbiased', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'trackIPEstimate_z0_biasedpvunbiased', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'trackIPEstimate_d0_unbiasedpvunbiased', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'trackIPEstimate_z0_unbiasedpvunbiased', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'trackIPEstimate_sigd0_biasedpvunbiased', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'trackIPEstimate_sigz0_biasedpvunbiased', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'trackIPEstimate_d0_unbiasedpvunbiased', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'trackIPEstimate_z0_unbiasedpvunbiased', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'trackIPEstimate_sigd0_unbiasedpvunbiased', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'trackIPEstimate_sigz0_unbiasedpvunbiased', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'trackd0pvunbiased', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'trackz0pvunbiased', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'tracksigd0pvunbiased', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'tracksigz0pvunbiased', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'hastrack', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'deltaEmax2', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'calibHitsShowerDepth', False, True]
@@ -1093,58 +1241,40 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'transmax', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'transmin_loweta', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'transmax_loweta', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'etconoisedR04Sig2', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'etconoisedR04Sig3', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'trk_index', False, True]
 ---
-prefix: trk_
-classname: TrackParticleD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trk_Filler
-is_container: 1
+prefix: trig_
+classname: TrigDecisionD3PDObject
+tool: A4DumpAlgStreamNTUP_PHOTON.TrigDecisionFiller
+is_container: 0
 variables: 
-  - ['I', 'n', True, False]
-  - ['std::vector<float,std::allocator<float> >*', 'd0', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'z0', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'phi', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'theta', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'qoverp', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'pt', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'eta', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'chi2', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'ndof', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nBLHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nPixHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nSCTHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nTRTHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nTRTHighTHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nPixHoles', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nSCTHoles', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nTRTHoles', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'expectBLayerHit', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nMDTHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nCSCEtaHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nCSCPhiHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nRPCEtaHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nRPCPhiHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nTGCEtaHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nTGCPhiHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nHits', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'nHoles', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'hitPattern', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'TRTHighTHitsRatio', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'TRTHighTOutliersRatio', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'mc_probability', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'mc_barcode', False, True]
-  - ['std::vector<float,std::allocator<float> >*', 'conv_weight', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'L1_TAV', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'L2_passedPhysics', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'EF_passedPhysics', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'L1_TBP', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'L1_TAP', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'L2_passedRaw', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'EF_passedRaw', False, True]
+  - ['O', 'L2_truncated', True, False]
+  - ['O', 'EF_truncated', True, False]
+  - ['std::vector<short,std::allocator<short> >*', 'L2_resurrected', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'EF_resurrected', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'L2_passedThrough', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'EF_passedThrough', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'L2_wasPrescaled', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'L2_wasResurrected', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'EF_wasPrescaled', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'EF_wasResurrected', False, True]
 ---
 prefix: 
 classname: D3PDObject3
-tool: A4DumpAlg_PhotonD3PD.InitTrigEgamma
+tool: A4DumpAlgStreamNTUP_PHOTON.InitTrigEgamma
 is_container: 0
 variables: 
 ---
 prefix: trig_L1_emtau_
 classname: EmTauROID3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_L1_emtau_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_L1_emtau_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1162,14 +1292,20 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'L1_2EM10', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_2EM14', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_2EM3', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L1_2EM3_EM10', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L1_2EM3_EM12', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_2EM3_EM7', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_2EM5', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L1_2EM5_EM10', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L1_2EM5_EM12', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_2EM5_MU6', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_2EM5_NL', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_2EM7', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L1_2EM7_EM10', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_EM10', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_EM10_MU6', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_EM10_XE20', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L1_EM10_XE30', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_EM10_XS45', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_EM10_XS50', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L1_EM12', False, True]
@@ -1194,7 +1330,7 @@ variables:
 ---
 prefix: trig_L2_emcl_
 classname: TrigEMClusterD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_L2_emcl_
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_L2_emcl_
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1214,7 +1350,7 @@ variables:
 ---
 prefix: trig_L2_trk_idscan_eGamma_
 classname: TrigInDetTrackD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_L2_trk_eGamma_
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_L2_trk_eGamma_
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1233,7 +1369,7 @@ variables:
 ---
 prefix: trig_L2_trk_sitrack_eGamma_
 classname: TrigInDetTrackD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_L2_trk_sitrack_eGamma_
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_L2_trk_sitrack_eGamma_
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1252,7 +1388,7 @@ variables:
 ---
 prefix: trig_L2_el_
 classname: TrigElectronD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_L2_el_
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_L2_el_
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1283,8 +1419,11 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'F1', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_2e10_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_2e10_medium_mu6', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_2e11T_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_2e12T_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_2e12_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_2e15_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_2e15_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_2e5_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_2e5_medium_SiTrk', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_2e5_medium_TRT', False, True]
@@ -1298,19 +1437,35 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'L2_e10_medium_2mu6', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e10_medium_mu10', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e10_medium_mu6', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e10_medium_mu6_topo_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e11T_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e11T_medium_2e6T_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e11_etcut', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e12_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e13_etcut_xs45_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e15_HLTtighter', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e15_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e15_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e15_medium_e12_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e15_medium_mu6', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e15_medium_xe20_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e15_medium_xe25_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e15_medium_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e15_medium_xe35_noMu', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'L2_e15_medium_xe40_noMu_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e15_medium_xe40_loose_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e15_tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e15_tight1', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e15_tight_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e18_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e18_medium_xe20_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e18_tight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e20_L2Star_IDTrkNoCut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e20_loose1', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e20_looseTrk', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e20_loose_2j10_a4tc_EFFS', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e20_loose_3j10_a4tc_EFFS', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e20_loose_4j10_a4tc_EFFS', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_loose_IDTrkNoCut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_loose_TRT', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_loose_xe20', False, True]
@@ -1319,22 +1474,41 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_loose_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_medium1', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e20_medium2', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_medium_IDTrkNoCut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_medium_SiTrk', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_medium_TRT', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e20_tight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e20_tight_e15_NoCut_Zee', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e22_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e22_loose1', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e22_looseTrk', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e22_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e22_medium1', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e22_medium2', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e22_medium_IDTrkNoCut', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e22_medium_SiTrk', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e22_medium_TRT', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e22_tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e25_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e25_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e30_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e30_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e33_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e35_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e40_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e45_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e45_medium1', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_NoCut_L2SW', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_NoCut_Ringer', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_NoCut_firstempty', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_medium_mu4', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'L2_e5_medium_mu4_topoAngle_medium', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'L2_e5_medium_mu4_topoAngle_tight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e5_medium_mu6', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e5_medium_mu6_topo_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e5_medium_mu6_topo_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight_TRT', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight_e14_etcut_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight_e4_etcut_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight_e4_etcut_Jpsi_SiTrk', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight_e4_etcut_Jpsi_TRT', False, True]
@@ -1342,9 +1516,9 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight_e5_NoCut_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight_e7_etcut_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight_e9_etcut_Jpsi', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight_mu4_topoAngle_medium', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'L2_e5_tight_mu4_topoAngle_tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e60_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e6T_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_e7_tight_e14_etcut_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_e9_tight_e5_tight_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_eb_physics', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_eb_physics_empty', False, True]
@@ -1362,7 +1536,7 @@ variables:
 ---
 prefix: trig_L2_ph_
 classname: TrigPhotonD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_L2_ph_
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_L2_ph_
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1386,6 +1560,7 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'L2_g100_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g10_NoCut_cosmic', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g11_etcut', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_g13_etcut_xs45_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g150_etcut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g15_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g17_etcut', False, True]
@@ -1395,19 +1570,25 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'L2_g20_etcut_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g20_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g20_loose_cnv', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'L2_g20_loose_g30_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g20_loose_xe20_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g20_loose_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g20_tight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_g22_hiptrt', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g25_loose_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g27_etcut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g27_etcut_EFxe30_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_g30_loose_g20_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g40_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g40_loose_EFxe35_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g40_loose_EFxe40_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_g40_loose_b10_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_g40_loose_xe30_medium_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_g40_loose_xe35_medium_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g40_loose_xe40_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g40_loose_xs35_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g40_tight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_g40_tight_b10_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'L2_g40_tight_b15_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g50_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g5_NoCut_cosmic', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'L2_g60_loose', False, True]
@@ -1415,7 +1596,7 @@ variables:
 ---
 prefix: trig_EF_emcl_
 classname: ClusterD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_EF_emcl_
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_EF_emcl_
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1433,11 +1614,12 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'centerlambda', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'deltaTheta', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'deltaPhi', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'centermag', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'time', False, True]
 ---
 prefix: trig_EF_emcl_slw_
 classname: ClusterD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_EF_emcl_slw
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_EF_emcl_slw
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1455,11 +1637,12 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'centerlambda', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'deltaTheta', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'deltaPhi', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'centermag', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'time', False, True]
 ---
 prefix: trig_EF_el_
 classname: EFElectronD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_EF_el_
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_EF_el_
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1475,11 +1658,25 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'charge', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'author', False, True]
   - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEM', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMLoose', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMMedium', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMTight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'looseIso', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'mediumIso', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'mediumWithoutTrack', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'mediumIsoWithoutTrack', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tightIso', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightWithoutTrack', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightIsoWithoutTrack', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'loosePP', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'loosePPIso', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'mediumPP', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'mediumPPIso', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightPP', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightPPIso', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Ethad', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Ethad1', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'f1', False, True]
@@ -1499,9 +1696,15 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'f3core', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'rphiallcalo', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone45', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'Etcone15', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone20', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'Etcone25', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone30', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'Etcone35', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone40', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ptcone20', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ptcone30', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ptcone40', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'pos7', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'etacorrmag', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'deltaeta1', False, True]
@@ -1518,8 +1721,11 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'cl_etas2', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_2e10_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_2e10_medium_mu6', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_2e11T_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_2e12T_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_2e12_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_2e15_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_2e15_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_2e5_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_2e5_medium_SiTrk', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_2e5_medium_TRT', False, True]
@@ -1533,19 +1739,39 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'EF_e10_medium_2mu6', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e10_medium_mu10', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e10_medium_mu6', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e10_medium_mu6_topo_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e11T_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e11T_medium_2e6T_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e11_etcut', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e12_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e13_etcutTRT_xs60_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e13_etcut_xs60_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e13_etcut_xs60_noMu_dphi2j10xe07', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e13_etcut_xs70_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e15_HLTtighter', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e15_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e15_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e15_medium_e12_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e15_medium_mu6', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e15_medium_xe30_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e15_medium_xe35_loose_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e15_medium_xe35_noMu', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'EF_e15_medium_xe40_noMu_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e15_medium_xe40_loose_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e15_medium_xe40_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e15_medium_xe50_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e15_tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e15_tight1', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e15_tight_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e18_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e18_medium_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e18_tight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e20_L2Star_IDTrkNoCut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e20_loose1', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e20_looseTrk', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e20_loose_2j10_a4tc_EFFS', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e20_loose_3j10_a4tc_EFFS', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e20_loose_4j10_a4tc_EFFS', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_loose_IDTrkNoCut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_loose_TRT', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_loose_xe20', False, True]
@@ -1554,22 +1780,41 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_loose_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_medium1', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e20_medium2', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_medium_IDTrkNoCut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_medium_SiTrk', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_medium_TRT', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e20_tight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e20_tight_e15_NoCut_Zee', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e22_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e22_loose1', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e22_looseTrk', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e22_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e22_medium1', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e22_medium2', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e22_medium_IDTrkNoCut', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e22_medium_SiTrk', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e22_medium_TRT', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e22_tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e25_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e25_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e30_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e30_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e33_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e35_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e40_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e45_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e45_medium1', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_NoCut_L2SW', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_NoCut_Ringer', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_NoCut_firstempty', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_medium_mu4', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'EF_e5_medium_mu4_topoAngle_medium', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'EF_e5_medium_mu4_topoAngle_tight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e5_medium_mu6', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e5_medium_mu6_topo_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e5_medium_mu6_topo_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight_TRT', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight_e14_etcut_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight_e4_etcut_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight_e4_etcut_Jpsi_SiTrk', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight_e4_etcut_Jpsi_TRT', False, True]
@@ -1577,9 +1822,9 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight_e5_NoCut_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight_e7_etcut_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight_e9_etcut_Jpsi', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight_mu4_topoAngle_medium', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'EF_e5_tight_mu4_topoAngle_tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e60_loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e6T_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_e7_tight_e14_etcut_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_e9_tight_e5_tight_Jpsi', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_eb_physics', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_eb_physics_empty', False, True]
@@ -1632,7 +1877,7 @@ variables:
 ---
 prefix: trig_EF_ph_
 classname: EFPhotonD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_EF_ph_
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_EF_ph_
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1654,6 +1899,7 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'EF_g10_NoCut_cosmic', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g11_etcut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g11_etcut_larcalib', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_g13_etcut_xs60_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g150_etcut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g15_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g15_loose_larcalib', False, True]
@@ -1664,21 +1910,27 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'EF_g20_etcut_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g20_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g20_loose_cnv', False, True]
-  - ['std::vector<int,std::allocator<int> >*', 'EF_g20_loose_g30_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g20_loose_larcalib', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g20_loose_xe20_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g20_loose_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g20_tight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_g22_hiptrt', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g25_loose_xe30_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g27_etcut', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g27_etcut_EFxe30_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_g30_loose_g20_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g40_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g40_loose_EFxe35_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g40_loose_EFxe40_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_g40_loose_b10_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g40_loose_larcalib', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g40_loose_xe40_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_g40_loose_xe45_medium_noMu', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_g40_loose_xe55_medium_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g40_loose_xs35_noMu', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g40_tight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_g40_tight_b10_medium', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EF_g40_tight_b15_medium', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g50_loose', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g5_NoCut_cosmic', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'EF_g60_loose', False, True]
@@ -1688,14 +1940,22 @@ variables:
   - ['std::vector<int,std::allocator<int> >*', 'author', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'isRecovered', False, True]
   - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEM', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMLoose', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMMedium', False, True]
+  - ['std::vector<unsigned int,std::allocator<unsigned int> >*', 'isEMTight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'convFlag', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'isConv', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'nConv', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'nSingleTrackConv', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'nDoubleTrackConv', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'loose', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'looseIso', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tight', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'tightIso', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'looseAR', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'looseARIso', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightAR', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'tightARIso', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Ethad', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Ethad1', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'E033', False, True]
@@ -1718,10 +1978,15 @@ variables:
   - ['std::vector<float,std::allocator<float> >*', 'f3core', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'rphiallcalo', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone45', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'Etcone15', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone20', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'Etcone25', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone30', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'Etcone35', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'Etcone40', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ptcone20', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'ptcone30', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ptcone40', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'convanglematch', False, True]
   - ['std::vector<float,std::allocator<float> >*', 'convtrackmatch', False, True]
   - ['std::vector<int,std::allocator<int> >*', 'hasconv', False, True]
@@ -1753,7 +2018,7 @@ variables:
 ---
 prefix: trig_Nav_
 classname: ChainEntryD3PDObject
-tool: A4DumpAlg_PhotonD3PD.trig_Nav_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_Nav_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
@@ -1763,175 +2028,672 @@ variables:
 ---
 prefix: trig_RoI_L2_e_
 classname: CombLinksD3PDObjectL2_e
-tool: A4DumpAlg_PhotonD3PD.trig_RoI_L2_e_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_RoI_L2_e_Filler
 is_container: 1
 variables: 
   - ['I', 'n', True, False]
+  - ['std::vector<short,std::allocator<short> >*', 'type', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'active', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'lastStep', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'TENumber', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'roiNumber', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'TrigRoiDescriptor_TrigT2CaloEgamma', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'TrigRoiDescriptor_TrigT2CaloEgammaStatus', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'TrigEMCluster', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'TrigEMClusterStatus', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EmTau_ROI', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EmTau_ROIStatus', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'TrigInDetTrackCollection_TrigSiTrack_eGamma', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'TrigInDetTrackCollection_TrigSiTrack_eGammaStatus', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'TrigInDetTrackCollection_TrigIDSCAN_eGamma', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'TrigInDetTrackCollection_TrigIDSCAN_eGammaStatus', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'TrigElectronContainer', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'TrigElectronContainerStatus', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'TrigPhotonContainer', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'TrigPhotonContainerStatus', False, True]
 ---
 prefix: trig_RoI_EF_e_
 classname: CombLinksD3PDObjectEF_e
-tool: A4DumpAlg_PhotonD3PD.trig_RoI_EF_e_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.trig_RoI_EF_e_Filler
 is_container: 1
 variables: 
+  - ['I', 'n', True, False]
+  - ['std::vector<short,std::allocator<short> >*', 'type', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'active', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'lastStep', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'TENumber', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'roiNumber', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EmTau_ROI', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'EmTau_ROIStatus', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'Rec::TrackParticleContainer_HLT_InDetTrigParticleCreation_Electron_EFID', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'Rec::TrackParticleContainer_HLT_InDetTrigParticleCreation_Electron_EFIDStatus', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'egammaContainer_egamma_Electrons', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'egammaContainer_egamma_ElectronsStatus', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'egammaContainer_egamma_Photons', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'egammaContainer_egamma_PhotonsStatus', False, True]
 ---
 prefix: trig_DB_
 classname: TrigDBKeysD3PDObject
-tool: A4DumpAlg_PhotonD3PD.TrigDBKeysFiller
+tool: A4DumpAlgStreamNTUP_PHOTON.TrigDBKeysFiller
 is_container: 0
 variables: 
----
-prefix: trig_
-classname: TrigDecisionD3PDObject
-tool: A4DumpAlg_PhotonD3PD.TrigDecisionFiller
-is_container: 0
-variables: 
+  - ['i', 'SMK', True, False]
+  - ['i', 'L1PSK', True, False]
+  - ['i', 'HLTPSK', True, False]
 ---
 prefix: PV_
 classname: PrimaryVertexD3PDObject
-tool: A4DumpAlg_PhotonD3PD.PV_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.PV_Filler
 is_container: 1
 variables: 
+  - ['I', 'n', True, False]
+  - ['std::vector<float,std::allocator<float> >*', 'x', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'y', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'z', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'type', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'px', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'py', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'pz', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'E', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'm', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTracks', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'sumPt', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'trk_n', False, True]
+  - ['std::vector<std::vector<float,std::allocator<float> >,std::allocator<std::vector<float,std::allocator<float> > > >*', 'trk_weight', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'trk_index', False, True]
 ---
 prefix: PhotonPV_
 classname: D3PDObject4
-tool: A4DumpAlg_PhotonD3PD.PhotonPV_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.PhotonPV_Filler
 is_container: 1
 variables: 
+  - ['I', 'n', True, False]
+  - ['std::vector<float,std::allocator<float> >*', 'px', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'py', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'pz', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'E', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'm', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTracks', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'sumPt', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'sumPt2', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'type', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'missPt', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'meanPt', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTracks_05GeV', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTracks_07GeV', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTracks_1GeV', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nTracks_2GeV', False, True]
 ---
 prefix: mcevt_
 classname: GenEventD3PDObject
-tool: A4DumpAlg_PhotonD3PD.mcevt_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.mcevt_Filler
 is_container: 1
 variables: 
+  - ['I', 'n', True, False]
+  - ['std::vector<int,std::allocator<int> >*', 'signal_process_id', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'event_number', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'event_scale', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'alphaQCD', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'alphaQED', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'pdf_id1', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'pdf_id2', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'pdf_x1', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'pdf_x2', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'pdf_scale', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'pdf1', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'pdf2', False, True]
+  - ['std::vector<std::vector<double,std::allocator<double> >,std::allocator<std::vector<double,std::allocator<double> > > >*', 'weight', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'nparticle', False, True]
+  - ['std::vector<short,std::allocator<short> >*', 'pileUpType', False, True]
 ---
 prefix: mc_
 classname: PhotonTruthParticleD3PDObject
-tool: A4DumpAlg_PhotonD3PD.mc_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.mc_Filler
 is_container: 1
 variables: 
+  - ['I', 'n', True, False]
+  - ['std::vector<float,std::allocator<float> >*', 'pt', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'm', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'eta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'phi', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'status', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'barcode', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'parents', False, True]
+  - ['std::vector<std::vector<int,std::allocator<int> >,std::allocator<std::vector<int,std::allocator<int> > > >*', 'children', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'pdgId', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'charge', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'vx_x', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'vx_y', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'vx_z', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'vx_barcode', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation15_UE', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation20_UE', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation25_UE', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation30_UE', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation35_UE', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation40_UE', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation45_UE', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation60_UE', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation15', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation20', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation25', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation30', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation35', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation40', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation45', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'PartonIsolation60', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ParticleIsolation40', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ParticleIsolation40_ED_corrected', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ParticleIsolation40_ED_corrected_reco', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ParticleIsolation40_ED_corrected_new', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'ParticleIsolation40_ED_corrected_reco_new', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'isBremPhoton', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'isHardProcPhoton', False, True]
 ---
 prefix: jet_AntiKt4TruthJets_
 classname: D3PDObject5
-tool: A4DumpAlg_PhotonD3PD.jet_AntiKt4TruthJets_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.jet_AntiKt4TruthJets_Filler
 is_container: 1
 variables: 
+  - ['I', 'n', True, False]
+  - ['std::vector<float,std::allocator<float> >*', 'E', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'pt', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'm', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'eta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'phi', False, True]
+  - ['std::vector<std::vector<float,std::allocator<float> >,std::allocator<std::vector<float,std::allocator<float> > > >*', 'shapeBins', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToB', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToC', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToT', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'flavor_truth_BHadronpdg', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'flavor_truth_trueflav', False, True]
 ---
 prefix: jet_AntiKt6TruthJets_
 classname: D3PDObject6
-tool: A4DumpAlg_PhotonD3PD.jet_AntiKt6TruthJets_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.jet_AntiKt6TruthJets_Filler
 is_container: 1
 variables: 
+  - ['I', 'n', True, False]
+  - ['std::vector<float,std::allocator<float> >*', 'E', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'pt', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'm', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'eta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'phi', False, True]
+  - ['std::vector<std::vector<float,std::allocator<float> >,std::allocator<std::vector<float,std::allocator<float> > > >*', 'shapeBins', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToB', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToC', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToT', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'flavor_truth_BHadronpdg', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'flavor_truth_trueflav', False, True]
 ---
 prefix: jet_AntiKt4TruthWithMuNoIntJets_
 classname: D3PDObject7
-tool: A4DumpAlg_PhotonD3PD.jet_AntiKt4TruthWithMuNoIntJets_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.jet_AntiKt4TruthWithMuNoIntJets_Filler
 is_container: 1
 variables: 
+  - ['I', 'n', True, False]
+  - ['std::vector<float,std::allocator<float> >*', 'E', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'pt', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'm', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'eta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'phi', False, True]
+  - ['std::vector<std::vector<float,std::allocator<float> >,std::allocator<std::vector<float,std::allocator<float> > > >*', 'shapeBins', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToB', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToC', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToT', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'flavor_truth_BHadronpdg', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'flavor_truth_trueflav', False, True]
 ---
 prefix: jet_AntiKt6TruthWithMuNoIntJets_
 classname: D3PDObject8
-tool: A4DumpAlg_PhotonD3PD.jet_AntiKt6TruthWithMuNoIntJets_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.jet_AntiKt6TruthWithMuNoIntJets_Filler
 is_container: 1
 variables: 
+  - ['I', 'n', True, False]
+  - ['std::vector<float,std::allocator<float> >*', 'E', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'pt', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'm', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'eta', False, True]
+  - ['std::vector<float,std::allocator<float> >*', 'phi', False, True]
+  - ['std::vector<std::vector<float,std::allocator<float> >,std::allocator<std::vector<float,std::allocator<float> > > >*', 'shapeBins', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToB', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToC', False, True]
+  - ['std::vector<double,std::allocator<double> >*', 'flavor_truth_dRminToT', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'flavor_truth_BHadronpdg', False, True]
+  - ['std::vector<int,std::allocator<int> >*', 'flavor_truth_trueflav', False, True]
 ---
 prefix: met_
 classname: D3PDObject9
-tool: A4DumpAlg_PhotonD3PD.met_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.met_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
 ---
 prefix: MET_Cryo_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_Cryo_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_Cryo_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_RefFinal_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_RefFinal_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_RefFinal_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_RefEle_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_RefEle_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_RefEle_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_RefJet_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_RefJet_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_RefJet_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_RefMuon_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_RefMuon_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_RefMuon_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_RefMuon_Staco_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_RefMuon_Staco_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_RefMuon_Staco_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_RefMuon_Muid_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_RefMuon_Muid_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_RefMuon_Muid_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_RefGamma_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_RefGamma_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_RefGamma_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_RefTau_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_RefTau_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_RefTau_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_CellOut_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_CellOut_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_CellOut_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_MuonBoy_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_MuonBoy_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_MuonBoy_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_MuonBoy_Track_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_MuonBoy_Track_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_MuonBoy_Track_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_Final_
 classname: RefFinalMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_Final_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_Final_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_Topo_
 classname: TopoMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_Topo_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_Topo_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'SUMET_EMFrac', True, False]
+  - ['F', 'etx_PEMB', True, False]
+  - ['F', 'ety_PEMB', True, False]
+  - ['F', 'sumet_PEMB', True, False]
+  - ['F', 'phi_PEMB', True, False]
+  - ['F', 'etx_EMB', True, False]
+  - ['F', 'ety_EMB', True, False]
+  - ['F', 'sumet_EMB', True, False]
+  - ['F', 'phi_EMB', True, False]
+  - ['F', 'etx_PEMEC', True, False]
+  - ['F', 'ety_PEMEC', True, False]
+  - ['F', 'sumet_PEMEC', True, False]
+  - ['F', 'phi_PEMEC', True, False]
+  - ['F', 'etx_EME', True, False]
+  - ['F', 'ety_EME', True, False]
+  - ['F', 'sumet_EME', True, False]
+  - ['F', 'phi_EME', True, False]
+  - ['F', 'etx_TILE', True, False]
+  - ['F', 'ety_TILE', True, False]
+  - ['F', 'sumet_TILE', True, False]
+  - ['F', 'phi_TILE', True, False]
+  - ['F', 'etx_HEC', True, False]
+  - ['F', 'ety_HEC', True, False]
+  - ['F', 'sumet_HEC', True, False]
+  - ['F', 'phi_HEC', True, False]
+  - ['F', 'etx_FCAL', True, False]
+  - ['F', 'ety_FCAL', True, False]
+  - ['F', 'sumet_FCAL', True, False]
+  - ['F', 'phi_FCAL', True, False]
+  - ['F', 'nCell_PEMB', True, False]
+  - ['F', 'nCell_EMB', True, False]
+  - ['F', 'nCell_PEMEC', True, False]
+  - ['F', 'nCell_EME', True, False]
+  - ['F', 'nCell_TILE', True, False]
+  - ['F', 'nCell_HEC', True, False]
+  - ['F', 'nCell_FCAL', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_LocHadTopo_
 classname: TopoMETD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_LocHadTopo_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_LocHadTopo_Filler
 is_container: 0
 variables: 
+  - ['F', 'etx', True, False]
+  - ['F', 'ety', True, False]
+  - ['F', 'phi', True, False]
+  - ['F', 'et', True, False]
+  - ['F', 'sumet', True, False]
+  - ['F', 'SUMET_EMFrac', True, False]
+  - ['F', 'etx_PEMB', True, False]
+  - ['F', 'ety_PEMB', True, False]
+  - ['F', 'sumet_PEMB', True, False]
+  - ['F', 'phi_PEMB', True, False]
+  - ['F', 'etx_EMB', True, False]
+  - ['F', 'ety_EMB', True, False]
+  - ['F', 'sumet_EMB', True, False]
+  - ['F', 'phi_EMB', True, False]
+  - ['F', 'etx_PEMEC', True, False]
+  - ['F', 'ety_PEMEC', True, False]
+  - ['F', 'sumet_PEMEC', True, False]
+  - ['F', 'phi_PEMEC', True, False]
+  - ['F', 'etx_EME', True, False]
+  - ['F', 'ety_EME', True, False]
+  - ['F', 'sumet_EME', True, False]
+  - ['F', 'phi_EME', True, False]
+  - ['F', 'etx_TILE', True, False]
+  - ['F', 'ety_TILE', True, False]
+  - ['F', 'sumet_TILE', True, False]
+  - ['F', 'phi_TILE', True, False]
+  - ['F', 'etx_HEC', True, False]
+  - ['F', 'ety_HEC', True, False]
+  - ['F', 'sumet_HEC', True, False]
+  - ['F', 'phi_HEC', True, False]
+  - ['F', 'etx_FCAL', True, False]
+  - ['F', 'ety_FCAL', True, False]
+  - ['F', 'sumet_FCAL', True, False]
+  - ['F', 'phi_FCAL', True, False]
+  - ['F', 'nCell_PEMB', True, False]
+  - ['F', 'nCell_EMB', True, False]
+  - ['F', 'nCell_PEMEC', True, False]
+  - ['F', 'nCell_EME', True, False]
+  - ['F', 'nCell_TILE', True, False]
+  - ['F', 'nCell_HEC', True, False]
+  - ['F', 'nCell_FCAL', True, False]
+  - ['F', 'etx_CentralReg', True, False]
+  - ['F', 'ety_CentralReg', True, False]
+  - ['F', 'sumet_CentralReg', True, False]
+  - ['F', 'phi_CentralReg', True, False]
+  - ['F', 'etx_EndcapRegion', True, False]
+  - ['F', 'ety_EndcapRegion', True, False]
+  - ['F', 'sumet_EndcapRegion', True, False]
+  - ['F', 'phi_EndcapRegion', True, False]
+  - ['F', 'etx_ForwardReg', True, False]
+  - ['F', 'ety_ForwardReg', True, False]
+  - ['F', 'sumet_ForwardReg', True, False]
+  - ['F', 'phi_ForwardReg', True, False]
 ---
 prefix: MET_Truth_
 classname: MissingETTruthD3PDObject
-tool: A4DumpAlg_PhotonD3PD.MET_Truth_Filler
+tool: A4DumpAlgStreamNTUP_PHOTON.MET_Truth_Filler
 is_container: 0
 variables: 
+  - ['F', 'NonInt_etx', True, False]
+  - ['F', 'NonInt_ety', True, False]
+  - ['F', 'NonInt_phi', True, False]
+  - ['F', 'NonInt_et', True, False]
+  - ['F', 'NonInt_sumet', True, False]
