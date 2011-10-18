@@ -1,0 +1,29 @@
+package a4.root.atlas.ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message TrigMET {
+    optional float MEx = 1 [(root_branch)="MEx"];
+    optional float MEy = 2 [(root_branch)="MEy"];
+    optional float MEz = 3 [(root_branch)="MEz"];
+    
+    optional float sumEt = 100 [(root_branch)="sumEt"];
+    optional float sumE = 101 [(root_branch)="sumE"];
+    
+    optional int32 flag = 200 [(root_branch)="flag"];
+    
+    optional string nameOfComponent = 300 [(root_branch)="nameOfComponent"];
+    optional float MExComponent = 301 [(root_branch)="MExComponent"];
+    optional float MEyComponent = 302 [(root_branch)="MEyComponent"];
+    optional float MEzComponent = 303 [(root_branch)="MEzComponent"];
+    optional float sumEtComponent = 304 [(root_branch)="sumEtComponent"];
+    optional float sumEComponent = 305 [(root_branch)="sumEComponent"];
+    optional float componentCalib0 = 306 [(root_branch)="componentCalib0"];
+    optional float componentCalib1 = 307 [(root_branch)="componentCalib1"];
+    
+    optional int32 sumOfSigns = 400 [(root_branch)="sumOfSigns"];
+    
+    optional uint32 usedChannels = 500 [(root_branch)="usedChannels"];
+    
+    optional int32 status = 600 [(root_branch)="status"];
+    
+}

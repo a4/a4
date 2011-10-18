@@ -1,0 +1,11 @@
+package a4.root.atlas.ntup_photon;
+import "a4/root/RootExtension.proto";
+
+message MissingETTruth {
+    optional float NonInt_etx = 1 [(root_branch)="NonInt_etx"];
+    optional float NonInt_ety = 2 [(root_branch)="NonInt_ety"];
+    optional float NonInt_phi = 3 [(root_branch)="NonInt_phi"];
+    optional float NonInt_et = 4 [(root_branch)="NonInt_et"];
+    optional float NonInt_sumet = 5 [(root_branch)="NonInt_sumet"];
+    
+}

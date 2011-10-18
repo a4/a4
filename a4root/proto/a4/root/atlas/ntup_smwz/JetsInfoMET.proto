@@ -1,0 +1,12 @@
+package a4.root.atlas.ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message JetsInfoMET {
+    optional float JetPtWeightedEventEMFraction = 1 [(root_branch)="JetPtWeightedEventEMFraction"];
+    optional float JetPtWeightedNumAssociatedTracks = 2 [(root_branch)="JetPtWeightedNumAssociatedTracks"];
+    optional float JetPtWeightedSize = 3 [(root_branch)="JetPtWeightedSize"];
+    
+    optional float LeadingJetEt = 100 [(root_branch)="LeadingJetEt"];
+    optional float LeadingJetEta = 101 [(root_branch)="LeadingJetEta"];
+    
+}

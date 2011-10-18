@@ -1,50 +1,52 @@
+package a4.root.atlas.ntup_photon;
 import "a4/root/RootExtension.proto";
 
 message D3PDObject1 {
+    optional float cl_E = 1 [(root_branch)="cl_E"];
+    optional float cl_pt = 2 [(root_branch)="cl_pt"];
+    optional float cl_eta = 3 [(root_branch)="cl_eta"];
+    optional float cl_phi = 4 [(root_branch)="cl_phi"];
     
-    optional float cl_E = 1 [(root_branch)="cl_E"]; 
-    optional float cl_pt = 2 [(root_branch)="cl_pt"]; 
-    optional float cl_eta = 3 [(root_branch)="cl_eta"]; 
-    optional float cl_phi = 4 [(root_branch)="cl_phi"]; 
+    optional float Es0 = 100 [(root_branch)="Es0"];
+    optional float etas0 = 101 [(root_branch)="etas0"];
+    optional float phis0 = 102 [(root_branch)="phis0"];
     
-    optional float Es0 = 100 [(root_branch)="Es0"]; 
-    optional float etas0 = 101 [(root_branch)="etas0"]; 
-    optional float phis0 = 102 [(root_branch)="phis0"]; 
+    optional float Es1 = 200 [(root_branch)="Es1"];
+    optional float etas1 = 201 [(root_branch)="etas1"];
+    optional float phis1 = 202 [(root_branch)="phis1"];
     
-    optional float Es1 = 200 [(root_branch)="Es1"]; 
-    optional float etas1 = 201 [(root_branch)="etas1"]; 
-    optional float phis1 = 202 [(root_branch)="phis1"]; 
+    optional float Es2 = 300 [(root_branch)="Es2"];
+    optional float etas2 = 301 [(root_branch)="etas2"];
+    optional float phis2 = 302 [(root_branch)="phis2"];
     
-    optional float Es2 = 300 [(root_branch)="Es2"]; 
-    optional float etas2 = 301 [(root_branch)="etas2"]; 
-    optional float phis2 = 302 [(root_branch)="phis2"]; 
+    optional float Es3 = 400 [(root_branch)="Es3"];
+    optional float etas3 = 401 [(root_branch)="etas3"];
+    optional float phis3 = 402 [(root_branch)="phis3"];
+    optional uint32 isEM = 403 [(root_branch)="isEM"];
+    optional uint32 isEMLoose = 404 [(root_branch)="isEMLoose"];
+    optional uint32 isEMMedium = 405 [(root_branch)="isEMMedium"];
+    optional uint32 isEMTight = 406 [(root_branch)="isEMTight"];
     
-    optional float Es3 = 400 [(root_branch)="Es3"]; 
-    optional float etas3 = 401 [(root_branch)="etas3"]; 
-    optional float phis3 = 402 [(root_branch)="phis3"]; 
-    optional uint32 isEM = 403 [(root_branch)="isEM"]; 
+    optional int32 loose = 500 [(root_branch)="loose"];
+    optional int32 tight = 501 [(root_branch)="tight"];
+    optional int32 tightIso = 502 [(root_branch)="tightIso"];
     
-    optional int32 loose = 500 [(root_branch)="loose"]; 
-    optional int32 tight = 501 [(root_branch)="tight"]; 
-    optional int32 tightIso = 502 [(root_branch)="tightIso"]; 
-    
-    optional float Ethad = 600 [(root_branch)="Ethad"]; 
-    optional float Ethad1 = 601 [(root_branch)="Ethad1"]; 
-    optional float f1 = 602 [(root_branch)="f1"]; 
-    optional float f1core = 603 [(root_branch)="f1core"]; 
-    optional float Emins1 = 604 [(root_branch)="Emins1"]; 
-    optional float fside = 605 [(root_branch)="fside"]; 
-    optional float Emax2 = 606 [(root_branch)="Emax2"]; 
-    optional float ws3 = 607 [(root_branch)="ws3"]; 
-    optional float wstot = 608 [(root_branch)="wstot"]; 
-    optional float E132 = 609 [(root_branch)="E132"]; 
-    optional float E1152 = 610 [(root_branch)="E1152"]; 
-    optional float emaxs1 = 611 [(root_branch)="emaxs1"]; 
-    optional float deltaEs = 612 [(root_branch)="deltaEs"]; 
-    optional float E233 = 613 [(root_branch)="E233"]; 
-    optional float E237 = 614 [(root_branch)="E237"]; 
-    optional float E277 = 615 [(root_branch)="E277"]; 
-    optional float weta2 = 616 [(root_branch)="weta2"]; 
-    
+    optional float Ethad = 600 [(root_branch)="Ethad"];
+    optional float Ethad1 = 601 [(root_branch)="Ethad1"];
+    optional float f1 = 602 [(root_branch)="f1"];
+    optional float f1core = 603 [(root_branch)="f1core"];
+    optional float Emins1 = 604 [(root_branch)="Emins1"];
+    optional float fside = 605 [(root_branch)="fside"];
+    optional float Emax2 = 606 [(root_branch)="Emax2"];
+    optional float ws3 = 607 [(root_branch)="ws3"];
+    optional float wstot = 608 [(root_branch)="wstot"];
+    optional float E132 = 609 [(root_branch)="E132"];
+    optional float E1152 = 610 [(root_branch)="E1152"];
+    optional float emaxs1 = 611 [(root_branch)="emaxs1"];
+    optional float deltaEs = 612 [(root_branch)="deltaEs"];
+    optional float E233 = 613 [(root_branch)="E233"];
+    optional float E237 = 614 [(root_branch)="E237"];
+    optional float E277 = 615 [(root_branch)="E277"];
+    optional float weta2 = 616 [(root_branch)="weta2"];
     
 }

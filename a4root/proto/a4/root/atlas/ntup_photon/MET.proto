@@ -1,0 +1,8 @@
+package a4.root.atlas.ntup_photon;
+import "a4/root/RootExtension.proto";
+
+message MET {
+    optional float etx = 1 [(root_branch)="etx"];
+    optional float ety = 2 [(root_branch)="ety"];
+    
+}

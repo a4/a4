@@ -1,0 +1,9 @@
+package a4.root.atlas.ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message TrigDBKeys {
+    optional uint32 SMK = 1 [(root_branch)="SMK"];
+    optional uint32 L1PSK = 2 [(root_branch)="L1PSK"];
+    optional uint32 HLTPSK = 3 [(root_branch)="HLTPSK"];
+    
+}

@@ -41,6 +41,12 @@ OutputStream::OutputStream(const string &output_file,
     _description(description),
     _fileno(-1),
     _compression(true),
+    _compression_level(9),
+#ifdef HAVE_SNAPPY    
+    _compression_type(SNAPPY),
+#else
+    _compression_type(ZLIB),
+#endif    
     _opened(false),
     _closed(false),
     _metadata_refers_forward(false),
@@ -174,25 +180,54 @@ void OutputStream::reset_coded_stream() {
         _coded_out.reset(new CodedOutputStream(_raw_out.get()));
 }
 
+OutputStream & OutputStream::set_compression(std::string option) {
+    if (option == "OFF") {
+        _compression = false;
+        _compression_type = UNCOMPRESSED;
+    }
+    std::stringstream parser;
+    parser << option;
+    std::string type("ZLIB");
+    parser >> type >> _compression_level;
+    if (type == "UNCOMPRESSED") _compression_type = UNCOMPRESSED;
+    else if (type == "ZLIB")  _compression_type = ZLIB;
+    #ifdef HAVE_SNAPPY
+    else if (type == "SNAPPY")  _compression_type = SNAPPY;
+    #endif
+    else throw a4::Fatal("Unknown compression type: ", type);
+    return *this;
+}
+
 bool OutputStream::start_compression() {
     if (_compressed_out) return false;
     StartCompressedSection cs_header;
-#ifdef HAVE_SNAPPY
-    cs_header.set_compression(StartCompressedSection_Compression_SNAPPY);
-#else
-    cs_header.set_compression(StartCompressedSection_Compression_ZLIB);
-#endif
+    
+    if (_compression_type == SNAPPY) cs_header.set_compression(StartCompressedSection_Compression_SNAPPY);
+    else if (_compression_type == ZLIB) cs_header.set_compression(StartCompressedSection_Compression_ZLIB);
+    
     if (!write(_fixed_class_id<StartCompressedSection>(), cs_header))
         throw a4::Fatal("Failed to start compression");
     _coded_out.reset();
+
+    switch (_compression_type) {
+    case SNAPPY:
 #ifdef HAVE_SNAPPY
-    _compressed_out.reset(new SnappyOutputStream(_raw_out.get()));
+        _compressed_out.reset(new SnappyOutputStream(_raw_out.get()));
 #else
-    a4::io::GzipOutputStream::Options o;
-    o.format = a4::io::GzipOutputStream::ZLIB;
-    o.compression_level = 9;
-    _compressed_out.reset(new a4::io::GzipOutputStream(_raw_out.get(), o));
+        throw a4::Fatal("Snappy compression not compiled in!");
 #endif
+        break;
+    case ZLIB:
+    {
+        a4::io::GzipOutputStream::Options o;
+        o.format = a4::io::GzipOutputStream::ZLIB;
+        o.compression_level = _compression_level;
+        _compressed_out.reset(new a4::io::GzipOutputStream(_raw_out.get(), o));
+        break;
+    }
+    default:
+        throw a4::Fatal("Control should not reach here.");
+    }
     _coded_out.reset(new CodedOutputStream(_compressed_out.get()));
     return true;
 };

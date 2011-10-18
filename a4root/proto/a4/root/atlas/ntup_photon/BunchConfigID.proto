@@ -1,8 +1,7 @@
+package a4.root.atlas.ntup_photon;
 import "a4/root/RootExtension.proto";
 
 message BunchConfigID {
-    
-    optional uint32 configID = 1 [(root_branch)="configID"]; 
-    
+    optional uint32 configID = 1 [(root_branch)="configID"];
     
 }

@@ -7,17 +7,30 @@ message Photon {
 }
 
 message DiPhoton {
-    repeated int32 index = 1 [(root_branch)="index"];
+    repeated int32 ph_index = 1 [(root_branch)="ph_index"];
+}
+
+message BeamSpot {
+    optional float x = 1 [(root_branch)="x"];
+    optional float y = 2 [(root_branch)="y"];
+    optional float z = 3 [(root_branch)="z"];
+    
+    optional float sigma_x = 100 [(root_branch)="sigma_x"];
+    optional float sigma_y = 101 [(root_branch)="sigma_y"];
+    optional float sigma_z = 102 [(root_branch)="sigma_z"];
+    
 }
 
 message Event {    
     optional int32 CLASS_ID = 0xBEEF;
     
-    optional uint32 run_number = 1 [(root_branch)="RunNumber"]; 
+    optional uint32 run_number = 1 [(root_branch)="RunNumber", default=115565]; 
     optional uint32 event_number = 2 [(root_branch)="EventNumber"]; 
     
     repeated Photon photons = 100 [(root_prefix)="ph_"];
     repeated double photon_pts = 101 [(root_branch)="ph_pt"];
     
-    repeated DiPhoton di_photons = 102 [(root_prefix)="diphoton_ph_"];
+    repeated DiPhoton di_photons = 102 [(root_prefix)="diphoton_"];
+    
+    optional BeamSpot beam_spot = 1500 [(root_prefix)="beamSpot_"];
 }

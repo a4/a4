@@ -1,0 +1,20 @@
+package a4.root.atlas.ntup_smwz;
+import "a4/root/RootExtension.proto";
+
+message Muon {
+    optional float E = 1 [(root_branch)="E"];
+    optional float pt = 2 [(root_branch)="pt"];
+    optional float m = 3 [(root_branch)="m", default=105.658996582];
+    optional float eta = 4 [(root_branch)="eta"];
+    optional float phi = 5 [(root_branch)="phi"];
+    optional float px = 6 [(root_branch)="px"];
+    optional float py = 7 [(root_branch)="py"];
+    optional float pz = 8 [(root_branch)="pz"];
+    
+    optional float charge = 100 [(root_branch)="charge", default=-1.0];
+    
+    optional uint32 allauthor = 200 [(root_branch)="allauthor", default=3];
+    
+    optional int32 hastrack = 300 [(root_branch)="hastrack", default=1];
+    
+}

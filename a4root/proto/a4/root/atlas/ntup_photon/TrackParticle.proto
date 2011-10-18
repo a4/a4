@@ -1,54 +1,60 @@
+package a4.root.atlas.ntup_photon;
 import "a4/root/RootExtension.proto";
 
 message TrackParticle {
+    optional float d0 = 1 [(root_branch)="d0"];
+    optional float z0 = 2 [(root_branch)="z0"];
     
-    optional float d0 = 1 [(root_branch)="d0"]; 
-    optional float z0 = 2 [(root_branch)="z0"]; 
+    optional float phi = 100 [(root_branch)="phi"];
     
-    optional float phi = 100 [(root_branch)="phi"]; 
+    optional float theta = 200 [(root_branch)="theta"];
     
-    optional float theta = 200 [(root_branch)="theta"]; 
+    optional float qoverp = 300 [(root_branch)="qoverp"];
     
-    optional float qoverp = 300 [(root_branch)="qoverp"]; 
+    optional float pt = 400 [(root_branch)="pt"];
+    optional float eta = 401 [(root_branch)="eta"];
     
-    optional float pt = 400 [(root_branch)="pt"]; 
-    optional float eta = 401 [(root_branch)="eta"]; 
+    optional float d0_wrtPV = 500 [(root_branch)="d0_wrtPV"];
+    optional float z0_wrtPV = 501 [(root_branch)="z0_wrtPV"];
+    optional float phi_wrtPV = 502 [(root_branch)="phi_wrtPV"];
+    optional float d0_wrtBS = 503 [(root_branch)="d0_wrtBS"];
+    optional float z0_wrtBS = 504 [(root_branch)="z0_wrtBS"];
+    optional float phi_wrtBS = 505 [(root_branch)="phi_wrtBS"];
     
-    optional float chi2 = 500 [(root_branch)="chi2"]; 
+    optional float chi2 = 600 [(root_branch)="chi2"];
     
-    optional int32 ndof = 600 [(root_branch)="ndof"]; 
+    optional int32 ndof = 700 [(root_branch)="ndof", default=9];
     
-    optional int32 nBLHits = 700 [(root_branch)="nBLHits"]; 
-    optional int32 nPixHits = 701 [(root_branch)="nPixHits"]; 
-    optional int32 nSCTHits = 702 [(root_branch)="nSCTHits"]; 
-    optional int32 nTRTHits = 703 [(root_branch)="nTRTHits"]; 
-    optional int32 nTRTHighTHits = 704 [(root_branch)="nTRTHighTHits"]; 
+    optional int32 nBLHits = 800 [(root_branch)="nBLHits", default=1];
+    optional int32 nPixHits = 801 [(root_branch)="nPixHits", default=3];
+    optional int32 nSCTHits = 802 [(root_branch)="nSCTHits", default=8];
+    optional int32 nTRTHits = 803 [(root_branch)="nTRTHits", default=0];
+    optional int32 nTRTHighTHits = 804 [(root_branch)="nTRTHighTHits", default=0];
     
-    optional int32 nPixHoles = 800 [(root_branch)="nPixHoles"]; 
-    optional int32 nSCTHoles = 801 [(root_branch)="nSCTHoles"]; 
-    optional int32 nTRTHoles = 802 [(root_branch)="nTRTHoles"]; 
+    optional int32 nPixHoles = 900 [(root_branch)="nPixHoles", default=0];
+    optional int32 nSCTHoles = 901 [(root_branch)="nSCTHoles", default=0];
+    optional int32 nTRTHoles = 902 [(root_branch)="nTRTHoles", default=-1];
     
-    optional int32 expectBLayerHit = 900 [(root_branch)="expectBLayerHit"]; 
+    optional int32 expectBLayerHit = 1000 [(root_branch)="expectBLayerHit", default=1];
     
-    optional int32 nMDTHits = 1000 [(root_branch)="nMDTHits"]; 
-    optional int32 nCSCEtaHits = 1001 [(root_branch)="nCSCEtaHits"]; 
-    optional int32 nCSCPhiHits = 1002 [(root_branch)="nCSCPhiHits"]; 
-    optional int32 nRPCEtaHits = 1003 [(root_branch)="nRPCEtaHits"]; 
-    optional int32 nRPCPhiHits = 1004 [(root_branch)="nRPCPhiHits"]; 
-    optional int32 nTGCEtaHits = 1005 [(root_branch)="nTGCEtaHits"]; 
-    optional int32 nTGCPhiHits = 1006 [(root_branch)="nTGCPhiHits"]; 
-    optional int32 nHits = 1007 [(root_branch)="nHits"]; 
-    optional int32 nHoles = 1008 [(root_branch)="nHoles"]; 
+    optional int32 nMDTHits = 1100 [(root_branch)="nMDTHits", default=-1];
+    optional int32 nCSCEtaHits = 1101 [(root_branch)="nCSCEtaHits", default=-1];
+    optional int32 nCSCPhiHits = 1102 [(root_branch)="nCSCPhiHits", default=-1];
+    optional int32 nRPCEtaHits = 1103 [(root_branch)="nRPCEtaHits", default=-1];
+    optional int32 nRPCPhiHits = 1104 [(root_branch)="nRPCPhiHits", default=-1];
+    optional int32 nTGCEtaHits = 1105 [(root_branch)="nTGCEtaHits", default=-1];
+    optional int32 nTGCPhiHits = 1106 [(root_branch)="nTGCPhiHits", default=-1];
+    optional int32 nHits = 1107 [(root_branch)="nHits", default=42];
+    optional int32 nHoles = 1108 [(root_branch)="nHoles", default=0];
     
-    optional int32 hitPattern = 1100 [(root_branch)="hitPattern"]; 
+    optional int32 hitPattern = 1200 [(root_branch)="hitPattern", default=967];
     
-    optional float TRTHighTHitsRatio = 1200 [(root_branch)="TRTHighTHitsRatio"]; 
-    optional float TRTHighTOutliersRatio = 1201 [(root_branch)="TRTHighTOutliersRatio"]; 
+    optional float TRTHighTHitsRatio = 1300 [(root_branch)="TRTHighTHitsRatio", default=0.0];
+    optional float TRTHighTOutliersRatio = 1301 [(root_branch)="TRTHighTOutliersRatio", default=0.0];
     
-    optional float mc_probability = 1300 [(root_branch)="mc_probability"]; 
-    optional int32 mc_barcode = 1301 [(root_branch)="mc_barcode"]; 
+    optional float mc_probability = 1400 [(root_branch)="mc_probability", default=1.0];
+    optional int32 mc_barcode = 1401 [(root_branch)="mc_barcode", default=0];
     
-    optional float conv_weight = 1400 [(root_branch)="conv_weight"]; 
-    
+    optional float conv_weight = 1500 [(root_branch)="conv_weight", default=0.0];
     
 }

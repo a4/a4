@@ -1,0 +1,257 @@
+package a4.root.atlas.ntup_smwz;
+import "a4/root/RootExtension.proto";
+import "a4/root/atlas/ntup_smwz/BeamSpot.proto";
+import "a4/root/atlas/ntup_smwz/ChainEntry.proto";
+import "a4/root/atlas/ntup_smwz/Cluster.proto";
+import "a4/root/atlas/ntup_smwz/CombLinksD3PDObjectEF_TileMu.proto";
+import "a4/root/atlas/ntup_smwz/CombLinksD3PDObjectEF_e.proto";
+import "a4/root/atlas/ntup_smwz/CombLinksD3PDObjectEF_mu.proto";
+import "a4/root/atlas/ntup_smwz/CombLinksD3PDObjectL2_TileMu.proto";
+import "a4/root/atlas/ntup_smwz/CombLinksD3PDObjectL2_e.proto";
+import "a4/root/atlas/ntup_smwz/CombLinksD3PDObjectL2_mu.proto";
+import "a4/root/atlas/ntup_smwz/CombinedMuonFeature.proto";
+import "a4/root/atlas/ntup_smwz/D3PDObject1.proto";
+import "a4/root/atlas/ntup_smwz/EFElectron.proto";
+import "a4/root/atlas/ntup_smwz/EFPhoton.proto";
+import "a4/root/atlas/ntup_smwz/Electron.proto";
+import "a4/root/atlas/ntup_smwz/EmTauROI.proto";
+import "a4/root/atlas/ntup_smwz/EnergySumROI.proto";
+import "a4/root/atlas/ntup_smwz/IsoMuonFeature.proto";
+import "a4/root/atlas/ntup_smwz/Jet.proto";
+import "a4/root/atlas/ntup_smwz/JetsInfoMET.proto";
+import "a4/root/atlas/ntup_smwz/MBTS.proto";
+import "a4/root/atlas/ntup_smwz/MBTSTime.proto";
+import "a4/root/atlas/ntup_smwz/MissingETComposition.proto";
+import "a4/root/atlas/ntup_smwz/Muon.proto";
+import "a4/root/atlas/ntup_smwz/MuonFeature.proto";
+import "a4/root/atlas/ntup_smwz/MuonFeatureDetails.proto";
+import "a4/root/atlas/ntup_smwz/MuonROI.proto";
+import "a4/root/atlas/ntup_smwz/Photon.proto";
+import "a4/root/atlas/ntup_smwz/PrimaryVertex.proto";
+import "a4/root/atlas/ntup_smwz/RefFinalMET.proto";
+import "a4/root/atlas/ntup_smwz/Tau.proto";
+import "a4/root/atlas/ntup_smwz/TileMuFeature.proto";
+import "a4/root/atlas/ntup_smwz/TileTrackMuFeature.proto";
+import "a4/root/atlas/ntup_smwz/TopoMET.proto";
+import "a4/root/atlas/ntup_smwz/Track.proto";
+import "a4/root/atlas/ntup_smwz/TrackParticle.proto";
+import "a4/root/atlas/ntup_smwz/TrigDBKeys.proto";
+import "a4/root/atlas/ntup_smwz/TrigDecision.proto";
+import "a4/root/atlas/ntup_smwz/TrigEMCluster.proto";
+import "a4/root/atlas/ntup_smwz/TrigElectron.proto";
+import "a4/root/atlas/ntup_smwz/TrigInDetTrack.proto";
+import "a4/root/atlas/ntup_smwz/TrigMET.proto";
+import "a4/root/atlas/ntup_smwz/TrigMuonEFInfo.proto";
+import "a4/root/atlas/ntup_smwz/TrigPhoton.proto";
+import "a4/root/atlas/ntup_smwz/TrigRoiDesc.proto";
+
+message Event {
+    optional uint32 run_number = 1 [(root_branch)="RunNumber"];
+    optional uint32 event_number = 2 [(root_branch)="EventNumber"];
+    
+    optional uint32 timestamp = 100 [(root_branch)="timestamp"];
+    optional uint32 timestamp_ns = 101 [(root_branch)="timestamp_ns"];
+    
+    optional uint32 lbn = 200 [(root_branch)="lbn", default=10];
+    
+    optional uint32 bcid = 300 [(root_branch)="bcid", default=148];
+    
+    optional uint32 detmask0 = 400 [(root_branch)="detmask0"];
+    optional uint32 detmask1 = 401 [(root_branch)="detmask1"];
+    
+    optional float actualIntPerXing = 500 [(root_branch)="actualIntPerXing"];
+    optional float averageIntPerXing = 501 [(root_branch)="averageIntPerXing"];
+    
+    optional uint32 pixelFlags = 600 [(root_branch)="pixelFlags"];
+    optional uint32 sctFlags = 601 [(root_branch)="sctFlags"];
+    optional uint32 trtFlags = 602 [(root_branch)="trtFlags"];
+    optional uint32 larFlags = 603 [(root_branch)="larFlags"];
+    optional uint32 tileFlags = 604 [(root_branch)="tileFlags"];
+    optional uint32 muonFlags = 605 [(root_branch)="muonFlags"];
+    optional uint32 fwdFlags = 606 [(root_branch)="fwdFlags"];
+    optional uint32 coreFlags = 607 [(root_branch)="coreFlags"];
+    
+    optional uint32 pixelError = 700 [(root_branch)="pixelError"];
+    optional uint32 sctError = 701 [(root_branch)="sctError"];
+    optional uint32 trtError = 702 [(root_branch)="trtError"];
+    optional uint32 larError = 703 [(root_branch)="larError"];
+    optional uint32 tileError = 704 [(root_branch)="tileError", default=0];
+    optional uint32 muonError = 705 [(root_branch)="muonError"];
+    optional uint32 fwdError = 706 [(root_branch)="fwdError"];
+    optional uint32 coreError = 707 [(root_branch)="coreError"];
+    
+    optional bool streamDecision_Egamma = 800 [(root_branch)="streamDecision_Egamma"];
+    optional bool streamDecision_Muons = 801 [(root_branch)="streamDecision_Muons"];
+    optional bool streamDecision_JetTauEtmiss = 802 [(root_branch)="streamDecision_JetTauEtmiss"];
+    
+    optional bool isSimulation = 900 [(root_branch)="isSimulation"];
+    optional bool isCalibration = 901 [(root_branch)="isCalibration"];
+    
+    optional bool isTestBeam = 1000 [(root_branch)="isTestBeam"];
+    
+    optional bool L1_MBTS_1 = 1100 [(root_branch)="L1_MBTS_1"];
+    optional bool L1_MBTS_1_1 = 1101 [(root_branch)="L1_MBTS_1_1"];
+    optional bool L1_MBTS_1_1_UNPAIRED_ISO = 1102 [(root_branch)="L1_MBTS_1_1_UNPAIRED_ISO"];
+    optional bool L1_MBTS_2 = 1103 [(root_branch)="L1_MBTS_2"];
+    optional bool L1_MBTS_2_BGRP7 = 1104 [(root_branch)="L1_MBTS_2_BGRP7"];
+    optional bool L1_MBTS_2_UNPAIRED_ISO = 1105 [(root_branch)="L1_MBTS_2_UNPAIRED_ISO"];
+    optional bool L1_MBTS_4_4 = 1106 [(root_branch)="L1_MBTS_4_4"];
+    optional bool L1_MBTS_4_4_EMPTY = 1107 [(root_branch)="L1_MBTS_4_4_EMPTY"];
+    
+    repeated Electron el = 1200 [(root_prefix)="el_"];
+    
+    repeated Photon photons = 1300 [(root_prefix)="ph_"];
+    
+    repeated Muon mu_muid = 1400 [(root_prefix)="mu_muid_"];
+    repeated Muon mu_staco = 1401 [(root_prefix)="mu_staco_"];
+    repeated Muon mu_calo = 1402 [(root_prefix)="mu_calo_"];
+    
+    repeated Tau taus = 1500 [(root_prefix)="tau_"];
+    
+    repeated Jet jet_antikt4topoem = 1600 [(root_prefix)="jet_AntiKt4TopoEM_"];
+    repeated Jet jet_antikt6topoem = 1601 [(root_prefix)="jet_AntiKt6TopoEM_"];
+    repeated Jet jet_antikt4lctopo = 1602 [(root_prefix)="jet_AntiKt4LCTopo_"];
+    repeated Jet jet_antikt6lctopo = 1603 [(root_prefix)="jet_AntiKt6LCTopo_"];
+    
+    optional D3PDObject1 d3pdobject_1 = 1700 [(root_prefix)="top_"];
+    
+    optional RefFinalMET met_reffinal = 1800 [(root_prefix)="MET_RefFinal_"];
+    optional RefFinalMET met_cryo = 1801 [(root_prefix)="MET_Cryo_"];
+    optional RefFinalMET met_refele = 1802 [(root_prefix)="MET_RefEle_"];
+    optional RefFinalMET met_refjet = 1803 [(root_prefix)="MET_RefJet_"];
+    optional RefFinalMET met_softjets = 1804 [(root_prefix)="MET_SoftJets_"];
+    optional RefFinalMET met_refmuon = 1805 [(root_prefix)="MET_RefMuon_"];
+    optional RefFinalMET met_refmuon_staco = 1806 [(root_prefix)="MET_RefMuon_Staco_"];
+    optional RefFinalMET met_refmuon_muid = 1807 [(root_prefix)="MET_RefMuon_Muid_"];
+    optional RefFinalMET met_refgamma = 1808 [(root_prefix)="MET_RefGamma_"];
+    optional RefFinalMET met_reftau = 1809 [(root_prefix)="MET_RefTau_"];
+    optional RefFinalMET met_cellout = 1810 [(root_prefix)="MET_CellOut_"];
+    optional RefFinalMET met_track = 1811 [(root_prefix)="MET_Track_"];
+    optional RefFinalMET met_reffinal_em = 1812 [(root_prefix)="MET_RefFinal_em_"];
+    optional RefFinalMET met_refele_em = 1813 [(root_prefix)="MET_RefEle_em_"];
+    optional RefFinalMET met_refjet_em = 1814 [(root_prefix)="MET_RefJet_em_"];
+    optional RefFinalMET met_softjets_em = 1815 [(root_prefix)="MET_SoftJets_em_"];
+    optional RefFinalMET met_refmuon_em = 1816 [(root_prefix)="MET_RefMuon_em_"];
+    optional RefFinalMET met_refmuon_track_em = 1817 [(root_prefix)="MET_RefMuon_Track_em_"];
+    optional RefFinalMET met_refgamma_em = 1818 [(root_prefix)="MET_RefGamma_em_"];
+    optional RefFinalMET met_reftau_em = 1819 [(root_prefix)="MET_RefTau_em_"];
+    optional RefFinalMET met_cellout_em = 1820 [(root_prefix)="MET_CellOut_em_"];
+    
+    optional RefFinalMET met_muon_isol_staco = 1900 [(root_prefix)="MET_Muon_Isol_Staco_"];
+    optional RefFinalMET met_muon_nonisol_staco = 1901 [(root_prefix)="MET_Muon_NonIsol_Staco_"];
+    optional RefFinalMET met_muon_total_staco = 1902 [(root_prefix)="MET_Muon_Total_Staco_"];
+    optional RefFinalMET met_muon_isol_muid = 1903 [(root_prefix)="MET_Muon_Isol_Muid_"];
+    optional RefFinalMET met_muon_nonisol_muid = 1904 [(root_prefix)="MET_Muon_NonIsol_Muid_"];
+    optional RefFinalMET met_muon_total_muid = 1905 [(root_prefix)="MET_Muon_Total_Muid_"];
+    optional RefFinalMET met_muonboy = 1906 [(root_prefix)="MET_MuonBoy_"];
+    optional RefFinalMET met_cellout_eflow = 1907 [(root_prefix)="MET_CellOut_Eflow_"];
+    optional RefFinalMET met_refmuon_track = 1908 [(root_prefix)="MET_RefMuon_Track_"];
+    optional RefFinalMET met_refmuon_track_staco = 1909 [(root_prefix)="MET_RefMuon_Track_Staco_"];
+    optional RefFinalMET met_refmuon_track_muid = 1910 [(root_prefix)="MET_RefMuon_Track_Muid_"];
+    optional RefFinalMET met_cryocone = 1911 [(root_prefix)="MET_CryoCone_"];
+    optional RefFinalMET met_final = 1912 [(root_prefix)="MET_Final_"];
+    
+    optional RefFinalMET met_muonboy_spectro = 2000 [(root_prefix)="MET_MuonBoy_Spectro_"];
+    optional RefFinalMET met_muonboy_track = 2001 [(root_prefix)="MET_MuonBoy_Track_"];
+    optional RefFinalMET met_muonmuid = 2002 [(root_prefix)="MET_MuonMuid_"];
+    optional RefFinalMET met_muid = 2003 [(root_prefix)="MET_Muid_"];
+    optional RefFinalMET met_muid_spectro = 2004 [(root_prefix)="MET_Muid_Spectro_"];
+    optional RefFinalMET met_muid_track = 2005 [(root_prefix)="MET_Muid_Track_"];
+    optional RefFinalMET met_muon = 2006 [(root_prefix)="MET_Muon_"];
+    optional RefFinalMET met_topoobj = 2007 [(root_prefix)="MET_TopoObj_"];
+    optional RefFinalMET met_lochadtopoobj = 2008 [(root_prefix)="MET_LocHadTopoObj_"];
+    optional TopoMET met_topo = 2009 [(root_prefix)="MET_Topo_"];
+    optional TopoMET met_corrtopo = 2010 [(root_prefix)="MET_CorrTopo_"];
+    optional TopoMET met_lochadtopo = 2011 [(root_prefix)="MET_LocHadTopo_"];
+    optional TopoMET met_calib = 2012 [(root_prefix)="MET_Calib_"];
+    repeated MissingETComposition el_met = 2013 [(root_prefix)="el_MET_"];
+    repeated MissingETComposition ph_met = 2014 [(root_prefix)="ph_MET_"];
+    repeated MissingETComposition mu_staco_met = 2015 [(root_prefix)="mu_staco_MET_"];
+    repeated MissingETComposition mu_muid_met = 2016 [(root_prefix)="mu_muid_MET_"];
+    repeated MissingETComposition tau_met = 2017 [(root_prefix)="tau_MET_"];
+    repeated MissingETComposition jet_antikt6lctopo_met = 2018 [(root_prefix)="jet_antikt6LCtopo_MET_"];
+    optional JetsInfoMET jets_info_met = 2019 [(root_prefix)="METJetsInfo_"];
+    
+    repeated Electron hr_el = 2100 [(root_prefix)="hr_el_"];
+    repeated Muon hr_mu = 2101 [(root_prefix)="hr_mu_"];
+    optional RefFinalMET hr_roughrecoil = 2102 [(root_prefix)="hr_roughRecoil_"];
+    optional RefFinalMET hr_uecorrection = 2103 [(root_prefix)="hr_ueCorrection_"];
+    optional RefFinalMET hr_corrrecoil = 2104 [(root_prefix)="hr_corrRecoil_"];
+    optional RefFinalMET hr_met = 2105 [(root_prefix)="hr_MET_"];
+    
+    optional RefFinalMET hr_roughrecoil_track = 2200 [(root_prefix)="hr_roughRecoil_track_"];
+    optional RefFinalMET hr_uecorrection_track = 2201 [(root_prefix)="hr_ueCorrection_track_"];
+    optional RefFinalMET hr_corrrecoil_track = 2202 [(root_prefix)="hr_corrRecoil_track_"];
+    optional RefFinalMET hr_met_track = 2203 [(root_prefix)="hr_MET_track_"];
+    optional RefFinalMET hr_roughrecoil_clusnotrack = 2204 [(root_prefix)="hr_roughRecoil_clusNoTrack_"];
+    optional RefFinalMET hr_uecorrection_clusnotrack = 2205 [(root_prefix)="hr_ueCorrection_clusNoTrack_"];
+    optional RefFinalMET hr_corrrecoil_clusnotrack = 2206 [(root_prefix)="hr_corrRecoil_clusNoTrack_"];
+    optional RefFinalMET hr_met_clusnotrack = 2207 [(root_prefix)="hr_MET_clusNoTrack_"];
+    
+    optional RefFinalMET hr_roughrecoil_eflow = 2300 [(root_prefix)="hr_roughRecoil_Eflow_"];
+    optional RefFinalMET hr_uecorrection_eflow = 2301 [(root_prefix)="hr_ueCorrection_Eflow_"];
+    optional RefFinalMET hr_corrrecoil_eflow = 2302 [(root_prefix)="hr_corrRecoil_Eflow_"];
+    optional RefFinalMET hr_met_eflow = 2303 [(root_prefix)="hr_MET_Eflow_"];
+    
+    repeated Cluster cl = 2400 [(root_prefix)="cl_"];
+    repeated Cluster clpt10 = 2401 [(root_prefix)="clpt10_"];
+    repeated Cluster emclpt10 = 2402 [(root_prefix)="emclpt10_"];
+    
+    repeated TrackParticle track_particles = 2500 [(root_prefix)="trk_"];
+    repeated Track tracks = 2501 [(root_prefix)="trkpt5_"];
+    
+    repeated PrimaryVertex primary_vertices = 2600 [(root_prefix)="vxp_"];
+    
+    repeated MBTS mbtses = 2700 [(root_prefix)="mb_"];
+    optional MBTSTime mbtstime = 2701 [(root_prefix)="mbtime_"];
+    
+    optional BeamSpot beam_spot = 2800 [(root_prefix)="beamSpot_"];
+    
+    optional TrigDecision trig_decision = 2900 [(root_prefix)="trig_"];
+    optional TrigDBKeys trig_dbkeys = 2901 [(root_prefix)="trig_DB_"];
+    
+    repeated EmTauROI em_tau_rois = 3000 [(root_prefix)="trig_L1_emtau_"];
+    
+    repeated TrigEMCluster trig_emclusters = 3100 [(root_prefix)="trig_L2_emcl_"];
+    repeated TrigInDetTrack trig_in_det_tracks_idscan = 3101 [(root_prefix)="trig_L2_trk_idscan_eGamma_"];
+    repeated TrigInDetTrack trig_in_det_tracks_sitrack = 3102 [(root_prefix)="trig_L2_trk_sitrack_eGamma_"];
+    repeated TrigElectron trig_electrons = 3103 [(root_prefix)="trig_L2_el_"];
+    repeated TrigPhoton trig_photons = 3104 [(root_prefix)="trig_L2_ph_"];
+    
+    repeated Cluster clusters_emcl = 3200 [(root_prefix)="trig_EF_emcl_"];
+    repeated Cluster clusters_emcl_slw = 3201 [(root_prefix)="trig_EF_emcl_slw_"];
+    
+    repeated EFElectron efelectrons = 3300 [(root_prefix)="trig_EF_el_"];
+    repeated EFPhoton efphotons = 3301 [(root_prefix)="trig_EF_ph_"];
+    
+    repeated ChainEntry chain_entries = 3400 [(root_prefix)="trig_Nav_"];
+    
+    repeated CombLinksD3PDObjectL2_e comb_links_d3pdobject_l2_es = 3500 [(root_prefix)="trig_RoI_L2_e_"];
+    repeated CombLinksD3PDObjectEF_e comb_links_d3pdobject_ef_es = 3501 [(root_prefix)="trig_RoI_EF_e_"];
+    
+    repeated MuonROI muon_rois = 3600 [(root_prefix)="trig_L1_mu_"];
+    repeated MuonFeature muon_features = 3601 [(root_prefix)="trig_L2_muonfeature_"];
+    repeated MuonFeatureDetails muon_feature_detailses = 3602 [(root_prefix)="trig_L2_muonfeaturedetails_"];
+    repeated CombinedMuonFeature combined_muon_features = 3603 [(root_prefix)="trig_L2_combmuonfeature_"];
+    repeated IsoMuonFeature iso_muon_features = 3604 [(root_prefix)="trig_L2_isomuonfeature_"];
+    repeated TileMuFeature tile_mu_features = 3605 [(root_prefix)="trig_L2_tilemufeature_"];
+    repeated TileTrackMuFeature tile_track_mu_features = 3606 [(root_prefix)="trig_L2_tiletrackmufeature_"];
+    repeated TrigMuonEFInfo trig_ef_trigmuonef = 3607 [(root_prefix)="trig_EF_trigmuonef_"];
+    repeated TrigMuonEFInfo trig_ef_trigmugirl = 3608 [(root_prefix)="trig_EF_trigmugirl_"];
+    repeated TrigInDetTrack trig_l2_sitrack_muon = 3609 [(root_prefix)="trig_L2_sitrack_muon_"];
+    repeated TrigInDetTrack trig_l2_idscan_muon = 3610 [(root_prefix)="trig_L2_idscan_muon_"];
+    repeated TrigInDetTrack trig_l2_sitrack_isomuon = 3611 [(root_prefix)="trig_L2_sitrack_isomuon_"];
+    repeated TrigInDetTrack trig_l2_idscan_isomuon = 3612 [(root_prefix)="trig_L2_idscan_isomuon_"];
+    repeated TrigRoiDesc trig_roi_descs = 3613 [(root_prefix)="trig_roidescriptor_forID_"];
+    
+    repeated CombLinksD3PDObjectL2_mu comb_links_d3pdobject_l2_mus = 3700 [(root_prefix)="trig_RoI_L2_mu_"];
+    repeated CombLinksD3PDObjectEF_mu comb_links_d3pdobject_ef_mus = 3701 [(root_prefix)="trig_RoI_EF_mu_"];
+    repeated CombLinksD3PDObjectL2_TileMu comb_links_d3pdobject_l2_tile_mus = 3702 [(root_prefix)="trig_RoI_L2_TileMu_"];
+    repeated CombLinksD3PDObjectEF_TileMu comb_links_d3pdobject_ef_tile_mus = 3703 [(root_prefix)="trig_RoI_EF_TileMu_"];
+    
+    optional EnergySumROI energy_sum_roi = 3800 [(root_prefix)="trig_L1_esum_"];
+    
+    optional TrigMET trig_l2_met = 3900 [(root_prefix)="trig_L2_met_"];
+    optional TrigMET trig_ef_met = 3901 [(root_prefix)="trig_EF_met_"];
+    
+}
