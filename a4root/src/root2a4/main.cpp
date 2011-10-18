@@ -24,9 +24,6 @@ using google::protobuf::Descriptor;
 
 #include "a4/root/test/Event.pb.h"
 
-A4RegisterClass(a4::root::test::Event);
-A4RegisterClass(a4::root::atlas::ntup_photon::Event);
-
 
 /// Builds a RootToMessageFactory when Notify() is called.
 class EventFactoryBuilder : public TObject
@@ -71,7 +68,7 @@ void copy_tree(TTree& tree, shared<a4::io::OutputStream> stream,
         return;
     
     // Disable all branches. Branches get enabled through 
-    // TBranch::ResetBit(kDoNotProcess) we make the message factory.
+    // TBranch::ResetBit(kDoNotProcess) in the message factory.
     tree.SetBranchStatus("*", false);
     
     // An event_factory is automatically created when the branch pointers change

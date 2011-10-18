@@ -29,9 +29,6 @@ typedef std::vector<Copier>          Copiers;
 
 typedef Message* MessageP;
 
-/// Used for nested types to get a MutableMessage for a bound
-typedef function<Message* (Message*)> MutableMessageGetter;
-
 typedef function<void (Message**, size_t)> SubmessageSetter;
 typedef std::vector<SubmessageSetter> SubmessageSetters;
 

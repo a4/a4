@@ -198,7 +198,9 @@ void submessage_setter(Message** messages, size_t count, TBranchElement* br,
     const typename Setter<PROTOBUF_TYPE>::ProtobufSetter& setter, 
     const FieldDescriptor* field)
 {
-    vector<SOURCE_TYPE>* values = reinterpret_cast<vector<SOURCE_TYPE>* >(br->GetObject());
+    vector<SOURCE_TYPE>* values = 
+        reinterpret_cast<vector<SOURCE_TYPE>* >(br->GetObject());
+        
     for (size_t i = 0; i < count; i++)
         setter(messages[i], static_cast<PROTOBUF_TYPE>(values->at(i)));
 }
@@ -208,7 +210,9 @@ void submessage_adder(Message** messages, size_t count, TBranchElement* br,
     const typename Setter<PROTOBUF_TYPE>::ProtobufAdder& adder,
     const FieldDescriptor* field)
 {
-    const vector<vector<SOURCE_TYPE> >* values = reinterpret_cast<vector<vector<SOURCE_TYPE> >* >(br->GetObject());
+    const vector<vector<SOURCE_TYPE> >* values = 
+        reinterpret_cast<vector<vector<SOURCE_TYPE> >* >(br->GetObject());
+        
     for (size_t i = 0; i < count; i++)
         foreach (const SOURCE_TYPE& value, values->at(i))
             adder(messages[i], static_cast<PROTOBUF_TYPE>(value));
