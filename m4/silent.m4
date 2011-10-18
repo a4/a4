@@ -10,7 +10,7 @@ m4_ifdef([AM_SILENT_RULES],[
 A4_SET_AM_V_PROTOC='
 A@&t@M_V_PROTOC = $(am__v_PROTOC_$(V))
 am__v_PROTOC_ = $(am__v_PROTOC_$(AM_DEFAULT_VERBOSITY))
-am__v_PROTOC_0 = @echo "  PROTOC" $@;'
+am__v_PROTOC_0 = @echo "  PROTOC" $$@@;'
 
     AC_SUBST(A4_SET_AM_V_PROTOC)
 ],[
