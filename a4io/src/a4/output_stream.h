@@ -52,6 +52,7 @@ namespace a4{ namespace io{
             
             /// Set compression flag [default=true]
             OutputStream & set_compression(bool c) { _compression = c; return *this; };
+            OutputStream & set_compression(std::string);
             /// If called, metadata will refer to the events following the metadata, instead of events before.
             /// Has to be called before writing is begun.
             OutputStream & set_forward_metadata() { assert(!_opened); _metadata_refers_forward = true; return *this; };
@@ -78,6 +79,13 @@ namespace a4{ namespace io{
             std::string _output_name, _description;
             int _fileno;
             bool _compression;
+            int _compression_level;
+            enum CompressionType {
+                UNCOMPRESSED,
+                ZLIB,
+                SNAPPY,
+            };
+            CompressionType _compression_type;
             bool _opened, _closed;
             bool _metadata_refers_forward;
             std::vector<uint64_t> metadata_positions;

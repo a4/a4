@@ -108,9 +108,15 @@ void copy_tree(TTree& tree, shared<a4::io::OutputStream> stream,
 int main(int argc, char ** argv) {
     namespace po = boost::program_options;
 
-    std::string tree_name, tree_type, output_file;
+    std::string tree_name, tree_type, output_file, compression_type;
     std::vector<std::string> input_files;
     Long64_t event_count = -1;
+    
+    #ifdef HAVE_SNAPPY
+    const char* default_compression = "SNAPPY";
+    #else
+    const char* default_compression = "ZLIB9";
+    #endif
 
     po::positional_options_description p;
     p.add("input", -1);
@@ -123,6 +129,7 @@ int main(int argc, char ** argv) {
         ("input,i", po::value<std::vector<std::string> >(&input_files), "input file names")
         ("output,o", po::value<std::string>(&output_file)->default_value("test_io.a4"), "output file name")
         ("event-count,c", po::value<Long64_t>(&event_count)->default_value(-1), "number of events to process (-1=all available)")
+        ("compression-type,C", po::value(&compression_type)->default_value(default_compression), "compression level '[TYPE] [LEVEL]'")
     ;
     
     po::variables_map arguments;
@@ -143,7 +150,8 @@ int main(int argc, char ** argv) {
         input.Add(input_file.c_str());
 
     a4::io::A4Output a4o(output_file, "Event");
-    shared<a4::io::OutputStream> stream = a4o.get_stream(); 
+    shared<a4::io::OutputStream> stream = a4o.get_stream();
+    stream->set_compression(compression_type);
     
     if (tree_type == "test")
         copy_tree(input, stream, a4::root::test::Event::descriptor(), event_count);
