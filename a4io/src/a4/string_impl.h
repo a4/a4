@@ -1,3 +1,6 @@
+#pragma once
+#ifndef _A4_STRING_IMPL_H
+#define _A4_STRING_IMPL_H
 #include <a4/string.h>
 #include <typeinfo>
 #include <cxxabi.h>
@@ -50,3 +53,4 @@ static inline std::string str_cat(const Args&... args) {
     return _string_internal::str_cat(args...);
 };
 
+#endif
