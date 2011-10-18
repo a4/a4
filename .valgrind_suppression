@@ -111,9 +111,5 @@
    Memcheck:Cond
    fun:inflateReset2
    fun:inflateInit2_
-   fun:_ZN2a42io15GzipInputStream7InflateEi
-   fun:_ZN2a42io15GzipInputStream4NextEPPKvPi
-   fun:_ZN6google8protobuf2io16CodedInputStream7RefreshEv
-   fun:_ZN2a42io13A4InputStream17start_compressionERKNS0_24A4StartCompressedSectionE
 }
 
