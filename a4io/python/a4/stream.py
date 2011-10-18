@@ -5,10 +5,11 @@ from google.protobuf.message import Message
 from google.protobuf.descriptor import Descriptor, FileDescriptor, FieldDescriptor, EnumDescriptor, EnumValueDescriptor
 from google.protobuf.descriptor_pb2 import FileDescriptorProto
 
-
-from a4.zlib_stream import ZlibInputStream, ZlibOutputStream
-from a4.proto_class_pool import ProtoClassPool
 from a4.io.A4Stream_pb2 import StreamHeader, StreamFooter, StartCompressedSection, EndCompressedSection, ProtoClass
+
+from .zlib_stream import ZlibInputStream, ZlibOutputStream
+from .snappy_stream import SnappyInputStream
+from .proto_class_pool import ProtoClassPool
 
 START_MAGIC = "A4STREAM"
 END_MAGIC = "KTHXBYE4"
@@ -329,7 +330,13 @@ class InputStream(object):
 
         if cls == StartCompressedSection:
             self._orig_in_stream = self.in_stream
-            self.in_stream = ZlibInputStream(self._orig_in_stream)
+            if msg.compression is msg.ZLIB:
+                self.in_stream = ZlibInputStream(self._orig_in_stream)
+            elif msg.compression is msg.SNAPPY:
+
+                self.in_stream = SnappyInputStream(self._orig_in_stream)
+            else:
+                raise RuntimeError("Unknown compression in input: %s" % str(msg))
             return self.read_message()
         elif cls == EndCompressedSection:
             self.in_stream.close()
