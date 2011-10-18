@@ -61,14 +61,14 @@ bool SnappyInputStream::Next(const void** data, int* size) {
     uint32_t compressed_size = 0;
     assert(_sub_stream->ReadVarint32(&compressed_size));
     assert(compressed_size < BLOCKSIZE*10);
-    shared<char> tempbuffer(new char[compressed_size]); 
+    shared<char> tempbuffer(new char[compressed_size], array_delete<char>()); 
     _sub_stream->ReadRaw(tempbuffer.get(), compressed_size);
     
     bool success = snappy::GetUncompressedLength(
         tempbuffer.get(), compressed_size, &_output_buffer_size);
     assert(success);
     
-    _output_buffer.reset(new char[_output_buffer_size]);
+    _output_buffer.reset(new char[_output_buffer_size], array_delete<char>());
     success = snappy::RawUncompress(tempbuffer.get(), compressed_size, _output_buffer.get());
     assert(success);
     
@@ -100,7 +100,7 @@ bool SnappyOutputStream::Flush()
     if (!_input_buffer || size == 0) return true;
     
     size_t compressed_size = 0;
-    shared<char> compressed_data(new char[snappy::MaxCompressedLength(size)]);
+    shared<char> compressed_data(new char[snappy::MaxCompressedLength(size)], array_delete<char>());
     snappy::RawCompress(_input_buffer.get(), size, compressed_data.get(), &compressed_size);
     
     assert(compressed_size <= 2*BLOCKSIZE);
@@ -124,7 +124,7 @@ bool SnappyOutputStream::Next(void** data, int* size) {
         return true;
     }
     if(_input_buffer) Flush();
-    _input_buffer.reset(new char[BLOCKSIZE]);
+    _input_buffer.reset(new char[BLOCKSIZE], array_delete<char>());
     (*data) = _input_buffer.get();
     (*size) = BLOCKSIZE;
     return true;
