@@ -1,11 +1,6 @@
 #include <iostream>
 
 #include <boost/program_options.hpp>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-//using namespace boost;
-using boost::bind;
-using boost::function;
 
 #include <google/protobuf/compiler/importer.h>
 #include <google/protobuf/message.h>
