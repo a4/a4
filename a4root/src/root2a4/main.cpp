@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <boost/program_options.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 //using namespace boost;
@@ -19,6 +20,7 @@ using google::protobuf::Descriptor;
 #include "common.h"
 
 #include "a4/root/atlas/ntup_photon/Event.pb.h"
+#include "a4/root/atlas/ntup_smwz/Event.pb.h"
 
 #include "a4/root/test/Event.pb.h"
 
@@ -107,15 +109,54 @@ void copy_tree(TTree& tree, shared<a4::io::OutputStream> stream,
 }
 
 int main(int argc, char ** argv) {
-    a4::io::A4Output a4o("test_io.a4", "Event");
+    namespace po = boost::program_options;
 
+    std::string tree_name, tree_type, output_file;
+    std::vector<std::string> input_files;
+    Long64_t event_count = -1;
+
+    po::positional_options_description p;
+    p.add("input", -1);
+
+    po::options_description commandline_options("Allowed options");
+    commandline_options.add_options()
+        ("help,h", "produce help message")
+        ("tree-name,n", po::value<std::string>(&tree_name), "input TTree name")
+        ("tree-type,T", po::value<std::string>(&tree_type)->default_value("test"), "which event factory to use (SMWZ, PHOTON, test)")
+        ("input,i", po::value<std::vector<std::string> >(&input_files), "input file names")
+        ("output,o", po::value<std::string>(&output_file)->default_value("test_io.a4"), "output file name")
+        ("event-count,c", po::value<Long64_t>(&event_count)->default_value(-1), "number of events to process (-1=all available)")
+    ;
+    
+    po::variables_map arguments;
+    po::store(po::command_line_parser(argc, argv).
+              options(commandline_options).positional(p).run(), arguments);
+    po::notify(arguments);
+    
+    if (arguments.count("help") || !arguments.count("input"))
+    {
+        std::cout << "Usage: " << argv[0] << " [Options] input(s)" << std::endl;
+        std::cout << commandline_options << std::endl;
+        return 1;
+    }
+
+    TChain input(tree_name.c_str());
+    
+    foreach (const std::string& input_file, input_files)
+        input.Add(input_file.c_str());
+
+    a4::io::A4Output a4o(output_file, "Event");
     shared<a4::io::OutputStream> stream = a4o.get_stream(); 
-
-    TChain input("photon");
-    input.Add("input/*.root*");
-    ///a4::root::atlas::ntup_photon::Event
-    // a4::root::test::Event
-    copy_tree(input, stream, a4::root::atlas::ntup_photon::Event::descriptor(), 2000);
+    
+    if (tree_type == "test")
+        copy_tree(input, stream, a4::root::test::Event::descriptor(), event_count);
+    else if (tree_type == "PHOTON")
+        copy_tree(input, stream, a4::root::atlas::ntup_photon::Event::descriptor(), event_count);
+    else if (tree_type == "SMWZ")
+        copy_tree(input, stream, a4::root::atlas::ntup_smwz::Event::descriptor(), event_count);
+    else
+        // TODO(pwaller): Accept .proto files here
+        throw a4::Fatal("Unknown filetype '", tree_type, "', should be test, PHOTON or SMWZ.");
 }
 
 

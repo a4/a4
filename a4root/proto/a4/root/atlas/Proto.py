@@ -368,7 +368,7 @@ def main():
         with open(filename) as fd:
             files = generate_proto(fd)
             
-    for output in files:            
+    for output in files:
         with open(package_name + "/" + output.filename, "w") as fd:
             fd.write(output.content(package_name))
     
