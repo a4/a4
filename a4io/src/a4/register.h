@@ -36,7 +36,7 @@ namespace a4{ namespace io{
             classreg r;
             r.descriptor = ProtoClass::descriptor();
             r.from_stream = from_stream<ProtoClass>;
-            return map_class(r.descriptor->full_name(), 0, r);
+            return map_class("", 0, r);
         }
     }
 

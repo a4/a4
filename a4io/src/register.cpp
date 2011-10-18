@@ -14,7 +14,7 @@ namespace a4{ namespace io{
     internal::classreg internal::map_class(std::string name, uint32_t lookup_class_id, internal::classreg reg, bool warn) {
         static std::map<std::string, internal::classreg> all_classes;
         if (reg.descriptor) {
-            all_classes[name] = reg;
+            all_classes[reg.descriptor->full_name()] = reg;
         } else if (lookup_class_id) {
             // Put the generation into the first lookup (see "static initialization order fiasco"
             // Did i mention that i miss the auto keyword?
@@ -30,7 +30,7 @@ namespace a4{ namespace io{
             }
             if (warn) std::cerr << "Warning, trying to get a compiled-in reader for classid " << lookup_class_id
                                 << " when there is none." << std::endl;
-        } else {
+        } else if (name.size() != 0) {
             std::map<std::string, internal::classreg>::const_iterator res = all_classes.find(name);
             if (res == all_classes.end()) {
                 if (warn)
