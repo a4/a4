@@ -169,6 +169,8 @@ class VariablePlain(VariableBase):
         self.orig_name = var.name
         self.name = MANUAL_FIXUP.get(var.name, var.name)
         self.label, self.type = type_name(var.typecode)
+        if not parent.is_container and is_vector(var.typecode)[0]:
+            self.label = "repeated"
         self.parent = parent
         default = ""
         name = parent.name + "." + self.name
@@ -314,6 +316,7 @@ def generate_proto(input_stream):
     class Event:
         name = "Event"
         variables = []
+        is_container = False
         
     event = ProtoFile(Event)
     files, file_map = [event], {'': event}

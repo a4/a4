@@ -11,19 +11,19 @@ message TrigMET {
     
     optional int32 flag = 200 [(root_branch)="flag"];
     
-    optional string nameOfComponent = 300 [(root_branch)="nameOfComponent"];
-    optional float MExComponent = 301 [(root_branch)="MExComponent"];
-    optional float MEyComponent = 302 [(root_branch)="MEyComponent"];
-    optional float MEzComponent = 303 [(root_branch)="MEzComponent"];
-    optional float sumEtComponent = 304 [(root_branch)="sumEtComponent"];
-    optional float sumEComponent = 305 [(root_branch)="sumEComponent"];
-    optional float componentCalib0 = 306 [(root_branch)="componentCalib0"];
-    optional float componentCalib1 = 307 [(root_branch)="componentCalib1"];
+    repeated string nameOfComponent = 300 [(root_branch)="nameOfComponent"];
+    repeated float MExComponent = 301 [(root_branch)="MExComponent"];
+    repeated float MEyComponent = 302 [(root_branch)="MEyComponent"];
+    repeated float MEzComponent = 303 [(root_branch)="MEzComponent"];
+    repeated float sumEtComponent = 304 [(root_branch)="sumEtComponent"];
+    repeated float sumEComponent = 305 [(root_branch)="sumEComponent"];
+    repeated float componentCalib0 = 306 [(root_branch)="componentCalib0"];
+    repeated float componentCalib1 = 307 [(root_branch)="componentCalib1"];
     
-    optional int32 sumOfSigns = 400 [(root_branch)="sumOfSigns"];
+    repeated int32 sumOfSigns = 400 [(root_branch)="sumOfSigns"];
     
-    optional uint32 usedChannels = 500 [(root_branch)="usedChannels"];
+    repeated uint32 usedChannels = 500 [(root_branch)="usedChannels"];
     
-    optional int32 status = 600 [(root_branch)="status"];
+    repeated int32 status = 600 [(root_branch)="status"];
     
 }

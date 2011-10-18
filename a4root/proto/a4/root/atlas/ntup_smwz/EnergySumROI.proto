@@ -2,7 +2,7 @@ package a4.root.atlas.ntup_smwz;
 import "a4/root/RootExtension.proto";
 
 message EnergySumROI {
-    optional string thrNames = 1 [(root_branch)="thrNames"];
+    repeated string thrNames = 1 [(root_branch)="thrNames"];
     
     optional float ExMiss = 100 [(root_branch)="ExMiss"];
     optional float EyMiss = 101 [(root_branch)="EyMiss"];
