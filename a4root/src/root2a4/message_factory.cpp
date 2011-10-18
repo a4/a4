@@ -41,7 +41,8 @@ void call_setter(typename Setter<PROTOBUF_TYPE>::ProtobufSetter setter,
     typename Setter<PROTOBUF_TYPE>::ProtobufGetter getter,  
     Message* message, void* value)
 {
-    const PROTOBUF_TYPE& val = static_cast<PROTOBUF_TYPE>(*reinterpret_cast<SOURCE_TYPE*>(value));
+    const SOURCE_TYPE* ptr = reinterpret_cast<SOURCE_TYPE*>(value);
+    const PROTOBUF_TYPE& val = static_cast<PROTOBUF_TYPE>(*ptr);
     // Check that it's not equal to the default value
     if (getter(*message) != val)
         setter(message, val);

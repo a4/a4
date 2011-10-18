@@ -106,6 +106,8 @@ void copy_tree(TTree& tree, shared<a4::io::OutputStream> stream,
 }
 
 int main(int argc, char ** argv) {
+    a4::Fatal::enable_throw_on_segfault();
+
     namespace po = boost::program_options;
 
     std::string tree_name, tree_type, output_file, compression_type;
@@ -115,7 +117,7 @@ int main(int argc, char ** argv) {
     #ifdef HAVE_SNAPPY
     const char* default_compression = "SNAPPY";
     #else
-    const char* default_compression = "ZLIB9";
+    const char* default_compression = "ZLIB 9";
     #endif
 
     po::positional_options_description p;
