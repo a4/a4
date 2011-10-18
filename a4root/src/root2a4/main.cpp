@@ -1,5 +1,7 @@
 #include <iostream>
 
+#include <boost/filesystem.hpp>
+using boost::filesystem::current_path;
 #include <boost/program_options.hpp>
 
 #include <google/protobuf/compiler/importer.h>
@@ -170,7 +172,7 @@ int main(int argc, char ** argv) {
     };
     
     DiskSourceTree source_tree;
-    source_tree.MapPath("", "/home/pwaller/Projects/a4/build/a4root");
+    source_tree.MapPath("", current_path().string());
     source_tree.MapPath("a4/root/", "");
     
     SourceTreeDescriptorDatabase source_tree_db(&source_tree);
