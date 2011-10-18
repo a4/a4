@@ -214,7 +214,6 @@ class VariableMessage(VariableBase):
 class ProtoFile(object):
     def __init__(self, cls):
         self.cls = cls
-        self.package = None
         self.name = cls.name
         self.children = []
         self.extensions = []
@@ -298,7 +297,7 @@ class ProtoFile(object):
         
         includes = sorted(set(c.file.name for _, c in self.children))
         return "\n".join(
-            ["package {0};".format(package_name)] +
+            ["package a4.root.atlas.{0};".format(package_name)] +
             [PROTO_HEADER] +
             [PROTO_INCLUDES.format(package_name, name) for name in includes] +
             [""] +
@@ -369,10 +368,7 @@ def main():
         with open(filename) as fd:
             files = generate_proto(fd)
             
-    for output in files:
-        if output.name == "Event":
-            output.package = "a4.root.atlas." + package_name
-            
+    for output in files:            
         with open(package_name + "/" + output.filename, "w") as fd:
             fd.write(output.content(package_name))
     

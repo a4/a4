@@ -1,3 +1,4 @@
+package a4.root.atlas.ntup_photon;
 import "a4/root/RootExtension.proto";
 
 message CombLinksD3PDObjectEF_e {

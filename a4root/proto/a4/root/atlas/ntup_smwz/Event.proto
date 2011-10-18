@@ -1,4 +1,4 @@
-package ntup_smwz;
+package a4.root.atlas.ntup_smwz;
 import "a4/root/RootExtension.proto";
 import "a4/root/atlas/ntup_smwz/BeamSpot.proto";
 import "a4/root/atlas/ntup_smwz/ChainEntry.proto";
