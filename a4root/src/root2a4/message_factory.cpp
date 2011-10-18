@@ -14,9 +14,11 @@ using boost::function;
 
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/message.h>
+#include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/descriptor.h>
 using google::protobuf::Message;
 using google::protobuf::MessageFactory;
+using google::protobuf::DynamicMessageFactory;
 using google::protobuf::Descriptor;
 using google::protobuf::FieldDescriptor;
 using google::protobuf::Reflection;
@@ -333,12 +335,12 @@ const vector<const FieldDescriptor*> get_fields(const Descriptor* d) {
 
 Copier make_repeated_submessage_factory(TTree* tree, 
     const Reflection* parent_refl, const FieldDescriptor* parent_field, 
-    const std::string& prefix="")
+    const std::string& prefix, MessageFactory* dynamic_factory)
 {
     SubmessageSetters submessage_setters;
     const Descriptor* desc = parent_field->message_type();
     assert(desc);
-    const Message* default_instance = MessageFactory::generated_factory()->GetPrototype(desc);
+    const Message* default_instance = dynamic_factory->GetPrototype(desc);
     const Reflection* refl = default_instance->GetReflection();
     
     function<size_t ()> compute_count;
@@ -386,13 +388,13 @@ Copier make_repeated_submessage_factory(TTree* tree,
 
 Copier make_submessage_factory(TTree* tree, 
     const Reflection* parent_refl, const FieldDescriptor* parent_field, 
-    const std::string& prefix="")
+    const std::string& prefix, MessageFactory* dynamic_factory)
 {
     Copiers copiers;
     
     const Descriptor* desc = parent_field->message_type();
     assert(desc);
-    const Message* default_instance = MessageFactory::generated_factory()->GetPrototype(desc);
+    const Message* default_instance = dynamic_factory->GetPrototype(desc);
     const Reflection* refl = default_instance->GetReflection();
     
     foreach (auto field, get_fields(desc)) {
@@ -430,7 +432,7 @@ Copier make_submessage_factory(TTree* tree,
                     field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE) {
             
             const std::string this_prefix = prefix + field->options().GetExtension(root_prefix);
-            copiers.push_back(make_repeated_submessage_factory(tree, refl, field, this_prefix));
+            copiers.push_back(make_repeated_submessage_factory(tree, refl, field, this_prefix, dynamic_factory));
         }
     }
     
@@ -439,11 +441,11 @@ Copier make_submessage_factory(TTree* tree,
 /// Creates a function (RootToMessageFactory) which returns a Message* generated
 /// from the current `tree`'s entry.
 RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc, 
-    const std::string& prefix)
+    const std::string& prefix, MessageFactory* dynamic_factory)
 {
     Copiers copiers;
     
-    const Message* default_instance = MessageFactory::generated_factory()->GetPrototype(desc);
+    const Message* default_instance = dynamic_factory->GetPrototype(desc);
     assert(default_instance);
     const Reflection* refl = default_instance->GetReflection();
     
@@ -465,7 +467,7 @@ RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc,
             auto leafname = prefix + postfix;
             
             if (specifies_prefix) {
-                copiers.push_back(make_submessage_factory(tree, refl, field, leafname));
+                copiers.push_back(make_submessage_factory(tree, refl, field, leafname, dynamic_factory));
                 continue;
             }
             
@@ -488,7 +490,7 @@ RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc,
                    field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE) {
             
             const std::string this_prefix = prefix + field->options().GetExtension(root_prefix);
-            copiers.push_back(make_repeated_submessage_factory(tree, refl, field, this_prefix));
+            copiers.push_back(make_repeated_submessage_factory(tree, refl, field, this_prefix, dynamic_factory));
         
         } else {
             // What to do here? Warn the user that we're ignoring the field?

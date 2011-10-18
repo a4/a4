@@ -7,10 +7,21 @@
 using boost::bind;
 using boost::function;
 
+#include <google/protobuf/compiler/importer.h>
 #include <google/protobuf/message.h>
+#include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/descriptor.h>
 using google::protobuf::Message;
+using google::protobuf::MessageFactory;
+using google::protobuf::DynamicMessageFactory;
 using google::protobuf::Descriptor;
+using google::protobuf::FileDescriptor;
+using google::protobuf::DescriptorPool;
+using google::protobuf::DescriptorPoolDatabase;
+using google::protobuf::MergedDescriptorDatabase;
+using google::protobuf::compiler::MultiFileErrorCollector;
+using google::protobuf::compiler::DiskSourceTree;
+using google::protobuf::compiler::SourceTreeDescriptorDatabase;
 
 #include <TChain.h>
 
@@ -31,11 +42,12 @@ class EventFactoryBuilder : public TObject
 TTree& _tree;
 const Descriptor* _descriptor;
 RootToMessageFactory* _factory;
+MessageFactory* _dynamic_factory;
 
 public:
 
-    EventFactoryBuilder(TTree& t, const Descriptor* d, RootToMessageFactory* f) :
-        _tree(t), _descriptor(d), _factory(f)
+    EventFactoryBuilder(TTree& t, const Descriptor* d, RootToMessageFactory* f, MessageFactory* dynamic_factory)
+        : _tree(t), _descriptor(d), _factory(f), _dynamic_factory(dynamic_factory)
     {}
 
     /// Called when the TTree branch addresses change. 
@@ -44,7 +56,7 @@ public:
     { 
         assert(_descriptor);
         //std::cout << "Notify start" << std::endl;
-        (*_factory) = make_message_factory(&_tree, _descriptor);
+        (*_factory) = make_message_factory(&_tree, _descriptor, "", _dynamic_factory);
         //std::cout << "Notify end" << std::endl;
         return true;
     }
@@ -53,7 +65,8 @@ public:
 /// Copies `tree` into the `stream` using information taken from the compiled in
 /// Event class.
 void copy_tree(TTree& tree, shared<a4::io::OutputStream> stream, 
-    const Descriptor* message_descriptor, Long64_t entries = -1)
+    MessageFactory* dynamic_factory, const Descriptor* message_descriptor, 
+    Long64_t entries = -1)
 {
     Long64_t tree_entries = tree.GetEntries();
     if (entries > tree_entries)
@@ -77,7 +90,7 @@ void copy_tree(TTree& tree, shared<a4::io::OutputStream> stream,
     
     // This is the only place where we say that we're wanting to build the 
     // Event class.
-    EventFactoryBuilder builder(tree, message_descriptor, &event_factory);
+    EventFactoryBuilder builder(tree, message_descriptor, &event_factory, dynamic_factory);
     
     tree.SetNotify(&builder);
     // This line is needed. It seems to sometimes not get called automatically 
@@ -155,15 +168,46 @@ int main(int argc, char ** argv) {
     shared<a4::io::OutputStream> stream = a4o.get_stream();
     stream->set_compression(compression_type);
     
+    class ErrorCollector : public MultiFileErrorCollector {
+        void AddError(const std::string& filename, int line, int column, const std::string& message) {
+            throw a4::Fatal("Proto import error in ", filename, ":", line, ":", column, " ", message);
+        }
+    };
+    
+    DiskSourceTree source_tree;
+    source_tree.MapPath("", "/home/pwaller/Projects/a4/build/a4root");
+    source_tree.MapPath("a4/root/", "");
+    
+    SourceTreeDescriptorDatabase source_tree_db(&source_tree);
+    ErrorCollector e;
+    source_tree_db.RecordErrorsTo(&e);
+    DescriptorPool source_pool(&source_tree_db, source_tree_db.GetValidationErrorCollector());
+    
+    DescriptorPoolDatabase builtin_pool(*DescriptorPool::generated_pool());
+    MergedDescriptorDatabase merged_pool(&builtin_pool, &source_tree_db);
+    
+    DescriptorPool pool(&merged_pool, source_tree_db.GetValidationErrorCollector());
+    
+    DynamicMessageFactory dynamic_factory(&pool);
+    dynamic_factory.SetDelegateToGeneratedFactory(true);
+    
+    const Descriptor* descriptor = NULL;
     if (tree_type == "test")
-        copy_tree(input, stream, a4::root::test::Event::descriptor(), event_count);
+        descriptor = a4::root::test::Event::descriptor();
     else if (tree_type == "PHOTON")
-        copy_tree(input, stream, a4::root::atlas::ntup_photon::Event::descriptor(), event_count);
+        descriptor = a4::root::atlas::ntup_photon::Event::descriptor();
     else if (tree_type == "SMWZ")
-        copy_tree(input, stream, a4::root::atlas::ntup_smwz::Event::descriptor(), event_count);
+        descriptor = a4::root::atlas::ntup_smwz::Event::descriptor();
     else
-        // TODO(pwaller): Accept .proto files here
-        throw a4::Fatal("Unknown filetype '", tree_type, "', should be test, PHOTON or SMWZ.");
+    {        
+        const FileDescriptor* file_descriptor = pool.FindFileByName(tree_type);
+                
+        descriptor = file_descriptor->FindMessageTypeByName("Event");
+        
+        if (!descriptor)
+            throw a4::Fatal("Couldn't find an \"Event\" class in ", tree_type);
+    }
+    copy_tree(input, stream, &dynamic_factory, descriptor, event_count);
 }
 
 

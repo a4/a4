@@ -7,6 +7,7 @@ using boost::function;
 #include <a4/types.h>
 
 class Message;
+class MessageFactory;
 class TBranchElement;
 class FieldDescriptor;
 
@@ -32,5 +33,5 @@ typedef Message* MessageP;
 typedef function<void (Message**, size_t)> SubmessageSetter;
 typedef std::vector<SubmessageSetter> SubmessageSetters;
 
-RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc, 
-    const std::string& prefix="");
+RootToMessageFactory make_message_factory(TTree*, const Descriptor*,
+    const std::string&, MessageFactory*);
