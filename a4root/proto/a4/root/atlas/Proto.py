@@ -33,22 +33,6 @@ MANUAL_FIXUP = {
     "jet_AntiKt6TruthJets_": "truth_jets_6",
     "jet_AntiKt4TruthWithMuNoIntJets_": "truth_jets_4_mu_noint",
     "jet_AntiKt6TruthWithMuNoIntJets_": "truth_jets_6_mu_noint",
-    """
-    "MET_LocHadTopo_": "lochad_top_met",
-    "MET_Cryo_": "met_cryo",
-    "MET_RefFinal_": "met_reffinal",
-    "MET_RefEle_": "met_ele",
-    "MET_RefJet_": "met_jet",
-    "MET_RefMuon_": "met_muon",
-    "MET_RefMuon_Staco_": "met_muon_staco",
-    "MET_RefMuon_Muid_": "met_muon_muid",
-    "MET_RefGamma_": "met_gamma",
-    "MET_RefTau_": "met_tau",
-    "MET_CellOut_": "met_cellout",
-    "MET_MuonBoy_": "met_muonboy",
-    "MET_MuonBoy_Track_": "met_muonboy_track",
-    "MET_Final_": "met_final",
-    """:None
 }
 
 # Mappings from prefixes to class names
