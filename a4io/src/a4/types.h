@@ -24,6 +24,8 @@
 #endif
 
 #include <a4/exceptions.h>
+#include <a4/string.h>
+#include <a4/debug.h>
 
 #include <boost/shared_array.hpp>
 using boost::shared_array;
