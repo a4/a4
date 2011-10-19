@@ -50,9 +50,26 @@ namespace a4{ namespace io{
             bool opened() { return _opened; };
             bool closed() { return _closed; };
             
-            /// Set compression flag [default=true]
-            OutputStream & set_compression(bool c) { _compression = c; return *this; };
-            OutputStream & set_compression(std::string);
+            typedef enum {
+                UNCOMPRESSED,
+                ZLIB,
+                SNAPPY,
+            } CompressionType;
+            CompressionType compression_type(std::string s) {
+                if(s == "UNCOMPRESSED") return UNCOMPRESSED;
+                if(s == "ZLIB") return ZLIB;
+                if(s == "SNAPPY") return SNAPPY;
+                throw a4::Fatal("Unknown Compression Type: ", s);
+            }
+            /// Set compression type and level
+            OutputStream & set_compression(CompressionType t, int level = 5);
+            OutputStream & set_compression(std::string t, int level = 5) {
+                return set_compression(compression_type(t), level);
+            };
+
+
+
+
             /// If called, metadata will refer to the events following the metadata, instead of events before.
             /// Has to be called before writing is begun.
             OutputStream & set_forward_metadata() { assert(!_opened); _metadata_refers_forward = true; return *this; };
@@ -80,11 +97,7 @@ namespace a4{ namespace io{
             int _fileno;
             bool _compression;
             int _compression_level;
-            enum CompressionType {
-                UNCOMPRESSED,
-                ZLIB,
-                SNAPPY,
-            };
+
             CompressionType _compression_type;
             bool _opened, _closed;
             bool _metadata_refers_forward;

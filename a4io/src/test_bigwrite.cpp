@@ -20,7 +20,7 @@ int main(int argc, char ** argv) {
     const bool compression = atoi(argv[2]) == 1;
     {
         OutputStream w(argv[3], "TestEvent");
-        w.set_compression(compression);
+        w.set_compression(compression ? w.UNCOMPRESSED : w.ZLIB);
         if (forward) w.set_forward_metadata();
 
         const uint64_t N = 800*1000*1000L;

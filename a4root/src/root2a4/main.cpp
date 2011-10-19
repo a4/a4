@@ -163,8 +163,11 @@ int main(int argc, char ** argv) {
 
     a4::io::A4Output a4o(output_file, "Event");
     shared<a4::io::OutputStream> stream = a4o.get_stream();
-    stream->set_compression(compression_type);
-    
+    std::stringstream ss(compression_type);
+    std::string ctype; int level;
+    ss >> ctype >> level;
+    stream->set_compression(ctype, level);
+
     class ErrorCollector : public MultiFileErrorCollector {
         void AddError(const std::string& filename, int line, int column, const std::string& message) {
             throw a4::Fatal("Proto import error in ", filename, ":", line, ":", column, " ", message);
