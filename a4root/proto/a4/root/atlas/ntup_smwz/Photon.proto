@@ -5,36 +5,36 @@ message Photon {
     optional float E = 1 [(root_branch)="E"];
     optional float Et = 2 [(root_branch)="Et"];
     optional float pt = 3 [(root_branch)="pt"];
-    optional float m = 4 [(root_branch)="m", default=0.0];
+    optional float m = 4 [(root_branch)="m"];
     optional float eta = 5 [(root_branch)="eta"];
     optional float phi = 6 [(root_branch)="phi"];
     optional float px = 7 [(root_branch)="px"];
     optional float py = 8 [(root_branch)="py"];
     optional float pz = 9 [(root_branch)="pz"];
     
-    optional int32 author = 100 [(root_branch)="author", default=16];
+    optional int32 author = 100 [(root_branch)="author"];
     
-    optional int32 isRecovered = 200 [(root_branch)="isRecovered", default=1];
+    optional int32 isRecovered = 200 [(root_branch)="isRecovered"];
     
-    optional uint32 isEM = 300 [(root_branch)="isEM", default=0];
+    optional uint32 isEM = 300 [(root_branch)="isEM"];
     optional uint32 isEMLoose = 301 [(root_branch)="isEMLoose"];
     optional uint32 isEMMedium = 302 [(root_branch)="isEMMedium"];
     optional uint32 isEMTight = 303 [(root_branch)="isEMTight"];
     
-    optional uint32 OQ = 400 [(root_branch)="OQ", default=0];
-    optional uint32 OQRecalc = 401 [(root_branch)="OQRecalc", default=0];
+    optional uint32 OQ = 400 [(root_branch)="OQ"];
+    optional uint32 OQRecalc = 401 [(root_branch)="OQRecalc"];
     
-    optional int32 convFlag = 500 [(root_branch)="convFlag", default=0];
-    optional int32 isConv = 501 [(root_branch)="isConv", default=0];
-    optional int32 nConv = 502 [(root_branch)="nConv", default=0];
-    optional int32 nSingleTrackConv = 503 [(root_branch)="nSingleTrackConv", default=0];
-    optional int32 nDoubleTrackConv = 504 [(root_branch)="nDoubleTrackConv", default=0];
+    optional int32 convFlag = 500 [(root_branch)="convFlag"];
+    optional int32 isConv = 501 [(root_branch)="isConv"];
+    optional int32 nConv = 502 [(root_branch)="nConv"];
+    optional int32 nSingleTrackConv = 503 [(root_branch)="nSingleTrackConv"];
+    optional int32 nDoubleTrackConv = 504 [(root_branch)="nDoubleTrackConv"];
     
-    optional int32 loose = 600 [(root_branch)="loose", default=1];
+    optional int32 loose = 600 [(root_branch)="loose"];
     optional int32 looseIso = 601 [(root_branch)="looseIso"];
     
-    optional int32 tight = 700 [(root_branch)="tight", default=1];
-    optional int32 tightIso = 701 [(root_branch)="tightIso", default=1];
+    optional int32 tight = 700 [(root_branch)="tight"];
+    optional int32 tightIso = 701 [(root_branch)="tightIso"];
     
     optional int32 looseAR = 800 [(root_branch)="looseAR"];
     optional int32 looseARIso = 801 [(root_branch)="looseARIso"];
@@ -42,44 +42,44 @@ message Photon {
     optional int32 tightAR = 900 [(root_branch)="tightAR"];
     optional int32 tightARIso = 901 [(root_branch)="tightARIso"];
     
-    optional int32 goodOQ = 1000 [(root_branch)="goodOQ", default=1];
+    optional int32 goodOQ = 1000 [(root_branch)="goodOQ"];
     
     optional float Ethad = 1100 [(root_branch)="Ethad"];
     optional float Ethad1 = 1101 [(root_branch)="Ethad1"];
-    optional float E033 = 1102 [(root_branch)="E033", default=-999.0];
-    optional float f1 = 1103 [(root_branch)="f1", default=0.0];
-    optional float f1core = 1104 [(root_branch)="f1core", default=0.0];
-    optional float Emins1 = 1105 [(root_branch)="Emins1", default=0.0];
-    optional float fside = 1106 [(root_branch)="fside", default=0.0];
-    optional float Emax2 = 1107 [(root_branch)="Emax2", default=0.0];
-    optional float ws3 = 1108 [(root_branch)="ws3", default=-9999.0];
-    optional float wstot = 1109 [(root_branch)="wstot", default=-9999.0];
-    optional float E132 = 1110 [(root_branch)="E132", default=-999.0];
-    optional float E1152 = 1111 [(root_branch)="E1152", default=-999.0];
-    optional float emaxs1 = 1112 [(root_branch)="emaxs1", default=0.0];
-    optional float deltaEs = 1113 [(root_branch)="deltaEs", default=0.0];
+    optional float E033 = 1102 [(root_branch)="E033"];
+    optional float f1 = 1103 [(root_branch)="f1"];
+    optional float f1core = 1104 [(root_branch)="f1core"];
+    optional float Emins1 = 1105 [(root_branch)="Emins1"];
+    optional float fside = 1106 [(root_branch)="fside"];
+    optional float Emax2 = 1107 [(root_branch)="Emax2"];
+    optional float ws3 = 1108 [(root_branch)="ws3"];
+    optional float wstot = 1109 [(root_branch)="wstot"];
+    optional float E132 = 1110 [(root_branch)="E132"];
+    optional float E1152 = 1111 [(root_branch)="E1152"];
+    optional float emaxs1 = 1112 [(root_branch)="emaxs1"];
+    optional float deltaEs = 1113 [(root_branch)="deltaEs"];
     optional float E233 = 1114 [(root_branch)="E233"];
     optional float E237 = 1115 [(root_branch)="E237"];
     optional float E277 = 1116 [(root_branch)="E277"];
     optional float weta2 = 1117 [(root_branch)="weta2"];
-    optional float f3 = 1118 [(root_branch)="f3", default=-999.0];
-    optional float f3core = 1119 [(root_branch)="f3core", default=0.0];
+    optional float f3 = 1118 [(root_branch)="f3"];
+    optional float f3core = 1119 [(root_branch)="f3core"];
     
     optional float rphiallcalo = 1200 [(root_branch)="rphiallcalo"];
     
-    optional float Etcone45 = 1300 [(root_branch)="Etcone45", default=-999.0];
+    optional float Etcone45 = 1300 [(root_branch)="Etcone45"];
     optional float Etcone15 = 1301 [(root_branch)="Etcone15"];
     optional float Etcone20 = 1302 [(root_branch)="Etcone20"];
     optional float Etcone25 = 1303 [(root_branch)="Etcone25"];
     optional float Etcone30 = 1304 [(root_branch)="Etcone30"];
     optional float Etcone35 = 1305 [(root_branch)="Etcone35"];
     optional float Etcone40 = 1306 [(root_branch)="Etcone40"];
-    optional float ptcone20 = 1307 [(root_branch)="ptcone20", default=0.0];
-    optional float ptcone30 = 1308 [(root_branch)="ptcone30", default=0.0];
-    optional float ptcone40 = 1309 [(root_branch)="ptcone40", default=0.0];
-    optional float nucone20 = 1310 [(root_branch)="nucone20", default=0.0];
-    optional float nucone30 = 1311 [(root_branch)="nucone30", default=0.0];
-    optional float nucone40 = 1312 [(root_branch)="nucone40", default=0.0];
+    optional float ptcone20 = 1307 [(root_branch)="ptcone20"];
+    optional float ptcone30 = 1308 [(root_branch)="ptcone30"];
+    optional float ptcone40 = 1309 [(root_branch)="ptcone40"];
+    optional float nucone20 = 1310 [(root_branch)="nucone20"];
+    optional float nucone30 = 1311 [(root_branch)="nucone30"];
+    optional float nucone40 = 1312 [(root_branch)="nucone40"];
     
     optional float Etcone15_pt_corrected = 1400 [(root_branch)="Etcone15_pt_corrected"];
     optional float Etcone20_pt_corrected = 1401 [(root_branch)="Etcone20_pt_corrected"];
@@ -88,32 +88,32 @@ message Photon {
     optional float Etcone35_pt_corrected = 1404 [(root_branch)="Etcone35_pt_corrected"];
     optional float Etcone40_pt_corrected = 1405 [(root_branch)="Etcone40_pt_corrected"];
     
-    optional float convanglematch = 1500 [(root_branch)="convanglematch", default=0.0];
-    optional float convtrackmatch = 1501 [(root_branch)="convtrackmatch", default=0.0];
+    optional float convanglematch = 1500 [(root_branch)="convanglematch"];
+    optional float convtrackmatch = 1501 [(root_branch)="convtrackmatch"];
     
-    optional int32 hasconv = 1600 [(root_branch)="hasconv", default=0];
-    optional float convvtxx = 1601 [(root_branch)="convvtxx", default=0.0];
-    optional float convvtxy = 1602 [(root_branch)="convvtxy", default=0.0];
-    optional float convvtxz = 1603 [(root_branch)="convvtxz", default=0.0];
-    optional float Rconv = 1604 [(root_branch)="Rconv", default=0.0];
-    optional float zconv = 1605 [(root_branch)="zconv", default=0.0];
-    optional float convvtxchi2 = 1606 [(root_branch)="convvtxchi2", default=0.0];
-    optional float pt1conv = 1607 [(root_branch)="pt1conv", default=0.0];
+    optional int32 hasconv = 1600 [(root_branch)="hasconv"];
+    optional float convvtxx = 1601 [(root_branch)="convvtxx"];
+    optional float convvtxy = 1602 [(root_branch)="convvtxy"];
+    optional float convvtxz = 1603 [(root_branch)="convvtxz"];
+    optional float Rconv = 1604 [(root_branch)="Rconv"];
+    optional float zconv = 1605 [(root_branch)="zconv"];
+    optional float convvtxchi2 = 1606 [(root_branch)="convvtxchi2"];
+    optional float pt1conv = 1607 [(root_branch)="pt1conv"];
     
-    optional int32 convtrk1nBLHits = 1700 [(root_branch)="convtrk1nBLHits", default=0];
-    optional int32 convtrk1nPixHits = 1701 [(root_branch)="convtrk1nPixHits", default=0];
-    optional int32 convtrk1nSCTHits = 1702 [(root_branch)="convtrk1nSCTHits", default=0];
-    optional int32 convtrk1nTRTHits = 1703 [(root_branch)="convtrk1nTRTHits", default=0];
+    optional int32 convtrk1nBLHits = 1700 [(root_branch)="convtrk1nBLHits"];
+    optional int32 convtrk1nPixHits = 1701 [(root_branch)="convtrk1nPixHits"];
+    optional int32 convtrk1nSCTHits = 1702 [(root_branch)="convtrk1nSCTHits"];
+    optional int32 convtrk1nTRTHits = 1703 [(root_branch)="convtrk1nTRTHits"];
     
-    optional float pt2conv = 1800 [(root_branch)="pt2conv", default=0.0];
+    optional float pt2conv = 1800 [(root_branch)="pt2conv"];
     
-    optional int32 convtrk2nBLHits = 1900 [(root_branch)="convtrk2nBLHits", default=0];
-    optional int32 convtrk2nPixHits = 1901 [(root_branch)="convtrk2nPixHits", default=0];
-    optional int32 convtrk2nSCTHits = 1902 [(root_branch)="convtrk2nSCTHits", default=0];
-    optional int32 convtrk2nTRTHits = 1903 [(root_branch)="convtrk2nTRTHits", default=0];
+    optional int32 convtrk2nBLHits = 1900 [(root_branch)="convtrk2nBLHits"];
+    optional int32 convtrk2nPixHits = 1901 [(root_branch)="convtrk2nPixHits"];
+    optional int32 convtrk2nSCTHits = 1902 [(root_branch)="convtrk2nSCTHits"];
+    optional int32 convtrk2nTRTHits = 1903 [(root_branch)="convtrk2nTRTHits"];
     
-    optional float ptconv = 2000 [(root_branch)="ptconv", default=0.0];
-    optional float pzconv = 2001 [(root_branch)="pzconv", default=0.0];
+    optional float ptconv = 2000 [(root_branch)="ptconv"];
+    optional float pzconv = 2001 [(root_branch)="pzconv"];
     
     optional float reta = 2100 [(root_branch)="reta"];
     optional float rphi = 2101 [(root_branch)="rphi"];
@@ -122,19 +122,19 @@ message Photon {
     optional float EtringnoisedR03sig3 = 2201 [(root_branch)="EtringnoisedR03sig3"];
     optional float EtringnoisedR03sig4 = 2202 [(root_branch)="EtringnoisedR03sig4"];
     
-    optional double isolationlikelihoodjets = 2300 [(root_branch)="isolationlikelihoodjets", default=-1089.0];
-    optional double isolationlikelihoodhqelectrons = 2301 [(root_branch)="isolationlikelihoodhqelectrons", default=-999.0];
-    optional double loglikelihood = 2302 [(root_branch)="loglikelihood", default=0.0];
+    optional double isolationlikelihoodjets = 2300 [(root_branch)="isolationlikelihoodjets"];
+    optional double isolationlikelihoodhqelectrons = 2301 [(root_branch)="isolationlikelihoodhqelectrons"];
+    optional double loglikelihood = 2302 [(root_branch)="loglikelihood"];
     
-    optional double photonweight = 2400 [(root_branch)="photonweight", default=0.0];
+    optional double photonweight = 2400 [(root_branch)="photonweight"];
     optional double photonbgweight = 2401 [(root_branch)="photonbgweight"];
     
-    optional double neuralnet = 2500 [(root_branch)="neuralnet", default=0.0];
+    optional double neuralnet = 2500 [(root_branch)="neuralnet"];
     
-    optional double Hmatrix = 2600 [(root_branch)="Hmatrix", default=-99999.0];
-    optional double Hmatrix5 = 2601 [(root_branch)="Hmatrix5", default=-9999999.0];
+    optional double Hmatrix = 2600 [(root_branch)="Hmatrix"];
+    optional double Hmatrix5 = 2601 [(root_branch)="Hmatrix5"];
     
-    optional double adaboost = 2700 [(root_branch)="adaboost", default=0.0];
+    optional double adaboost = 2700 [(root_branch)="adaboost"];
     
     optional float zvertex = 2800 [(root_branch)="zvertex"];
     optional float errz = 2801 [(root_branch)="errz"];
@@ -163,7 +163,7 @@ message Photon {
     optional float etas3 = 3401 [(root_branch)="etas3"];
     optional float phis3 = 3402 [(root_branch)="phis3"];
     
-    optional float rawcl_Es0 = 3500 [(root_branch)="rawcl_Es0", default=0.0];
+    optional float rawcl_Es0 = 3500 [(root_branch)="rawcl_Es0"];
     optional float rawcl_etas0 = 3501 [(root_branch)="rawcl_etas0"];
     optional float rawcl_phis0 = 3502 [(root_branch)="rawcl_phis0"];
     optional float rawcl_Es1 = 3503 [(root_branch)="rawcl_Es1"];
@@ -180,54 +180,54 @@ message Photon {
     optional float rawcl_eta = 3514 [(root_branch)="rawcl_eta"];
     optional float rawcl_phi = 3515 [(root_branch)="rawcl_phi"];
     
-    optional float deltaEmax2 = 3600 [(root_branch)="deltaEmax2", default=0.0];
+    optional float deltaEmax2 = 3600 [(root_branch)="deltaEmax2"];
     
-    optional float calibHitsShowerDepth = 3700 [(root_branch)="calibHitsShowerDepth", default=0.0];
+    optional float calibHitsShowerDepth = 3700 [(root_branch)="calibHitsShowerDepth"];
     
-    optional uint32 isIso = 3800 [(root_branch)="isIso", default=0];
+    optional uint32 isIso = 3800 [(root_branch)="isIso"];
     
-    optional float mvaptcone20 = 3900 [(root_branch)="mvaptcone20", default=0.0];
-    optional float mvaptcone30 = 3901 [(root_branch)="mvaptcone30", default=0.0];
-    optional float mvaptcone40 = 3902 [(root_branch)="mvaptcone40", default=0.0];
+    optional float mvaptcone20 = 3900 [(root_branch)="mvaptcone20"];
+    optional float mvaptcone30 = 3901 [(root_branch)="mvaptcone30"];
+    optional float mvaptcone40 = 3902 [(root_branch)="mvaptcone40"];
     optional float topoEtcone20 = 3903 [(root_branch)="topoEtcone20"];
     optional float topoEtcone40 = 3904 [(root_branch)="topoEtcone40"];
     optional float topoEtcone60 = 3905 [(root_branch)="topoEtcone60"];
     
-    optional float jet_dr = 4000 [(root_branch)="jet_dr", default=-1.0];
-    optional float jet_E = 4001 [(root_branch)="jet_E", default=0.0];
-    optional float jet_pt = 4002 [(root_branch)="jet_pt", default=0.0];
-    optional float jet_m = 4003 [(root_branch)="jet_m", default=0.0];
-    optional float jet_eta = 4004 [(root_branch)="jet_eta", default=0.0];
-    optional float jet_phi = 4005 [(root_branch)="jet_phi", default=0.0];
-    optional int32 jet_matched = 4006 [(root_branch)="jet_matched", default=1];
+    optional float jet_dr = 4000 [(root_branch)="jet_dr"];
+    optional float jet_E = 4001 [(root_branch)="jet_E"];
+    optional float jet_pt = 4002 [(root_branch)="jet_pt"];
+    optional float jet_m = 4003 [(root_branch)="jet_m"];
+    optional float jet_eta = 4004 [(root_branch)="jet_eta"];
+    optional float jet_phi = 4005 [(root_branch)="jet_phi"];
+    optional int32 jet_matched = 4006 [(root_branch)="jet_matched"];
     
-    optional float convIP = 4100 [(root_branch)="convIP", default=-9999.0];
-    optional float convIPRev = 4101 [(root_branch)="convIPRev", default=-9999.0];
+    optional float convIP = 4100 [(root_branch)="convIP"];
+    optional float convIPRev = 4101 [(root_branch)="convIPRev"];
     
-    optional float ptIsolationCone = 4200 [(root_branch)="ptIsolationCone", default=0.0];
-    optional float ptIsolationConePhAngle = 4201 [(root_branch)="ptIsolationConePhAngle", default=0.0];
+    optional float ptIsolationCone = 4200 [(root_branch)="ptIsolationCone"];
+    optional float ptIsolationConePhAngle = 4201 [(root_branch)="ptIsolationConePhAngle"];
     
     optional float Etcone40_ED_corrected = 4300 [(root_branch)="Etcone40_ED_corrected"];
     optional float Etcone40_corrected = 4301 [(root_branch)="Etcone40_corrected"];
     
-    optional float topodr = 4400 [(root_branch)="topodr", default=-1.0];
-    optional float topopt = 4401 [(root_branch)="topopt", default=0.0];
-    optional float topoeta = 4402 [(root_branch)="topoeta", default=0.0];
-    optional float topophi = 4403 [(root_branch)="topophi", default=0.0];
-    optional int32 topomatched = 4404 [(root_branch)="topomatched", default=1];
-    optional float topoEMdr = 4405 [(root_branch)="topoEMdr", default=-1.0];
-    optional float topoEMpt = 4406 [(root_branch)="topoEMpt", default=0.0];
-    optional float topoEMeta = 4407 [(root_branch)="topoEMeta", default=0.0];
-    optional float topoEMphi = 4408 [(root_branch)="topoEMphi", default=0.0];
-    optional int32 topoEMmatched = 4409 [(root_branch)="topoEMmatched", default=1];
+    optional float topodr = 4400 [(root_branch)="topodr"];
+    optional float topopt = 4401 [(root_branch)="topopt"];
+    optional float topoeta = 4402 [(root_branch)="topoeta"];
+    optional float topophi = 4403 [(root_branch)="topophi"];
+    optional int32 topomatched = 4404 [(root_branch)="topomatched"];
+    optional float topoEMdr = 4405 [(root_branch)="topoEMdr"];
+    optional float topoEMpt = 4406 [(root_branch)="topoEMpt"];
+    optional float topoEMeta = 4407 [(root_branch)="topoEMeta"];
+    optional float topoEMphi = 4408 [(root_branch)="topoEMphi"];
+    optional int32 topoEMmatched = 4409 [(root_branch)="topoEMmatched"];
     
-    optional float EF_dr = 4500 [(root_branch)="EF_dr", default=-1.0];
-    optional int32 EF_index = 4501 [(root_branch)="EF_index", default=-1];
+    optional float EF_dr = 4500 [(root_branch)="EF_dr"];
+    optional int32 EF_index = 4501 [(root_branch)="EF_index"];
     
-    optional float L2_dr = 4600 [(root_branch)="L2_dr", default=-1.0];
-    optional int32 L2_index = 4601 [(root_branch)="L2_index", default=-1];
-    optional float L1_dr = 4602 [(root_branch)="L1_dr", default=-1.0];
-    optional int32 L1_index = 4603 [(root_branch)="L1_index", default=0];
-    optional int32 el_index = 4604 [(root_branch)="el_index", default=-1];
+    optional float L2_dr = 4600 [(root_branch)="L2_dr"];
+    optional int32 L2_index = 4601 [(root_branch)="L2_index"];
+    optional float L1_dr = 4602 [(root_branch)="L1_dr"];
+    optional int32 L1_index = 4603 [(root_branch)="L1_index"];
+    optional int32 el_index = 4604 [(root_branch)="el_index"];
     
 }

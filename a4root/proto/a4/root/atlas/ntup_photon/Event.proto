@@ -42,9 +42,9 @@ message Event {
     optional uint32 timestamp = 100 [(root_branch)="timestamp"];
     optional uint32 timestamp_ns = 101 [(root_branch)="timestamp_ns"];
     
-    optional uint32 lbn = 200 [(root_branch)="lbn", default=10];
+    optional uint32 lbn = 200 [(root_branch)="lbn"];
     
-    optional uint32 bcid = 300 [(root_branch)="bcid", default=148];
+    optional uint32 bcid = 300 [(root_branch)="bcid"];
     
     optional uint32 detmask0 = 400 [(root_branch)="detmask0"];
     optional uint32 detmask1 = 401 [(root_branch)="detmask1"];
@@ -69,7 +69,7 @@ message Event {
     optional uint32 sctError = 801 [(root_branch)="sctError"];
     optional uint32 trtError = 802 [(root_branch)="trtError"];
     optional uint32 larError = 803 [(root_branch)="larError"];
-    optional uint32 tileError = 804 [(root_branch)="tileError", default=0];
+    optional uint32 tileError = 804 [(root_branch)="tileError"];
     optional uint32 muonError = 805 [(root_branch)="muonError"];
     optional uint32 fwdError = 806 [(root_branch)="fwdError"];
     optional uint32 coreError = 807 [(root_branch)="coreError"];

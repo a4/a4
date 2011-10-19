@@ -15,46 +15,46 @@ message DiPhoton {
     repeated float fit_ptgg = 104 [(root_branch)="fit_ptgg"];
     repeated float fit_detagg = 105 [(root_branch)="fit_detagg"];
     repeated float fit_cosThetaStar = 106 [(root_branch)="fit_cosThetaStar"];
-    optional int32 onejet_cutStatus = 107 [(root_branch)="onejet_cutStatus", default=7];
-    optional int32 onejet_ok = 108 [(root_branch)="onejet_ok", default=1];
-    optional float onejet_mgg = 109 [(root_branch)="onejet_mgg", default=-999.0];
-    optional float onejet_mggj = 110 [(root_branch)="onejet_mggj", default=-999.0];
+    optional int32 onejet_cutStatus = 107 [(root_branch)="onejet_cutStatus"];
+    optional int32 onejet_ok = 108 [(root_branch)="onejet_ok"];
+    optional float onejet_mgg = 109 [(root_branch)="onejet_mgg"];
+    optional float onejet_mggj = 110 [(root_branch)="onejet_mggj"];
     
-    optional int32 twojet_cutStatus = 200 [(root_branch)="twojet_cutStatus", default=1];
-    optional int32 twojet_ok = 201 [(root_branch)="twojet_ok", default=0];
-    optional float twojet_mgg = 202 [(root_branch)="twojet_mgg", default=-999.0];
-    optional float twojet_mjj = 203 [(root_branch)="twojet_mjj", default=-999.0];
+    optional int32 twojet_cutStatus = 200 [(root_branch)="twojet_cutStatus"];
+    optional int32 twojet_ok = 201 [(root_branch)="twojet_ok"];
+    optional float twojet_mgg = 202 [(root_branch)="twojet_mgg"];
+    optional float twojet_mjj = 203 [(root_branch)="twojet_mjj"];
     
-    optional float hggZWjj_SumTracksPT = 300 [(root_branch)="hggZWjj_SumTracksPT", default=0.0];
-    optional float hggZWjj_mjjZW_tracks = 301 [(root_branch)="hggZWjj_mjjZW_tracks", default=0.0];
-    optional float hggZWjj_mjjZW = 302 [(root_branch)="hggZWjj_mjjZW", default=0.0];
-    optional float hggZWjj_ZW7Njet = 303 [(root_branch)="hggZWjj_ZW7Njet", default=0.0];
-    optional float hggZWjj_PTjjZW = 304 [(root_branch)="hggZWjj_PTjjZW", default=0.0];
-    optional float hggZWjj_PTjjZW_tracks = 305 [(root_branch)="hggZWjj_PTjjZW_tracks", default=0.0];
-    optional float hggZWjj_hggZWjj_ok = 306 [(root_branch)="hggZWjj_hggZWjj_ok", default=0.0];
-    optional float hggZWjj_hggZWdeltaRjj = 307 [(root_branch)="hggZWjj_hggZWdeltaRjj", default=999999.0];
+    optional float hggZWjj_SumTracksPT = 300 [(root_branch)="hggZWjj_SumTracksPT"];
+    optional float hggZWjj_mjjZW_tracks = 301 [(root_branch)="hggZWjj_mjjZW_tracks"];
+    optional float hggZWjj_mjjZW = 302 [(root_branch)="hggZWjj_mjjZW"];
+    optional float hggZWjj_ZW7Njet = 303 [(root_branch)="hggZWjj_ZW7Njet"];
+    optional float hggZWjj_PTjjZW = 304 [(root_branch)="hggZWjj_PTjjZW"];
+    optional float hggZWjj_PTjjZW_tracks = 305 [(root_branch)="hggZWjj_PTjjZW_tracks"];
+    optional float hggZWjj_hggZWjj_ok = 306 [(root_branch)="hggZWjj_hggZWjj_ok"];
+    optional float hggZWjj_hggZWdeltaRjj = 307 [(root_branch)="hggZWjj_hggZWdeltaRjj"];
     repeated float hggZWjj_PTjZW = 308 [(root_branch)="hggZWjj_PTjZW"];
     repeated float hggZWjj_PTjZWTracks = 309 [(root_branch)="hggZWjj_PTjZWTracks"];
     repeated float hggZWjj_EtajZW = 310 [(root_branch)="hggZWjj_EtajZW"];
-    optional float hggZWjj_SumTracksPT4 = 311 [(root_branch)="hggZWjj_SumTracksPT4", default=0.0];
-    optional float hggZWjj_mjjZW4_tracks = 312 [(root_branch)="hggZWjj_mjjZW4_tracks", default=0.0];
-    optional float hggZWjj_mjjZW4 = 313 [(root_branch)="hggZWjj_mjjZW4", default=0.0];
-    optional float hggZWjj_ZW4Njet = 314 [(root_branch)="hggZWjj_ZW4Njet", default=0.0];
-    optional float hggZWjj_PTjjZW4 = 315 [(root_branch)="hggZWjj_PTjjZW4", default=0.0];
-    optional float hggZWjj_PTjjZW4_tracks = 316 [(root_branch)="hggZWjj_PTjjZW4_tracks", default=0.0];
+    optional float hggZWjj_SumTracksPT4 = 311 [(root_branch)="hggZWjj_SumTracksPT4"];
+    optional float hggZWjj_mjjZW4_tracks = 312 [(root_branch)="hggZWjj_mjjZW4_tracks"];
+    optional float hggZWjj_mjjZW4 = 313 [(root_branch)="hggZWjj_mjjZW4"];
+    optional float hggZWjj_ZW4Njet = 314 [(root_branch)="hggZWjj_ZW4Njet"];
+    optional float hggZWjj_PTjjZW4 = 315 [(root_branch)="hggZWjj_PTjjZW4"];
+    optional float hggZWjj_PTjjZW4_tracks = 316 [(root_branch)="hggZWjj_PTjjZW4_tracks"];
     optional float hggZWjj_DeltaRphotons = 317 [(root_branch)="hggZWjj_DeltaRphotons"];
     repeated float hggZWjj_PTjZW4 = 318 [(root_branch)="hggZWjj_PTjZW4"];
     repeated float hggZWjj_PTjZW4Tracks = 319 [(root_branch)="hggZWjj_PTjZW4Tracks"];
     repeated float hggZWjj_EtajZW4 = 320 [(root_branch)="hggZWjj_EtajZW4"];
-    optional int32 hggZWjj_hggetmiss_ok = 321 [(root_branch)="hggZWjj_hggetmiss_ok", default=0];
-    optional int32 hggZWjj_hgglepton_ok = 322 [(root_branch)="hggZWjj_hgglepton_ok", default=0];
-    optional int32 hggZWjj_DeltaRmujet = 323 [(root_branch)="hggZWjj_DeltaRmujet", default=2000];
+    optional int32 hggZWjj_hggetmiss_ok = 321 [(root_branch)="hggZWjj_hggetmiss_ok"];
+    optional int32 hggZWjj_hgglepton_ok = 322 [(root_branch)="hggZWjj_hgglepton_ok"];
+    optional int32 hggZWjj_DeltaRmujet = 323 [(root_branch)="hggZWjj_DeltaRmujet"];
     
     optional float HPV_zcommon = 400 [(root_branch)="HPV_zcommon"];
     optional float HPV_sigma_zcommon = 401 [(root_branch)="HPV_sigma_zcommon"];
     optional float HPV_zcommon_primVtxLH = 402 [(root_branch)="HPV_zcommon_primVtxLH"];
     
-    optional float HPV_vtxLikelihood = 500 [(root_branch)="HPV_vtxLikelihood", default=0.0];
+    optional float HPV_vtxLikelihood = 500 [(root_branch)="HPV_vtxLikelihood"];
     optional float HPV_etaLead_zcommon = 501 [(root_branch)="HPV_etaLead_zcommon"];
     optional float HPV_etaSublead_zcommon = 502 [(root_branch)="HPV_etaSublead_zcommon"];
     
@@ -70,7 +70,7 @@ message DiPhoton {
     optional float HPV_cosTh = 707 [(root_branch)="HPV_cosTh"];
     optional float HPV_cosThCS = 708 [(root_branch)="HPV_cosThCS"];
     
-    optional int32 ph_n = 800 [(root_branch)="ph_n", default=2];
+    optional int32 ph_n = 800 [(root_branch)="ph_n"];
     repeated int32 ph_index = 801 [(root_branch)="ph_index"];
     
 }

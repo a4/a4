@@ -2,8 +2,8 @@ package a4.root.atlas.ntup_smwz;
 import "a4/root/RootExtension.proto";
 
 message EmTauROI {
-    optional float eta = 1 [(root_branch)="eta", default=-0.5];
-    optional float phi = 2 [(root_branch)="phi", default=1.76714587212];
+    optional float eta = 1 [(root_branch)="eta"];
+    optional float phi = 2 [(root_branch)="phi"];
     
     repeated string thrNames = 100 [(root_branch)="thrNames"];
     repeated float thrValues = 101 [(root_branch)="thrValues"];

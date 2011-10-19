@@ -8,7 +8,7 @@ message TrigPhoton {
     optional float eta = 4 [(root_branch)="eta"];
     optional float phi = 5 [(root_branch)="phi"];
     
-    optional int32 RoIWord = 100 [(root_branch)="RoIWord", default=0];
+    optional int32 RoIWord = 100 [(root_branch)="RoIWord"];
     
     optional float HadEt1 = 200 [(root_branch)="HadEt1"];
     

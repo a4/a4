@@ -3,16 +3,16 @@ import "a4/root/RootExtension.proto";
 
 message TrigElectron {
     optional float E = 1 [(root_branch)="E"];
-    optional float Et = 2 [(root_branch)="Et", default=260145.984375];
-    optional float pt = 3 [(root_branch)="pt", default=260145.984375];
+    optional float Et = 2 [(root_branch)="Et"];
+    optional float pt = 3 [(root_branch)="pt"];
     optional float eta = 4 [(root_branch)="eta"];
     optional float phi = 5 [(root_branch)="phi"];
     
-    optional int32 RoIWord = 100 [(root_branch)="RoIWord", default=0];
+    optional int32 RoIWord = 100 [(root_branch)="RoIWord"];
     
     optional float zvertex = 200 [(root_branch)="zvertex"];
     
-    optional int32 charge = 300 [(root_branch)="charge", default=0];
+    optional int32 charge = 300 [(root_branch)="charge"];
     
     optional int32 trackAlgo = 400 [(root_branch)="trackAlgo"];
     

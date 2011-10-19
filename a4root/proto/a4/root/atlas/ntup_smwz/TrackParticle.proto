@@ -13,6 +13,6 @@ message TrackParticle {
     
     optional float chi2 = 200 [(root_branch)="chi2"];
     
-    optional int32 ndof = 300 [(root_branch)="ndof", default=9];
+    optional int32 ndof = 300 [(root_branch)="ndof"];
     
 }
