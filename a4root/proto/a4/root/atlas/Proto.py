@@ -200,9 +200,12 @@ class VariableMessage(VariableBase):
 class ProtoFile(object):
     def __init__(self, cls):
         self.cls = cls
-        self.name = cls.name
         self.children = []
         self.extensions = []
+    
+    @property
+    def name(self):
+        return self.cls.name
     
     @property
     def filename(self):
@@ -222,6 +225,8 @@ class ProtoFile(object):
         if exists("defaults"):
             from json import load
             defaults = load(open("defaults"))
+        else:
+            defaults = {}
         
         variables = []
         
