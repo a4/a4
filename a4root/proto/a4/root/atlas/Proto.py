@@ -10,15 +10,32 @@ from textwrap import dedent
 from yaml import load_all
 
 # Groups of things which should be considered similar for grouping purposes
-similarity_groups = [
+# Most are autodetected using difflib.SequenceMatcher, but some need help.
+SIMILARITY_GROUPS = [
     ["x", "y", "z"],
-    ["pt", "eta", "phi", "e", "m"],
-    ["loose", "medium", "tight", "mediumiso", "tightiso"],
-    ["ethad", "ethad1", "e033", "f1", "f1core", "emins1", "fside", "emax2", 
-     "ws3", "wstot", "e132", "e1152", "emaxs1", "deltaes", "e233", "e237", "e277",
-     "weta2", "f3", "f3core", "eratio", "etoverpt", "reta", "rphi", "dphi", "deta"],
+    ["lbn", "bcid"],
+    ["pt", "eta", "phi", "theta", "e", "m", "px", "py", "pz"],
+    ["loose", "medium", "tight", "looseiso", "mediumiso", "tightiso", "loosepp", 
+     "mediumpp", "tightpp", "loosear", "looseariso", "tightar", "tightariso"],
+    ['deltaes', 'deta', 'dphi', 'e033', 'e1152', 'e132', 'e233', 'e237', 'e277', 
+     'ehad1', 'emax2', 'emaxs1', 'emins1', 'eratio', 'ethad', 'ethad1', 
+     'etoverpt', 'f1', 'f1core', 'f3', 'f3core', 'fracs1', 'fside', 'hadet1', 
+     'hadet', 'reta', 'rphi', 'weta2', 'ws3', 'wstot'],
     ["zvertex", "errz"],
+    ["chi2", "ndf", "ndof"],
+    ["type", "origin", "typebkg", "originbkg"],
+    ["cellmaxfrac", "longitudinal", "secondlambda", "lateral", "secondr", 
+     "centerlambda"],
+    ["issimulation", "iscalibration", "istestbeam"],
 ]
+
+DISSIMILARITY_GROUPS = [
+    ["phis3", "isem"],
+]
+
+# If this much of the beginning/end of the string match, consider them part
+# of the same group.
+# PREFIX_SIMILAR_LEN, SUFFIX_SIMILAR_LEN = 4, 4
 
 MANUAL_FIXUP = {
     "RunNumber": "run_number",
@@ -61,7 +78,7 @@ def space_out_camel_case(stringAsCamelCase):
     
     return "_".join(s.lower() for s in new_parts)
 
-def build_similarity_tester():
+def build_similarity_tester(similarity_groups):
     """
     Note that elements can't belong to multiple similarity groups!
     """
@@ -73,14 +90,33 @@ def build_similarity_tester():
             lookup[element] = s
         
     def test_similarity(left, right):
-        return right.lower() in lookup.get(left.lower(), set())
+        left_parts = left.split("_")
+        right_parts = right.split("_")
+        prefix_or_suffix_matches = False
+        if len(left_parts) > 1 and len(right_parts) > 1:
+            prefix_or_suffix_matches = (
+                left_parts[0] == right_parts[0]
+                or left_parts[-1] == right_parts[-1])
+            
+        return (right.lower() in lookup.get(left.lower(), set()) 
+                 or prefix_or_suffix_matches)
     return test_similarity
 
-TEST_SIMILAR = build_similarity_tester()
+TEST_SIMILAR = build_similarity_tester(SIMILARITY_GROUPS)
+TEST_DISSIMILAR = build_similarity_tester(DISSIMILARITY_GROUPS)
 ALL_TYPES_SEEN = set()
 
-def similarity(prev, this):
-    if TEST_SIMILAR(prev, this): return 1
+def test_similar_but_not_dissimilar(prev, this):
+    #if TEST_DISSIMILAR(prev, this):
+        #return False
+    return TEST_SIMILAR(prev, this)
+    # and not 
+
+def similarity(prev, this, this_group):
+    if test_similar_but_not_dissimilar(prev, this): return 1
+    for element in this_group:
+        if test_similar_but_not_dissimilar(element, this):
+            return True
     return SequenceMatcher(None, prev, this).ratio()
 
 class D3PDVariable(object):
@@ -252,23 +288,25 @@ class ProtoFile(object):
             for v in vs:
                 v.name = v.orig_name.lower().rstrip("_")
         
+        this_group = set()
+        
         # Generate the text (body of the message) for these variables
         prev = None
         for variable in variables:            
             if not variable:
                 continue
                        
-            if prev and similarity(prev.name, variable.name) < 0.4:
+            if prev and similarity(prev.name, variable.name, this_group) < 0.4:
+                this_group = set()
                 newline()
                 count += 100
                 count = count - (count % 100)
-                
+            
+            this_group.add(variable.name)
             append(PROTO_VARIABLE.format(v=variable, count=count))
             prev = variable
             count += 1
-        
-        newline()
-            
+                    
         return "\n    ".join(content)
         
     def content(self, package_name):
