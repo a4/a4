@@ -6,5 +6,4 @@ message CollisionDecision {
     optional bool passMBTSTime = 2 [(root_branch)="passMBTSTime"];
     optional bool passTrigger = 3 [(root_branch)="passTrigger"];
     optional bool pass = 4 [(root_branch)="pass"];
-    
 }

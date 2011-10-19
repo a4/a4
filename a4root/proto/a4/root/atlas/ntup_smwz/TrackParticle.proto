@@ -12,7 +12,5 @@ message TrackParticle {
     optional float qoverp_wrtPV = 104 [(root_branch)="qoverp_wrtPV"];
     
     optional float chi2 = 200 [(root_branch)="chi2"];
-    
-    optional int32 ndof = 300 [(root_branch)="ndof"];
-    
+    optional int32 ndof = 201 [(root_branch)="ndof"];
 }

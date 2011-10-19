@@ -16,5 +16,4 @@ message Muon {
     optional uint32 allauthor = 200 [(root_branch)="allauthor"];
     
     optional int32 hastrack = 300 [(root_branch)="hastrack"];
-    
 }

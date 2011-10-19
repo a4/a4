@@ -9,5 +9,4 @@ message BeamSpot {
     optional float sigma_x = 100 [(root_branch)="sigma_x"];
     optional float sigma_y = 101 [(root_branch)="sigma_y"];
     optional float sigma_z = 102 [(root_branch)="sigma_z"];
-    
 }

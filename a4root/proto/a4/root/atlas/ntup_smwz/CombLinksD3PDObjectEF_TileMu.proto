@@ -20,5 +20,4 @@ message CombLinksD3PDObjectEF_TileMu {
     repeated int32 TrigMuonEFInfoContainer_MuGirlStatus = 305 [(root_branch)="TrigMuonEFInfoContainer_MuGirlStatus"];
     repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EF = 306 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EF"];
     repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EFStatus = 307 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EFStatus"];
-    
 }

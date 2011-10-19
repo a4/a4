@@ -15,5 +15,4 @@ message MBTS {
     optional int32 module = 400 [(root_branch)="module"];
     
     optional int32 channel = 500 [(root_branch)="channel"];
-    
 }

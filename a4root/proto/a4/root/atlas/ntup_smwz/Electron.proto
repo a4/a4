@@ -38,27 +38,22 @@ message Electron {
     
     optional int32 loose = 800 [(root_branch)="loose"];
     optional int32 looseIso = 801 [(root_branch)="looseIso"];
+    optional int32 medium = 802 [(root_branch)="medium"];
+    optional int32 mediumIso = 803 [(root_branch)="mediumIso"];
+    optional int32 tight = 804 [(root_branch)="tight"];
+    optional int32 tightIso = 805 [(root_branch)="tightIso"];
+    optional int32 loosePP = 806 [(root_branch)="loosePP"];
+    optional int32 loosePPIso = 807 [(root_branch)="loosePPIso"];
+    optional int32 mediumPP = 808 [(root_branch)="mediumPP"];
+    optional int32 mediumPPIso = 809 [(root_branch)="mediumPPIso"];
+    optional int32 tightPP = 810 [(root_branch)="tightPP"];
+    optional int32 tightPPIso = 811 [(root_branch)="tightPPIso"];
     
-    optional int32 medium = 900 [(root_branch)="medium"];
-    optional int32 mediumIso = 901 [(root_branch)="mediumIso"];
-    optional int32 tight = 902 [(root_branch)="tight"];
-    optional int32 tightIso = 903 [(root_branch)="tightIso"];
+    optional int32 goodOQ = 900 [(root_branch)="goodOQ"];
     
-    optional int32 loosePP = 1000 [(root_branch)="loosePP"];
-    optional int32 loosePPIso = 1001 [(root_branch)="loosePPIso"];
+    optional int32 refittedTrack_n = 1000 [(root_branch)="refittedTrack_n"];
     
-    optional int32 mediumPP = 1100 [(root_branch)="mediumPP"];
-    optional int32 mediumPPIso = 1101 [(root_branch)="mediumPPIso"];
+    optional float vertweight = 1100 [(root_branch)="vertweight"];
     
-    optional int32 tightPP = 1200 [(root_branch)="tightPP"];
-    optional int32 tightPPIso = 1201 [(root_branch)="tightPPIso"];
-    
-    optional int32 goodOQ = 1300 [(root_branch)="goodOQ"];
-    
-    optional int32 refittedTrack_n = 1400 [(root_branch)="refittedTrack_n"];
-    
-    optional float vertweight = 1500 [(root_branch)="vertweight"];
-    
-    optional int32 hastrack = 1600 [(root_branch)="hastrack"];
-    
+    optional int32 hastrack = 1200 [(root_branch)="hastrack"];
 }

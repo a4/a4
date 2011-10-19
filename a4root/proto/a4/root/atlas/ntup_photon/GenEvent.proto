@@ -22,5 +22,4 @@ message GenEvent {
     
     optional int32 nparticle = 500 [(root_branch)="nparticle"];
     optional int32 pileUpType = 501 [(root_branch)="pileUpType"];
-    
 }

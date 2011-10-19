@@ -94,16 +94,12 @@ message Jet {
     
     optional float el_dr = 2900 [(root_branch)="el_dr"];
     optional int32 el_matched = 2901 [(root_branch)="el_matched"];
-    
-    optional float mu_dr = 3000 [(root_branch)="mu_dr"];
-    optional int32 mu_matched = 3001 [(root_branch)="mu_matched"];
-    
-    optional float L1_dr = 3100 [(root_branch)="L1_dr"];
-    optional int32 L1_matched = 3101 [(root_branch)="L1_matched"];
-    optional float L2_dr = 3102 [(root_branch)="L2_dr"];
-    optional int32 L2_matched = 3103 [(root_branch)="L2_matched"];
-    
-    optional float EF_dr = 3200 [(root_branch)="EF_dr"];
-    optional int32 EF_matched = 3201 [(root_branch)="EF_matched"];
-    
+    optional float mu_dr = 2902 [(root_branch)="mu_dr"];
+    optional int32 mu_matched = 2903 [(root_branch)="mu_matched"];
+    optional float L1_dr = 2904 [(root_branch)="L1_dr"];
+    optional int32 L1_matched = 2905 [(root_branch)="L1_matched"];
+    optional float L2_dr = 2906 [(root_branch)="L2_dr"];
+    optional int32 L2_matched = 2907 [(root_branch)="L2_matched"];
+    optional float EF_dr = 2908 [(root_branch)="EF_dr"];
+    optional int32 EF_matched = 2909 [(root_branch)="EF_matched"];
 }
