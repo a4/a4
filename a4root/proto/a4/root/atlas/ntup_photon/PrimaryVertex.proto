@@ -11,16 +11,14 @@ message PrimaryVertex {
     optional float px = 200 [(root_branch)="px"];
     optional float py = 201 [(root_branch)="py"];
     optional float pz = 202 [(root_branch)="pz"];
+    optional float E = 203 [(root_branch)="E"];
+    optional float m = 204 [(root_branch)="m"];
     
-    optional float E = 300 [(root_branch)="E"];
-    optional float m = 301 [(root_branch)="m"];
+    optional int32 nTracks = 300 [(root_branch)="nTracks"];
     
-    optional int32 nTracks = 400 [(root_branch)="nTracks"];
+    optional float sumPt = 400 [(root_branch)="sumPt"];
     
-    optional float sumPt = 500 [(root_branch)="sumPt"];
-    
-    optional int32 trk_n = 600 [(root_branch)="trk_n"];
-    repeated float trk_weight = 601 [(root_branch)="trk_weight"];
-    repeated int32 trk_index = 602 [(root_branch)="trk_index"];
-    
+    optional int32 trk_n = 500 [(root_branch)="trk_n"];
+    repeated float trk_weight = 501 [(root_branch)="trk_weight"];
+    repeated int32 trk_index = 502 [(root_branch)="trk_index"];
 }

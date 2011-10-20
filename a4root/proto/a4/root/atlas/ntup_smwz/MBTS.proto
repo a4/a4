@@ -2,18 +2,17 @@ package a4.root.atlas.ntup_smwz;
 import "a4/root/RootExtension.proto";
 
 message MBTS {
-    optional float E = 1 [(root_branch)="E", default=0.0];
-    optional float eta = 2 [(root_branch)="eta", default=3.31500005722];
-    optional float phi = 3 [(root_branch)="phi", default=5.89048624039];
+    optional float E = 1 [(root_branch)="E"];
+    optional float eta = 2 [(root_branch)="eta"];
+    optional float phi = 3 [(root_branch)="phi"];
     
-    optional float time = 100 [(root_branch)="time", default=-100.0];
+    optional float time = 100 [(root_branch)="time"];
     
-    optional int32 quality = 200 [(root_branch)="quality", default=255];
+    optional int32 quality = 200 [(root_branch)="quality"];
     
-    optional int32 type = 300 [(root_branch)="type", default=1];
+    optional int32 type = 300 [(root_branch)="type"];
     
-    optional int32 module = 400 [(root_branch)="module", default=7];
+    optional int32 module = 400 [(root_branch)="module"];
     
-    optional int32 channel = 500 [(root_branch)="channel", default=1];
-    
+    optional int32 channel = 500 [(root_branch)="channel"];
 }

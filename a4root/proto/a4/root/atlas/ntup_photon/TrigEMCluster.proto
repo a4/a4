@@ -11,14 +11,10 @@ message TrigEMCluster {
     
     optional float E237 = 200 [(root_branch)="E237"];
     optional float E277 = 201 [(root_branch)="E277"];
-    
-    optional float fracs1 = 300 [(root_branch)="fracs1"];
-    
-    optional float weta2 = 400 [(root_branch)="weta2"];
-    
-    optional float Ehad1 = 500 [(root_branch)="Ehad1"];
-    optional float eta1 = 501 [(root_branch)="eta1"];
-    optional float emaxs1 = 502 [(root_branch)="emaxs1"];
-    optional float e2tsts1 = 503 [(root_branch)="e2tsts1"];
-    
+    optional float fracs1 = 202 [(root_branch)="fracs1"];
+    optional float weta2 = 203 [(root_branch)="weta2"];
+    optional float Ehad1 = 204 [(root_branch)="Ehad1"];
+    optional float eta1 = 205 [(root_branch)="eta1"];
+    optional float emaxs1 = 206 [(root_branch)="emaxs1"];
+    optional float e2tsts1 = 207 [(root_branch)="e2tsts1"];
 }

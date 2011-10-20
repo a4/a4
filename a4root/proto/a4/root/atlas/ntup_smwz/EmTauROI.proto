@@ -2,8 +2,8 @@ package a4.root.atlas.ntup_smwz;
 import "a4/root/RootExtension.proto";
 
 message EmTauROI {
-    optional float eta = 1 [(root_branch)="eta", default=-0.5];
-    optional float phi = 2 [(root_branch)="phi", default=1.76714587212];
+    optional float eta = 1 [(root_branch)="eta"];
+    optional float phi = 2 [(root_branch)="phi"];
     
     repeated string thrNames = 100 [(root_branch)="thrNames"];
     repeated float thrValues = 101 [(root_branch)="thrValues"];
@@ -45,12 +45,10 @@ message EmTauROI {
     optional int32 L1_EM3_MU6 = 623 [(root_branch)="L1_EM3_MU6"];
     optional int32 L1_EM3_UNPAIRED_ISO = 624 [(root_branch)="L1_EM3_UNPAIRED_ISO"];
     optional int32 L1_EM3_UNPAIRED_NONISO = 625 [(root_branch)="L1_EM3_UNPAIRED_NONISO"];
-    
-    optional int32 L1_EM5 = 700 [(root_branch)="L1_EM5"];
-    optional int32 L1_EM5_2MU6 = 701 [(root_branch)="L1_EM5_2MU6"];
-    optional int32 L1_EM5_EMPTY = 702 [(root_branch)="L1_EM5_EMPTY"];
-    optional int32 L1_EM5_MU10 = 703 [(root_branch)="L1_EM5_MU10"];
-    optional int32 L1_EM5_MU6 = 704 [(root_branch)="L1_EM5_MU6"];
-    optional int32 L1_EM7 = 705 [(root_branch)="L1_EM7"];
-    
+    optional int32 L1_EM5 = 626 [(root_branch)="L1_EM5"];
+    optional int32 L1_EM5_2MU6 = 627 [(root_branch)="L1_EM5_2MU6"];
+    optional int32 L1_EM5_EMPTY = 628 [(root_branch)="L1_EM5_EMPTY"];
+    optional int32 L1_EM5_MU10 = 629 [(root_branch)="L1_EM5_MU10"];
+    optional int32 L1_EM5_MU6 = 630 [(root_branch)="L1_EM5_MU6"];
+    optional int32 L1_EM7 = 631 [(root_branch)="L1_EM7"];
 }

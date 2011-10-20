@@ -16,5 +16,4 @@ message EnergySumROI {
     optional uint32 RoIWord0 = 400 [(root_branch)="RoIWord0"];
     optional uint32 RoIWord1 = 401 [(root_branch)="RoIWord1"];
     optional uint32 RoIWord2 = 402 [(root_branch)="RoIWord2"];
-    
 }

@@ -1,0 +1,2648 @@
+
+message BeamSpot {
+    // optional float x = 1 [(root_branch)="x"];
+    // optional float y = 2 [(root_branch)="y"];
+    // optional float z = 3 [(root_branch)="z"];
+    
+    // optional float sigma_x = 100 [(root_branch)="sigma_x"];
+    // optional float sigma_y = 101 [(root_branch)="sigma_y"];
+    // optional float sigma_z = 102 [(root_branch)="sigma_z"];
+}
+
+message ChainEntry {
+    // optional int32 chain_ChainId = 1 [(root_branch)="chain_ChainId"];
+    // repeated int32 chain_RoIType = 2 [(root_branch)="chain_RoIType"];
+    // repeated int32 chain_RoIIndex = 3 [(root_branch)="chain_RoIIndex"];
+}
+
+message Cluster {
+    // optional float pt = 1 [(root_branch)="pt"];
+    // optional float eta = 2 [(root_branch)="eta"];
+    // optional float phi = 3 [(root_branch)="phi"];
+    
+    // optional float E_em = 100 [(root_branch)="E_em"];
+    // optional float E_had = 101 [(root_branch)="E_had"];
+    
+    // optional float firstEdens = 200 [(root_branch)="firstEdens"];
+    
+    // optional float cellmaxfrac = 300 [(root_branch)="cellmaxfrac"];
+    // optional float longitudinal = 301 [(root_branch)="longitudinal"];
+    // optional float secondlambda = 302 [(root_branch)="secondlambda"];
+    // optional float lateral = 303 [(root_branch)="lateral"];
+    // optional float secondR = 304 [(root_branch)="secondR"];
+    // optional float centerlambda = 305 [(root_branch)="centerlambda"];
+    
+    // optional float deltaTheta = 400 [(root_branch)="deltaTheta"];
+    // optional float deltaPhi = 401 [(root_branch)="deltaPhi"];
+    
+    // optional float centermag = 500 [(root_branch)="centermag"];
+    
+    // optional float time = 600 [(root_branch)="time"];
+}
+
+message CombinedMuonFeature {
+    // optional float pt = 1 [(root_branch)="pt"];
+    // optional float eta = 2 [(root_branch)="eta"];
+    // optional float phi = 3 [(root_branch)="phi"];
+    
+    // optional float sigma_pt = 100 [(root_branch)="sigma_pt"];
+    
+    // optional int32 L2_2mu10 = 200 [(root_branch)="L2_2mu10"];
+    // optional int32 L2_2mu10_empty = 201 [(root_branch)="L2_2mu10_empty"];
+    // optional int32 L2_2mu10_loose = 202 [(root_branch)="L2_2mu10_loose"];
+    // optional int32 L2_2mu10_loose_empty = 203 [(root_branch)="L2_2mu10_loose_empty"];
+    // optional int32 L2_2mu10_loose_noOvlpRm = 204 [(root_branch)="L2_2mu10_loose_noOvlpRm"];
+    // optional int32 L2_2mu13_Zmumu_IDTrkNoCut = 205 [(root_branch)="L2_2mu13_Zmumu_IDTrkNoCut"];
+    // optional int32 L2_2mu4 = 206 [(root_branch)="L2_2mu4"];
+    // optional int32 L2_2mu4_Bmumu = 207 [(root_branch)="L2_2mu4_Bmumu"];
+    // optional int32 L2_2mu4_Bmumux = 208 [(root_branch)="L2_2mu4_Bmumux"];
+    // optional int32 L2_2mu4_DiMu = 209 [(root_branch)="L2_2mu4_DiMu"];
+    // optional int32 L2_2mu4_DiMu_DY = 210 [(root_branch)="L2_2mu4_DiMu_DY"];
+    // optional int32 L2_2mu4_DiMu_DY20 = 211 [(root_branch)="L2_2mu4_DiMu_DY20"];
+    // optional int32 L2_2mu4_DiMu_DY_noVtx_noOS = 212 [(root_branch)="L2_2mu4_DiMu_DY_noVtx_noOS"];
+    // optional int32 L2_2mu4_DiMu_SiTrk = 213 [(root_branch)="L2_2mu4_DiMu_SiTrk"];
+    // optional int32 L2_2mu4_DiMu_noVtx_noOS = 214 [(root_branch)="L2_2mu4_DiMu_noVtx_noOS"];
+    // optional int32 L2_2mu4_Jpsimumu = 215 [(root_branch)="L2_2mu4_Jpsimumu"];
+    // optional int32 L2_2mu4_Jpsimumu_IDTrkNoCut = 216 [(root_branch)="L2_2mu4_Jpsimumu_IDTrkNoCut"];
+    // optional int32 L2_2mu4_Upsimumu = 217 [(root_branch)="L2_2mu4_Upsimumu"];
+    // optional int32 L2_2mu4i_DiMu_DY = 218 [(root_branch)="L2_2mu4i_DiMu_DY"];
+    // optional int32 L2_2mu6 = 219 [(root_branch)="L2_2mu6"];
+    // optional int32 L2_2mu6_MSonly_g10_loose = 220 [(root_branch)="L2_2mu6_MSonly_g10_loose"];
+    // optional int32 L2_2mu6_MSonly_g10_loose_nonfilled = 221 [(root_branch)="L2_2mu6_MSonly_g10_loose_nonfilled"];
+    // optional int32 L2_2mu6_NL = 222 [(root_branch)="L2_2mu6_NL"];
+    // optional int32 L2_mu0_cal_empty = 223 [(root_branch)="L2_mu0_cal_empty"];
+    // optional int32 L2_mu0_empty_NoAlg = 224 [(root_branch)="L2_mu0_empty_NoAlg"];
+    // optional int32 L2_mu0_firstempty_NoAlg = 225 [(root_branch)="L2_mu0_firstempty_NoAlg"];
+    // optional int32 L2_mu0_unpaired_iso_NoAlg = 226 [(root_branch)="L2_mu0_unpaired_iso_NoAlg"];
+    // optional int32 L2_mu10 = 227 [(root_branch)="L2_mu10"];
+    // optional int32 L2_mu10_Jpsimumu = 228 [(root_branch)="L2_mu10_Jpsimumu"];
+    // optional int32 L2_mu10_NL = 229 [(root_branch)="L2_mu10_NL"];
+    // optional int32 L2_mu10_Upsimumu_FS = 230 [(root_branch)="L2_mu10_Upsimumu_FS"];
+    // optional int32 L2_mu10_Upsimumu_tight_FS = 231 [(root_branch)="L2_mu10_Upsimumu_tight_FS"];
+    // optional int32 L2_mu10_cal = 232 [(root_branch)="L2_mu10_cal"];
+    // optional int32 L2_mu10_loose = 233 [(root_branch)="L2_mu10_loose"];
+    // optional int32 L2_mu10_muCombTag_NoEF = 234 [(root_branch)="L2_mu10_muCombTag_NoEF"];
+    // optional int32 L2_mu11_empty_NoAlg = 235 [(root_branch)="L2_mu11_empty_NoAlg"];
+    // optional int32 L2_mu13 = 236 [(root_branch)="L2_mu13"];
+    // optional int32 L2_mu13_MG = 237 [(root_branch)="L2_mu13_MG"];
+    // optional int32 L2_mu13_muCombTag_NoEF = 238 [(root_branch)="L2_mu13_muCombTag_NoEF"];
+    // optional int32 L2_mu15 = 239 [(root_branch)="L2_mu15"];
+    // optional int32 L2_mu15_medium = 240 [(root_branch)="L2_mu15_medium"];
+    // optional int32 L2_mu15i = 241 [(root_branch)="L2_mu15i"];
+    // optional int32 L2_mu15i_medium = 242 [(root_branch)="L2_mu15i_medium"];
+    // optional int32 L2_mu18 = 243 [(root_branch)="L2_mu18"];
+    // optional int32 L2_mu18_MG = 244 [(root_branch)="L2_mu18_MG"];
+    // optional int32 L2_mu18_MG_medium = 245 [(root_branch)="L2_mu18_MG_medium"];
+    // optional int32 L2_mu18_medium = 246 [(root_branch)="L2_mu18_medium"];
+    // optional int32 L2_mu20 = 247 [(root_branch)="L2_mu20"];
+    // optional int32 L2_mu20_IDTrkNoCut = 248 [(root_branch)="L2_mu20_IDTrkNoCut"];
+    // optional int32 L2_mu20_MG = 249 [(root_branch)="L2_mu20_MG"];
+    // optional int32 L2_mu20_MG_medium = 250 [(root_branch)="L2_mu20_MG_medium"];
+    // optional int32 L2_mu20_empty = 251 [(root_branch)="L2_mu20_empty"];
+    // optional int32 L2_mu20_medium = 252 [(root_branch)="L2_mu20_medium"];
+    // optional int32 L2_mu20_muCombTag_NoEF = 253 [(root_branch)="L2_mu20_muCombTag_NoEF"];
+    // optional int32 L2_mu20i = 254 [(root_branch)="L2_mu20i"];
+    // optional int32 L2_mu20i_medium = 255 [(root_branch)="L2_mu20i_medium"];
+    // optional int32 L2_mu22 = 256 [(root_branch)="L2_mu22"];
+    // optional int32 L2_mu22_MG = 257 [(root_branch)="L2_mu22_MG"];
+    // optional int32 L2_mu22_MG_medium = 258 [(root_branch)="L2_mu22_MG_medium"];
+    // optional int32 L2_mu22_medium = 259 [(root_branch)="L2_mu22_medium"];
+    // optional int32 L2_mu4 = 260 [(root_branch)="L2_mu4"];
+    // optional int32 L2_mu40_MSonly_barrel = 261 [(root_branch)="L2_mu40_MSonly_barrel"];
+    // optional int32 L2_mu40_MSonly_barrel_medium = 262 [(root_branch)="L2_mu40_MSonly_barrel_medium"];
+    // optional int32 L2_mu40_MSonly_empty = 263 [(root_branch)="L2_mu40_MSonly_empty"];
+    // optional int32 L2_mu40_MSonly_tight = 264 [(root_branch)="L2_mu40_MSonly_tight"];
+    // optional int32 L2_mu40_MSonly_tighter = 265 [(root_branch)="L2_mu40_MSonly_tighter"];
+    // optional int32 L2_mu40_slow = 266 [(root_branch)="L2_mu40_slow"];
+    // optional int32 L2_mu40_slow_empty = 267 [(root_branch)="L2_mu40_slow_empty"];
+    // optional int32 L2_mu40_slow_medium = 268 [(root_branch)="L2_mu40_slow_medium"];
+    // optional int32 L2_mu40_slow_outOfTime = 269 [(root_branch)="L2_mu40_slow_outOfTime"];
+    // optional int32 L2_mu4_DiMu = 270 [(root_branch)="L2_mu4_DiMu"];
+    // optional int32 L2_mu4_DiMu_FS_noOS = 271 [(root_branch)="L2_mu4_DiMu_FS_noOS"];
+    // optional int32 L2_mu4_Jpsimumu = 272 [(root_branch)="L2_mu4_Jpsimumu"];
+    // optional int32 L2_mu4_L1J10_matched = 273 [(root_branch)="L2_mu4_L1J10_matched"];
+    // optional int32 L2_mu4_L1J15_matched = 274 [(root_branch)="L2_mu4_L1J15_matched"];
+    // optional int32 L2_mu4_L1J20_matched = 275 [(root_branch)="L2_mu4_L1J20_matched"];
+    // optional int32 L2_mu4_L1J30_matched = 276 [(root_branch)="L2_mu4_L1J30_matched"];
+    // optional int32 L2_mu4_L1J50_matched = 277 [(root_branch)="L2_mu4_L1J50_matched"];
+    // optional int32 L2_mu4_L1J75_matched = 278 [(root_branch)="L2_mu4_L1J75_matched"];
+    // optional int32 L2_mu4_L1MU11_MSonly_cosmic = 279 [(root_branch)="L2_mu4_L1MU11_MSonly_cosmic"];
+    // optional int32 L2_mu4_L1MU11_cosmic = 280 [(root_branch)="L2_mu4_L1MU11_cosmic"];
+    // optional int32 L2_mu4_MSonly_cosmic = 281 [(root_branch)="L2_mu4_MSonly_cosmic"];
+    // optional int32 L2_mu4_Trk_Jpsi = 282 [(root_branch)="L2_mu4_Trk_Jpsi"];
+    // optional int32 L2_mu4_Trk_Upsi_FS = 283 [(root_branch)="L2_mu4_Trk_Upsi_FS"];
+    // optional int32 L2_mu4_Upsimumu_FS = 284 [(root_branch)="L2_mu4_Upsimumu_FS"];
+    // optional int32 L2_mu4_Upsimumu_SiTrk_FS = 285 [(root_branch)="L2_mu4_Upsimumu_SiTrk_FS"];
+    // optional int32 L2_mu4_Upsimumu_tight_FS = 286 [(root_branch)="L2_mu4_Upsimumu_tight_FS"];
+    // optional int32 L2_mu4_cosmic = 287 [(root_branch)="L2_mu4_cosmic"];
+    // optional int32 L2_mu4_j10_a4tc_EFFS = 288 [(root_branch)="L2_mu4_j10_a4tc_EFFS"];
+    // optional int32 L2_mu4_j40_xe20_loose_noMu = 289 [(root_branch)="L2_mu4_j40_xe20_loose_noMu"];
+    // optional int32 L2_mu4_j95_L1matched = 290 [(root_branch)="L2_mu4_j95_L1matched"];
+    // optional int32 L2_mu4mu6_Bmumu = 291 [(root_branch)="L2_mu4mu6_Bmumu"];
+    // optional int32 L2_mu4mu6_BmumuX = 292 [(root_branch)="L2_mu4mu6_BmumuX"];
+    // optional int32 L2_mu4mu6_DiMu = 293 [(root_branch)="L2_mu4mu6_DiMu"];
+    // optional int32 L2_mu4mu6_DiMu_noVtx_noOS = 294 [(root_branch)="L2_mu4mu6_DiMu_noVtx_noOS"];
+    // optional int32 L2_mu4mu6_Jpsimumu = 295 [(root_branch)="L2_mu4mu6_Jpsimumu"];
+    // optional int32 L2_mu4mu6_Upsimumu = 296 [(root_branch)="L2_mu4mu6_Upsimumu"];
+    // optional int32 L2_mu6 = 297 [(root_branch)="L2_mu6"];
+    // optional int32 L2_mu6_DiMu_noOS = 298 [(root_branch)="L2_mu6_DiMu_noOS"];
+    // optional int32 L2_mu6_Jpsimumu = 299 [(root_branch)="L2_mu6_Jpsimumu"];
+    // optional int32 L2_mu6_Jpsimumu_SiTrk = 300 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
+    // optional int32 L2_mu6_Jpsimumu_tight = 301 [(root_branch)="L2_mu6_Jpsimumu_tight"];
+    // optional int32 L2_mu6_Trk_Jpsi_loose = 302 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+    
+    // optional int32 mf_index = 400 [(root_branch)="mf_index"];
+    // optional int32 idscantrk_index = 401 [(root_branch)="idscantrk_index"];
+    // optional int32 sitracktrk_index = 402 [(root_branch)="sitracktrk_index"];
+}
+
+message CombLinksD3PDObjectEF_e {
+    // optional int32 type = 1 [(root_branch)="type"];
+    // optional int32 active = 2 [(root_branch)="active"];
+    // optional int32 lastStep = 3 [(root_branch)="lastStep"];
+    
+    // optional int32 TENumber = 100 [(root_branch)="TENumber"];
+    // optional int32 roiNumber = 101 [(root_branch)="roiNumber"];
+    
+    // optional int32 EmTau_ROI = 200 [(root_branch)="EmTau_ROI"];
+    // optional int32 EmTau_ROIStatus = 201 [(root_branch)="EmTau_ROIStatus"];
+    
+    // repeated int32 Rec_TrackParticleContainer_HLT_InDetTrigParticleCreation_Electron_EFID = 300 [(root_branch)="Rec_TrackParticleContainer_HLT_InDetTrigParticleCreation_Electron_EFID"];
+    // repeated int32 Rec_TrackParticleContainer_HLT_InDetTrigParticleCreation_Electron_EFIDStatus = 301 [(root_branch)="Rec_TrackParticleContainer_HLT_InDetTrigParticleCreation_Electron_EFIDStatus"];
+    // repeated int32 egammaContainer_egamma_Electrons = 302 [(root_branch)="egammaContainer_egamma_Electrons"];
+    // repeated int32 egammaContainer_egamma_ElectronsStatus = 303 [(root_branch)="egammaContainer_egamma_ElectronsStatus"];
+    // repeated int32 egammaContainer_egamma_Photons = 304 [(root_branch)="egammaContainer_egamma_Photons"];
+    // repeated int32 egammaContainer_egamma_PhotonsStatus = 305 [(root_branch)="egammaContainer_egamma_PhotonsStatus"];
+}
+
+message CombLinksD3PDObjectEF_mu {
+    // optional int32 type = 1 [(root_branch)="type"];
+    // optional int32 active = 2 [(root_branch)="active"];
+    // optional int32 lastStep = 3 [(root_branch)="lastStep"];
+    
+    // optional int32 TENumber = 100 [(root_branch)="TENumber"];
+    // optional int32 roiNumber = 101 [(root_branch)="roiNumber"];
+    
+    // optional int32 Muon_ROI = 200 [(root_branch)="Muon_ROI"];
+    // optional int32 Muon_ROIStatus = 201 [(root_branch)="Muon_ROIStatus"];
+    
+    // repeated int32 TrackCollection_InDetTrigTrackSlimmer_Muon_EFID = 300 [(root_branch)="TrackCollection_InDetTrigTrackSlimmer_Muon_EFID"];
+    // repeated int32 TrackCollection_InDetTrigTrackSlimmer_Muon_EFIDStatus = 301 [(root_branch)="TrackCollection_InDetTrigTrackSlimmer_Muon_EFIDStatus"];
+    
+    // repeated int32 TrigMuonEFInfoContainer = 400 [(root_branch)="TrigMuonEFInfoContainer"];
+    // repeated int32 TrigMuonEFInfoContainerStatus = 401 [(root_branch)="TrigMuonEFInfoContainerStatus"];
+    // repeated int32 TrigMuonEFInfoContainer_MuGirl = 402 [(root_branch)="TrigMuonEFInfoContainer_MuGirl"];
+    // repeated int32 TrigMuonEFInfoContainer_MuGirlStatus = 403 [(root_branch)="TrigMuonEFInfoContainer_MuGirlStatus"];
+    // repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EF = 404 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EF"];
+    // repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EFStatus = 405 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EFStatus"];
+}
+
+message CombLinksD3PDObjectEF_TileMu {
+    // optional int32 type = 1 [(root_branch)="type"];
+    // optional int32 active = 2 [(root_branch)="active"];
+    // optional int32 lastStep = 3 [(root_branch)="lastStep"];
+    
+    // optional int32 TENumber = 100 [(root_branch)="TENumber"];
+    // optional int32 roiNumber = 101 [(root_branch)="roiNumber"];
+    
+    // optional int32 Muon_ROI = 200 [(root_branch)="Muon_ROI"];
+    // optional int32 Muon_ROIStatus = 201 [(root_branch)="Muon_ROIStatus"];
+    
+    // repeated int32 TrigMuonEFContainer = 300 [(root_branch)="TrigMuonEFContainer"];
+    // repeated int32 TrigMuonEFContainerStatus = 301 [(root_branch)="TrigMuonEFContainerStatus"];
+    // repeated int32 TrigMuonEFInfoContainer = 302 [(root_branch)="TrigMuonEFInfoContainer"];
+    // repeated int32 TrigMuonEFInfoContainerStatus = 303 [(root_branch)="TrigMuonEFInfoContainerStatus"];
+    // repeated int32 TrigMuonEFInfoContainer_MuGirl = 304 [(root_branch)="TrigMuonEFInfoContainer_MuGirl"];
+    // repeated int32 TrigMuonEFInfoContainer_MuGirlStatus = 305 [(root_branch)="TrigMuonEFInfoContainer_MuGirlStatus"];
+    // repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EF = 306 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EF"];
+    // repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EFStatus = 307 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EFStatus"];
+}
+
+message CombLinksD3PDObjectL2_e {
+    // optional int32 type = 1 [(root_branch)="type"];
+    // optional int32 active = 2 [(root_branch)="active"];
+    // optional int32 lastStep = 3 [(root_branch)="lastStep"];
+    
+    // optional int32 TENumber = 100 [(root_branch)="TENumber"];
+    // optional int32 roiNumber = 101 [(root_branch)="roiNumber"];
+    
+    // optional int32 TrigRoiDescriptor_TrigT2CaloEgamma = 200 [(root_branch)="TrigRoiDescriptor_TrigT2CaloEgamma"];
+    // optional int32 TrigRoiDescriptor_TrigT2CaloEgammaStatus = 201 [(root_branch)="TrigRoiDescriptor_TrigT2CaloEgammaStatus"];
+    
+    // optional int32 TrigEMCluster = 300 [(root_branch)="TrigEMCluster"];
+    // optional int32 TrigEMClusterStatus = 301 [(root_branch)="TrigEMClusterStatus"];
+    
+    // optional int32 EmTau_ROI = 400 [(root_branch)="EmTau_ROI"];
+    // optional int32 EmTau_ROIStatus = 401 [(root_branch)="EmTau_ROIStatus"];
+    
+    // repeated int32 TrigInDetTrackCollection_TrigSiTrack_eGamma = 500 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_eGamma"];
+    // repeated int32 TrigInDetTrackCollection_TrigSiTrack_eGammaStatus = 501 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_eGammaStatus"];
+    // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_eGamma = 502 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_eGamma"];
+    // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_eGammaStatus = 503 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_eGammaStatus"];
+    
+    // repeated int32 TrigElectronContainer = 600 [(root_branch)="TrigElectronContainer"];
+    // repeated int32 TrigElectronContainerStatus = 601 [(root_branch)="TrigElectronContainerStatus"];
+    // repeated int32 TrigPhotonContainer = 602 [(root_branch)="TrigPhotonContainer"];
+    // repeated int32 TrigPhotonContainerStatus = 603 [(root_branch)="TrigPhotonContainerStatus"];
+}
+
+message CombLinksD3PDObjectL2_mu {
+    // optional int32 type = 1 [(root_branch)="type"];
+    // optional int32 active = 2 [(root_branch)="active"];
+    // optional int32 lastStep = 3 [(root_branch)="lastStep"];
+    
+    // optional int32 TENumber = 100 [(root_branch)="TENumber"];
+    // optional int32 roiNumber = 101 [(root_branch)="roiNumber"];
+    
+    // optional int32 TrigRoiDescriptor_forID = 200 [(root_branch)="TrigRoiDescriptor_forID"];
+    // optional int32 TrigRoiDescriptor_forIDStatus = 201 [(root_branch)="TrigRoiDescriptor_forIDStatus"];
+    
+    // optional int32 MuonFeature = 300 [(root_branch)="MuonFeature"];
+    // optional int32 MuonFeatureStatus = 301 [(root_branch)="MuonFeatureStatus"];
+    // optional int32 MuonFeatureDetails = 302 [(root_branch)="MuonFeatureDetails"];
+    // optional int32 MuonFeatureDetailsStatus = 303 [(root_branch)="MuonFeatureDetailsStatus"];
+    // optional int32 CombinedMuonFeature = 304 [(root_branch)="CombinedMuonFeature"];
+    // optional int32 CombinedMuonFeatureStatus = 305 [(root_branch)="CombinedMuonFeatureStatus"];
+    // optional int32 IsoMuonFeature = 306 [(root_branch)="IsoMuonFeature"];
+    // optional int32 IsoMuonFeatureStatus = 307 [(root_branch)="IsoMuonFeatureStatus"];
+    
+    // optional int32 Muon_ROI = 400 [(root_branch)="Muon_ROI"];
+    // optional int32 Muon_ROIStatus = 401 [(root_branch)="Muon_ROIStatus"];
+    
+    // repeated int32 TrigInDetTrackCollection_TrigSiTrack_Muon = 500 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_Muon"];
+    // repeated int32 TrigInDetTrackCollection_TrigSiTrack_MuonStatus = 501 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_MuonStatus"];
+    // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_Muon = 502 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_Muon"];
+    // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_MuonStatus = 503 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_MuonStatus"];
+    // repeated int32 TrigInDetTrackCollection_TrigSiTrack_muonIso = 504 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_muonIso"];
+    // repeated int32 TrigInDetTrackCollection_TrigSiTrack_muonIsoStatus = 505 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_muonIsoStatus"];
+    // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_muonIso = 506 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_muonIso"];
+    // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_muonIsoStatus = 507 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_muonIsoStatus"];
+}
+
+message CombLinksD3PDObjectL2_TileMu {
+    // optional int32 type = 1 [(root_branch)="type"];
+    // optional int32 active = 2 [(root_branch)="active"];
+    // optional int32 lastStep = 3 [(root_branch)="lastStep"];
+    
+    // optional int32 TENumber = 100 [(root_branch)="TENumber"];
+    // optional int32 roiNumber = 101 [(root_branch)="roiNumber"];
+    
+    // optional int32 TileMuFeature = 200 [(root_branch)="TileMuFeature"];
+    // optional int32 TileMuFeatureStatus = 201 [(root_branch)="TileMuFeatureStatus"];
+    // optional int32 TileTrackMuFeature = 202 [(root_branch)="TileTrackMuFeature"];
+    // optional int32 TileTrackMuFeatureStatus = 203 [(root_branch)="TileTrackMuFeatureStatus"];
+    
+    // optional int32 Muon_ROI = 300 [(root_branch)="Muon_ROI"];
+    // optional int32 Muon_ROIStatus = 301 [(root_branch)="Muon_ROIStatus"];
+    
+    // repeated int32 TrigInDetTrackCollection_TrigSiTrack_Tile = 400 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_Tile"];
+    // repeated int32 TrigInDetTrackCollection_TrigSiTrack_TileStatus = 401 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_TileStatus"];
+    // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_Tile = 402 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_Tile"];
+    // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_TileStatus = 403 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_TileStatus"];
+}
+
+message D3PDObject1 {
+    // optional int32 hfor_type = 1 [(root_branch)="hfor_type"];
+}
+
+message EFElectron {
+    // optional float E = 1 [(root_branch)="E"];
+    // optional float Et = 2 [(root_branch)="Et"];
+    // optional float pt = 3 [(root_branch)="pt"];
+    // optional float m = 4 [(root_branch)="m"];
+    // optional float eta = 5 [(root_branch)="eta"];
+    // optional float phi = 6 [(root_branch)="phi"];
+    // optional float px = 7 [(root_branch)="px"];
+    // optional float py = 8 [(root_branch)="py"];
+    // optional float pz = 9 [(root_branch)="pz"];
+    
+    // optional float charge = 100 [(root_branch)="charge"];
+    
+    // optional int32 author = 200 [(root_branch)="author"];
+    
+    // optional uint32 isEM = 300 [(root_branch)="isEM"];
+    // optional uint32 isEMLoose = 301 [(root_branch)="isEMLoose"];
+    // optional uint32 isEMMedium = 302 [(root_branch)="isEMMedium"];
+    // optional uint32 isEMTight = 303 [(root_branch)="isEMTight"];
+    
+    // optional int32 loose = 400 [(root_branch)="loose"];
+    // optional int32 looseIso = 401 [(root_branch)="looseIso"];
+    // optional int32 medium = 402 [(root_branch)="medium"];
+    // optional int32 mediumIso = 403 [(root_branch)="mediumIso"];
+    // optional int32 mediumWithoutTrack = 404 [(root_branch)="mediumWithoutTrack"];
+    // optional int32 mediumIsoWithoutTrack = 405 [(root_branch)="mediumIsoWithoutTrack"];
+    // optional int32 tight = 406 [(root_branch)="tight"];
+    // optional int32 tightIso = 407 [(root_branch)="tightIso"];
+    // optional int32 tightWithoutTrack = 408 [(root_branch)="tightWithoutTrack"];
+    // optional int32 tightIsoWithoutTrack = 409 [(root_branch)="tightIsoWithoutTrack"];
+    // optional int32 loosePP = 410 [(root_branch)="loosePP"];
+    // optional int32 loosePPIso = 411 [(root_branch)="loosePPIso"];
+    // optional int32 mediumPP = 412 [(root_branch)="mediumPP"];
+    // optional int32 mediumPPIso = 413 [(root_branch)="mediumPPIso"];
+    // optional int32 tightPP = 414 [(root_branch)="tightPP"];
+    // optional int32 tightPPIso = 415 [(root_branch)="tightPPIso"];
+    
+    // optional float Ethad = 500 [(root_branch)="Ethad"];
+    // optional float Ethad1 = 501 [(root_branch)="Ethad1"];
+    // optional float f1 = 502 [(root_branch)="f1"];
+    // optional float f1core = 503 [(root_branch)="f1core"];
+    // optional float Emins1 = 504 [(root_branch)="Emins1"];
+    // optional float fside = 505 [(root_branch)="fside"];
+    // optional float Emax2 = 506 [(root_branch)="Emax2"];
+    // optional float ws3 = 507 [(root_branch)="ws3"];
+    // optional float wstot = 508 [(root_branch)="wstot"];
+    // optional float emaxs1 = 509 [(root_branch)="emaxs1"];
+    // optional float deltaEs = 510 [(root_branch)="deltaEs"];
+    // optional float E233 = 511 [(root_branch)="E233"];
+    // optional float E237 = 512 [(root_branch)="E237"];
+    // optional float E277 = 513 [(root_branch)="E277"];
+    // optional float weta2 = 514 [(root_branch)="weta2"];
+    // optional float f3 = 515 [(root_branch)="f3"];
+    // optional float f3core = 516 [(root_branch)="f3core"];
+    
+    // optional float rphiallcalo = 600 [(root_branch)="rphiallcalo"];
+    
+    // optional float Etcone45 = 700 [(root_branch)="Etcone45"];
+    // optional float Etcone15 = 701 [(root_branch)="Etcone15"];
+    // optional float Etcone20 = 702 [(root_branch)="Etcone20"];
+    // optional float Etcone25 = 703 [(root_branch)="Etcone25"];
+    // optional float Etcone30 = 704 [(root_branch)="Etcone30"];
+    // optional float Etcone35 = 705 [(root_branch)="Etcone35"];
+    // optional float Etcone40 = 706 [(root_branch)="Etcone40"];
+    // optional float ptcone20 = 707 [(root_branch)="ptcone20"];
+    // optional float ptcone30 = 708 [(root_branch)="ptcone30"];
+    // optional float ptcone40 = 709 [(root_branch)="ptcone40"];
+    
+    // optional float pos7 = 800 [(root_branch)="pos7"];
+    
+    // optional float etacorrmag = 900 [(root_branch)="etacorrmag"];
+    
+    // optional float deltaeta1 = 1000 [(root_branch)="deltaeta1"];
+    // optional float deltaeta2 = 1001 [(root_branch)="deltaeta2"];
+    // optional float deltaphi2 = 1002 [(root_branch)="deltaphi2"];
+    
+    // optional float expectHitInBLayer = 1100 [(root_branch)="expectHitInBLayer"];
+    
+    // optional float trackd0_physics = 1200 [(root_branch)="trackd0_physics"];
+    
+    // optional float reta = 1300 [(root_branch)="reta"];
+    // optional float rphi = 1301 [(root_branch)="rphi"];
+    
+    // optional float cl_E = 1400 [(root_branch)="cl_E"];
+    // optional float cl_pt = 1401 [(root_branch)="cl_pt"];
+    // optional float cl_eta = 1402 [(root_branch)="cl_eta"];
+    // optional float cl_phi = 1403 [(root_branch)="cl_phi"];
+    // optional float cl_etas2 = 1404 [(root_branch)="cl_etas2"];
+    
+    // optional int32 EF_2e10_medium = 1500 [(root_branch)="EF_2e10_medium"];
+    // optional int32 EF_2e10_medium_mu6 = 1501 [(root_branch)="EF_2e10_medium_mu6"];
+    // optional int32 EF_2e12_medium = 1502 [(root_branch)="EF_2e12_medium"];
+    // optional int32 EF_2e5_tight = 1503 [(root_branch)="EF_2e5_tight"];
+    // optional int32 EF_2e5_tight_Jpsi = 1504 [(root_branch)="EF_2e5_tight_Jpsi"];
+    // optional int32 EF_e10_medium = 1505 [(root_branch)="EF_e10_medium"];
+    // optional int32 EF_e10_medium_2mu6 = 1506 [(root_branch)="EF_e10_medium_2mu6"];
+    // optional int32 EF_e10_medium_mu10 = 1507 [(root_branch)="EF_e10_medium_mu10"];
+    // optional int32 EF_e10_medium_mu6 = 1508 [(root_branch)="EF_e10_medium_mu6"];
+    // optional int32 EF_e11_etcut = 1509 [(root_branch)="EF_e11_etcut"];
+    // optional int32 EF_e12_medium = 1510 [(root_branch)="EF_e12_medium"];
+    // optional int32 EF_e13_etcut_xs60_noMu = 1511 [(root_branch)="EF_e13_etcut_xs60_noMu"];
+    // optional int32 EF_e13_etcut_xs60_noMu_dphi100j10xe07 = 1512 [(root_branch)="EF_e13_etcut_xs60_noMu_dphi100j10xe07"];
+    // optional int32 EF_e13_etcut_xs70_noMu = 1513 [(root_branch)="EF_e13_etcut_xs70_noMu"];
+    // optional int32 EF_e15_HLTtighter = 1514 [(root_branch)="EF_e15_HLTtighter"];
+    // optional int32 EF_e15_medium = 1515 [(root_branch)="EF_e15_medium"];
+    // optional int32 EF_e15_medium_e12_medium = 1516 [(root_branch)="EF_e15_medium_e12_medium"];
+    // optional int32 EF_e15_medium_xe30_noMu = 1517 [(root_branch)="EF_e15_medium_xe30_noMu"];
+    // optional int32 EF_e15_tight = 1518 [(root_branch)="EF_e15_tight"];
+    // optional int32 EF_e20_loose = 1519 [(root_branch)="EF_e20_loose"];
+    // optional int32 EF_e20_loose1 = 1520 [(root_branch)="EF_e20_loose1"];
+    // optional int32 EF_e20_looseTrk = 1521 [(root_branch)="EF_e20_looseTrk"];
+    // optional int32 EF_e20_medium = 1522 [(root_branch)="EF_e20_medium"];
+    // optional int32 EF_e20_medium1 = 1523 [(root_branch)="EF_e20_medium1"];
+    // optional int32 EF_e20_medium2 = 1524 [(root_branch)="EF_e20_medium2"];
+    // optional int32 EF_e20_medium_IDTrkNoCut = 1525 [(root_branch)="EF_e20_medium_IDTrkNoCut"];
+    // optional int32 EF_e20_medium_SiTrk = 1526 [(root_branch)="EF_e20_medium_SiTrk"];
+    // optional int32 EF_e20_medium_TRT = 1527 [(root_branch)="EF_e20_medium_TRT"];
+    // optional int32 EF_e22_medium = 1528 [(root_branch)="EF_e22_medium"];
+    // optional int32 EF_e22_medium1 = 1529 [(root_branch)="EF_e22_medium1"];
+    // optional int32 EF_e22_medium2 = 1530 [(root_branch)="EF_e22_medium2"];
+    // optional int32 EF_e33_medium = 1531 [(root_branch)="EF_e33_medium"];
+    // optional int32 EF_e35_medium = 1532 [(root_branch)="EF_e35_medium"];
+    // optional int32 EF_e40_medium = 1533 [(root_branch)="EF_e40_medium"];
+    // optional int32 EF_e5_medium_mu6 = 1534 [(root_branch)="EF_e5_medium_mu6"];
+    // optional int32 EF_e5_medium_mu6_topo_medium = 1535 [(root_branch)="EF_e5_medium_mu6_topo_medium"];
+    // optional int32 EF_e5_tight = 1536 [(root_branch)="EF_e5_tight"];
+    // optional int32 EF_e5_tight_e4_etcut_Jpsi = 1537 [(root_branch)="EF_e5_tight_e4_etcut_Jpsi"];
+    // optional int32 EF_e5_tight_e4_etcut_Jpsi_SiTrk = 1538 [(root_branch)="EF_e5_tight_e4_etcut_Jpsi_SiTrk"];
+    // optional int32 EF_e5_tight_e4_etcut_Jpsi_TRT = 1539 [(root_branch)="EF_e5_tight_e4_etcut_Jpsi_TRT"];
+    // optional int32 EF_e5_tight_e5_NoCut = 1540 [(root_branch)="EF_e5_tight_e5_NoCut"];
+    // optional int32 EF_e5_tight_e9_etcut_Jpsi = 1541 [(root_branch)="EF_e5_tight_e9_etcut_Jpsi"];
+    // optional int32 EF_e60_loose = 1542 [(root_branch)="EF_e60_loose"];
+    // optional int32 EF_e7_tight_e14_etcut_Jpsi = 1543 [(root_branch)="EF_e7_tight_e14_etcut_Jpsi"];
+    // optional int32 EF_e9_tight_e5_tight_Jpsi = 1544 [(root_branch)="EF_e9_tight_e5_tight_Jpsi"];
+    // optional int32 EF_eb_physics = 1545 [(root_branch)="EF_eb_physics"];
+    // optional int32 EF_eb_physics_empty = 1546 [(root_branch)="EF_eb_physics_empty"];
+    // optional int32 EF_eb_physics_firstempty = 1547 [(root_branch)="EF_eb_physics_firstempty"];
+    // optional int32 EF_eb_physics_noL1PS = 1548 [(root_branch)="EF_eb_physics_noL1PS"];
+    // optional int32 EF_eb_physics_unpaired_iso = 1549 [(root_branch)="EF_eb_physics_unpaired_iso"];
+    // optional int32 EF_eb_physics_unpaired_noniso = 1550 [(root_branch)="EF_eb_physics_unpaired_noniso"];
+    // optional int32 EF_eb_random = 1551 [(root_branch)="EF_eb_random"];
+    // optional int32 EF_eb_random_empty = 1552 [(root_branch)="EF_eb_random_empty"];
+    // optional int32 EF_eb_random_firstempty = 1553 [(root_branch)="EF_eb_random_firstempty"];
+    // optional int32 EF_eb_random_unpaired_iso = 1554 [(root_branch)="EF_eb_random_unpaired_iso"];
+    
+    // optional float trackd0 = 1600 [(root_branch)="trackd0"];
+    // optional float trackz0 = 1601 [(root_branch)="trackz0"];
+    // optional float trackphi = 1602 [(root_branch)="trackphi"];
+    // optional float tracktheta = 1603 [(root_branch)="tracktheta"];
+    // optional float trackqoverp = 1604 [(root_branch)="trackqoverp"];
+    // optional float trackpt = 1605 [(root_branch)="trackpt"];
+    // optional float tracketa = 1606 [(root_branch)="tracketa"];
+    
+    // optional int32 nBLHits = 1700 [(root_branch)="nBLHits"];
+    // optional int32 nPixHits = 1701 [(root_branch)="nPixHits"];
+    // optional int32 nSCTHits = 1702 [(root_branch)="nSCTHits"];
+    // optional int32 nTRTHits = 1703 [(root_branch)="nTRTHits"];
+    // optional int32 nTRTHighTHits = 1704 [(root_branch)="nTRTHighTHits"];
+    
+    // optional int32 nPixHoles = 1800 [(root_branch)="nPixHoles"];
+    // optional int32 nSCTHoles = 1801 [(root_branch)="nSCTHoles"];
+    // optional int32 nTRTHoles = 1802 [(root_branch)="nTRTHoles"];
+    
+    // optional int32 nBLSharedHits = 1900 [(root_branch)="nBLSharedHits"];
+    // optional int32 nPixSharedHits = 1901 [(root_branch)="nPixSharedHits"];
+    // optional int32 nSCTSharedHits = 1902 [(root_branch)="nSCTSharedHits"];
+    
+    // optional int32 nBLayerOutliers = 2000 [(root_branch)="nBLayerOutliers"];
+    // optional int32 nPixelOutliers = 2001 [(root_branch)="nPixelOutliers"];
+    // optional int32 nSCTOutliers = 2002 [(root_branch)="nSCTOutliers"];
+    // optional int32 nTRTOutliers = 2003 [(root_branch)="nTRTOutliers"];
+    // optional int32 nTRTHighTOutliers = 2004 [(root_branch)="nTRTHighTOutliers"];
+    
+    // optional int32 expectBLayerHit = 2100 [(root_branch)="expectBLayerHit"];
+    
+    // optional int32 nSiHits = 2200 [(root_branch)="nSiHits"];
+    // optional float TRTHighTHitsRatio = 2201 [(root_branch)="TRTHighTHitsRatio"];
+    // optional float TRTHighTOutliersRatio = 2202 [(root_branch)="TRTHighTOutliersRatio"];
+    
+    // optional float pixeldEdx = 2300 [(root_branch)="pixeldEdx"];
+    // optional int32 nGoodHitsPixeldEdx = 2301 [(root_branch)="nGoodHitsPixeldEdx"];
+    // optional float massPixeldEdx = 2302 [(root_branch)="massPixeldEdx"];
+    // repeated float likelihoodsPixeldEdx = 2303 [(root_branch)="likelihoodsPixeldEdx"];
+    
+    // optional float eProbabilityComb = 2400 [(root_branch)="eProbabilityComb"];
+    // optional float eProbabilityHT = 2401 [(root_branch)="eProbabilityHT"];
+    // optional float eProbabilityToT = 2402 [(root_branch)="eProbabilityToT"];
+    // optional float eProbabilityBrem = 2403 [(root_branch)="eProbabilityBrem"];
+    
+    // optional float vertweight = 2500 [(root_branch)="vertweight"];
+    
+    // optional int32 hastrack = 2600 [(root_branch)="hastrack"];
+}
+
+message EFPhoton {
+    // optional float E = 1 [(root_branch)="E"];
+    // optional float Et = 2 [(root_branch)="Et"];
+    // optional float pt = 3 [(root_branch)="pt"];
+    // optional float m = 4 [(root_branch)="m"];
+    // optional float eta = 5 [(root_branch)="eta"];
+    // optional float phi = 6 [(root_branch)="phi"];
+    // optional float px = 7 [(root_branch)="px"];
+    // optional float py = 8 [(root_branch)="py"];
+    // optional float pz = 9 [(root_branch)="pz"];
+    
+    // optional int32 EF_2g15_loose = 100 [(root_branch)="EF_2g15_loose"];
+    // optional int32 EF_2g20_loose = 101 [(root_branch)="EF_2g20_loose"];
+    // optional int32 EF_g100_etcut_g50_etcut = 102 [(root_branch)="EF_g100_etcut_g50_etcut"];
+    // optional int32 EF_g10_NoCut_cosmic = 103 [(root_branch)="EF_g10_NoCut_cosmic"];
+    // optional int32 EF_g11_etcut = 104 [(root_branch)="EF_g11_etcut"];
+    // optional int32 EF_g11_etcut_larcalib = 105 [(root_branch)="EF_g11_etcut_larcalib"];
+    // optional int32 EF_g150_etcut = 106 [(root_branch)="EF_g150_etcut"];
+    // optional int32 EF_g15_loose = 107 [(root_branch)="EF_g15_loose"];
+    // optional int32 EF_g15_loose_larcalib = 108 [(root_branch)="EF_g15_loose_larcalib"];
+    // optional int32 EF_g20_etcut = 109 [(root_branch)="EF_g20_etcut"];
+    // optional int32 EF_g20_etcut_xe30_noMu = 110 [(root_branch)="EF_g20_etcut_xe30_noMu"];
+    // optional int32 EF_g20_loose = 111 [(root_branch)="EF_g20_loose"];
+    // optional int32 EF_g20_loose_larcalib = 112 [(root_branch)="EF_g20_loose_larcalib"];
+    // optional int32 EF_g40_loose = 113 [(root_branch)="EF_g40_loose"];
+    // optional int32 EF_g40_loose_EFxe40_noMu = 114 [(root_branch)="EF_g40_loose_EFxe40_noMu"];
+    // optional int32 EF_g40_loose_larcalib = 115 [(root_branch)="EF_g40_loose_larcalib"];
+    // optional int32 EF_g40_tight = 116 [(root_branch)="EF_g40_tight"];
+    // optional int32 EF_g40_tight_b10_medium = 117 [(root_branch)="EF_g40_tight_b10_medium"];
+    // optional int32 EF_g5_NoCut_cosmic = 118 [(root_branch)="EF_g5_NoCut_cosmic"];
+    // optional int32 EF_g60_loose = 119 [(root_branch)="EF_g60_loose"];
+    // optional int32 EF_g60_loose_larcalib = 120 [(root_branch)="EF_g60_loose_larcalib"];
+    // optional int32 EF_g80_loose = 121 [(root_branch)="EF_g80_loose"];
+    // optional int32 EF_g80_loose_larcalib = 122 [(root_branch)="EF_g80_loose_larcalib"];
+    
+    // optional int32 author = 200 [(root_branch)="author"];
+    
+    // optional int32 isRecovered = 300 [(root_branch)="isRecovered"];
+    
+    // optional uint32 isEM = 400 [(root_branch)="isEM"];
+    // optional uint32 isEMLoose = 401 [(root_branch)="isEMLoose"];
+    // optional uint32 isEMMedium = 402 [(root_branch)="isEMMedium"];
+    // optional uint32 isEMTight = 403 [(root_branch)="isEMTight"];
+    
+    // optional int32 convFlag = 500 [(root_branch)="convFlag"];
+    // optional int32 isConv = 501 [(root_branch)="isConv"];
+    // optional int32 nConv = 502 [(root_branch)="nConv"];
+    // optional int32 nSingleTrackConv = 503 [(root_branch)="nSingleTrackConv"];
+    // optional int32 nDoubleTrackConv = 504 [(root_branch)="nDoubleTrackConv"];
+    
+    // optional int32 loose = 600 [(root_branch)="loose"];
+    // optional int32 looseIso = 601 [(root_branch)="looseIso"];
+    // optional int32 tight = 602 [(root_branch)="tight"];
+    // optional int32 tightIso = 603 [(root_branch)="tightIso"];
+    // optional int32 looseAR = 604 [(root_branch)="looseAR"];
+    // optional int32 looseARIso = 605 [(root_branch)="looseARIso"];
+    // optional int32 tightAR = 606 [(root_branch)="tightAR"];
+    // optional int32 tightARIso = 607 [(root_branch)="tightARIso"];
+    
+    // optional float Ethad = 700 [(root_branch)="Ethad"];
+    // optional float Ethad1 = 701 [(root_branch)="Ethad1"];
+    // optional float E033 = 702 [(root_branch)="E033"];
+    // optional float f1 = 703 [(root_branch)="f1"];
+    // optional float f1core = 704 [(root_branch)="f1core"];
+    // optional float Emins1 = 705 [(root_branch)="Emins1"];
+    // optional float fside = 706 [(root_branch)="fside"];
+    // optional float Emax2 = 707 [(root_branch)="Emax2"];
+    // optional float ws3 = 708 [(root_branch)="ws3"];
+    // optional float wstot = 709 [(root_branch)="wstot"];
+    // optional float E132 = 710 [(root_branch)="E132"];
+    // optional float E1152 = 711 [(root_branch)="E1152"];
+    // optional float emaxs1 = 712 [(root_branch)="emaxs1"];
+    // optional float deltaEs = 713 [(root_branch)="deltaEs"];
+    // optional float E233 = 714 [(root_branch)="E233"];
+    // optional float E237 = 715 [(root_branch)="E237"];
+    // optional float E277 = 716 [(root_branch)="E277"];
+    // optional float weta2 = 717 [(root_branch)="weta2"];
+    // optional float f3 = 718 [(root_branch)="f3"];
+    // optional float f3core = 719 [(root_branch)="f3core"];
+    
+    // optional float rphiallcalo = 800 [(root_branch)="rphiallcalo"];
+    
+    // optional float Etcone45 = 900 [(root_branch)="Etcone45"];
+    // optional float Etcone15 = 901 [(root_branch)="Etcone15"];
+    // optional float Etcone20 = 902 [(root_branch)="Etcone20"];
+    // optional float Etcone25 = 903 [(root_branch)="Etcone25"];
+    // optional float Etcone30 = 904 [(root_branch)="Etcone30"];
+    // optional float Etcone35 = 905 [(root_branch)="Etcone35"];
+    // optional float Etcone40 = 906 [(root_branch)="Etcone40"];
+    // optional float ptcone20 = 907 [(root_branch)="ptcone20"];
+    // optional float ptcone30 = 908 [(root_branch)="ptcone30"];
+    // optional float ptcone40 = 909 [(root_branch)="ptcone40"];
+    
+    // optional float convanglematch = 1000 [(root_branch)="convanglematch"];
+    // optional float convtrackmatch = 1001 [(root_branch)="convtrackmatch"];
+    
+    // optional int32 hasconv = 1100 [(root_branch)="hasconv"];
+    // optional float convvtxx = 1101 [(root_branch)="convvtxx"];
+    // optional float convvtxy = 1102 [(root_branch)="convvtxy"];
+    // optional float convvtxz = 1103 [(root_branch)="convvtxz"];
+    // optional float Rconv = 1104 [(root_branch)="Rconv"];
+    // optional float zconv = 1105 [(root_branch)="zconv"];
+    // optional float convvtxchi2 = 1106 [(root_branch)="convvtxchi2"];
+    // optional float pt1conv = 1107 [(root_branch)="pt1conv"];
+    
+    // optional int32 convtrk1nBLHits = 1200 [(root_branch)="convtrk1nBLHits"];
+    // optional int32 convtrk1nPixHits = 1201 [(root_branch)="convtrk1nPixHits"];
+    // optional int32 convtrk1nSCTHits = 1202 [(root_branch)="convtrk1nSCTHits"];
+    // optional int32 convtrk1nTRTHits = 1203 [(root_branch)="convtrk1nTRTHits"];
+    
+    // optional float pt2conv = 1300 [(root_branch)="pt2conv"];
+    
+    // optional int32 convtrk2nBLHits = 1400 [(root_branch)="convtrk2nBLHits"];
+    // optional int32 convtrk2nPixHits = 1401 [(root_branch)="convtrk2nPixHits"];
+    // optional int32 convtrk2nSCTHits = 1402 [(root_branch)="convtrk2nSCTHits"];
+    // optional int32 convtrk2nTRTHits = 1403 [(root_branch)="convtrk2nTRTHits"];
+    
+    // optional float ptconv = 1500 [(root_branch)="ptconv"];
+    // optional float pzconv = 1501 [(root_branch)="pzconv"];
+    
+    // optional float reta = 1600 [(root_branch)="reta"];
+    // optional float rphi = 1601 [(root_branch)="rphi"];
+    
+    // optional float cl_E = 1700 [(root_branch)="cl_E"];
+    // optional float cl_pt = 1701 [(root_branch)="cl_pt"];
+    // optional float cl_eta = 1702 [(root_branch)="cl_eta"];
+    // optional float cl_phi = 1703 [(root_branch)="cl_phi"];
+    // optional float cl_etas2 = 1704 [(root_branch)="cl_etas2"];
+}
+
+message Electron {
+    // optional float E = 1 [(root_branch)="E"];
+    // optional float Et = 2 [(root_branch)="Et"];
+    // optional float pt = 3 [(root_branch)="pt"];
+    // optional float m = 4 [(root_branch)="m"];
+    // optional float eta = 5 [(root_branch)="eta"];
+    // optional float phi = 6 [(root_branch)="phi"];
+    // optional float px = 7 [(root_branch)="px"];
+    // optional float py = 8 [(root_branch)="py"];
+    // optional float pz = 9 [(root_branch)="pz"];
+    
+    // optional float charge = 100 [(root_branch)="charge"];
+    
+    // optional int32 author = 200 [(root_branch)="author"];
+    
+    // optional uint32 isEM = 300 [(root_branch)="isEM"];
+    // optional uint32 isEMLoose = 301 [(root_branch)="isEMLoose"];
+    // optional uint32 isEMMedium = 302 [(root_branch)="isEMMedium"];
+    // optional uint32 isEMTight = 303 [(root_branch)="isEMTight"];
+    
+    // optional uint32 OQ = 400 [(root_branch)="OQ"];
+    
+    // optional int32 convFlag = 500 [(root_branch)="convFlag"];
+    // optional int32 isConv = 501 [(root_branch)="isConv"];
+    // optional int32 nConv = 502 [(root_branch)="nConv"];
+    // optional int32 nSingleTrackConv = 503 [(root_branch)="nSingleTrackConv"];
+    // optional int32 nDoubleTrackConv = 504 [(root_branch)="nDoubleTrackConv"];
+    
+    // optional uint32 OQRecalc = 600 [(root_branch)="OQRecalc"];
+    
+    // optional int32 mediumWithoutTrack = 700 [(root_branch)="mediumWithoutTrack"];
+    // optional int32 mediumIsoWithoutTrack = 701 [(root_branch)="mediumIsoWithoutTrack"];
+    // optional int32 tightWithoutTrack = 702 [(root_branch)="tightWithoutTrack"];
+    // optional int32 tightIsoWithoutTrack = 703 [(root_branch)="tightIsoWithoutTrack"];
+    
+    // optional int32 loose = 800 [(root_branch)="loose"];
+    // optional int32 looseIso = 801 [(root_branch)="looseIso"];
+    // optional int32 medium = 802 [(root_branch)="medium"];
+    // optional int32 mediumIso = 803 [(root_branch)="mediumIso"];
+    // optional int32 tight = 804 [(root_branch)="tight"];
+    // optional int32 tightIso = 805 [(root_branch)="tightIso"];
+    // optional int32 loosePP = 806 [(root_branch)="loosePP"];
+    // optional int32 loosePPIso = 807 [(root_branch)="loosePPIso"];
+    // optional int32 mediumPP = 808 [(root_branch)="mediumPP"];
+    // optional int32 mediumPPIso = 809 [(root_branch)="mediumPPIso"];
+    // optional int32 tightPP = 810 [(root_branch)="tightPP"];
+    // optional int32 tightPPIso = 811 [(root_branch)="tightPPIso"];
+    
+    // optional int32 goodOQ = 900 [(root_branch)="goodOQ"];
+    
+    // optional int32 refittedTrack_n = 1000 [(root_branch)="refittedTrack_n"];
+    
+    // optional float vertweight = 1100 [(root_branch)="vertweight"];
+    
+    // optional int32 hastrack = 1200 [(root_branch)="hastrack"];
+}
+
+message EmTauROI {
+    // optional float eta = 1 [(root_branch)="eta"];
+    // optional float phi = 2 [(root_branch)="phi"];
+    
+    // repeated string thrNames = 100 [(root_branch)="thrNames"];
+    // repeated float thrValues = 101 [(root_branch)="thrValues"];
+    
+    // optional float core = 200 [(root_branch)="core"];
+    
+    // optional float EMClus = 300 [(root_branch)="EMClus"];
+    // optional float tauClus = 301 [(root_branch)="tauClus"];
+    
+    // optional float EMIsol = 400 [(root_branch)="EMIsol"];
+    // optional float hadIsol = 401 [(root_branch)="hadIsol"];
+    // optional float hadCore = 402 [(root_branch)="hadCore"];
+    
+    // optional uint32 thrPattern = 500 [(root_branch)="thrPattern"];
+    
+    // optional int32 L1_2EM10 = 600 [(root_branch)="L1_2EM10"];
+    // optional int32 L1_2EM14 = 601 [(root_branch)="L1_2EM14"];
+    // optional int32 L1_2EM3 = 602 [(root_branch)="L1_2EM3"];
+    // optional int32 L1_2EM3_EM7 = 603 [(root_branch)="L1_2EM3_EM7"];
+    // optional int32 L1_2EM5 = 604 [(root_branch)="L1_2EM5"];
+    // optional int32 L1_2EM5_MU6 = 605 [(root_branch)="L1_2EM5_MU6"];
+    // optional int32 L1_2EM5_NL = 606 [(root_branch)="L1_2EM5_NL"];
+    // optional int32 L1_2EM7 = 607 [(root_branch)="L1_2EM7"];
+    // optional int32 L1_EM10 = 608 [(root_branch)="L1_EM10"];
+    // optional int32 L1_EM10_MU6 = 609 [(root_branch)="L1_EM10_MU6"];
+    // optional int32 L1_EM10_XE20 = 610 [(root_branch)="L1_EM10_XE20"];
+    // optional int32 L1_EM10_XS45 = 611 [(root_branch)="L1_EM10_XS45"];
+    // optional int32 L1_EM10_XS50 = 612 [(root_branch)="L1_EM10_XS50"];
+    // optional int32 L1_EM12 = 613 [(root_branch)="L1_EM12"];
+    // optional int32 L1_EM14 = 614 [(root_branch)="L1_EM14"];
+    // optional int32 L1_EM14_XE10 = 615 [(root_branch)="L1_EM14_XE10"];
+    // optional int32 L1_EM14_XE20 = 616 [(root_branch)="L1_EM14_XE20"];
+    // optional int32 L1_EM16 = 617 [(root_branch)="L1_EM16"];
+    // optional int32 L1_EM3 = 618 [(root_branch)="L1_EM3"];
+    // optional int32 L1_EM30 = 619 [(root_branch)="L1_EM30"];
+    // optional int32 L1_EM3_EMPTY = 620 [(root_branch)="L1_EM3_EMPTY"];
+    // optional int32 L1_EM3_FIRSTEMPTY = 621 [(root_branch)="L1_EM3_FIRSTEMPTY"];
+    // optional int32 L1_EM3_MU0 = 622 [(root_branch)="L1_EM3_MU0"];
+    // optional int32 L1_EM3_MU6 = 623 [(root_branch)="L1_EM3_MU6"];
+    // optional int32 L1_EM3_UNPAIRED_ISO = 624 [(root_branch)="L1_EM3_UNPAIRED_ISO"];
+    // optional int32 L1_EM3_UNPAIRED_NONISO = 625 [(root_branch)="L1_EM3_UNPAIRED_NONISO"];
+    // optional int32 L1_EM5 = 626 [(root_branch)="L1_EM5"];
+    // optional int32 L1_EM5_2MU6 = 627 [(root_branch)="L1_EM5_2MU6"];
+    // optional int32 L1_EM5_EMPTY = 628 [(root_branch)="L1_EM5_EMPTY"];
+    // optional int32 L1_EM5_MU10 = 629 [(root_branch)="L1_EM5_MU10"];
+    // optional int32 L1_EM5_MU6 = 630 [(root_branch)="L1_EM5_MU6"];
+    // optional int32 L1_EM7 = 631 [(root_branch)="L1_EM7"];
+}
+
+message EnergySumROI {
+    // repeated string thrNames = 1 [(root_branch)="thrNames"];
+    
+    // optional float ExMiss = 100 [(root_branch)="ExMiss"];
+    // optional float EyMiss = 101 [(root_branch)="EyMiss"];
+    
+    // optional float energyT = 200 [(root_branch)="energyT"];
+    
+    // optional bool overflowX = 300 [(root_branch)="overflowX"];
+    // optional bool overflowY = 301 [(root_branch)="overflowY"];
+    // optional bool overflowT = 302 [(root_branch)="overflowT"];
+    
+    // optional uint32 RoIWord0 = 400 [(root_branch)="RoIWord0"];
+    // optional uint32 RoIWord1 = 401 [(root_branch)="RoIWord1"];
+    // optional uint32 RoIWord2 = 402 [(root_branch)="RoIWord2"];
+}
+
+message IsoMuonFeature {
+    // optional float pt = 1 [(root_branch)="pt"];
+    // optional float eta = 2 [(root_branch)="eta"];
+    // optional float phi = 3 [(root_branch)="phi"];
+    
+    // optional float EtInnerConeEC = 100 [(root_branch)="EtInnerConeEC"];
+    // optional float EtOuterConeEC = 101 [(root_branch)="EtOuterConeEC"];
+    // optional float EtInnerConeHC = 102 [(root_branch)="EtInnerConeHC"];
+    // optional float EtOuterConeHC = 103 [(root_branch)="EtOuterConeHC"];
+    // optional int32 NTracksCone = 104 [(root_branch)="NTracksCone"];
+    // optional float SumPtTracksCone = 105 [(root_branch)="SumPtTracksCone"];
+    // optional float PtMuTracksCone = 106 [(root_branch)="PtMuTracksCone"];
+    
+    // optional int32 iso_strategy = 200 [(root_branch)="iso_strategy"];
+    
+    // optional int32 RoiIdMu  = 300 [(root_branch)="RoiIdMu "];
+    
+    // optional float LArWeight = 400 [(root_branch)="LArWeight"];
+    // optional float TileWeight = 401 [(root_branch)="TileWeight"];
+    
+    // optional int32 L2_2mu10 = 500 [(root_branch)="L2_2mu10"];
+    // optional int32 L2_2mu10_empty = 501 [(root_branch)="L2_2mu10_empty"];
+    // optional int32 L2_2mu10_loose = 502 [(root_branch)="L2_2mu10_loose"];
+    // optional int32 L2_2mu10_loose_empty = 503 [(root_branch)="L2_2mu10_loose_empty"];
+    // optional int32 L2_2mu10_loose_noOvlpRm = 504 [(root_branch)="L2_2mu10_loose_noOvlpRm"];
+    // optional int32 L2_2mu13_Zmumu_IDTrkNoCut = 505 [(root_branch)="L2_2mu13_Zmumu_IDTrkNoCut"];
+    // optional int32 L2_2mu4 = 506 [(root_branch)="L2_2mu4"];
+    // optional int32 L2_2mu4_Bmumu = 507 [(root_branch)="L2_2mu4_Bmumu"];
+    // optional int32 L2_2mu4_Bmumux = 508 [(root_branch)="L2_2mu4_Bmumux"];
+    // optional int32 L2_2mu4_DiMu = 509 [(root_branch)="L2_2mu4_DiMu"];
+    // optional int32 L2_2mu4_DiMu_DY = 510 [(root_branch)="L2_2mu4_DiMu_DY"];
+    // optional int32 L2_2mu4_DiMu_DY20 = 511 [(root_branch)="L2_2mu4_DiMu_DY20"];
+    // optional int32 L2_2mu4_DiMu_DY_noVtx_noOS = 512 [(root_branch)="L2_2mu4_DiMu_DY_noVtx_noOS"];
+    // optional int32 L2_2mu4_DiMu_SiTrk = 513 [(root_branch)="L2_2mu4_DiMu_SiTrk"];
+    // optional int32 L2_2mu4_DiMu_noVtx_noOS = 514 [(root_branch)="L2_2mu4_DiMu_noVtx_noOS"];
+    // optional int32 L2_2mu4_Jpsimumu = 515 [(root_branch)="L2_2mu4_Jpsimumu"];
+    // optional int32 L2_2mu4_Jpsimumu_IDTrkNoCut = 516 [(root_branch)="L2_2mu4_Jpsimumu_IDTrkNoCut"];
+    // optional int32 L2_2mu4_Upsimumu = 517 [(root_branch)="L2_2mu4_Upsimumu"];
+    // optional int32 L2_2mu4i_DiMu_DY = 518 [(root_branch)="L2_2mu4i_DiMu_DY"];
+    // optional int32 L2_2mu6 = 519 [(root_branch)="L2_2mu6"];
+    // optional int32 L2_2mu6_MSonly_g10_loose = 520 [(root_branch)="L2_2mu6_MSonly_g10_loose"];
+    // optional int32 L2_2mu6_MSonly_g10_loose_nonfilled = 521 [(root_branch)="L2_2mu6_MSonly_g10_loose_nonfilled"];
+    // optional int32 L2_2mu6_NL = 522 [(root_branch)="L2_2mu6_NL"];
+    // optional int32 L2_mu0_cal_empty = 523 [(root_branch)="L2_mu0_cal_empty"];
+    // optional int32 L2_mu0_empty_NoAlg = 524 [(root_branch)="L2_mu0_empty_NoAlg"];
+    // optional int32 L2_mu0_firstempty_NoAlg = 525 [(root_branch)="L2_mu0_firstempty_NoAlg"];
+    // optional int32 L2_mu0_unpaired_iso_NoAlg = 526 [(root_branch)="L2_mu0_unpaired_iso_NoAlg"];
+    // optional int32 L2_mu10 = 527 [(root_branch)="L2_mu10"];
+    // optional int32 L2_mu10_Jpsimumu = 528 [(root_branch)="L2_mu10_Jpsimumu"];
+    // optional int32 L2_mu10_NL = 529 [(root_branch)="L2_mu10_NL"];
+    // optional int32 L2_mu10_Upsimumu_FS = 530 [(root_branch)="L2_mu10_Upsimumu_FS"];
+    // optional int32 L2_mu10_Upsimumu_tight_FS = 531 [(root_branch)="L2_mu10_Upsimumu_tight_FS"];
+    // optional int32 L2_mu10_cal = 532 [(root_branch)="L2_mu10_cal"];
+    // optional int32 L2_mu10_loose = 533 [(root_branch)="L2_mu10_loose"];
+    // optional int32 L2_mu10_muCombTag_NoEF = 534 [(root_branch)="L2_mu10_muCombTag_NoEF"];
+    // optional int32 L2_mu11_empty_NoAlg = 535 [(root_branch)="L2_mu11_empty_NoAlg"];
+    // optional int32 L2_mu13 = 536 [(root_branch)="L2_mu13"];
+    // optional int32 L2_mu13_MG = 537 [(root_branch)="L2_mu13_MG"];
+    // optional int32 L2_mu13_muCombTag_NoEF = 538 [(root_branch)="L2_mu13_muCombTag_NoEF"];
+    // optional int32 L2_mu15 = 539 [(root_branch)="L2_mu15"];
+    // optional int32 L2_mu15_medium = 540 [(root_branch)="L2_mu15_medium"];
+    // optional int32 L2_mu15i = 541 [(root_branch)="L2_mu15i"];
+    // optional int32 L2_mu15i_medium = 542 [(root_branch)="L2_mu15i_medium"];
+    // optional int32 L2_mu18 = 543 [(root_branch)="L2_mu18"];
+    // optional int32 L2_mu18_MG = 544 [(root_branch)="L2_mu18_MG"];
+    // optional int32 L2_mu18_MG_medium = 545 [(root_branch)="L2_mu18_MG_medium"];
+    // optional int32 L2_mu18_medium = 546 [(root_branch)="L2_mu18_medium"];
+    // optional int32 L2_mu20 = 547 [(root_branch)="L2_mu20"];
+    // optional int32 L2_mu20_IDTrkNoCut = 548 [(root_branch)="L2_mu20_IDTrkNoCut"];
+    // optional int32 L2_mu20_MG = 549 [(root_branch)="L2_mu20_MG"];
+    // optional int32 L2_mu20_MG_medium = 550 [(root_branch)="L2_mu20_MG_medium"];
+    // optional int32 L2_mu20_empty = 551 [(root_branch)="L2_mu20_empty"];
+    // optional int32 L2_mu20_medium = 552 [(root_branch)="L2_mu20_medium"];
+    // optional int32 L2_mu20_muCombTag_NoEF = 553 [(root_branch)="L2_mu20_muCombTag_NoEF"];
+    // optional int32 L2_mu20i = 554 [(root_branch)="L2_mu20i"];
+    // optional int32 L2_mu20i_medium = 555 [(root_branch)="L2_mu20i_medium"];
+    // optional int32 L2_mu22 = 556 [(root_branch)="L2_mu22"];
+    // optional int32 L2_mu22_MG = 557 [(root_branch)="L2_mu22_MG"];
+    // optional int32 L2_mu22_MG_medium = 558 [(root_branch)="L2_mu22_MG_medium"];
+    // optional int32 L2_mu22_medium = 559 [(root_branch)="L2_mu22_medium"];
+    // optional int32 L2_mu4 = 560 [(root_branch)="L2_mu4"];
+    // optional int32 L2_mu40_MSonly_barrel = 561 [(root_branch)="L2_mu40_MSonly_barrel"];
+    // optional int32 L2_mu40_MSonly_barrel_medium = 562 [(root_branch)="L2_mu40_MSonly_barrel_medium"];
+    // optional int32 L2_mu40_MSonly_empty = 563 [(root_branch)="L2_mu40_MSonly_empty"];
+    // optional int32 L2_mu40_MSonly_tight = 564 [(root_branch)="L2_mu40_MSonly_tight"];
+    // optional int32 L2_mu40_MSonly_tighter = 565 [(root_branch)="L2_mu40_MSonly_tighter"];
+    // optional int32 L2_mu40_slow = 566 [(root_branch)="L2_mu40_slow"];
+    // optional int32 L2_mu40_slow_empty = 567 [(root_branch)="L2_mu40_slow_empty"];
+    // optional int32 L2_mu40_slow_medium = 568 [(root_branch)="L2_mu40_slow_medium"];
+    // optional int32 L2_mu40_slow_outOfTime = 569 [(root_branch)="L2_mu40_slow_outOfTime"];
+    // optional int32 L2_mu4_DiMu = 570 [(root_branch)="L2_mu4_DiMu"];
+    // optional int32 L2_mu4_DiMu_FS_noOS = 571 [(root_branch)="L2_mu4_DiMu_FS_noOS"];
+    // optional int32 L2_mu4_Jpsimumu = 572 [(root_branch)="L2_mu4_Jpsimumu"];
+    // optional int32 L2_mu4_L1J10_matched = 573 [(root_branch)="L2_mu4_L1J10_matched"];
+    // optional int32 L2_mu4_L1J15_matched = 574 [(root_branch)="L2_mu4_L1J15_matched"];
+    // optional int32 L2_mu4_L1J20_matched = 575 [(root_branch)="L2_mu4_L1J20_matched"];
+    // optional int32 L2_mu4_L1J30_matched = 576 [(root_branch)="L2_mu4_L1J30_matched"];
+    // optional int32 L2_mu4_L1J50_matched = 577 [(root_branch)="L2_mu4_L1J50_matched"];
+    // optional int32 L2_mu4_L1J75_matched = 578 [(root_branch)="L2_mu4_L1J75_matched"];
+    // optional int32 L2_mu4_L1MU11_MSonly_cosmic = 579 [(root_branch)="L2_mu4_L1MU11_MSonly_cosmic"];
+    // optional int32 L2_mu4_L1MU11_cosmic = 580 [(root_branch)="L2_mu4_L1MU11_cosmic"];
+    // optional int32 L2_mu4_MSonly_cosmic = 581 [(root_branch)="L2_mu4_MSonly_cosmic"];
+    // optional int32 L2_mu4_Trk_Jpsi = 582 [(root_branch)="L2_mu4_Trk_Jpsi"];
+    // optional int32 L2_mu4_Trk_Upsi_FS = 583 [(root_branch)="L2_mu4_Trk_Upsi_FS"];
+    // optional int32 L2_mu4_Upsimumu_FS = 584 [(root_branch)="L2_mu4_Upsimumu_FS"];
+    // optional int32 L2_mu4_Upsimumu_SiTrk_FS = 585 [(root_branch)="L2_mu4_Upsimumu_SiTrk_FS"];
+    // optional int32 L2_mu4_Upsimumu_tight_FS = 586 [(root_branch)="L2_mu4_Upsimumu_tight_FS"];
+    // optional int32 L2_mu4_cosmic = 587 [(root_branch)="L2_mu4_cosmic"];
+    // optional int32 L2_mu4_j10_a4tc_EFFS = 588 [(root_branch)="L2_mu4_j10_a4tc_EFFS"];
+    // optional int32 L2_mu4_j40_xe20_loose_noMu = 589 [(root_branch)="L2_mu4_j40_xe20_loose_noMu"];
+    // optional int32 L2_mu4_j95_L1matched = 590 [(root_branch)="L2_mu4_j95_L1matched"];
+    // optional int32 L2_mu4mu6_Bmumu = 591 [(root_branch)="L2_mu4mu6_Bmumu"];
+    // optional int32 L2_mu4mu6_BmumuX = 592 [(root_branch)="L2_mu4mu6_BmumuX"];
+    // optional int32 L2_mu4mu6_DiMu = 593 [(root_branch)="L2_mu4mu6_DiMu"];
+    // optional int32 L2_mu4mu6_DiMu_noVtx_noOS = 594 [(root_branch)="L2_mu4mu6_DiMu_noVtx_noOS"];
+    // optional int32 L2_mu4mu6_Jpsimumu = 595 [(root_branch)="L2_mu4mu6_Jpsimumu"];
+    // optional int32 L2_mu4mu6_Upsimumu = 596 [(root_branch)="L2_mu4mu6_Upsimumu"];
+    // optional int32 L2_mu6 = 597 [(root_branch)="L2_mu6"];
+    // optional int32 L2_mu6_DiMu_noOS = 598 [(root_branch)="L2_mu6_DiMu_noOS"];
+    // optional int32 L2_mu6_Jpsimumu = 599 [(root_branch)="L2_mu6_Jpsimumu"];
+    // optional int32 L2_mu6_Jpsimumu_SiTrk = 600 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
+    // optional int32 L2_mu6_Jpsimumu_tight = 601 [(root_branch)="L2_mu6_Jpsimumu_tight"];
+    // optional int32 L2_mu6_Trk_Jpsi_loose = 602 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+}
+
+message Jet {
+    // optional float E = 1 [(root_branch)="E"];
+    // optional float pt = 2 [(root_branch)="pt"];
+    // optional float m = 3 [(root_branch)="m"];
+    // optional float eta = 4 [(root_branch)="eta"];
+    // optional float phi = 5 [(root_branch)="phi"];
+    
+    // optional float EtaOrigin = 100 [(root_branch)="EtaOrigin"];
+    // optional float PhiOrigin = 101 [(root_branch)="PhiOrigin"];
+    // optional float MOrigin = 102 [(root_branch)="MOrigin"];
+    // optional float EtaOriginEM = 103 [(root_branch)="EtaOriginEM"];
+    // optional float PhiOriginEM = 104 [(root_branch)="PhiOriginEM"];
+    // optional float MOriginEM = 105 [(root_branch)="MOriginEM"];
+    
+    // optional float WIDTH = 200 [(root_branch)="WIDTH"];
+    
+    // optional float n90 = 300 [(root_branch)="n90"];
+    
+    // optional float Timing = 400 [(root_branch)="Timing"];
+    
+    // optional float LArQuality = 500 [(root_branch)="LArQuality"];
+    
+    // optional float nTrk = 600 [(root_branch)="nTrk"];
+    // optional float sumPtTrk = 601 [(root_branch)="sumPtTrk"];
+    
+    // optional float OriginIndex = 700 [(root_branch)="OriginIndex"];
+    
+    // optional float HECQuality = 800 [(root_branch)="HECQuality"];
+    
+    // optional float NegativeE = 900 [(root_branch)="NegativeE"];
+    
+    // optional float AverageLArQF = 1000 [(root_branch)="AverageLArQF"];
+    
+    // optional float YFlip12 = 1100 [(root_branch)="YFlip12"];
+    // optional float YFlip23 = 1101 [(root_branch)="YFlip23"];
+    
+    // optional float BCH_CORR_CELL = 1200 [(root_branch)="BCH_CORR_CELL"];
+    // optional float BCH_CORR_DOTX = 1201 [(root_branch)="BCH_CORR_DOTX"];
+    // optional float BCH_CORR_JET = 1202 [(root_branch)="BCH_CORR_JET"];
+    // optional float BCH_CORR_JET_FORCELL = 1203 [(root_branch)="BCH_CORR_JET_FORCELL"];
+    
+    // optional float ENG_BAD_CELLS = 1300 [(root_branch)="ENG_BAD_CELLS"];
+    // optional float N_BAD_CELLS = 1301 [(root_branch)="N_BAD_CELLS"];
+    // optional float N_BAD_CELLS_CORR = 1302 [(root_branch)="N_BAD_CELLS_CORR"];
+    // optional float BAD_CELLS_CORR_E = 1303 [(root_branch)="BAD_CELLS_CORR_E"];
+    
+    // optional float NumTowers = 1400 [(root_branch)="NumTowers"];
+    
+    // optional int32 SamplingMax = 1500 [(root_branch)="SamplingMax"];
+    // optional float fracSamplingMax = 1501 [(root_branch)="fracSamplingMax"];
+    
+    // optional float hecf = 1600 [(root_branch)="hecf"];
+    
+    // optional float tgap3f = 1700 [(root_branch)="tgap3f"];
+    
+    // optional int32 isUgly = 1800 [(root_branch)="isUgly"];
+    
+    // optional int32 isBadLoose = 1900 [(root_branch)="isBadLoose"];
+    // optional int32 isBadMedium = 1901 [(root_branch)="isBadMedium"];
+    // optional int32 isBadTight = 1902 [(root_branch)="isBadTight"];
+    
+    // optional float emfrac = 2000 [(root_branch)="emfrac"];
+    
+    // optional float Offset = 2100 [(root_branch)="Offset"];
+    
+    // optional float EMJES = 2200 [(root_branch)="EMJES"];
+    // optional float EMJES_EtaCorr = 2201 [(root_branch)="EMJES_EtaCorr"];
+    // optional float EMJESnooffset = 2202 [(root_branch)="EMJESnooffset"];
+    
+    // optional float GCWJES = 2300 [(root_branch)="GCWJES"];
+    // optional float GCWJES_EtaCorr = 2301 [(root_branch)="GCWJES_EtaCorr"];
+    
+    // optional float CB = 2400 [(root_branch)="CB"];
+    
+    // optional float LCJES = 2500 [(root_branch)="LCJES"];
+    
+    // optional float emscale_E = 2600 [(root_branch)="emscale_E"];
+    // optional float emscale_pt = 2601 [(root_branch)="emscale_pt"];
+    // optional float emscale_m = 2602 [(root_branch)="emscale_m"];
+    // optional float emscale_eta = 2603 [(root_branch)="emscale_eta"];
+    // optional float emscale_phi = 2604 [(root_branch)="emscale_phi"];
+    
+    // optional float jvtx_x = 2700 [(root_branch)="jvtx_x"];
+    // optional float jvtx_y = 2701 [(root_branch)="jvtx_y"];
+    // optional float jvtx_z = 2702 [(root_branch)="jvtx_z"];
+    // optional float jvtxf = 2703 [(root_branch)="jvtxf"];
+    // repeated float jvtxfFull = 2704 [(root_branch)="jvtxfFull"];
+    
+    // optional float GSCFactorF = 2800 [(root_branch)="GSCFactorF"];
+    // optional float WidthFraction = 2801 [(root_branch)="WidthFraction"];
+    
+    // optional float el_dr = 2900 [(root_branch)="el_dr"];
+    // optional int32 el_matched = 2901 [(root_branch)="el_matched"];
+    // optional float mu_dr = 2902 [(root_branch)="mu_dr"];
+    // optional int32 mu_matched = 2903 [(root_branch)="mu_matched"];
+    // optional float L1_dr = 2904 [(root_branch)="L1_dr"];
+    // optional int32 L1_matched = 2905 [(root_branch)="L1_matched"];
+    // optional float L2_dr = 2906 [(root_branch)="L2_dr"];
+    // optional int32 L2_matched = 2907 [(root_branch)="L2_matched"];
+    // optional float EF_dr = 2908 [(root_branch)="EF_dr"];
+    // optional int32 EF_matched = 2909 [(root_branch)="EF_matched"];
+}
+
+message JetsInfoMET {
+    // optional float JetPtWeightedEventEMFraction = 1 [(root_branch)="JetPtWeightedEventEMFraction"];
+    // optional float JetPtWeightedNumAssociatedTracks = 2 [(root_branch)="JetPtWeightedNumAssociatedTracks"];
+    // optional float JetPtWeightedSize = 3 [(root_branch)="JetPtWeightedSize"];
+    
+    // optional float LeadingJetEt = 100 [(root_branch)="LeadingJetEt"];
+    // optional float LeadingJetEta = 101 [(root_branch)="LeadingJetEta"];
+}
+
+message MBTS {
+    // optional float E = 1 [(root_branch)="E"];
+    // optional float eta = 2 [(root_branch)="eta"];
+    // optional float phi = 3 [(root_branch)="phi"];
+    
+    // optional float time = 100 [(root_branch)="time"];
+    
+    // optional int32 quality = 200 [(root_branch)="quality"];
+    
+    // optional int32 type = 300 [(root_branch)="type"];
+    
+    // optional int32 module = 400 [(root_branch)="module"];
+    
+    // optional int32 channel = 500 [(root_branch)="channel"];
+}
+
+message MBTSTime {
+    // optional float timeDiff = 1 [(root_branch)="timeDiff"];
+    // optional float timeA = 2 [(root_branch)="timeA"];
+    // optional float timeC = 3 [(root_branch)="timeC"];
+    
+    // optional int32 countA = 100 [(root_branch)="countA"];
+    // optional int32 countC = 101 [(root_branch)="countC"];
+}
+
+message MissingETComposition {
+    // repeated float wpx = 1 [(root_branch)="wpx"];
+    // repeated float wpy = 2 [(root_branch)="wpy"];
+    
+    // repeated float wet = 100 [(root_branch)="wet"];
+    
+    // repeated uint32 statusWord = 200 [(root_branch)="statusWord"];
+}
+
+message MuonFeatureDetails {
+    
+}
+
+message MuonFeature {
+    // optional float pt = 1 [(root_branch)="pt"];
+    // optional float eta = 2 [(root_branch)="eta"];
+    // optional float phi = 3 [(root_branch)="phi"];
+    // optional float dir_phi = 4 [(root_branch)="dir_phi"];
+    
+    // optional float zeta = 100 [(root_branch)="zeta"];
+    // optional float dir_zeta = 101 [(root_branch)="dir_zeta"];
+    
+    // optional float radius = 200 [(root_branch)="radius"];
+    
+    // optional float beta = 300 [(root_branch)="beta"];
+    
+    // optional float br_radius = 400 [(root_branch)="br_radius"];
+    // optional float br_sagitta = 401 [(root_branch)="br_sagitta"];
+    
+    // optional float ec_alpha = 500 [(root_branch)="ec_alpha"];
+    // optional float ec_beta = 501 [(root_branch)="ec_beta"];
+    
+    // optional int32 roiId = 600 [(root_branch)="roiId"];
+    
+    // optional int32 saddress = 700 [(root_branch)="saddress"];
+    
+    // optional int32 algoId = 800 [(root_branch)="algoId"];
+    
+    // optional float sp1_r = 900 [(root_branch)="sp1_r"];
+    // optional float sp1_z = 901 [(root_branch)="sp1_z"];
+    // optional float sp1_slope = 902 [(root_branch)="sp1_slope"];
+    // optional float sp2_r = 903 [(root_branch)="sp2_r"];
+    // optional float sp2_z = 904 [(root_branch)="sp2_z"];
+    // optional float sp2_slope = 905 [(root_branch)="sp2_slope"];
+    // optional float sp3_r = 906 [(root_branch)="sp3_r"];
+    // optional float sp3_z = 907 [(root_branch)="sp3_z"];
+    // optional float sp3_slope = 908 [(root_branch)="sp3_slope"];
+    
+    // optional int32 L2_2mu10 = 1000 [(root_branch)="L2_2mu10"];
+    // optional int32 L2_2mu10_empty = 1001 [(root_branch)="L2_2mu10_empty"];
+    // optional int32 L2_2mu10_loose = 1002 [(root_branch)="L2_2mu10_loose"];
+    // optional int32 L2_2mu10_loose_empty = 1003 [(root_branch)="L2_2mu10_loose_empty"];
+    // optional int32 L2_2mu10_loose_noOvlpRm = 1004 [(root_branch)="L2_2mu10_loose_noOvlpRm"];
+    // optional int32 L2_2mu13_Zmumu_IDTrkNoCut = 1005 [(root_branch)="L2_2mu13_Zmumu_IDTrkNoCut"];
+    // optional int32 L2_2mu4 = 1006 [(root_branch)="L2_2mu4"];
+    // optional int32 L2_2mu4_Bmumu = 1007 [(root_branch)="L2_2mu4_Bmumu"];
+    // optional int32 L2_2mu4_Bmumux = 1008 [(root_branch)="L2_2mu4_Bmumux"];
+    // optional int32 L2_2mu4_DiMu = 1009 [(root_branch)="L2_2mu4_DiMu"];
+    // optional int32 L2_2mu4_DiMu_DY = 1010 [(root_branch)="L2_2mu4_DiMu_DY"];
+    // optional int32 L2_2mu4_DiMu_DY20 = 1011 [(root_branch)="L2_2mu4_DiMu_DY20"];
+    // optional int32 L2_2mu4_DiMu_DY_noVtx_noOS = 1012 [(root_branch)="L2_2mu4_DiMu_DY_noVtx_noOS"];
+    // optional int32 L2_2mu4_DiMu_SiTrk = 1013 [(root_branch)="L2_2mu4_DiMu_SiTrk"];
+    // optional int32 L2_2mu4_DiMu_noVtx_noOS = 1014 [(root_branch)="L2_2mu4_DiMu_noVtx_noOS"];
+    // optional int32 L2_2mu4_Jpsimumu = 1015 [(root_branch)="L2_2mu4_Jpsimumu"];
+    // optional int32 L2_2mu4_Jpsimumu_IDTrkNoCut = 1016 [(root_branch)="L2_2mu4_Jpsimumu_IDTrkNoCut"];
+    // optional int32 L2_2mu4_Upsimumu = 1017 [(root_branch)="L2_2mu4_Upsimumu"];
+    // optional int32 L2_2mu4i_DiMu_DY = 1018 [(root_branch)="L2_2mu4i_DiMu_DY"];
+    // optional int32 L2_2mu6 = 1019 [(root_branch)="L2_2mu6"];
+    // optional int32 L2_2mu6_MSonly_g10_loose = 1020 [(root_branch)="L2_2mu6_MSonly_g10_loose"];
+    // optional int32 L2_2mu6_MSonly_g10_loose_nonfilled = 1021 [(root_branch)="L2_2mu6_MSonly_g10_loose_nonfilled"];
+    // optional int32 L2_2mu6_NL = 1022 [(root_branch)="L2_2mu6_NL"];
+    // optional int32 L2_mu0_cal_empty = 1023 [(root_branch)="L2_mu0_cal_empty"];
+    // optional int32 L2_mu0_empty_NoAlg = 1024 [(root_branch)="L2_mu0_empty_NoAlg"];
+    // optional int32 L2_mu0_firstempty_NoAlg = 1025 [(root_branch)="L2_mu0_firstempty_NoAlg"];
+    // optional int32 L2_mu0_unpaired_iso_NoAlg = 1026 [(root_branch)="L2_mu0_unpaired_iso_NoAlg"];
+    // optional int32 L2_mu10 = 1027 [(root_branch)="L2_mu10"];
+    // optional int32 L2_mu10_Jpsimumu = 1028 [(root_branch)="L2_mu10_Jpsimumu"];
+    // optional int32 L2_mu10_NL = 1029 [(root_branch)="L2_mu10_NL"];
+    // optional int32 L2_mu10_Upsimumu_FS = 1030 [(root_branch)="L2_mu10_Upsimumu_FS"];
+    // optional int32 L2_mu10_Upsimumu_tight_FS = 1031 [(root_branch)="L2_mu10_Upsimumu_tight_FS"];
+    // optional int32 L2_mu10_cal = 1032 [(root_branch)="L2_mu10_cal"];
+    // optional int32 L2_mu10_loose = 1033 [(root_branch)="L2_mu10_loose"];
+    // optional int32 L2_mu10_muCombTag_NoEF = 1034 [(root_branch)="L2_mu10_muCombTag_NoEF"];
+    // optional int32 L2_mu11_empty_NoAlg = 1035 [(root_branch)="L2_mu11_empty_NoAlg"];
+    // optional int32 L2_mu13 = 1036 [(root_branch)="L2_mu13"];
+    // optional int32 L2_mu13_MG = 1037 [(root_branch)="L2_mu13_MG"];
+    // optional int32 L2_mu13_muCombTag_NoEF = 1038 [(root_branch)="L2_mu13_muCombTag_NoEF"];
+    // optional int32 L2_mu15 = 1039 [(root_branch)="L2_mu15"];
+    // optional int32 L2_mu15_medium = 1040 [(root_branch)="L2_mu15_medium"];
+    // optional int32 L2_mu15i = 1041 [(root_branch)="L2_mu15i"];
+    // optional int32 L2_mu15i_medium = 1042 [(root_branch)="L2_mu15i_medium"];
+    // optional int32 L2_mu18 = 1043 [(root_branch)="L2_mu18"];
+    // optional int32 L2_mu18_MG = 1044 [(root_branch)="L2_mu18_MG"];
+    // optional int32 L2_mu18_MG_medium = 1045 [(root_branch)="L2_mu18_MG_medium"];
+    // optional int32 L2_mu18_medium = 1046 [(root_branch)="L2_mu18_medium"];
+    // optional int32 L2_mu20 = 1047 [(root_branch)="L2_mu20"];
+    // optional int32 L2_mu20_IDTrkNoCut = 1048 [(root_branch)="L2_mu20_IDTrkNoCut"];
+    // optional int32 L2_mu20_MG = 1049 [(root_branch)="L2_mu20_MG"];
+    // optional int32 L2_mu20_MG_medium = 1050 [(root_branch)="L2_mu20_MG_medium"];
+    // optional int32 L2_mu20_empty = 1051 [(root_branch)="L2_mu20_empty"];
+    // optional int32 L2_mu20_medium = 1052 [(root_branch)="L2_mu20_medium"];
+    // optional int32 L2_mu20_muCombTag_NoEF = 1053 [(root_branch)="L2_mu20_muCombTag_NoEF"];
+    // optional int32 L2_mu20i = 1054 [(root_branch)="L2_mu20i"];
+    // optional int32 L2_mu20i_medium = 1055 [(root_branch)="L2_mu20i_medium"];
+    // optional int32 L2_mu22 = 1056 [(root_branch)="L2_mu22"];
+    // optional int32 L2_mu22_MG = 1057 [(root_branch)="L2_mu22_MG"];
+    // optional int32 L2_mu22_MG_medium = 1058 [(root_branch)="L2_mu22_MG_medium"];
+    // optional int32 L2_mu22_medium = 1059 [(root_branch)="L2_mu22_medium"];
+    // optional int32 L2_mu4 = 1060 [(root_branch)="L2_mu4"];
+    // optional int32 L2_mu40_MSonly_barrel = 1061 [(root_branch)="L2_mu40_MSonly_barrel"];
+    // optional int32 L2_mu40_MSonly_barrel_medium = 1062 [(root_branch)="L2_mu40_MSonly_barrel_medium"];
+    // optional int32 L2_mu40_MSonly_empty = 1063 [(root_branch)="L2_mu40_MSonly_empty"];
+    // optional int32 L2_mu40_MSonly_tight = 1064 [(root_branch)="L2_mu40_MSonly_tight"];
+    // optional int32 L2_mu40_MSonly_tighter = 1065 [(root_branch)="L2_mu40_MSonly_tighter"];
+    // optional int32 L2_mu40_slow = 1066 [(root_branch)="L2_mu40_slow"];
+    // optional int32 L2_mu40_slow_empty = 1067 [(root_branch)="L2_mu40_slow_empty"];
+    // optional int32 L2_mu40_slow_medium = 1068 [(root_branch)="L2_mu40_slow_medium"];
+    // optional int32 L2_mu40_slow_outOfTime = 1069 [(root_branch)="L2_mu40_slow_outOfTime"];
+    // optional int32 L2_mu4_DiMu = 1070 [(root_branch)="L2_mu4_DiMu"];
+    // optional int32 L2_mu4_DiMu_FS_noOS = 1071 [(root_branch)="L2_mu4_DiMu_FS_noOS"];
+    // optional int32 L2_mu4_Jpsimumu = 1072 [(root_branch)="L2_mu4_Jpsimumu"];
+    // optional int32 L2_mu4_L1J10_matched = 1073 [(root_branch)="L2_mu4_L1J10_matched"];
+    // optional int32 L2_mu4_L1J15_matched = 1074 [(root_branch)="L2_mu4_L1J15_matched"];
+    // optional int32 L2_mu4_L1J20_matched = 1075 [(root_branch)="L2_mu4_L1J20_matched"];
+    // optional int32 L2_mu4_L1J30_matched = 1076 [(root_branch)="L2_mu4_L1J30_matched"];
+    // optional int32 L2_mu4_L1J50_matched = 1077 [(root_branch)="L2_mu4_L1J50_matched"];
+    // optional int32 L2_mu4_L1J75_matched = 1078 [(root_branch)="L2_mu4_L1J75_matched"];
+    // optional int32 L2_mu4_L1MU11_MSonly_cosmic = 1079 [(root_branch)="L2_mu4_L1MU11_MSonly_cosmic"];
+    // optional int32 L2_mu4_L1MU11_cosmic = 1080 [(root_branch)="L2_mu4_L1MU11_cosmic"];
+    // optional int32 L2_mu4_MSonly_cosmic = 1081 [(root_branch)="L2_mu4_MSonly_cosmic"];
+    // optional int32 L2_mu4_Trk_Jpsi = 1082 [(root_branch)="L2_mu4_Trk_Jpsi"];
+    // optional int32 L2_mu4_Trk_Upsi_FS = 1083 [(root_branch)="L2_mu4_Trk_Upsi_FS"];
+    // optional int32 L2_mu4_Upsimumu_FS = 1084 [(root_branch)="L2_mu4_Upsimumu_FS"];
+    // optional int32 L2_mu4_Upsimumu_SiTrk_FS = 1085 [(root_branch)="L2_mu4_Upsimumu_SiTrk_FS"];
+    // optional int32 L2_mu4_Upsimumu_tight_FS = 1086 [(root_branch)="L2_mu4_Upsimumu_tight_FS"];
+    // optional int32 L2_mu4_cosmic = 1087 [(root_branch)="L2_mu4_cosmic"];
+    // optional int32 L2_mu4_j10_a4tc_EFFS = 1088 [(root_branch)="L2_mu4_j10_a4tc_EFFS"];
+    // optional int32 L2_mu4_j40_xe20_loose_noMu = 1089 [(root_branch)="L2_mu4_j40_xe20_loose_noMu"];
+    // optional int32 L2_mu4_j95_L1matched = 1090 [(root_branch)="L2_mu4_j95_L1matched"];
+    // optional int32 L2_mu4mu6_Bmumu = 1091 [(root_branch)="L2_mu4mu6_Bmumu"];
+    // optional int32 L2_mu4mu6_BmumuX = 1092 [(root_branch)="L2_mu4mu6_BmumuX"];
+    // optional int32 L2_mu4mu6_DiMu = 1093 [(root_branch)="L2_mu4mu6_DiMu"];
+    // optional int32 L2_mu4mu6_DiMu_noVtx_noOS = 1094 [(root_branch)="L2_mu4mu6_DiMu_noVtx_noOS"];
+    // optional int32 L2_mu4mu6_Jpsimumu = 1095 [(root_branch)="L2_mu4mu6_Jpsimumu"];
+    // optional int32 L2_mu4mu6_Upsimumu = 1096 [(root_branch)="L2_mu4mu6_Upsimumu"];
+    // optional int32 L2_mu6 = 1097 [(root_branch)="L2_mu6"];
+    // optional int32 L2_mu6_DiMu_noOS = 1098 [(root_branch)="L2_mu6_DiMu_noOS"];
+    // optional int32 L2_mu6_Jpsimumu = 1099 [(root_branch)="L2_mu6_Jpsimumu"];
+    // optional int32 L2_mu6_Jpsimumu_SiTrk = 1100 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
+    // optional int32 L2_mu6_Jpsimumu_tight = 1101 [(root_branch)="L2_mu6_Jpsimumu_tight"];
+    // optional int32 L2_mu6_Trk_Jpsi_loose = 1102 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+}
+
+message Muon {
+    // optional float E = 1 [(root_branch)="E"];
+    // optional float pt = 2 [(root_branch)="pt"];
+    // optional float m = 3 [(root_branch)="m"];
+    // optional float eta = 4 [(root_branch)="eta"];
+    // optional float phi = 5 [(root_branch)="phi"];
+    // optional float px = 6 [(root_branch)="px"];
+    // optional float py = 7 [(root_branch)="py"];
+    // optional float pz = 8 [(root_branch)="pz"];
+    
+    // optional float charge = 100 [(root_branch)="charge"];
+    
+    // optional uint32 allauthor = 200 [(root_branch)="allauthor"];
+    
+    // optional int32 hastrack = 300 [(root_branch)="hastrack"];
+}
+
+message MuonROI {
+    // optional float pt = 1 [(root_branch)="pt"];
+    // optional float eta = 2 [(root_branch)="eta"];
+    // optional float phi = 3 [(root_branch)="phi"];
+    
+    // optional string thrName = 100 [(root_branch)="thrName"];
+    // optional int32 thrNumber = 101 [(root_branch)="thrNumber"];
+    // optional int32 RoINumber = 102 [(root_branch)="RoINumber"];
+    
+    // optional int32 sectorAddress = 200 [(root_branch)="sectorAddress"];
+    
+    // optional int32 firstCandidate = 300 [(root_branch)="firstCandidate"];
+    
+    // optional int32 moreCandInRoI = 400 [(root_branch)="moreCandInRoI"];
+    // optional int32 moreCandInSector = 401 [(root_branch)="moreCandInSector"];
+    
+    // optional int32 source = 500 [(root_branch)="source"];
+    
+    // optional int32 hemisphere = 600 [(root_branch)="hemisphere"];
+    
+    // optional int32 charge = 700 [(root_branch)="charge"];
+    
+    // optional int32 vetoed = 800 [(root_branch)="vetoed"];
+}
+
+message Photon {
+    // optional float E = 1 [(root_branch)="E"];
+    // optional float Et = 2 [(root_branch)="Et"];
+    // optional float pt = 3 [(root_branch)="pt"];
+    // optional float m = 4 [(root_branch)="m"];
+    // optional float eta = 5 [(root_branch)="eta"];
+    // optional float phi = 6 [(root_branch)="phi"];
+    // optional float px = 7 [(root_branch)="px"];
+    // optional float py = 8 [(root_branch)="py"];
+    // optional float pz = 9 [(root_branch)="pz"];
+    
+    // optional int32 author = 100 [(root_branch)="author"];
+    
+    // optional int32 isRecovered = 200 [(root_branch)="isRecovered"];
+    
+    // optional uint32 isEM = 300 [(root_branch)="isEM"];
+    // optional uint32 isEMLoose = 301 [(root_branch)="isEMLoose"];
+    // optional uint32 isEMMedium = 302 [(root_branch)="isEMMedium"];
+    // optional uint32 isEMTight = 303 [(root_branch)="isEMTight"];
+    
+    // optional uint32 OQ = 400 [(root_branch)="OQ"];
+    // optional uint32 OQRecalc = 401 [(root_branch)="OQRecalc"];
+    
+    // optional int32 convFlag = 500 [(root_branch)="convFlag"];
+    // optional int32 isConv = 501 [(root_branch)="isConv"];
+    // optional int32 nConv = 502 [(root_branch)="nConv"];
+    // optional int32 nSingleTrackConv = 503 [(root_branch)="nSingleTrackConv"];
+    // optional int32 nDoubleTrackConv = 504 [(root_branch)="nDoubleTrackConv"];
+    
+    // optional int32 loose = 600 [(root_branch)="loose"];
+    // optional int32 looseIso = 601 [(root_branch)="looseIso"];
+    // optional int32 tight = 602 [(root_branch)="tight"];
+    // optional int32 tightIso = 603 [(root_branch)="tightIso"];
+    // optional int32 looseAR = 604 [(root_branch)="looseAR"];
+    // optional int32 looseARIso = 605 [(root_branch)="looseARIso"];
+    // optional int32 tightAR = 606 [(root_branch)="tightAR"];
+    // optional int32 tightARIso = 607 [(root_branch)="tightARIso"];
+    
+    // optional int32 goodOQ = 700 [(root_branch)="goodOQ"];
+    
+    // optional float Ethad = 800 [(root_branch)="Ethad"];
+    // optional float Ethad1 = 801 [(root_branch)="Ethad1"];
+    // optional float E033 = 802 [(root_branch)="E033"];
+    // optional float f1 = 803 [(root_branch)="f1"];
+    // optional float f1core = 804 [(root_branch)="f1core"];
+    // optional float Emins1 = 805 [(root_branch)="Emins1"];
+    // optional float fside = 806 [(root_branch)="fside"];
+    // optional float Emax2 = 807 [(root_branch)="Emax2"];
+    // optional float ws3 = 808 [(root_branch)="ws3"];
+    // optional float wstot = 809 [(root_branch)="wstot"];
+    // optional float E132 = 810 [(root_branch)="E132"];
+    // optional float E1152 = 811 [(root_branch)="E1152"];
+    // optional float emaxs1 = 812 [(root_branch)="emaxs1"];
+    // optional float deltaEs = 813 [(root_branch)="deltaEs"];
+    // optional float E233 = 814 [(root_branch)="E233"];
+    // optional float E237 = 815 [(root_branch)="E237"];
+    // optional float E277 = 816 [(root_branch)="E277"];
+    // optional float weta2 = 817 [(root_branch)="weta2"];
+    // optional float f3 = 818 [(root_branch)="f3"];
+    // optional float f3core = 819 [(root_branch)="f3core"];
+    
+    // optional float rphiallcalo = 900 [(root_branch)="rphiallcalo"];
+    
+    // optional float Etcone45 = 1000 [(root_branch)="Etcone45"];
+    // optional float Etcone15 = 1001 [(root_branch)="Etcone15"];
+    // optional float Etcone20 = 1002 [(root_branch)="Etcone20"];
+    // optional float Etcone25 = 1003 [(root_branch)="Etcone25"];
+    // optional float Etcone30 = 1004 [(root_branch)="Etcone30"];
+    // optional float Etcone35 = 1005 [(root_branch)="Etcone35"];
+    // optional float Etcone40 = 1006 [(root_branch)="Etcone40"];
+    // optional float ptcone20 = 1007 [(root_branch)="ptcone20"];
+    // optional float ptcone30 = 1008 [(root_branch)="ptcone30"];
+    // optional float ptcone40 = 1009 [(root_branch)="ptcone40"];
+    // optional float nucone20 = 1010 [(root_branch)="nucone20"];
+    // optional float nucone30 = 1011 [(root_branch)="nucone30"];
+    // optional float nucone40 = 1012 [(root_branch)="nucone40"];
+    
+    // optional float Etcone15_pt_corrected = 1100 [(root_branch)="Etcone15_pt_corrected"];
+    // optional float Etcone20_pt_corrected = 1101 [(root_branch)="Etcone20_pt_corrected"];
+    // optional float Etcone25_pt_corrected = 1102 [(root_branch)="Etcone25_pt_corrected"];
+    // optional float Etcone30_pt_corrected = 1103 [(root_branch)="Etcone30_pt_corrected"];
+    // optional float Etcone35_pt_corrected = 1104 [(root_branch)="Etcone35_pt_corrected"];
+    // optional float Etcone40_pt_corrected = 1105 [(root_branch)="Etcone40_pt_corrected"];
+    
+    // optional float convanglematch = 1200 [(root_branch)="convanglematch"];
+    // optional float convtrackmatch = 1201 [(root_branch)="convtrackmatch"];
+    
+    // optional int32 hasconv = 1300 [(root_branch)="hasconv"];
+    // optional float convvtxx = 1301 [(root_branch)="convvtxx"];
+    // optional float convvtxy = 1302 [(root_branch)="convvtxy"];
+    // optional float convvtxz = 1303 [(root_branch)="convvtxz"];
+    // optional float Rconv = 1304 [(root_branch)="Rconv"];
+    // optional float zconv = 1305 [(root_branch)="zconv"];
+    // optional float convvtxchi2 = 1306 [(root_branch)="convvtxchi2"];
+    // optional float pt1conv = 1307 [(root_branch)="pt1conv"];
+    
+    // optional int32 convtrk1nBLHits = 1400 [(root_branch)="convtrk1nBLHits"];
+    // optional int32 convtrk1nPixHits = 1401 [(root_branch)="convtrk1nPixHits"];
+    // optional int32 convtrk1nSCTHits = 1402 [(root_branch)="convtrk1nSCTHits"];
+    // optional int32 convtrk1nTRTHits = 1403 [(root_branch)="convtrk1nTRTHits"];
+    
+    // optional float pt2conv = 1500 [(root_branch)="pt2conv"];
+    
+    // optional int32 convtrk2nBLHits = 1600 [(root_branch)="convtrk2nBLHits"];
+    // optional int32 convtrk2nPixHits = 1601 [(root_branch)="convtrk2nPixHits"];
+    // optional int32 convtrk2nSCTHits = 1602 [(root_branch)="convtrk2nSCTHits"];
+    // optional int32 convtrk2nTRTHits = 1603 [(root_branch)="convtrk2nTRTHits"];
+    
+    // optional float ptconv = 1700 [(root_branch)="ptconv"];
+    // optional float pzconv = 1701 [(root_branch)="pzconv"];
+    
+    // optional float reta = 1800 [(root_branch)="reta"];
+    // optional float rphi = 1801 [(root_branch)="rphi"];
+    
+    // optional float EtringnoisedR03sig2 = 1900 [(root_branch)="EtringnoisedR03sig2"];
+    // optional float EtringnoisedR03sig3 = 1901 [(root_branch)="EtringnoisedR03sig3"];
+    // optional float EtringnoisedR03sig4 = 1902 [(root_branch)="EtringnoisedR03sig4"];
+    
+    // optional double isolationlikelihoodjets = 2000 [(root_branch)="isolationlikelihoodjets"];
+    // optional double isolationlikelihoodhqelectrons = 2001 [(root_branch)="isolationlikelihoodhqelectrons"];
+    // optional double loglikelihood = 2002 [(root_branch)="loglikelihood"];
+    
+    // optional double photonweight = 2100 [(root_branch)="photonweight"];
+    // optional double photonbgweight = 2101 [(root_branch)="photonbgweight"];
+    
+    // optional double neuralnet = 2200 [(root_branch)="neuralnet"];
+    
+    // optional double Hmatrix = 2300 [(root_branch)="Hmatrix"];
+    // optional double Hmatrix5 = 2301 [(root_branch)="Hmatrix5"];
+    
+    // optional double adaboost = 2400 [(root_branch)="adaboost"];
+    
+    // optional float zvertex = 2500 [(root_branch)="zvertex"];
+    // optional float errz = 2501 [(root_branch)="errz"];
+    
+    // optional float etap = 2600 [(root_branch)="etap"];
+    // optional float depth = 2601 [(root_branch)="depth"];
+    
+    // optional float cl_E = 2700 [(root_branch)="cl_E"];
+    // optional float cl_pt = 2701 [(root_branch)="cl_pt"];
+    // optional float cl_eta = 2702 [(root_branch)="cl_eta"];
+    // optional float cl_phi = 2703 [(root_branch)="cl_phi"];
+    
+    // optional float Es0 = 2800 [(root_branch)="Es0"];
+    // optional float etas0 = 2801 [(root_branch)="etas0"];
+    // optional float phis0 = 2802 [(root_branch)="phis0"];
+    
+    // optional float Es1 = 2900 [(root_branch)="Es1"];
+    // optional float etas1 = 2901 [(root_branch)="etas1"];
+    // optional float phis1 = 2902 [(root_branch)="phis1"];
+    
+    // optional float Es2 = 3000 [(root_branch)="Es2"];
+    // optional float etas2 = 3001 [(root_branch)="etas2"];
+    // optional float phis2 = 3002 [(root_branch)="phis2"];
+    
+    // optional float Es3 = 3100 [(root_branch)="Es3"];
+    // optional float etas3 = 3101 [(root_branch)="etas3"];
+    // optional float phis3 = 3102 [(root_branch)="phis3"];
+    
+    // optional float rawcl_Es0 = 3200 [(root_branch)="rawcl_Es0"];
+    // optional float rawcl_etas0 = 3201 [(root_branch)="rawcl_etas0"];
+    // optional float rawcl_phis0 = 3202 [(root_branch)="rawcl_phis0"];
+    // optional float rawcl_Es1 = 3203 [(root_branch)="rawcl_Es1"];
+    // optional float rawcl_etas1 = 3204 [(root_branch)="rawcl_etas1"];
+    // optional float rawcl_phis1 = 3205 [(root_branch)="rawcl_phis1"];
+    // optional float rawcl_Es2 = 3206 [(root_branch)="rawcl_Es2"];
+    // optional float rawcl_etas2 = 3207 [(root_branch)="rawcl_etas2"];
+    // optional float rawcl_phis2 = 3208 [(root_branch)="rawcl_phis2"];
+    // optional float rawcl_Es3 = 3209 [(root_branch)="rawcl_Es3"];
+    // optional float rawcl_etas3 = 3210 [(root_branch)="rawcl_etas3"];
+    // optional float rawcl_phis3 = 3211 [(root_branch)="rawcl_phis3"];
+    // optional float rawcl_E = 3212 [(root_branch)="rawcl_E"];
+    // optional float rawcl_pt = 3213 [(root_branch)="rawcl_pt"];
+    // optional float rawcl_eta = 3214 [(root_branch)="rawcl_eta"];
+    // optional float rawcl_phi = 3215 [(root_branch)="rawcl_phi"];
+    
+    // optional float deltaEmax2 = 3300 [(root_branch)="deltaEmax2"];
+    
+    // optional float calibHitsShowerDepth = 3400 [(root_branch)="calibHitsShowerDepth"];
+    
+    // optional uint32 isIso = 3500 [(root_branch)="isIso"];
+    
+    // optional float mvaptcone20 = 3600 [(root_branch)="mvaptcone20"];
+    // optional float mvaptcone30 = 3601 [(root_branch)="mvaptcone30"];
+    // optional float mvaptcone40 = 3602 [(root_branch)="mvaptcone40"];
+    // optional float topoEtcone20 = 3603 [(root_branch)="topoEtcone20"];
+    // optional float topoEtcone40 = 3604 [(root_branch)="topoEtcone40"];
+    // optional float topoEtcone60 = 3605 [(root_branch)="topoEtcone60"];
+    
+    // optional float jet_dr = 3700 [(root_branch)="jet_dr"];
+    // optional float jet_E = 3701 [(root_branch)="jet_E"];
+    // optional float jet_pt = 3702 [(root_branch)="jet_pt"];
+    // optional float jet_m = 3703 [(root_branch)="jet_m"];
+    // optional float jet_eta = 3704 [(root_branch)="jet_eta"];
+    // optional float jet_phi = 3705 [(root_branch)="jet_phi"];
+    // optional int32 jet_matched = 3706 [(root_branch)="jet_matched"];
+    
+    // optional float convIP = 3800 [(root_branch)="convIP"];
+    // optional float convIPRev = 3801 [(root_branch)="convIPRev"];
+    
+    // optional float ptIsolationCone = 3900 [(root_branch)="ptIsolationCone"];
+    // optional float ptIsolationConePhAngle = 3901 [(root_branch)="ptIsolationConePhAngle"];
+    
+    // optional float Etcone40_ED_corrected = 4000 [(root_branch)="Etcone40_ED_corrected"];
+    // optional float Etcone40_corrected = 4001 [(root_branch)="Etcone40_corrected"];
+    
+    // optional float topodr = 4100 [(root_branch)="topodr"];
+    // optional float topopt = 4101 [(root_branch)="topopt"];
+    // optional float topoeta = 4102 [(root_branch)="topoeta"];
+    // optional float topophi = 4103 [(root_branch)="topophi"];
+    // optional int32 topomatched = 4104 [(root_branch)="topomatched"];
+    // optional float topoEMdr = 4105 [(root_branch)="topoEMdr"];
+    // optional float topoEMpt = 4106 [(root_branch)="topoEMpt"];
+    // optional float topoEMeta = 4107 [(root_branch)="topoEMeta"];
+    // optional float topoEMphi = 4108 [(root_branch)="topoEMphi"];
+    // optional int32 topoEMmatched = 4109 [(root_branch)="topoEMmatched"];
+    
+    // optional float EF_dr = 4200 [(root_branch)="EF_dr"];
+    // optional int32 EF_index = 4201 [(root_branch)="EF_index"];
+    // optional float L2_dr = 4202 [(root_branch)="L2_dr"];
+    // optional int32 L2_index = 4203 [(root_branch)="L2_index"];
+    // optional float L1_dr = 4204 [(root_branch)="L1_dr"];
+    // optional int32 L1_index = 4205 [(root_branch)="L1_index"];
+    // optional int32 el_index = 4206 [(root_branch)="el_index"];
+}
+
+message PrimaryVertex {
+    // optional float x = 1 [(root_branch)="x"];
+    // optional float y = 2 [(root_branch)="y"];
+    // optional float z = 3 [(root_branch)="z"];
+    
+    // optional float err_x = 100 [(root_branch)="err_x"];
+    // optional float err_y = 101 [(root_branch)="err_y"];
+    // optional float err_z = 102 [(root_branch)="err_z"];
+    
+    // optional int32 type = 200 [(root_branch)="type"];
+    
+    // optional float chi2 = 300 [(root_branch)="chi2"];
+    // optional int32 ndof = 301 [(root_branch)="ndof"];
+    
+    // optional float px = 400 [(root_branch)="px"];
+    // optional float py = 401 [(root_branch)="py"];
+    // optional float pz = 402 [(root_branch)="pz"];
+    // optional float E = 403 [(root_branch)="E"];
+    // optional float m = 404 [(root_branch)="m"];
+    
+    // optional int32 nTracks = 500 [(root_branch)="nTracks"];
+    
+    // optional float sumPt = 600 [(root_branch)="sumPt"];
+    
+    // optional int32 trk_n = 700 [(root_branch)="trk_n"];
+    // repeated float trk_weight = 701 [(root_branch)="trk_weight"];
+    // repeated int32 trk_index = 702 [(root_branch)="trk_index"];
+}
+
+message RefFinalMET {
+    // optional float etx = 1 [(root_branch)="etx"];
+    // optional float ety = 2 [(root_branch)="ety"];
+    
+    // optional float phi = 100 [(root_branch)="phi"];
+    
+    // optional float et = 200 [(root_branch)="et"];
+    // optional float sumet = 201 [(root_branch)="sumet"];
+    
+    // optional float etx_CentralReg = 300 [(root_branch)="etx_CentralReg"];
+    // optional float ety_CentralReg = 301 [(root_branch)="ety_CentralReg"];
+    // optional float sumet_CentralReg = 302 [(root_branch)="sumet_CentralReg"];
+    // optional float phi_CentralReg = 303 [(root_branch)="phi_CentralReg"];
+    // optional float etx_EndcapRegion = 304 [(root_branch)="etx_EndcapRegion"];
+    // optional float ety_EndcapRegion = 305 [(root_branch)="ety_EndcapRegion"];
+    // optional float sumet_EndcapRegion = 306 [(root_branch)="sumet_EndcapRegion"];
+    // optional float phi_EndcapRegion = 307 [(root_branch)="phi_EndcapRegion"];
+    // optional float etx_ForwardReg = 308 [(root_branch)="etx_ForwardReg"];
+    // optional float ety_ForwardReg = 309 [(root_branch)="ety_ForwardReg"];
+    // optional float sumet_ForwardReg = 310 [(root_branch)="sumet_ForwardReg"];
+    // optional float phi_ForwardReg = 311 [(root_branch)="phi_ForwardReg"];
+}
+
+message Tau {
+    // optional float Et = 1 [(root_branch)="Et"];
+    // optional float pt = 2 [(root_branch)="pt"];
+    // optional float m = 3 [(root_branch)="m"];
+    // optional float eta = 4 [(root_branch)="eta"];
+    // optional float phi = 5 [(root_branch)="phi"];
+    
+    // optional float charge = 100 [(root_branch)="charge"];
+    
+    // optional float BDTEleScore = 200 [(root_branch)="BDTEleScore"];
+    // optional float BDTJetScore = 201 [(root_branch)="BDTJetScore"];
+    
+    // optional float likelihood = 300 [(root_branch)="likelihood"];
+    // optional float SafeLikelihood = 301 [(root_branch)="SafeLikelihood"];
+    
+    // optional int32 electronVetoLoose = 400 [(root_branch)="electronVetoLoose"];
+    // optional int32 electronVetoMedium = 401 [(root_branch)="electronVetoMedium"];
+    // optional int32 electronVetoTight = 402 [(root_branch)="electronVetoTight"];
+    // optional int32 muonVeto = 403 [(root_branch)="muonVeto"];
+    
+    // optional int32 tauCutLoose = 500 [(root_branch)="tauCutLoose"];
+    // optional int32 tauCutMedium = 501 [(root_branch)="tauCutMedium"];
+    // optional int32 tauCutTight = 502 [(root_branch)="tauCutTight"];
+    
+    // optional int32 tauLlhLoose = 600 [(root_branch)="tauLlhLoose"];
+    // optional int32 tauLlhMedium = 601 [(root_branch)="tauLlhMedium"];
+    // optional int32 tauLlhTight = 602 [(root_branch)="tauLlhTight"];
+    
+    // optional int32 JetBDTSigLoose = 700 [(root_branch)="JetBDTSigLoose"];
+    // optional int32 JetBDTSigMedium = 701 [(root_branch)="JetBDTSigMedium"];
+    // optional int32 JetBDTSigTight = 702 [(root_branch)="JetBDTSigTight"];
+    
+    // optional int32 EleBDTLoose = 800 [(root_branch)="EleBDTLoose"];
+    // optional int32 EleBDTMedium = 801 [(root_branch)="EleBDTMedium"];
+    // optional int32 EleBDTTight = 802 [(root_branch)="EleBDTTight"];
+    
+    // optional int32 author = 900 [(root_branch)="author"];
+    
+    // optional int32 ROIword = 1000 [(root_branch)="ROIword"];
+    
+    // optional int32 nProng = 1100 [(root_branch)="nProng"];
+    
+    // optional int32 numTrack = 1200 [(root_branch)="numTrack"];
+    // optional int32 seedCalo_numTrack = 1201 [(root_branch)="seedCalo_numTrack"];
+    
+    // optional float etOverPtLeadTrk = 1300 [(root_branch)="etOverPtLeadTrk"];
+    // optional float ipZ0SinThetaSigLeadTrk = 1301 [(root_branch)="ipZ0SinThetaSigLeadTrk"];
+    
+    // optional float leadTrkPt = 1400 [(root_branch)="leadTrkPt"];
+    // optional int32 nLooseTrk = 1401 [(root_branch)="nLooseTrk"];
+    // optional int32 nLooseConvTrk = 1402 [(root_branch)="nLooseConvTrk"];
+    // optional int32 nProngLoose = 1403 [(root_branch)="nProngLoose"];
+    
+    // optional float ipSigLeadTrk = 1500 [(root_branch)="ipSigLeadTrk"];
+    // optional float ipSigLeadLooseTrk = 1501 [(root_branch)="ipSigLeadLooseTrk"];
+    // optional float etOverPtLeadLooseTrk = 1502 [(root_branch)="etOverPtLeadLooseTrk"];
+    // optional float leadLooseTrkPt = 1503 [(root_branch)="leadLooseTrkPt"];
+    // optional float chrgLooseTrk = 1504 [(root_branch)="chrgLooseTrk"];
+    
+    // optional float massTrkSys = 1600 [(root_branch)="massTrkSys"];
+    
+    // optional float trkWidth2 = 1700 [(root_branch)="trkWidth2"];
+    // optional float trFlightPathSig = 1701 [(root_branch)="trFlightPathSig"];
+    
+    // optional float etEflow = 1800 [(root_branch)="etEflow"];
+    // optional float mEflow = 1801 [(root_branch)="mEflow"];
+    
+    // optional int32 nPi0 = 1900 [(root_branch)="nPi0"];
+    
+    // optional float ele_E237E277 = 2000 [(root_branch)="ele_E237E277"];
+    // optional float ele_PresamplerFraction = 2001 [(root_branch)="ele_PresamplerFraction"];
+    // optional float ele_ECALFirstFraction = 2002 [(root_branch)="ele_ECALFirstFraction"];
+    
+    // optional float seedCalo_EMRadius = 2100 [(root_branch)="seedCalo_EMRadius"];
+    // optional float seedCalo_hadRadius = 2101 [(root_branch)="seedCalo_hadRadius"];
+    // optional float seedCalo_etEMAtEMScale = 2102 [(root_branch)="seedCalo_etEMAtEMScale"];
+    // optional float seedCalo_etHadAtEMScale = 2103 [(root_branch)="seedCalo_etHadAtEMScale"];
+    // optional float seedCalo_isolFrac = 2104 [(root_branch)="seedCalo_isolFrac"];
+    // optional float seedCalo_centFrac = 2105 [(root_branch)="seedCalo_centFrac"];
+    // optional float seedCalo_stripWidth2 = 2106 [(root_branch)="seedCalo_stripWidth2"];
+    // optional int32 seedCalo_nStrip = 2107 [(root_branch)="seedCalo_nStrip"];
+    // optional float seedCalo_etEMCalib = 2108 [(root_branch)="seedCalo_etEMCalib"];
+    // optional float seedCalo_etHadCalib = 2109 [(root_branch)="seedCalo_etHadCalib"];
+    // optional float seedCalo_eta = 2110 [(root_branch)="seedCalo_eta"];
+    // optional float seedCalo_phi = 2111 [(root_branch)="seedCalo_phi"];
+    // optional float seedCalo_nIsolLooseTrk = 2112 [(root_branch)="seedCalo_nIsolLooseTrk"];
+    // optional float seedCalo_trkAvgDist = 2113 [(root_branch)="seedCalo_trkAvgDist"];
+    // optional float seedCalo_trkRmsDist = 2114 [(root_branch)="seedCalo_trkRmsDist"];
+    // optional float seedCalo_caloIso = 2115 [(root_branch)="seedCalo_caloIso"];
+    // optional float seedCalo_caloIsoCorrected = 2116 [(root_branch)="seedCalo_caloIsoCorrected"];
+    // optional float seedCalo_dRmax = 2117 [(root_branch)="seedCalo_dRmax"];
+    // optional float seedCalo_lead2ClusterEOverAllClusterE = 2118 [(root_branch)="seedCalo_lead2ClusterEOverAllClusterE"];
+    // optional float seedCalo_lead3ClusterEOverAllClusterE = 2119 [(root_branch)="seedCalo_lead3ClusterEOverAllClusterE"];
+    
+    // optional int32 numTopoClusters = 2200 [(root_branch)="numTopoClusters"];
+    // optional float numEffTopoClusters = 2201 [(root_branch)="numEffTopoClusters"];
+    
+    // optional float topoInvMass = 2300 [(root_branch)="topoInvMass"];
+    // optional float effTopoInvMass = 2301 [(root_branch)="effTopoInvMass"];
+    
+    // optional float topoMeanDeltaR = 2400 [(root_branch)="topoMeanDeltaR"];
+    // optional float effTopoMeanDeltaR = 2401 [(root_branch)="effTopoMeanDeltaR"];
+    
+    // optional float numCells = 2500 [(root_branch)="numCells"];
+    
+    // optional float seedTrk_EMRadius = 2600 [(root_branch)="seedTrk_EMRadius"];
+    // optional float seedTrk_isolFrac = 2601 [(root_branch)="seedTrk_isolFrac"];
+    // optional float seedTrk_etChrgHadOverSumTrkPt = 2602 [(root_branch)="seedTrk_etChrgHadOverSumTrkPt"];
+    // optional float seedTrk_isolFracWide = 2603 [(root_branch)="seedTrk_isolFracWide"];
+    // optional float seedTrk_etHadAtEMScale = 2604 [(root_branch)="seedTrk_etHadAtEMScale"];
+    // optional float seedTrk_etEMAtEMScale = 2605 [(root_branch)="seedTrk_etEMAtEMScale"];
+    // optional float seedTrk_etEMCL = 2606 [(root_branch)="seedTrk_etEMCL"];
+    // optional float seedTrk_etChrgEM = 2607 [(root_branch)="seedTrk_etChrgEM"];
+    // optional float seedTrk_etNeuEM = 2608 [(root_branch)="seedTrk_etNeuEM"];
+    // optional float seedTrk_etResNeuEM = 2609 [(root_branch)="seedTrk_etResNeuEM"];
+    // optional float seedTrk_hadLeakEt = 2610 [(root_branch)="seedTrk_hadLeakEt"];
+    // optional float seedTrk_sumEMCellEtOverLeadTrkPt = 2611 [(root_branch)="seedTrk_sumEMCellEtOverLeadTrkPt"];
+    // optional float seedTrk_secMaxStripEt = 2612 [(root_branch)="seedTrk_secMaxStripEt"];
+    // optional float seedTrk_stripWidth2 = 2613 [(root_branch)="seedTrk_stripWidth2"];
+    // optional int32 seedTrk_nStrip = 2614 [(root_branch)="seedTrk_nStrip"];
+    // optional float seedTrk_etChrgHad = 2615 [(root_branch)="seedTrk_etChrgHad"];
+    // optional int32 seedTrk_nOtherCoreTrk = 2616 [(root_branch)="seedTrk_nOtherCoreTrk"];
+    // optional int32 seedTrk_nIsolTrk = 2617 [(root_branch)="seedTrk_nIsolTrk"];
+    // optional float seedTrk_etIsolEM = 2618 [(root_branch)="seedTrk_etIsolEM"];
+    // optional float seedTrk_etIsolHad = 2619 [(root_branch)="seedTrk_etIsolHad"];
+    
+    // optional float calcVars_etHad_EMScale_Pt3Trks = 2700 [(root_branch)="calcVars_etHad_EMScale_Pt3Trks"];
+    // optional float calcVars_etEM_EMScale_Pt3Trks = 2701 [(root_branch)="calcVars_etEM_EMScale_Pt3Trks"];
+    // optional float calcVars_ipSigLeadLooseTrk = 2702 [(root_branch)="calcVars_ipSigLeadLooseTrk"];
+    // optional float calcVars_drMin = 2703 [(root_branch)="calcVars_drMin"];
+    // optional float calcVars_TRTHTOverLT_LeadTrk = 2704 [(root_branch)="calcVars_TRTHTOverLT_LeadTrk"];
+    // optional float calcVars_calRadius = 2705 [(root_branch)="calcVars_calRadius"];
+    // optional float calcVars_EMFractionAtEMScale = 2706 [(root_branch)="calcVars_EMFractionAtEMScale"];
+    // optional float calcVars_trackIso = 2707 [(root_branch)="calcVars_trackIso"];
+    // optional int32 seedCalo_track_n = 2708 [(root_branch)="seedCalo_track_n"];
+    // optional int32 seedCalo_wideTrk_n = 2709 [(root_branch)="seedCalo_wideTrk_n"];
+    // optional int32 otherTrk_n = 2710 [(root_branch)="otherTrk_n"];
+    
+    // optional float EF_dr = 2800 [(root_branch)="EF_dr"];
+    // optional float EF_E = 2801 [(root_branch)="EF_E"];
+    // optional float EF_Et = 2802 [(root_branch)="EF_Et"];
+    // optional float EF_pt = 2803 [(root_branch)="EF_pt"];
+    // optional float EF_eta = 2804 [(root_branch)="EF_eta"];
+    // optional float EF_phi = 2805 [(root_branch)="EF_phi"];
+    // optional int32 EF_matched = 2806 [(root_branch)="EF_matched"];
+    // optional float L2_dr = 2807 [(root_branch)="L2_dr"];
+    // optional float L2_E = 2808 [(root_branch)="L2_E"];
+    // optional float L2_Et = 2809 [(root_branch)="L2_Et"];
+    // optional float L2_pt = 2810 [(root_branch)="L2_pt"];
+    // optional float L2_eta = 2811 [(root_branch)="L2_eta"];
+    // optional float L2_phi = 2812 [(root_branch)="L2_phi"];
+    // optional int32 L2_matched = 2813 [(root_branch)="L2_matched"];
+    // optional float L1_dr = 2814 [(root_branch)="L1_dr"];
+    // optional float L1_Et = 2815 [(root_branch)="L1_Et"];
+    // optional float L1_pt = 2816 [(root_branch)="L1_pt"];
+    // optional float L1_eta = 2817 [(root_branch)="L1_eta"];
+    // optional float L1_phi = 2818 [(root_branch)="L1_phi"];
+    // optional int32 L1_matched = 2819 [(root_branch)="L1_matched"];
+}
+
+message TileMuFeature {
+    // optional float eta = 1 [(root_branch)="eta"];
+    // optional float phi = 2 [(root_branch)="phi"];
+    
+    // repeated float enedep = 100 [(root_branch)="enedep"];
+    
+    // optional float quality = 200 [(root_branch)="quality"];
+    
+    // optional int32 L2_2mu10 = 300 [(root_branch)="L2_2mu10"];
+    // optional int32 L2_2mu10_empty = 301 [(root_branch)="L2_2mu10_empty"];
+    // optional int32 L2_2mu10_loose = 302 [(root_branch)="L2_2mu10_loose"];
+    // optional int32 L2_2mu10_loose_empty = 303 [(root_branch)="L2_2mu10_loose_empty"];
+    // optional int32 L2_2mu10_loose_noOvlpRm = 304 [(root_branch)="L2_2mu10_loose_noOvlpRm"];
+    // optional int32 L2_2mu13_Zmumu_IDTrkNoCut = 305 [(root_branch)="L2_2mu13_Zmumu_IDTrkNoCut"];
+    // optional int32 L2_2mu4 = 306 [(root_branch)="L2_2mu4"];
+    // optional int32 L2_2mu4_Bmumu = 307 [(root_branch)="L2_2mu4_Bmumu"];
+    // optional int32 L2_2mu4_Bmumux = 308 [(root_branch)="L2_2mu4_Bmumux"];
+    // optional int32 L2_2mu4_DiMu = 309 [(root_branch)="L2_2mu4_DiMu"];
+    // optional int32 L2_2mu4_DiMu_DY = 310 [(root_branch)="L2_2mu4_DiMu_DY"];
+    // optional int32 L2_2mu4_DiMu_DY20 = 311 [(root_branch)="L2_2mu4_DiMu_DY20"];
+    // optional int32 L2_2mu4_DiMu_DY_noVtx_noOS = 312 [(root_branch)="L2_2mu4_DiMu_DY_noVtx_noOS"];
+    // optional int32 L2_2mu4_DiMu_SiTrk = 313 [(root_branch)="L2_2mu4_DiMu_SiTrk"];
+    // optional int32 L2_2mu4_DiMu_noVtx_noOS = 314 [(root_branch)="L2_2mu4_DiMu_noVtx_noOS"];
+    // optional int32 L2_2mu4_Jpsimumu = 315 [(root_branch)="L2_2mu4_Jpsimumu"];
+    // optional int32 L2_2mu4_Jpsimumu_IDTrkNoCut = 316 [(root_branch)="L2_2mu4_Jpsimumu_IDTrkNoCut"];
+    // optional int32 L2_2mu4_Upsimumu = 317 [(root_branch)="L2_2mu4_Upsimumu"];
+    // optional int32 L2_2mu4i_DiMu_DY = 318 [(root_branch)="L2_2mu4i_DiMu_DY"];
+    // optional int32 L2_2mu6 = 319 [(root_branch)="L2_2mu6"];
+    // optional int32 L2_2mu6_MSonly_g10_loose = 320 [(root_branch)="L2_2mu6_MSonly_g10_loose"];
+    // optional int32 L2_2mu6_MSonly_g10_loose_nonfilled = 321 [(root_branch)="L2_2mu6_MSonly_g10_loose_nonfilled"];
+    // optional int32 L2_2mu6_NL = 322 [(root_branch)="L2_2mu6_NL"];
+    // optional int32 L2_mu0_cal_empty = 323 [(root_branch)="L2_mu0_cal_empty"];
+    // optional int32 L2_mu0_empty_NoAlg = 324 [(root_branch)="L2_mu0_empty_NoAlg"];
+    // optional int32 L2_mu0_firstempty_NoAlg = 325 [(root_branch)="L2_mu0_firstempty_NoAlg"];
+    // optional int32 L2_mu0_unpaired_iso_NoAlg = 326 [(root_branch)="L2_mu0_unpaired_iso_NoAlg"];
+    // optional int32 L2_mu10 = 327 [(root_branch)="L2_mu10"];
+    // optional int32 L2_mu10_Jpsimumu = 328 [(root_branch)="L2_mu10_Jpsimumu"];
+    // optional int32 L2_mu10_NL = 329 [(root_branch)="L2_mu10_NL"];
+    // optional int32 L2_mu10_Upsimumu_FS = 330 [(root_branch)="L2_mu10_Upsimumu_FS"];
+    // optional int32 L2_mu10_Upsimumu_tight_FS = 331 [(root_branch)="L2_mu10_Upsimumu_tight_FS"];
+    // optional int32 L2_mu10_cal = 332 [(root_branch)="L2_mu10_cal"];
+    // optional int32 L2_mu10_loose = 333 [(root_branch)="L2_mu10_loose"];
+    // optional int32 L2_mu10_muCombTag_NoEF = 334 [(root_branch)="L2_mu10_muCombTag_NoEF"];
+    // optional int32 L2_mu11_empty_NoAlg = 335 [(root_branch)="L2_mu11_empty_NoAlg"];
+    // optional int32 L2_mu13 = 336 [(root_branch)="L2_mu13"];
+    // optional int32 L2_mu13_MG = 337 [(root_branch)="L2_mu13_MG"];
+    // optional int32 L2_mu13_muCombTag_NoEF = 338 [(root_branch)="L2_mu13_muCombTag_NoEF"];
+    // optional int32 L2_mu15 = 339 [(root_branch)="L2_mu15"];
+    // optional int32 L2_mu15_medium = 340 [(root_branch)="L2_mu15_medium"];
+    // optional int32 L2_mu15i = 341 [(root_branch)="L2_mu15i"];
+    // optional int32 L2_mu15i_medium = 342 [(root_branch)="L2_mu15i_medium"];
+    // optional int32 L2_mu18 = 343 [(root_branch)="L2_mu18"];
+    // optional int32 L2_mu18_MG = 344 [(root_branch)="L2_mu18_MG"];
+    // optional int32 L2_mu18_MG_medium = 345 [(root_branch)="L2_mu18_MG_medium"];
+    // optional int32 L2_mu18_medium = 346 [(root_branch)="L2_mu18_medium"];
+    // optional int32 L2_mu20 = 347 [(root_branch)="L2_mu20"];
+    // optional int32 L2_mu20_IDTrkNoCut = 348 [(root_branch)="L2_mu20_IDTrkNoCut"];
+    // optional int32 L2_mu20_MG = 349 [(root_branch)="L2_mu20_MG"];
+    // optional int32 L2_mu20_MG_medium = 350 [(root_branch)="L2_mu20_MG_medium"];
+    // optional int32 L2_mu20_empty = 351 [(root_branch)="L2_mu20_empty"];
+    // optional int32 L2_mu20_medium = 352 [(root_branch)="L2_mu20_medium"];
+    // optional int32 L2_mu20_muCombTag_NoEF = 353 [(root_branch)="L2_mu20_muCombTag_NoEF"];
+    // optional int32 L2_mu20i = 354 [(root_branch)="L2_mu20i"];
+    // optional int32 L2_mu20i_medium = 355 [(root_branch)="L2_mu20i_medium"];
+    // optional int32 L2_mu22 = 356 [(root_branch)="L2_mu22"];
+    // optional int32 L2_mu22_MG = 357 [(root_branch)="L2_mu22_MG"];
+    // optional int32 L2_mu22_MG_medium = 358 [(root_branch)="L2_mu22_MG_medium"];
+    // optional int32 L2_mu22_medium = 359 [(root_branch)="L2_mu22_medium"];
+    // optional int32 L2_mu4 = 360 [(root_branch)="L2_mu4"];
+    // optional int32 L2_mu40_MSonly_barrel = 361 [(root_branch)="L2_mu40_MSonly_barrel"];
+    // optional int32 L2_mu40_MSonly_barrel_medium = 362 [(root_branch)="L2_mu40_MSonly_barrel_medium"];
+    // optional int32 L2_mu40_MSonly_empty = 363 [(root_branch)="L2_mu40_MSonly_empty"];
+    // optional int32 L2_mu40_MSonly_tight = 364 [(root_branch)="L2_mu40_MSonly_tight"];
+    // optional int32 L2_mu40_MSonly_tighter = 365 [(root_branch)="L2_mu40_MSonly_tighter"];
+    // optional int32 L2_mu40_slow = 366 [(root_branch)="L2_mu40_slow"];
+    // optional int32 L2_mu40_slow_empty = 367 [(root_branch)="L2_mu40_slow_empty"];
+    // optional int32 L2_mu40_slow_medium = 368 [(root_branch)="L2_mu40_slow_medium"];
+    // optional int32 L2_mu40_slow_outOfTime = 369 [(root_branch)="L2_mu40_slow_outOfTime"];
+    // optional int32 L2_mu4_DiMu = 370 [(root_branch)="L2_mu4_DiMu"];
+    // optional int32 L2_mu4_DiMu_FS_noOS = 371 [(root_branch)="L2_mu4_DiMu_FS_noOS"];
+    // optional int32 L2_mu4_Jpsimumu = 372 [(root_branch)="L2_mu4_Jpsimumu"];
+    // optional int32 L2_mu4_L1J10_matched = 373 [(root_branch)="L2_mu4_L1J10_matched"];
+    // optional int32 L2_mu4_L1J15_matched = 374 [(root_branch)="L2_mu4_L1J15_matched"];
+    // optional int32 L2_mu4_L1J20_matched = 375 [(root_branch)="L2_mu4_L1J20_matched"];
+    // optional int32 L2_mu4_L1J30_matched = 376 [(root_branch)="L2_mu4_L1J30_matched"];
+    // optional int32 L2_mu4_L1J50_matched = 377 [(root_branch)="L2_mu4_L1J50_matched"];
+    // optional int32 L2_mu4_L1J75_matched = 378 [(root_branch)="L2_mu4_L1J75_matched"];
+    // optional int32 L2_mu4_L1MU11_MSonly_cosmic = 379 [(root_branch)="L2_mu4_L1MU11_MSonly_cosmic"];
+    // optional int32 L2_mu4_L1MU11_cosmic = 380 [(root_branch)="L2_mu4_L1MU11_cosmic"];
+    // optional int32 L2_mu4_MSonly_cosmic = 381 [(root_branch)="L2_mu4_MSonly_cosmic"];
+    // optional int32 L2_mu4_Trk_Jpsi = 382 [(root_branch)="L2_mu4_Trk_Jpsi"];
+    // optional int32 L2_mu4_Trk_Upsi_FS = 383 [(root_branch)="L2_mu4_Trk_Upsi_FS"];
+    // optional int32 L2_mu4_Upsimumu_FS = 384 [(root_branch)="L2_mu4_Upsimumu_FS"];
+    // optional int32 L2_mu4_Upsimumu_SiTrk_FS = 385 [(root_branch)="L2_mu4_Upsimumu_SiTrk_FS"];
+    // optional int32 L2_mu4_Upsimumu_tight_FS = 386 [(root_branch)="L2_mu4_Upsimumu_tight_FS"];
+    // optional int32 L2_mu4_cosmic = 387 [(root_branch)="L2_mu4_cosmic"];
+    // optional int32 L2_mu4_j10_a4tc_EFFS = 388 [(root_branch)="L2_mu4_j10_a4tc_EFFS"];
+    // optional int32 L2_mu4_j40_xe20_loose_noMu = 389 [(root_branch)="L2_mu4_j40_xe20_loose_noMu"];
+    // optional int32 L2_mu4_j95_L1matched = 390 [(root_branch)="L2_mu4_j95_L1matched"];
+    // optional int32 L2_mu4mu6_Bmumu = 391 [(root_branch)="L2_mu4mu6_Bmumu"];
+    // optional int32 L2_mu4mu6_BmumuX = 392 [(root_branch)="L2_mu4mu6_BmumuX"];
+    // optional int32 L2_mu4mu6_DiMu = 393 [(root_branch)="L2_mu4mu6_DiMu"];
+    // optional int32 L2_mu4mu6_DiMu_noVtx_noOS = 394 [(root_branch)="L2_mu4mu6_DiMu_noVtx_noOS"];
+    // optional int32 L2_mu4mu6_Jpsimumu = 395 [(root_branch)="L2_mu4mu6_Jpsimumu"];
+    // optional int32 L2_mu4mu6_Upsimumu = 396 [(root_branch)="L2_mu4mu6_Upsimumu"];
+    // optional int32 L2_mu6 = 397 [(root_branch)="L2_mu6"];
+    // optional int32 L2_mu6_DiMu_noOS = 398 [(root_branch)="L2_mu6_DiMu_noOS"];
+    // optional int32 L2_mu6_Jpsimumu = 399 [(root_branch)="L2_mu6_Jpsimumu"];
+    // optional int32 L2_mu6_Jpsimumu_SiTrk = 400 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
+    // optional int32 L2_mu6_Jpsimumu_tight = 401 [(root_branch)="L2_mu6_Jpsimumu_tight"];
+    // optional int32 L2_mu6_Trk_Jpsi_loose = 402 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+}
+
+message TileTrackMuFeature {
+    // optional float pt = 1 [(root_branch)="pt"];
+    // optional float eta = 2 [(root_branch)="eta"];
+    // optional float phi = 3 [(root_branch)="phi"];
+    
+    // optional float PtTR_Trk = 100 [(root_branch)="PtTR_Trk"];
+    // optional float EtaTR_Trk = 101 [(root_branch)="EtaTR_Trk"];
+    // optional float PhiTR_Trk = 102 [(root_branch)="PhiTR_Trk"];
+    // optional int32 Typ_IDTrk = 103 [(root_branch)="Typ_IDTrk"];
+    
+    // optional int32 L2_2mu10 = 200 [(root_branch)="L2_2mu10"];
+    // optional int32 L2_2mu10_empty = 201 [(root_branch)="L2_2mu10_empty"];
+    // optional int32 L2_2mu10_loose = 202 [(root_branch)="L2_2mu10_loose"];
+    // optional int32 L2_2mu10_loose_empty = 203 [(root_branch)="L2_2mu10_loose_empty"];
+    // optional int32 L2_2mu10_loose_noOvlpRm = 204 [(root_branch)="L2_2mu10_loose_noOvlpRm"];
+    // optional int32 L2_2mu13_Zmumu_IDTrkNoCut = 205 [(root_branch)="L2_2mu13_Zmumu_IDTrkNoCut"];
+    // optional int32 L2_2mu4 = 206 [(root_branch)="L2_2mu4"];
+    // optional int32 L2_2mu4_Bmumu = 207 [(root_branch)="L2_2mu4_Bmumu"];
+    // optional int32 L2_2mu4_Bmumux = 208 [(root_branch)="L2_2mu4_Bmumux"];
+    // optional int32 L2_2mu4_DiMu = 209 [(root_branch)="L2_2mu4_DiMu"];
+    // optional int32 L2_2mu4_DiMu_DY = 210 [(root_branch)="L2_2mu4_DiMu_DY"];
+    // optional int32 L2_2mu4_DiMu_DY20 = 211 [(root_branch)="L2_2mu4_DiMu_DY20"];
+    // optional int32 L2_2mu4_DiMu_DY_noVtx_noOS = 212 [(root_branch)="L2_2mu4_DiMu_DY_noVtx_noOS"];
+    // optional int32 L2_2mu4_DiMu_SiTrk = 213 [(root_branch)="L2_2mu4_DiMu_SiTrk"];
+    // optional int32 L2_2mu4_DiMu_noVtx_noOS = 214 [(root_branch)="L2_2mu4_DiMu_noVtx_noOS"];
+    // optional int32 L2_2mu4_Jpsimumu = 215 [(root_branch)="L2_2mu4_Jpsimumu"];
+    // optional int32 L2_2mu4_Jpsimumu_IDTrkNoCut = 216 [(root_branch)="L2_2mu4_Jpsimumu_IDTrkNoCut"];
+    // optional int32 L2_2mu4_Upsimumu = 217 [(root_branch)="L2_2mu4_Upsimumu"];
+    // optional int32 L2_2mu4i_DiMu_DY = 218 [(root_branch)="L2_2mu4i_DiMu_DY"];
+    // optional int32 L2_2mu6 = 219 [(root_branch)="L2_2mu6"];
+    // optional int32 L2_2mu6_MSonly_g10_loose = 220 [(root_branch)="L2_2mu6_MSonly_g10_loose"];
+    // optional int32 L2_2mu6_MSonly_g10_loose_nonfilled = 221 [(root_branch)="L2_2mu6_MSonly_g10_loose_nonfilled"];
+    // optional int32 L2_2mu6_NL = 222 [(root_branch)="L2_2mu6_NL"];
+    // optional int32 L2_mu0_cal_empty = 223 [(root_branch)="L2_mu0_cal_empty"];
+    // optional int32 L2_mu0_empty_NoAlg = 224 [(root_branch)="L2_mu0_empty_NoAlg"];
+    // optional int32 L2_mu0_firstempty_NoAlg = 225 [(root_branch)="L2_mu0_firstempty_NoAlg"];
+    // optional int32 L2_mu0_unpaired_iso_NoAlg = 226 [(root_branch)="L2_mu0_unpaired_iso_NoAlg"];
+    // optional int32 L2_mu10 = 227 [(root_branch)="L2_mu10"];
+    // optional int32 L2_mu10_Jpsimumu = 228 [(root_branch)="L2_mu10_Jpsimumu"];
+    // optional int32 L2_mu10_NL = 229 [(root_branch)="L2_mu10_NL"];
+    // optional int32 L2_mu10_Upsimumu_FS = 230 [(root_branch)="L2_mu10_Upsimumu_FS"];
+    // optional int32 L2_mu10_Upsimumu_tight_FS = 231 [(root_branch)="L2_mu10_Upsimumu_tight_FS"];
+    // optional int32 L2_mu10_cal = 232 [(root_branch)="L2_mu10_cal"];
+    // optional int32 L2_mu10_loose = 233 [(root_branch)="L2_mu10_loose"];
+    // optional int32 L2_mu10_muCombTag_NoEF = 234 [(root_branch)="L2_mu10_muCombTag_NoEF"];
+    // optional int32 L2_mu11_empty_NoAlg = 235 [(root_branch)="L2_mu11_empty_NoAlg"];
+    // optional int32 L2_mu13 = 236 [(root_branch)="L2_mu13"];
+    // optional int32 L2_mu13_MG = 237 [(root_branch)="L2_mu13_MG"];
+    // optional int32 L2_mu13_muCombTag_NoEF = 238 [(root_branch)="L2_mu13_muCombTag_NoEF"];
+    // optional int32 L2_mu15 = 239 [(root_branch)="L2_mu15"];
+    // optional int32 L2_mu15_medium = 240 [(root_branch)="L2_mu15_medium"];
+    // optional int32 L2_mu15i = 241 [(root_branch)="L2_mu15i"];
+    // optional int32 L2_mu15i_medium = 242 [(root_branch)="L2_mu15i_medium"];
+    // optional int32 L2_mu18 = 243 [(root_branch)="L2_mu18"];
+    // optional int32 L2_mu18_MG = 244 [(root_branch)="L2_mu18_MG"];
+    // optional int32 L2_mu18_MG_medium = 245 [(root_branch)="L2_mu18_MG_medium"];
+    // optional int32 L2_mu18_medium = 246 [(root_branch)="L2_mu18_medium"];
+    // optional int32 L2_mu20 = 247 [(root_branch)="L2_mu20"];
+    // optional int32 L2_mu20_IDTrkNoCut = 248 [(root_branch)="L2_mu20_IDTrkNoCut"];
+    // optional int32 L2_mu20_MG = 249 [(root_branch)="L2_mu20_MG"];
+    // optional int32 L2_mu20_MG_medium = 250 [(root_branch)="L2_mu20_MG_medium"];
+    // optional int32 L2_mu20_empty = 251 [(root_branch)="L2_mu20_empty"];
+    // optional int32 L2_mu20_medium = 252 [(root_branch)="L2_mu20_medium"];
+    // optional int32 L2_mu20_muCombTag_NoEF = 253 [(root_branch)="L2_mu20_muCombTag_NoEF"];
+    // optional int32 L2_mu20i = 254 [(root_branch)="L2_mu20i"];
+    // optional int32 L2_mu20i_medium = 255 [(root_branch)="L2_mu20i_medium"];
+    // optional int32 L2_mu22 = 256 [(root_branch)="L2_mu22"];
+    // optional int32 L2_mu22_MG = 257 [(root_branch)="L2_mu22_MG"];
+    // optional int32 L2_mu22_MG_medium = 258 [(root_branch)="L2_mu22_MG_medium"];
+    // optional int32 L2_mu22_medium = 259 [(root_branch)="L2_mu22_medium"];
+    // optional int32 L2_mu4 = 260 [(root_branch)="L2_mu4"];
+    // optional int32 L2_mu40_MSonly_barrel = 261 [(root_branch)="L2_mu40_MSonly_barrel"];
+    // optional int32 L2_mu40_MSonly_barrel_medium = 262 [(root_branch)="L2_mu40_MSonly_barrel_medium"];
+    // optional int32 L2_mu40_MSonly_empty = 263 [(root_branch)="L2_mu40_MSonly_empty"];
+    // optional int32 L2_mu40_MSonly_tight = 264 [(root_branch)="L2_mu40_MSonly_tight"];
+    // optional int32 L2_mu40_MSonly_tighter = 265 [(root_branch)="L2_mu40_MSonly_tighter"];
+    // optional int32 L2_mu40_slow = 266 [(root_branch)="L2_mu40_slow"];
+    // optional int32 L2_mu40_slow_empty = 267 [(root_branch)="L2_mu40_slow_empty"];
+    // optional int32 L2_mu40_slow_medium = 268 [(root_branch)="L2_mu40_slow_medium"];
+    // optional int32 L2_mu40_slow_outOfTime = 269 [(root_branch)="L2_mu40_slow_outOfTime"];
+    // optional int32 L2_mu4_DiMu = 270 [(root_branch)="L2_mu4_DiMu"];
+    // optional int32 L2_mu4_DiMu_FS_noOS = 271 [(root_branch)="L2_mu4_DiMu_FS_noOS"];
+    // optional int32 L2_mu4_Jpsimumu = 272 [(root_branch)="L2_mu4_Jpsimumu"];
+    // optional int32 L2_mu4_L1J10_matched = 273 [(root_branch)="L2_mu4_L1J10_matched"];
+    // optional int32 L2_mu4_L1J15_matched = 274 [(root_branch)="L2_mu4_L1J15_matched"];
+    // optional int32 L2_mu4_L1J20_matched = 275 [(root_branch)="L2_mu4_L1J20_matched"];
+    // optional int32 L2_mu4_L1J30_matched = 276 [(root_branch)="L2_mu4_L1J30_matched"];
+    // optional int32 L2_mu4_L1J50_matched = 277 [(root_branch)="L2_mu4_L1J50_matched"];
+    // optional int32 L2_mu4_L1J75_matched = 278 [(root_branch)="L2_mu4_L1J75_matched"];
+    // optional int32 L2_mu4_L1MU11_MSonly_cosmic = 279 [(root_branch)="L2_mu4_L1MU11_MSonly_cosmic"];
+    // optional int32 L2_mu4_L1MU11_cosmic = 280 [(root_branch)="L2_mu4_L1MU11_cosmic"];
+    // optional int32 L2_mu4_MSonly_cosmic = 281 [(root_branch)="L2_mu4_MSonly_cosmic"];
+    // optional int32 L2_mu4_Trk_Jpsi = 282 [(root_branch)="L2_mu4_Trk_Jpsi"];
+    // optional int32 L2_mu4_Trk_Upsi_FS = 283 [(root_branch)="L2_mu4_Trk_Upsi_FS"];
+    // optional int32 L2_mu4_Upsimumu_FS = 284 [(root_branch)="L2_mu4_Upsimumu_FS"];
+    // optional int32 L2_mu4_Upsimumu_SiTrk_FS = 285 [(root_branch)="L2_mu4_Upsimumu_SiTrk_FS"];
+    // optional int32 L2_mu4_Upsimumu_tight_FS = 286 [(root_branch)="L2_mu4_Upsimumu_tight_FS"];
+    // optional int32 L2_mu4_cosmic = 287 [(root_branch)="L2_mu4_cosmic"];
+    // optional int32 L2_mu4_j10_a4tc_EFFS = 288 [(root_branch)="L2_mu4_j10_a4tc_EFFS"];
+    // optional int32 L2_mu4_j40_xe20_loose_noMu = 289 [(root_branch)="L2_mu4_j40_xe20_loose_noMu"];
+    // optional int32 L2_mu4_j95_L1matched = 290 [(root_branch)="L2_mu4_j95_L1matched"];
+    // optional int32 L2_mu4mu6_Bmumu = 291 [(root_branch)="L2_mu4mu6_Bmumu"];
+    // optional int32 L2_mu4mu6_BmumuX = 292 [(root_branch)="L2_mu4mu6_BmumuX"];
+    // optional int32 L2_mu4mu6_DiMu = 293 [(root_branch)="L2_mu4mu6_DiMu"];
+    // optional int32 L2_mu4mu6_DiMu_noVtx_noOS = 294 [(root_branch)="L2_mu4mu6_DiMu_noVtx_noOS"];
+    // optional int32 L2_mu4mu6_Jpsimumu = 295 [(root_branch)="L2_mu4mu6_Jpsimumu"];
+    // optional int32 L2_mu4mu6_Upsimumu = 296 [(root_branch)="L2_mu4mu6_Upsimumu"];
+    // optional int32 L2_mu6 = 297 [(root_branch)="L2_mu6"];
+    // optional int32 L2_mu6_DiMu_noOS = 298 [(root_branch)="L2_mu6_DiMu_noOS"];
+    // optional int32 L2_mu6_Jpsimumu = 299 [(root_branch)="L2_mu6_Jpsimumu"];
+    // optional int32 L2_mu6_Jpsimumu_SiTrk = 300 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
+    // optional int32 L2_mu6_Jpsimumu_tight = 301 [(root_branch)="L2_mu6_Jpsimumu_tight"];
+    // optional int32 L2_mu6_Trk_Jpsi_loose = 302 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+    
+    // optional int32 tilemu_index = 400 [(root_branch)="tilemu_index"];
+    
+    // optional int32 idtrk_algorithmId = 500 [(root_branch)="idtrk_algorithmId"];
+    // optional int32 idtrk_trackStatus = 501 [(root_branch)="idtrk_trackStatus"];
+    // optional float idtrk_chi2Ndof = 502 [(root_branch)="idtrk_chi2Ndof"];
+    // optional int32 idtrk_nStrawHits = 503 [(root_branch)="idtrk_nStrawHits"];
+    // optional int32 idtrk_nHighThrHits = 504 [(root_branch)="idtrk_nHighThrHits"];
+    // optional int32 idtrk_nPixelSpacePoints = 505 [(root_branch)="idtrk_nPixelSpacePoints"];
+    // optional int32 idtrk_nSCT_SpacePoints = 506 [(root_branch)="idtrk_nSCT_SpacePoints"];
+    // optional float idtrk_idtrkfitpar_a0 = 507 [(root_branch)="idtrk_idtrkfitpar_a0"];
+    // optional float idtrk_idtrkfitpar_z0 = 508 [(root_branch)="idtrk_idtrkfitpar_z0"];
+    // optional float idtrk_idtrkfitpar_phi0 = 509 [(root_branch)="idtrk_idtrkfitpar_phi0"];
+    // optional float idtrk_idtrkfitpar_eta = 510 [(root_branch)="idtrk_idtrkfitpar_eta"];
+    // optional float idtrk_idtrkfitpar_pt = 511 [(root_branch)="idtrk_idtrkfitpar_pt"];
+    // optional int32 idtrk_idtrkfitpar_hasidtrkfitpar = 512 [(root_branch)="idtrk_idtrkfitpar_hasidtrkfitpar"];
+    // optional int32 idtrk_hasidtrk = 513 [(root_branch)="idtrk_hasidtrk"];
+}
+
+message TopoMET {
+    // optional float phi = 1 [(root_branch)="phi"];
+    
+    // optional float et = 100 [(root_branch)="et"];
+    // optional float sumet = 101 [(root_branch)="sumet"];
+    
+    // optional float SUMET_EMFrac = 200 [(root_branch)="SUMET_EMFrac"];
+    
+    // optional float etx_PEMB = 300 [(root_branch)="etx_PEMB"];
+    // optional float ety_PEMB = 301 [(root_branch)="ety_PEMB"];
+    // optional float sumet_PEMB = 302 [(root_branch)="sumet_PEMB"];
+    // optional float phi_PEMB = 303 [(root_branch)="phi_PEMB"];
+    // optional float etx_EMB = 304 [(root_branch)="etx_EMB"];
+    // optional float ety_EMB = 305 [(root_branch)="ety_EMB"];
+    // optional float sumet_EMB = 306 [(root_branch)="sumet_EMB"];
+    // optional float phi_EMB = 307 [(root_branch)="phi_EMB"];
+    // optional float etx_PEMEC = 308 [(root_branch)="etx_PEMEC"];
+    // optional float ety_PEMEC = 309 [(root_branch)="ety_PEMEC"];
+    // optional float sumet_PEMEC = 310 [(root_branch)="sumet_PEMEC"];
+    // optional float phi_PEMEC = 311 [(root_branch)="phi_PEMEC"];
+    // optional float etx_EME = 312 [(root_branch)="etx_EME"];
+    // optional float ety_EME = 313 [(root_branch)="ety_EME"];
+    // optional float sumet_EME = 314 [(root_branch)="sumet_EME"];
+    // optional float phi_EME = 315 [(root_branch)="phi_EME"];
+    // optional float etx_TILE = 316 [(root_branch)="etx_TILE"];
+    // optional float ety_TILE = 317 [(root_branch)="ety_TILE"];
+    // optional float sumet_TILE = 318 [(root_branch)="sumet_TILE"];
+    // optional float phi_TILE = 319 [(root_branch)="phi_TILE"];
+    // optional float etx_HEC = 320 [(root_branch)="etx_HEC"];
+    // optional float ety_HEC = 321 [(root_branch)="ety_HEC"];
+    // optional float sumet_HEC = 322 [(root_branch)="sumet_HEC"];
+    // optional float phi_HEC = 323 [(root_branch)="phi_HEC"];
+    // optional float etx_FCAL = 324 [(root_branch)="etx_FCAL"];
+    // optional float ety_FCAL = 325 [(root_branch)="ety_FCAL"];
+    // optional float sumet_FCAL = 326 [(root_branch)="sumet_FCAL"];
+    // optional float phi_FCAL = 327 [(root_branch)="phi_FCAL"];
+    // optional float nCell_PEMB = 328 [(root_branch)="nCell_PEMB"];
+    // optional float nCell_EMB = 329 [(root_branch)="nCell_EMB"];
+    // optional float nCell_PEMEC = 330 [(root_branch)="nCell_PEMEC"];
+    // optional float nCell_EME = 331 [(root_branch)="nCell_EME"];
+    // optional float nCell_TILE = 332 [(root_branch)="nCell_TILE"];
+    // optional float nCell_HEC = 333 [(root_branch)="nCell_HEC"];
+    // optional float nCell_FCAL = 334 [(root_branch)="nCell_FCAL"];
+    // optional float etx_CentralReg = 335 [(root_branch)="etx_CentralReg"];
+    // optional float ety_CentralReg = 336 [(root_branch)="ety_CentralReg"];
+    // optional float sumet_CentralReg = 337 [(root_branch)="sumet_CentralReg"];
+    // optional float phi_CentralReg = 338 [(root_branch)="phi_CentralReg"];
+    // optional float etx_EndcapRegion = 339 [(root_branch)="etx_EndcapRegion"];
+    // optional float ety_EndcapRegion = 340 [(root_branch)="ety_EndcapRegion"];
+    // optional float sumet_EndcapRegion = 341 [(root_branch)="sumet_EndcapRegion"];
+    // optional float phi_EndcapRegion = 342 [(root_branch)="phi_EndcapRegion"];
+    // optional float etx_ForwardReg = 343 [(root_branch)="etx_ForwardReg"];
+    // optional float ety_ForwardReg = 344 [(root_branch)="ety_ForwardReg"];
+    // optional float sumet_ForwardReg = 345 [(root_branch)="sumet_ForwardReg"];
+    // optional float phi_ForwardReg = 346 [(root_branch)="phi_ForwardReg"];
+}
+
+message TrackParticle {
+    // optional float pt = 1 [(root_branch)="pt"];
+    // optional float eta = 2 [(root_branch)="eta"];
+    
+    // optional float d0_wrtPV = 100 [(root_branch)="d0_wrtPV"];
+    // optional float z0_wrtPV = 101 [(root_branch)="z0_wrtPV"];
+    // optional float phi_wrtPV = 102 [(root_branch)="phi_wrtPV"];
+    // optional float theta_wrtPV = 103 [(root_branch)="theta_wrtPV"];
+    // optional float qoverp_wrtPV = 104 [(root_branch)="qoverp_wrtPV"];
+    
+    // optional float chi2 = 200 [(root_branch)="chi2"];
+    // optional int32 ndof = 201 [(root_branch)="ndof"];
+}
+
+message Track {
+    // optional float d0 = 1 [(root_branch)="d0"];
+    // optional float z0 = 2 [(root_branch)="z0"];
+    
+    // optional float phi = 100 [(root_branch)="phi"];
+    // optional float theta = 101 [(root_branch)="theta"];
+    
+    // optional float qoverp = 200 [(root_branch)="qoverp"];
+    
+    // optional float pt = 300 [(root_branch)="pt"];
+    // optional float eta = 301 [(root_branch)="eta"];
+    
+    // optional float err_d0 = 400 [(root_branch)="err_d0"];
+    // optional float err_z0 = 401 [(root_branch)="err_z0"];
+    // optional float err_phi = 402 [(root_branch)="err_phi"];
+    // optional float err_theta = 403 [(root_branch)="err_theta"];
+    // optional float err_qoverp = 404 [(root_branch)="err_qoverp"];
+    
+    // optional float d0_wrtPV = 500 [(root_branch)="d0_wrtPV"];
+    // optional float z0_wrtPV = 501 [(root_branch)="z0_wrtPV"];
+    // optional float phi_wrtPV = 502 [(root_branch)="phi_wrtPV"];
+    // optional float err_d0_wrtPV = 503 [(root_branch)="err_d0_wrtPV"];
+    // optional float err_z0_wrtPV = 504 [(root_branch)="err_z0_wrtPV"];
+    // optional float err_phi_wrtPV = 505 [(root_branch)="err_phi_wrtPV"];
+    // optional float err_theta_wrtPV = 506 [(root_branch)="err_theta_wrtPV"];
+    // optional float err_qoverp_wrtPV = 507 [(root_branch)="err_qoverp_wrtPV"];
+    // optional float cov_d0_z0_wrtPV = 508 [(root_branch)="cov_d0_z0_wrtPV"];
+    // optional float cov_d0_phi_wrtPV = 509 [(root_branch)="cov_d0_phi_wrtPV"];
+    // optional float cov_d0_theta_wrtPV = 510 [(root_branch)="cov_d0_theta_wrtPV"];
+    // optional float cov_d0_qoverp_wrtPV = 511 [(root_branch)="cov_d0_qoverp_wrtPV"];
+    // optional float cov_z0_phi_wrtPV = 512 [(root_branch)="cov_z0_phi_wrtPV"];
+    // optional float cov_z0_theta_wrtPV = 513 [(root_branch)="cov_z0_theta_wrtPV"];
+    // optional float cov_z0_qoverp_wrtPV = 514 [(root_branch)="cov_z0_qoverp_wrtPV"];
+    // optional float cov_phi_theta_wrtPV = 515 [(root_branch)="cov_phi_theta_wrtPV"];
+    // optional float cov_phi_qoverp_wrtPV = 516 [(root_branch)="cov_phi_qoverp_wrtPV"];
+    // optional float cov_theta_qoverp_wrtPV = 517 [(root_branch)="cov_theta_qoverp_wrtPV"];
+    
+    // optional float chi2 = 600 [(root_branch)="chi2"];
+    // optional int32 ndof = 601 [(root_branch)="ndof"];
+    
+    // optional int32 nBLHits = 700 [(root_branch)="nBLHits"];
+    // optional int32 nPixHits = 701 [(root_branch)="nPixHits"];
+    // optional int32 nSCTHits = 702 [(root_branch)="nSCTHits"];
+    // optional int32 nTRTHits = 703 [(root_branch)="nTRTHits"];
+    // optional int32 nTRTHighTHits = 704 [(root_branch)="nTRTHighTHits"];
+    
+    // optional int32 nPixHoles = 800 [(root_branch)="nPixHoles"];
+    // optional int32 nSCTHoles = 801 [(root_branch)="nSCTHoles"];
+    // optional int32 nTRTHoles = 802 [(root_branch)="nTRTHoles"];
+    
+    // optional int32 nBLayerOutliers = 900 [(root_branch)="nBLayerOutliers"];
+    // optional int32 nPixelOutliers = 901 [(root_branch)="nPixelOutliers"];
+    // optional int32 nSCTOutliers = 902 [(root_branch)="nSCTOutliers"];
+    // optional int32 nTRTOutliers = 903 [(root_branch)="nTRTOutliers"];
+    // optional int32 nTRTHighTOutliers = 904 [(root_branch)="nTRTHighTOutliers"];
+    
+    // optional int32 nContribPixelLayers = 1000 [(root_branch)="nContribPixelLayers"];
+    // optional int32 nGangedPixels = 1001 [(root_branch)="nGangedPixels"];
+    // optional int32 nGangedFlaggedFakes = 1002 [(root_branch)="nGangedFlaggedFakes"];
+    
+    // optional int32 nPixelDeadSensors = 1100 [(root_branch)="nPixelDeadSensors"];
+    // optional int32 nPixelSpoiltHits = 1101 [(root_branch)="nPixelSpoiltHits"];
+    
+    // optional int32 nSCTDoubleHoles = 1200 [(root_branch)="nSCTDoubleHoles"];
+    // optional int32 nSCTDeadSensors = 1201 [(root_branch)="nSCTDeadSensors"];
+    // optional int32 nSCTSpoiltHits = 1202 [(root_branch)="nSCTSpoiltHits"];
+    
+    // optional int32 nTRTDeadStraws = 1300 [(root_branch)="nTRTDeadStraws"];
+    // optional int32 nTRTTubeHits = 1301 [(root_branch)="nTRTTubeHits"];
+    
+    // optional int32 nOutliersOnTrack = 1400 [(root_branch)="nOutliersOnTrack"];
+    
+    // optional int32 standardDeviationOfChi2OS = 1500 [(root_branch)="standardDeviationOfChi2OS"];
+    
+    // optional int32 expectBLayerHit = 1600 [(root_branch)="expectBLayerHit"];
+    
+    // optional int32 nMDTHits = 1700 [(root_branch)="nMDTHits"];
+    // optional int32 nCSCEtaHits = 1701 [(root_branch)="nCSCEtaHits"];
+    // optional int32 nCSCPhiHits = 1702 [(root_branch)="nCSCPhiHits"];
+    // optional int32 nRPCEtaHits = 1703 [(root_branch)="nRPCEtaHits"];
+    // optional int32 nRPCPhiHits = 1704 [(root_branch)="nRPCPhiHits"];
+    // optional int32 nTGCEtaHits = 1705 [(root_branch)="nTGCEtaHits"];
+    // optional int32 nTGCPhiHits = 1706 [(root_branch)="nTGCPhiHits"];
+    // optional int32 nHits = 1707 [(root_branch)="nHits"];
+    // optional int32 nHoles = 1708 [(root_branch)="nHoles"];
+    
+    // optional int32 hitPattern = 1800 [(root_branch)="hitPattern"];
+    
+    // optional float TRTHighTHitsRatio = 1900 [(root_branch)="TRTHighTHitsRatio"];
+    // optional float TRTHighTOutliersRatio = 1901 [(root_branch)="TRTHighTOutliersRatio"];
+}
+
+message TrigDBKeys {
+    // optional uint32 SMK = 1 [(root_branch)="SMK"];
+    // optional uint32 L1PSK = 2 [(root_branch)="L1PSK"];
+    // optional uint32 HLTPSK = 3 [(root_branch)="HLTPSK"];
+}
+
+message TrigDecision {
+    // repeated uint32 L1_TAV = 1 [(root_branch)="L1_TAV"];
+    
+    // repeated int32 L2_passedPhysics = 100 [(root_branch)="L2_passedPhysics"];
+    // repeated int32 EF_passedPhysics = 101 [(root_branch)="EF_passedPhysics"];
+    
+    // repeated uint32 L1_TBP = 200 [(root_branch)="L1_TBP"];
+    // repeated uint32 L1_TAP = 201 [(root_branch)="L1_TAP"];
+    
+    // repeated int32 L2_passedRaw = 300 [(root_branch)="L2_passedRaw"];
+    // repeated int32 EF_passedRaw = 301 [(root_branch)="EF_passedRaw"];
+    // optional bool L2_truncated = 302 [(root_branch)="L2_truncated"];
+    // optional bool EF_truncated = 303 [(root_branch)="EF_truncated"];
+    // repeated int32 L2_resurrected = 304 [(root_branch)="L2_resurrected"];
+    // repeated int32 EF_resurrected = 305 [(root_branch)="EF_resurrected"];
+    // repeated int32 L2_passedThrough = 306 [(root_branch)="L2_passedThrough"];
+    // repeated int32 EF_passedThrough = 307 [(root_branch)="EF_passedThrough"];
+    // repeated int32 L2_wasPrescaled = 308 [(root_branch)="L2_wasPrescaled"];
+    // repeated int32 L2_wasResurrected = 309 [(root_branch)="L2_wasResurrected"];
+    // repeated int32 EF_wasPrescaled = 310 [(root_branch)="EF_wasPrescaled"];
+    // repeated int32 EF_wasResurrected = 311 [(root_branch)="EF_wasResurrected"];
+    
+    // optional int32 bgCode = 400 [(root_branch)="bgCode"];
+}
+
+message TrigElectron {
+    // optional float E = 1 [(root_branch)="E"];
+    // optional float Et = 2 [(root_branch)="Et"];
+    // optional float pt = 3 [(root_branch)="pt"];
+    // optional float eta = 4 [(root_branch)="eta"];
+    // optional float phi = 5 [(root_branch)="phi"];
+    
+    // optional int32 RoIWord = 100 [(root_branch)="RoIWord"];
+    
+    // optional float zvertex = 200 [(root_branch)="zvertex"];
+    
+    // optional int32 charge = 300 [(root_branch)="charge"];
+    
+    // optional int32 trackAlgo = 400 [(root_branch)="trackAlgo"];
+    
+    // optional float TRTHighTHitsRatio = 500 [(root_branch)="TRTHighTHitsRatio"];
+    
+    // optional float deltaeta1 = 600 [(root_branch)="deltaeta1"];
+    // optional float deltaphi2 = 601 [(root_branch)="deltaphi2"];
+    
+    // optional float EtOverPt = 700 [(root_branch)="EtOverPt"];
+    // optional float reta = 701 [(root_branch)="reta"];
+    // optional float Eratio = 702 [(root_branch)="Eratio"];
+    // optional float Ethad1 = 703 [(root_branch)="Ethad1"];
+    
+    // optional int32 nTRTHits = 800 [(root_branch)="nTRTHits"];
+    // optional int32 nTRTHighTHits = 801 [(root_branch)="nTRTHighTHits"];
+    
+    // optional int32 trackIndx = 900 [(root_branch)="trackIndx"];
+    // optional float trkPt = 901 [(root_branch)="trkPt"];
+    // optional float trkEtaAtCalo = 902 [(root_branch)="trkEtaAtCalo"];
+    // optional float trkPhiAtCalo = 903 [(root_branch)="trkPhiAtCalo"];
+    
+    // optional float caloEta = 1000 [(root_branch)="caloEta"];
+    // optional float caloPhi = 1001 [(root_branch)="caloPhi"];
+    
+    // optional float F1 = 1100 [(root_branch)="F1"];
+    
+    // optional int32 L2_2e10_medium = 1200 [(root_branch)="L2_2e10_medium"];
+    // optional int32 L2_2e10_medium_mu6 = 1201 [(root_branch)="L2_2e10_medium_mu6"];
+    // optional int32 L2_2e12_medium = 1202 [(root_branch)="L2_2e12_medium"];
+    // optional int32 L2_2e5_tight = 1203 [(root_branch)="L2_2e5_tight"];
+    // optional int32 L2_2e5_tight_Jpsi = 1204 [(root_branch)="L2_2e5_tight_Jpsi"];
+    // optional int32 L2_e10_medium = 1205 [(root_branch)="L2_e10_medium"];
+    // optional int32 L2_e10_medium_2mu6 = 1206 [(root_branch)="L2_e10_medium_2mu6"];
+    // optional int32 L2_e10_medium_mu10 = 1207 [(root_branch)="L2_e10_medium_mu10"];
+    // optional int32 L2_e10_medium_mu6 = 1208 [(root_branch)="L2_e10_medium_mu6"];
+    // optional int32 L2_e11_etcut = 1209 [(root_branch)="L2_e11_etcut"];
+    // optional int32 L2_e12_medium = 1210 [(root_branch)="L2_e12_medium"];
+    // optional int32 L2_e13_etcut_xs45_noMu = 1211 [(root_branch)="L2_e13_etcut_xs45_noMu"];
+    // optional int32 L2_e15_HLTtighter = 1212 [(root_branch)="L2_e15_HLTtighter"];
+    // optional int32 L2_e15_medium = 1213 [(root_branch)="L2_e15_medium"];
+    // optional int32 L2_e15_medium_e12_medium = 1214 [(root_branch)="L2_e15_medium_e12_medium"];
+    // optional int32 L2_e15_medium_xe30_noMu = 1215 [(root_branch)="L2_e15_medium_xe30_noMu"];
+    // optional int32 L2_e15_tight = 1216 [(root_branch)="L2_e15_tight"];
+    // optional int32 L2_e20_loose = 1217 [(root_branch)="L2_e20_loose"];
+    // optional int32 L2_e20_loose1 = 1218 [(root_branch)="L2_e20_loose1"];
+    // optional int32 L2_e20_looseTrk = 1219 [(root_branch)="L2_e20_looseTrk"];
+    // optional int32 L2_e20_medium = 1220 [(root_branch)="L2_e20_medium"];
+    // optional int32 L2_e20_medium1 = 1221 [(root_branch)="L2_e20_medium1"];
+    // optional int32 L2_e20_medium2 = 1222 [(root_branch)="L2_e20_medium2"];
+    // optional int32 L2_e20_medium_IDTrkNoCut = 1223 [(root_branch)="L2_e20_medium_IDTrkNoCut"];
+    // optional int32 L2_e20_medium_SiTrk = 1224 [(root_branch)="L2_e20_medium_SiTrk"];
+    // optional int32 L2_e20_medium_TRT = 1225 [(root_branch)="L2_e20_medium_TRT"];
+    // optional int32 L2_e22_medium = 1226 [(root_branch)="L2_e22_medium"];
+    // optional int32 L2_e22_medium1 = 1227 [(root_branch)="L2_e22_medium1"];
+    // optional int32 L2_e22_medium2 = 1228 [(root_branch)="L2_e22_medium2"];
+    // optional int32 L2_e33_medium = 1229 [(root_branch)="L2_e33_medium"];
+    // optional int32 L2_e35_medium = 1230 [(root_branch)="L2_e35_medium"];
+    // optional int32 L2_e40_medium = 1231 [(root_branch)="L2_e40_medium"];
+    // optional int32 L2_e5_medium_mu6 = 1232 [(root_branch)="L2_e5_medium_mu6"];
+    // optional int32 L2_e5_medium_mu6_topo_medium = 1233 [(root_branch)="L2_e5_medium_mu6_topo_medium"];
+    // optional int32 L2_e5_tight = 1234 [(root_branch)="L2_e5_tight"];
+    // optional int32 L2_e5_tight_e4_etcut_Jpsi = 1235 [(root_branch)="L2_e5_tight_e4_etcut_Jpsi"];
+    // optional int32 L2_e5_tight_e4_etcut_Jpsi_SiTrk = 1236 [(root_branch)="L2_e5_tight_e4_etcut_Jpsi_SiTrk"];
+    // optional int32 L2_e5_tight_e4_etcut_Jpsi_TRT = 1237 [(root_branch)="L2_e5_tight_e4_etcut_Jpsi_TRT"];
+    // optional int32 L2_e5_tight_e5_NoCut = 1238 [(root_branch)="L2_e5_tight_e5_NoCut"];
+    // optional int32 L2_e5_tight_e9_etcut_Jpsi = 1239 [(root_branch)="L2_e5_tight_e9_etcut_Jpsi"];
+    // optional int32 L2_e60_loose = 1240 [(root_branch)="L2_e60_loose"];
+    // optional int32 L2_e7_tight_e14_etcut_Jpsi = 1241 [(root_branch)="L2_e7_tight_e14_etcut_Jpsi"];
+    // optional int32 L2_e9_tight_e5_tight_Jpsi = 1242 [(root_branch)="L2_e9_tight_e5_tight_Jpsi"];
+    // optional int32 L2_eb_physics = 1243 [(root_branch)="L2_eb_physics"];
+    // optional int32 L2_eb_physics_empty = 1244 [(root_branch)="L2_eb_physics_empty"];
+    // optional int32 L2_eb_physics_firstempty = 1245 [(root_branch)="L2_eb_physics_firstempty"];
+    // optional int32 L2_eb_physics_noL1PS = 1246 [(root_branch)="L2_eb_physics_noL1PS"];
+    // optional int32 L2_eb_physics_unpaired_iso = 1247 [(root_branch)="L2_eb_physics_unpaired_iso"];
+    // optional int32 L2_eb_physics_unpaired_noniso = 1248 [(root_branch)="L2_eb_physics_unpaired_noniso"];
+    // optional int32 L2_eb_random = 1249 [(root_branch)="L2_eb_random"];
+    // optional int32 L2_eb_random_empty = 1250 [(root_branch)="L2_eb_random_empty"];
+    // optional int32 L2_eb_random_firstempty = 1251 [(root_branch)="L2_eb_random_firstempty"];
+    // optional int32 L2_eb_random_unpaired_iso = 1252 [(root_branch)="L2_eb_random_unpaired_iso"];
+    // optional int32 L2_em3_empty_larcalib = 1253 [(root_branch)="L2_em3_empty_larcalib"];
+    // optional int32 L2_em5_empty_larcalib = 1254 [(root_branch)="L2_em5_empty_larcalib"];
+}
+
+message TrigEMCluster {
+    // optional uint32 quality = 1 [(root_branch)="quality"];
+    
+    // optional float E = 100 [(root_branch)="E"];
+    // optional float Et = 101 [(root_branch)="Et"];
+    // optional float eta = 102 [(root_branch)="eta"];
+    // optional float phi = 103 [(root_branch)="phi"];
+    
+    // optional float E237 = 200 [(root_branch)="E237"];
+    // optional float E277 = 201 [(root_branch)="E277"];
+    // optional float fracs1 = 202 [(root_branch)="fracs1"];
+    // optional float weta2 = 203 [(root_branch)="weta2"];
+    // optional float Ehad1 = 204 [(root_branch)="Ehad1"];
+    // optional float eta1 = 205 [(root_branch)="eta1"];
+    // optional float emaxs1 = 206 [(root_branch)="emaxs1"];
+    // optional float e2tsts1 = 207 [(root_branch)="e2tsts1"];
+}
+
+message TrigInDetTrack {
+    // optional int32 algorithmId = 1 [(root_branch)="algorithmId"];
+    
+    // optional int32 trackStatus = 100 [(root_branch)="trackStatus"];
+    
+    // optional float chi2Ndof = 200 [(root_branch)="chi2Ndof"];
+    
+    // optional int32 nStrawHits = 300 [(root_branch)="nStrawHits"];
+    // optional int32 nHighThrHits = 301 [(root_branch)="nHighThrHits"];
+    
+    // optional int32 nPixelSpacePoints = 400 [(root_branch)="nPixelSpacePoints"];
+    // optional int32 nSCT_SpacePoints = 401 [(root_branch)="nSCT_SpacePoints"];
+    
+    // optional float param_a0 = 500 [(root_branch)="param_a0"];
+    // optional float param_z0 = 501 [(root_branch)="param_z0"];
+    // optional float param_phi0 = 502 [(root_branch)="param_phi0"];
+    // optional float param_eta = 503 [(root_branch)="param_eta"];
+    // optional float param_pt = 504 [(root_branch)="param_pt"];
+}
+
+message TrigMET {
+    // optional float MEx = 1 [(root_branch)="MEx"];
+    // optional float MEy = 2 [(root_branch)="MEy"];
+    // optional float MEz = 3 [(root_branch)="MEz"];
+    
+    // optional float sumEt = 100 [(root_branch)="sumEt"];
+    // optional float sumE = 101 [(root_branch)="sumE"];
+    
+    // optional int32 flag = 200 [(root_branch)="flag"];
+    
+    // repeated string nameOfComponent = 300 [(root_branch)="nameOfComponent"];
+    // repeated float MExComponent = 301 [(root_branch)="MExComponent"];
+    // repeated float MEyComponent = 302 [(root_branch)="MEyComponent"];
+    // repeated float MEzComponent = 303 [(root_branch)="MEzComponent"];
+    // repeated float sumEtComponent = 304 [(root_branch)="sumEtComponent"];
+    // repeated float sumEComponent = 305 [(root_branch)="sumEComponent"];
+    // repeated float componentCalib0 = 306 [(root_branch)="componentCalib0"];
+    // repeated float componentCalib1 = 307 [(root_branch)="componentCalib1"];
+    
+    // repeated int32 sumOfSigns = 400 [(root_branch)="sumOfSigns"];
+    
+    // repeated uint32 usedChannels = 500 [(root_branch)="usedChannels"];
+    
+    // repeated int32 status = 600 [(root_branch)="status"];
+}
+
+message TrigMuonEFInfo {
+    // optional int32 EF_2mu10 = 1 [(root_branch)="EF_2mu10"];
+    // optional int32 EF_2mu10_empty = 2 [(root_branch)="EF_2mu10_empty"];
+    // optional int32 EF_2mu10_loose = 3 [(root_branch)="EF_2mu10_loose"];
+    // optional int32 EF_2mu10_loose_empty = 4 [(root_branch)="EF_2mu10_loose_empty"];
+    // optional int32 EF_2mu10_loose_noOvlpRm = 5 [(root_branch)="EF_2mu10_loose_noOvlpRm"];
+    // optional int32 EF_2mu13_Zmumu_IDTrkNoCut = 6 [(root_branch)="EF_2mu13_Zmumu_IDTrkNoCut"];
+    // optional int32 EF_2mu4 = 7 [(root_branch)="EF_2mu4"];
+    // optional int32 EF_2mu4_Bmumu = 8 [(root_branch)="EF_2mu4_Bmumu"];
+    // optional int32 EF_2mu4_Bmumux = 9 [(root_branch)="EF_2mu4_Bmumux"];
+    // optional int32 EF_2mu4_DiMu = 10 [(root_branch)="EF_2mu4_DiMu"];
+    // optional int32 EF_2mu4_DiMu_DY = 11 [(root_branch)="EF_2mu4_DiMu_DY"];
+    // optional int32 EF_2mu4_DiMu_DY20 = 12 [(root_branch)="EF_2mu4_DiMu_DY20"];
+    // optional int32 EF_2mu4_DiMu_DY_noVtx_noOS = 13 [(root_branch)="EF_2mu4_DiMu_DY_noVtx_noOS"];
+    // optional int32 EF_2mu4_DiMu_SiTrk = 14 [(root_branch)="EF_2mu4_DiMu_SiTrk"];
+    // optional int32 EF_2mu4_DiMu_noVtx_noOS = 15 [(root_branch)="EF_2mu4_DiMu_noVtx_noOS"];
+    // optional int32 EF_2mu4_Jpsimumu = 16 [(root_branch)="EF_2mu4_Jpsimumu"];
+    // optional int32 EF_2mu4_Jpsimumu_IDTrkNoCut = 17 [(root_branch)="EF_2mu4_Jpsimumu_IDTrkNoCut"];
+    // optional int32 EF_2mu4_Upsimumu = 18 [(root_branch)="EF_2mu4_Upsimumu"];
+    // optional int32 EF_2mu4i_DiMu_DY = 19 [(root_branch)="EF_2mu4i_DiMu_DY"];
+    // optional int32 EF_2mu6 = 20 [(root_branch)="EF_2mu6"];
+    // optional int32 EF_2mu6_MSonly_g10_loose = 21 [(root_branch)="EF_2mu6_MSonly_g10_loose"];
+    // optional int32 EF_2mu6_MSonly_g10_loose_nonfilled = 22 [(root_branch)="EF_2mu6_MSonly_g10_loose_nonfilled"];
+    // optional int32 EF_2mu6_NL = 23 [(root_branch)="EF_2mu6_NL"];
+    // optional int32 EF_mu0_empty_NoAlg = 24 [(root_branch)="EF_mu0_empty_NoAlg"];
+    // optional int32 EF_mu0_firstempty_NoAlg = 25 [(root_branch)="EF_mu0_firstempty_NoAlg"];
+    // optional int32 EF_mu0_unpaired_iso_NoAlg = 26 [(root_branch)="EF_mu0_unpaired_iso_NoAlg"];
+    // optional int32 EF_mu10 = 27 [(root_branch)="EF_mu10"];
+    // optional int32 EF_mu10_Jpsimumu = 28 [(root_branch)="EF_mu10_Jpsimumu"];
+    // optional int32 EF_mu10_NL = 29 [(root_branch)="EF_mu10_NL"];
+    // optional int32 EF_mu10_Upsimumu_FS = 30 [(root_branch)="EF_mu10_Upsimumu_FS"];
+    // optional int32 EF_mu10_Upsimumu_tight_FS = 31 [(root_branch)="EF_mu10_Upsimumu_tight_FS"];
+    // optional int32 EF_mu10_loose = 32 [(root_branch)="EF_mu10_loose"];
+    // optional int32 EF_mu10_muCombTag_NoEF = 33 [(root_branch)="EF_mu10_muCombTag_NoEF"];
+    // optional int32 EF_mu11_empty_NoAlg = 34 [(root_branch)="EF_mu11_empty_NoAlg"];
+    // optional int32 EF_mu13 = 35 [(root_branch)="EF_mu13"];
+    // optional int32 EF_mu13_MG = 36 [(root_branch)="EF_mu13_MG"];
+    // optional int32 EF_mu13_muCombTag_NoEF = 37 [(root_branch)="EF_mu13_muCombTag_NoEF"];
+    // optional int32 EF_mu15 = 38 [(root_branch)="EF_mu15"];
+    // optional int32 EF_mu15_mu10_EFFS = 39 [(root_branch)="EF_mu15_mu10_EFFS"];
+    // optional int32 EF_mu15_mu10_EFFS_medium = 40 [(root_branch)="EF_mu15_mu10_EFFS_medium"];
+    // optional int32 EF_mu15i = 41 [(root_branch)="EF_mu15i"];
+    // optional int32 EF_mu15i_medium = 42 [(root_branch)="EF_mu15i_medium"];
+    // optional int32 EF_mu18 = 43 [(root_branch)="EF_mu18"];
+    // optional int32 EF_mu18_MG = 44 [(root_branch)="EF_mu18_MG"];
+    // optional int32 EF_mu18_MG_medium = 45 [(root_branch)="EF_mu18_MG_medium"];
+    // optional int32 EF_mu18_medium = 46 [(root_branch)="EF_mu18_medium"];
+    // optional int32 EF_mu20 = 47 [(root_branch)="EF_mu20"];
+    // optional int32 EF_mu20_IDTrkNoCut = 48 [(root_branch)="EF_mu20_IDTrkNoCut"];
+    // optional int32 EF_mu20_MG = 49 [(root_branch)="EF_mu20_MG"];
+    // optional int32 EF_mu20_MG_medium = 50 [(root_branch)="EF_mu20_MG_medium"];
+    // optional int32 EF_mu20_empty = 51 [(root_branch)="EF_mu20_empty"];
+    // optional int32 EF_mu20_medium = 52 [(root_branch)="EF_mu20_medium"];
+    // optional int32 EF_mu20_muCombTag_NoEF = 53 [(root_branch)="EF_mu20_muCombTag_NoEF"];
+    // optional int32 EF_mu20i = 54 [(root_branch)="EF_mu20i"];
+    // optional int32 EF_mu20i_medium = 55 [(root_branch)="EF_mu20i_medium"];
+    // optional int32 EF_mu22 = 56 [(root_branch)="EF_mu22"];
+    // optional int32 EF_mu22_MG = 57 [(root_branch)="EF_mu22_MG"];
+    // optional int32 EF_mu22_MG_medium = 58 [(root_branch)="EF_mu22_MG_medium"];
+    // optional int32 EF_mu22_medium = 59 [(root_branch)="EF_mu22_medium"];
+    // optional int32 EF_mu4 = 60 [(root_branch)="EF_mu4"];
+    // optional int32 EF_mu40_MSonly_barrel = 61 [(root_branch)="EF_mu40_MSonly_barrel"];
+    // optional int32 EF_mu40_MSonly_barrel_medium = 62 [(root_branch)="EF_mu40_MSonly_barrel_medium"];
+    // optional int32 EF_mu40_MSonly_empty = 63 [(root_branch)="EF_mu40_MSonly_empty"];
+    // optional int32 EF_mu40_MSonly_tight = 64 [(root_branch)="EF_mu40_MSonly_tight"];
+    // optional int32 EF_mu40_MSonly_tighter = 65 [(root_branch)="EF_mu40_MSonly_tighter"];
+    // optional int32 EF_mu40_slow = 66 [(root_branch)="EF_mu40_slow"];
+    // optional int32 EF_mu40_slow_empty = 67 [(root_branch)="EF_mu40_slow_empty"];
+    // optional int32 EF_mu40_slow_medium = 68 [(root_branch)="EF_mu40_slow_medium"];
+    // optional int32 EF_mu40_slow_outOfTime = 69 [(root_branch)="EF_mu40_slow_outOfTime"];
+    // optional int32 EF_mu4_DiMu = 70 [(root_branch)="EF_mu4_DiMu"];
+    // optional int32 EF_mu4_DiMu_FS_noOS = 71 [(root_branch)="EF_mu4_DiMu_FS_noOS"];
+    // optional int32 EF_mu4_Jpsimumu = 72 [(root_branch)="EF_mu4_Jpsimumu"];
+    // optional int32 EF_mu4_L1J10_matched = 73 [(root_branch)="EF_mu4_L1J10_matched"];
+    // optional int32 EF_mu4_L1J15_matched = 74 [(root_branch)="EF_mu4_L1J15_matched"];
+    // optional int32 EF_mu4_L1J20_matched = 75 [(root_branch)="EF_mu4_L1J20_matched"];
+    // optional int32 EF_mu4_L1J30_matched = 76 [(root_branch)="EF_mu4_L1J30_matched"];
+    // optional int32 EF_mu4_L1J50_matched = 77 [(root_branch)="EF_mu4_L1J50_matched"];
+    // optional int32 EF_mu4_L1J75_matched = 78 [(root_branch)="EF_mu4_L1J75_matched"];
+    // optional int32 EF_mu4_L1MU11_MSonly_cosmic = 79 [(root_branch)="EF_mu4_L1MU11_MSonly_cosmic"];
+    // optional int32 EF_mu4_L1MU11_cosmic = 80 [(root_branch)="EF_mu4_L1MU11_cosmic"];
+    // optional int32 EF_mu4_MSonly_cosmic = 81 [(root_branch)="EF_mu4_MSonly_cosmic"];
+    // optional int32 EF_mu4_Trk_Jpsi = 82 [(root_branch)="EF_mu4_Trk_Jpsi"];
+    // optional int32 EF_mu4_Trk_Upsi_FS = 83 [(root_branch)="EF_mu4_Trk_Upsi_FS"];
+    // optional int32 EF_mu4_Upsimumu_FS = 84 [(root_branch)="EF_mu4_Upsimumu_FS"];
+    // optional int32 EF_mu4_Upsimumu_SiTrk_FS = 85 [(root_branch)="EF_mu4_Upsimumu_SiTrk_FS"];
+    // optional int32 EF_mu4_Upsimumu_tight_FS = 86 [(root_branch)="EF_mu4_Upsimumu_tight_FS"];
+    // optional int32 EF_mu4_cosmic = 87 [(root_branch)="EF_mu4_cosmic"];
+    // optional int32 EF_mu4_j10_a4tc_EFFS = 88 [(root_branch)="EF_mu4_j10_a4tc_EFFS"];
+    // optional int32 EF_mu4_j135_a4tc_EFFS_L1matched = 89 [(root_branch)="EF_mu4_j135_a4tc_EFFS_L1matched"];
+    // optional int32 EF_mu4_j45_a4tc_EFFS_xe45_loose_noMu = 90 [(root_branch)="EF_mu4_j45_a4tc_EFFS_xe45_loose_noMu"];
+    // optional int32 EF_mu4mu6_Bmumu = 91 [(root_branch)="EF_mu4mu6_Bmumu"];
+    // optional int32 EF_mu4mu6_BmumuX = 92 [(root_branch)="EF_mu4mu6_BmumuX"];
+    // optional int32 EF_mu4mu6_DiMu = 93 [(root_branch)="EF_mu4mu6_DiMu"];
+    // optional int32 EF_mu4mu6_DiMu_noVtx_noOS = 94 [(root_branch)="EF_mu4mu6_DiMu_noVtx_noOS"];
+    // optional int32 EF_mu4mu6_Jpsimumu = 95 [(root_branch)="EF_mu4mu6_Jpsimumu"];
+    // optional int32 EF_mu4mu6_Upsimumu = 96 [(root_branch)="EF_mu4mu6_Upsimumu"];
+    // optional int32 EF_mu6 = 97 [(root_branch)="EF_mu6"];
+    // optional int32 EF_mu6_DiMu_noOS = 98 [(root_branch)="EF_mu6_DiMu_noOS"];
+    // optional int32 EF_mu6_Jpsimumu = 99 [(root_branch)="EF_mu6_Jpsimumu"];
+    // optional int32 EF_mu6_Jpsimumu_SiTrk = 100 [(root_branch)="EF_mu6_Jpsimumu_SiTrk"];
+    // optional int32 EF_mu6_Jpsimumu_tight = 101 [(root_branch)="EF_mu6_Jpsimumu_tight"];
+    // optional int32 EF_mu6_Trk_Jpsi_loose = 102 [(root_branch)="EF_mu6_Trk_Jpsi_loose"];
+    
+    // optional int32 track_n = 200 [(root_branch)="track_n"];
+    // repeated int32 track_MuonType = 201 [(root_branch)="track_MuonType"];
+    // repeated float track_MS_pt = 202 [(root_branch)="track_MS_pt"];
+    // repeated float track_MS_eta = 203 [(root_branch)="track_MS_eta"];
+    // repeated float track_MS_phi = 204 [(root_branch)="track_MS_phi"];
+    // repeated float track_MS_charge = 205 [(root_branch)="track_MS_charge"];
+    // repeated float track_MS_d0 = 206 [(root_branch)="track_MS_d0"];
+    // repeated float track_MS_z0 = 207 [(root_branch)="track_MS_z0"];
+    // repeated float track_MS_chi2 = 208 [(root_branch)="track_MS_chi2"];
+    // repeated float track_MS_chi2prob = 209 [(root_branch)="track_MS_chi2prob"];
+    // repeated float track_MS_posX = 210 [(root_branch)="track_MS_posX"];
+    // repeated float track_MS_posY = 211 [(root_branch)="track_MS_posY"];
+    // repeated float track_MS_posZ = 212 [(root_branch)="track_MS_posZ"];
+    // repeated int32 track_MS_hasMS = 213 [(root_branch)="track_MS_hasMS"];
+    // repeated float track_SA_pt = 214 [(root_branch)="track_SA_pt"];
+    // repeated float track_SA_eta = 215 [(root_branch)="track_SA_eta"];
+    // repeated float track_SA_phi = 216 [(root_branch)="track_SA_phi"];
+    // repeated float track_SA_charge = 217 [(root_branch)="track_SA_charge"];
+    // repeated float track_SA_d0 = 218 [(root_branch)="track_SA_d0"];
+    // repeated float track_SA_z0 = 219 [(root_branch)="track_SA_z0"];
+    // repeated float track_SA_chi2 = 220 [(root_branch)="track_SA_chi2"];
+    // repeated float track_SA_chi2prob = 221 [(root_branch)="track_SA_chi2prob"];
+    // repeated float track_SA_posX = 222 [(root_branch)="track_SA_posX"];
+    // repeated float track_SA_posY = 223 [(root_branch)="track_SA_posY"];
+    // repeated float track_SA_posZ = 224 [(root_branch)="track_SA_posZ"];
+    // repeated int32 track_SA_hasSA = 225 [(root_branch)="track_SA_hasSA"];
+    // repeated float track_CB_pt = 226 [(root_branch)="track_CB_pt"];
+    // repeated float track_CB_eta = 227 [(root_branch)="track_CB_eta"];
+    // repeated float track_CB_phi = 228 [(root_branch)="track_CB_phi"];
+    // repeated float track_CB_charge = 229 [(root_branch)="track_CB_charge"];
+    // repeated float track_CB_d0 = 230 [(root_branch)="track_CB_d0"];
+    // repeated float track_CB_z0 = 231 [(root_branch)="track_CB_z0"];
+    // repeated float track_CB_chi2 = 232 [(root_branch)="track_CB_chi2"];
+    // repeated float track_CB_chi2prob = 233 [(root_branch)="track_CB_chi2prob"];
+    // repeated float track_CB_posX = 234 [(root_branch)="track_CB_posX"];
+    // repeated float track_CB_posY = 235 [(root_branch)="track_CB_posY"];
+    // repeated float track_CB_posZ = 236 [(root_branch)="track_CB_posZ"];
+    // repeated float track_CB_matchChi2 = 237 [(root_branch)="track_CB_matchChi2"];
+    // repeated int32 track_CB_hasCB = 238 [(root_branch)="track_CB_hasCB"];
+}
+
+message TrigPhoton {
+    // optional float E = 1 [(root_branch)="E"];
+    // optional float Et = 2 [(root_branch)="Et"];
+    // optional float pt = 3 [(root_branch)="pt"];
+    // optional float eta = 4 [(root_branch)="eta"];
+    // optional float phi = 5 [(root_branch)="phi"];
+    
+    // optional int32 RoIWord = 100 [(root_branch)="RoIWord"];
+    
+    // optional float HadEt1 = 200 [(root_branch)="HadEt1"];
+    // optional float Eratio = 201 [(root_branch)="Eratio"];
+    // optional float Reta = 202 [(root_branch)="Reta"];
+    // optional float dPhi = 203 [(root_branch)="dPhi"];
+    // optional float dEta = 204 [(root_branch)="dEta"];
+    // optional float F1 = 205 [(root_branch)="F1"];
+    
+    // optional int32 L2_2g15_loose = 300 [(root_branch)="L2_2g15_loose"];
+    // optional int32 L2_2g20_loose = 301 [(root_branch)="L2_2g20_loose"];
+    // optional int32 L2_g100_etcut_g50_etcut = 302 [(root_branch)="L2_g100_etcut_g50_etcut"];
+    // optional int32 L2_g10_NoCut_cosmic = 303 [(root_branch)="L2_g10_NoCut_cosmic"];
+    // optional int32 L2_g11_etcut = 304 [(root_branch)="L2_g11_etcut"];
+    // optional int32 L2_g150_etcut = 305 [(root_branch)="L2_g150_etcut"];
+    // optional int32 L2_g15_loose = 306 [(root_branch)="L2_g15_loose"];
+    // optional int32 L2_g20_etcut = 307 [(root_branch)="L2_g20_etcut"];
+    // optional int32 L2_g20_etcut_xe30_noMu = 308 [(root_branch)="L2_g20_etcut_xe30_noMu"];
+    // optional int32 L2_g20_loose = 309 [(root_branch)="L2_g20_loose"];
+    // optional int32 L2_g40_loose = 310 [(root_branch)="L2_g40_loose"];
+    // optional int32 L2_g40_loose_EFxe40_noMu = 311 [(root_branch)="L2_g40_loose_EFxe40_noMu"];
+    // optional int32 L2_g40_tight = 312 [(root_branch)="L2_g40_tight"];
+    // optional int32 L2_g40_tight_b10_medium = 313 [(root_branch)="L2_g40_tight_b10_medium"];
+    // optional int32 L2_g5_NoCut_cosmic = 314 [(root_branch)="L2_g5_NoCut_cosmic"];
+    // optional int32 L2_g60_loose = 315 [(root_branch)="L2_g60_loose"];
+    // optional int32 L2_g80_loose = 316 [(root_branch)="L2_g80_loose"];
+}
+
+message TrigRoiDesc {
+    // optional float phi = 1 [(root_branch)="phi"];
+    // optional float eta = 2 [(root_branch)="eta"];
+    
+    // optional float zed0 = 100 [(root_branch)="zed0"];
+    
+    // optional float phiHalfWidth = 200 [(root_branch)="phiHalfWidth"];
+    // optional float etaHalfWidth = 201 [(root_branch)="etaHalfWidth"];
+    // optional float zedHalfWidth = 202 [(root_branch)="zedHalfWidth"];
+    
+    // optional float etaMinus = 300 [(root_branch)="etaMinus"];
+    // optional float etaPlus = 301 [(root_branch)="etaPlus"];
+}
+
+message Event {
+    // optional uint32 run_number = 1 [(root_branch)="RunNumber"];
+    // optional uint32 event_number = 2 [(root_branch)="EventNumber"];
+    
+    // optional uint32 timestamp = 100 [(root_branch)="timestamp"];
+    // optional uint32 timestamp_ns = 101 [(root_branch)="timestamp_ns"];
+    
+    // optional uint32 lbn = 200 [(root_branch)="lbn"];
+    // optional uint32 bcid = 201 [(root_branch)="bcid"];
+    
+    // optional uint32 detmask0 = 300 [(root_branch)="detmask0"];
+    // optional uint32 detmask1 = 301 [(root_branch)="detmask1"];
+    
+    // optional float actualIntPerXing = 400 [(root_branch)="actualIntPerXing"];
+    // optional float averageIntPerXing = 401 [(root_branch)="averageIntPerXing"];
+    
+    // optional uint32 pixelFlags = 500 [(root_branch)="pixelFlags"];
+    // optional uint32 sctFlags = 501 [(root_branch)="sctFlags"];
+    // optional uint32 trtFlags = 502 [(root_branch)="trtFlags"];
+    // optional uint32 larFlags = 503 [(root_branch)="larFlags"];
+    // optional uint32 tileFlags = 504 [(root_branch)="tileFlags"];
+    // optional uint32 muonFlags = 505 [(root_branch)="muonFlags"];
+    // optional uint32 fwdFlags = 506 [(root_branch)="fwdFlags"];
+    // optional uint32 coreFlags = 507 [(root_branch)="coreFlags"];
+    
+    // optional uint32 pixelError = 600 [(root_branch)="pixelError"];
+    // optional uint32 sctError = 601 [(root_branch)="sctError"];
+    // optional uint32 trtError = 602 [(root_branch)="trtError"];
+    // optional uint32 larError = 603 [(root_branch)="larError"];
+    // optional uint32 tileError = 604 [(root_branch)="tileError"];
+    // optional uint32 muonError = 605 [(root_branch)="muonError"];
+    // optional uint32 fwdError = 606 [(root_branch)="fwdError"];
+    // optional uint32 coreError = 607 [(root_branch)="coreError"];
+    
+    // optional bool streamDecision_Egamma = 700 [(root_branch)="streamDecision_Egamma"];
+    // optional bool streamDecision_Muons = 701 [(root_branch)="streamDecision_Muons"];
+    // optional bool streamDecision_JetTauEtmiss = 702 [(root_branch)="streamDecision_JetTauEtmiss"];
+    
+    // optional bool isSimulation = 800 [(root_branch)="isSimulation"];
+    // optional bool isCalibration = 801 [(root_branch)="isCalibration"];
+    // optional bool isTestBeam = 802 [(root_branch)="isTestBeam"];
+    
+    // optional bool L1_MBTS_1 = 900 [(root_branch)="L1_MBTS_1"];
+    // optional bool L1_MBTS_1_1 = 901 [(root_branch)="L1_MBTS_1_1"];
+    // optional bool L1_MBTS_1_1_UNPAIRED_ISO = 902 [(root_branch)="L1_MBTS_1_1_UNPAIRED_ISO"];
+    // optional bool L1_MBTS_2 = 903 [(root_branch)="L1_MBTS_2"];
+    // optional bool L1_MBTS_2_BGRP7 = 904 [(root_branch)="L1_MBTS_2_BGRP7"];
+    // optional bool L1_MBTS_2_UNPAIRED_ISO = 905 [(root_branch)="L1_MBTS_2_UNPAIRED_ISO"];
+    // optional bool L1_MBTS_4_4 = 906 [(root_branch)="L1_MBTS_4_4"];
+    // optional bool L1_MBTS_4_4_EMPTY = 907 [(root_branch)="L1_MBTS_4_4_EMPTY"];
+    
+    // repeated Electron el = 1000 [(root_prefix)="el_"];
+    
+    // repeated Photon photons = 1100 [(root_prefix)="ph_"];
+    
+    // repeated Muon mu_muid = 1200 [(root_prefix)="mu_muid_"];
+    // repeated Muon mu_staco = 1201 [(root_prefix)="mu_staco_"];
+    // repeated Muon mu_calo = 1202 [(root_prefix)="mu_calo_"];
+    
+    // repeated Tau taus = 1300 [(root_prefix)="tau_"];
+    
+    // repeated Jet jet_antikt4topoem = 1400 [(root_prefix)="jet_AntiKt4TopoEM_"];
+    // repeated Jet jet_antikt6topoem = 1401 [(root_prefix)="jet_AntiKt6TopoEM_"];
+    // repeated Jet jet_antikt4lctopo = 1402 [(root_prefix)="jet_AntiKt4LCTopo_"];
+    // repeated Jet jet_antikt6lctopo = 1403 [(root_prefix)="jet_AntiKt6LCTopo_"];
+    
+    // optional D3PDObject1 d3pdobject_1 = 1500 [(root_prefix)="top_"];
+    
+    // optional RefFinalMET met_reffinal = 1600 [(root_prefix)="MET_RefFinal_"];
+    // optional RefFinalMET met_cryo = 1601 [(root_prefix)="MET_Cryo_"];
+    // optional RefFinalMET met_refele = 1602 [(root_prefix)="MET_RefEle_"];
+    // optional RefFinalMET met_refjet = 1603 [(root_prefix)="MET_RefJet_"];
+    // optional RefFinalMET met_softjets = 1604 [(root_prefix)="MET_SoftJets_"];
+    // optional RefFinalMET met_refmuon = 1605 [(root_prefix)="MET_RefMuon_"];
+    // optional RefFinalMET met_refmuon_staco = 1606 [(root_prefix)="MET_RefMuon_Staco_"];
+    // optional RefFinalMET met_refmuon_muid = 1607 [(root_prefix)="MET_RefMuon_Muid_"];
+    // optional RefFinalMET met_refgamma = 1608 [(root_prefix)="MET_RefGamma_"];
+    // optional RefFinalMET met_reftau = 1609 [(root_prefix)="MET_RefTau_"];
+    // optional RefFinalMET met_cellout = 1610 [(root_prefix)="MET_CellOut_"];
+    // optional RefFinalMET met_track = 1611 [(root_prefix)="MET_Track_"];
+    // optional RefFinalMET met_reffinal_em = 1612 [(root_prefix)="MET_RefFinal_em_"];
+    // optional RefFinalMET met_refele_em = 1613 [(root_prefix)="MET_RefEle_em_"];
+    // optional RefFinalMET met_refjet_em = 1614 [(root_prefix)="MET_RefJet_em_"];
+    // optional RefFinalMET met_softjets_em = 1615 [(root_prefix)="MET_SoftJets_em_"];
+    // optional RefFinalMET met_refmuon_em = 1616 [(root_prefix)="MET_RefMuon_em_"];
+    // optional RefFinalMET met_refmuon_track_em = 1617 [(root_prefix)="MET_RefMuon_Track_em_"];
+    // optional RefFinalMET met_refgamma_em = 1618 [(root_prefix)="MET_RefGamma_em_"];
+    // optional RefFinalMET met_reftau_em = 1619 [(root_prefix)="MET_RefTau_em_"];
+    // optional RefFinalMET met_cellout_em = 1620 [(root_prefix)="MET_CellOut_em_"];
+    // optional RefFinalMET met_muon_isol_staco = 1621 [(root_prefix)="MET_Muon_Isol_Staco_"];
+    // optional RefFinalMET met_muon_nonisol_staco = 1622 [(root_prefix)="MET_Muon_NonIsol_Staco_"];
+    // optional RefFinalMET met_muon_total_staco = 1623 [(root_prefix)="MET_Muon_Total_Staco_"];
+    // optional RefFinalMET met_muon_isol_muid = 1624 [(root_prefix)="MET_Muon_Isol_Muid_"];
+    // optional RefFinalMET met_muon_nonisol_muid = 1625 [(root_prefix)="MET_Muon_NonIsol_Muid_"];
+    // optional RefFinalMET met_muon_total_muid = 1626 [(root_prefix)="MET_Muon_Total_Muid_"];
+    // optional RefFinalMET met_muonboy = 1627 [(root_prefix)="MET_MuonBoy_"];
+    // optional RefFinalMET met_cellout_eflow = 1628 [(root_prefix)="MET_CellOut_Eflow_"];
+    // optional RefFinalMET met_refmuon_track = 1629 [(root_prefix)="MET_RefMuon_Track_"];
+    // optional RefFinalMET met_refmuon_track_staco = 1630 [(root_prefix)="MET_RefMuon_Track_Staco_"];
+    // optional RefFinalMET met_refmuon_track_muid = 1631 [(root_prefix)="MET_RefMuon_Track_Muid_"];
+    // optional RefFinalMET met_cryocone = 1632 [(root_prefix)="MET_CryoCone_"];
+    // optional RefFinalMET met_final = 1633 [(root_prefix)="MET_Final_"];
+    // optional RefFinalMET met_muonboy_spectro = 1634 [(root_prefix)="MET_MuonBoy_Spectro_"];
+    // optional RefFinalMET met_muonboy_track = 1635 [(root_prefix)="MET_MuonBoy_Track_"];
+    // optional RefFinalMET met_muonmuid = 1636 [(root_prefix)="MET_MuonMuid_"];
+    // optional RefFinalMET met_muid = 1637 [(root_prefix)="MET_Muid_"];
+    // optional RefFinalMET met_muid_spectro = 1638 [(root_prefix)="MET_Muid_Spectro_"];
+    // optional RefFinalMET met_muid_track = 1639 [(root_prefix)="MET_Muid_Track_"];
+    // optional RefFinalMET met_muon = 1640 [(root_prefix)="MET_Muon_"];
+    // optional RefFinalMET met_topoobj = 1641 [(root_prefix)="MET_TopoObj_"];
+    // optional RefFinalMET met_lochadtopoobj = 1642 [(root_prefix)="MET_LocHadTopoObj_"];
+    // optional TopoMET met_topo = 1643 [(root_prefix)="MET_Topo_"];
+    // optional TopoMET met_corrtopo = 1644 [(root_prefix)="MET_CorrTopo_"];
+    // optional TopoMET met_lochadtopo = 1645 [(root_prefix)="MET_LocHadTopo_"];
+    // optional TopoMET met_calib = 1646 [(root_prefix)="MET_Calib_"];
+    // repeated MissingETComposition el_met = 1647 [(root_prefix)="el_MET_"];
+    // repeated MissingETComposition ph_met = 1648 [(root_prefix)="ph_MET_"];
+    // repeated MissingETComposition mu_staco_met = 1649 [(root_prefix)="mu_staco_MET_"];
+    // repeated MissingETComposition mu_muid_met = 1650 [(root_prefix)="mu_muid_MET_"];
+    // repeated MissingETComposition tau_met = 1651 [(root_prefix)="tau_MET_"];
+    // repeated MissingETComposition jet_antikt6lctopo_met = 1652 [(root_prefix)="jet_antikt6LCtopo_MET_"];
+    // optional JetsInfoMET jets_info_met = 1653 [(root_prefix)="METJetsInfo_"];
+    
+    // repeated Electron hr_el = 1700 [(root_prefix)="hr_el_"];
+    // repeated Muon hr_mu = 1701 [(root_prefix)="hr_mu_"];
+    // optional RefFinalMET hr_roughrecoil = 1702 [(root_prefix)="hr_roughRecoil_"];
+    // optional RefFinalMET hr_uecorrection = 1703 [(root_prefix)="hr_ueCorrection_"];
+    // optional RefFinalMET hr_corrrecoil = 1704 [(root_prefix)="hr_corrRecoil_"];
+    // optional RefFinalMET hr_met = 1705 [(root_prefix)="hr_MET_"];
+    // optional RefFinalMET hr_roughrecoil_track = 1706 [(root_prefix)="hr_roughRecoil_track_"];
+    // optional RefFinalMET hr_uecorrection_track = 1707 [(root_prefix)="hr_ueCorrection_track_"];
+    // optional RefFinalMET hr_corrrecoil_track = 1708 [(root_prefix)="hr_corrRecoil_track_"];
+    // optional RefFinalMET hr_met_track = 1709 [(root_prefix)="hr_MET_track_"];
+    // optional RefFinalMET hr_roughrecoil_clusnotrack = 1710 [(root_prefix)="hr_roughRecoil_clusNoTrack_"];
+    // optional RefFinalMET hr_uecorrection_clusnotrack = 1711 [(root_prefix)="hr_ueCorrection_clusNoTrack_"];
+    // optional RefFinalMET hr_corrrecoil_clusnotrack = 1712 [(root_prefix)="hr_corrRecoil_clusNoTrack_"];
+    // optional RefFinalMET hr_met_clusnotrack = 1713 [(root_prefix)="hr_MET_clusNoTrack_"];
+    // optional RefFinalMET hr_roughrecoil_eflow = 1714 [(root_prefix)="hr_roughRecoil_Eflow_"];
+    // optional RefFinalMET hr_uecorrection_eflow = 1715 [(root_prefix)="hr_ueCorrection_Eflow_"];
+    // optional RefFinalMET hr_corrrecoil_eflow = 1716 [(root_prefix)="hr_corrRecoil_Eflow_"];
+    // optional RefFinalMET hr_met_eflow = 1717 [(root_prefix)="hr_MET_Eflow_"];
+    
+    // repeated Cluster cl = 1800 [(root_prefix)="cl_"];
+    // repeated Cluster clpt10 = 1801 [(root_prefix)="clpt10_"];
+    // repeated Cluster emclpt10 = 1802 [(root_prefix)="emclpt10_"];
+    
+    // repeated TrackParticle track_particles = 1900 [(root_prefix)="trk_"];
+    // repeated Track tracks = 1901 [(root_prefix)="trkpt5_"];
+    
+    // repeated PrimaryVertex primary_vertices = 2000 [(root_prefix)="vxp_"];
+    
+    // repeated MBTS mbtses = 2100 [(root_prefix)="mb_"];
+    // optional MBTSTime mbtstime = 2101 [(root_prefix)="mbtime_"];
+    
+    // optional BeamSpot beam_spot = 2200 [(root_prefix)="beamSpot_"];
+    
+    // optional TrigDecision trig_decision = 2300 [(root_prefix)="trig_"];
+    // optional TrigDBKeys trig_dbkeys = 2301 [(root_prefix)="trig_DB_"];
+    
+    // repeated EmTauROI em_tau_rois = 2400 [(root_prefix)="trig_L1_emtau_"];
+    
+    // repeated TrigEMCluster trig_emclusters = 2500 [(root_prefix)="trig_L2_emcl_"];
+    // repeated TrigInDetTrack trig_in_det_tracks_idscan = 2501 [(root_prefix)="trig_L2_trk_idscan_eGamma_"];
+    // repeated TrigInDetTrack trig_in_det_tracks_sitrack = 2502 [(root_prefix)="trig_L2_trk_sitrack_eGamma_"];
+    // repeated TrigElectron trig_electrons = 2503 [(root_prefix)="trig_L2_el_"];
+    // repeated TrigPhoton trig_photons = 2504 [(root_prefix)="trig_L2_ph_"];
+    
+    // repeated Cluster clusters_emcl = 2600 [(root_prefix)="trig_EF_emcl_"];
+    // repeated Cluster clusters_emcl_slw = 2601 [(root_prefix)="trig_EF_emcl_slw_"];
+    
+    // repeated EFElectron efelectrons = 2700 [(root_prefix)="trig_EF_el_"];
+    // repeated EFPhoton efphotons = 2701 [(root_prefix)="trig_EF_ph_"];
+    
+    // repeated ChainEntry chain_entries = 2800 [(root_prefix)="trig_Nav_"];
+    
+    // repeated CombLinksD3PDObjectL2_e comb_links_d3pdobject_l2_es = 2900 [(root_prefix)="trig_RoI_L2_e_"];
+    // repeated CombLinksD3PDObjectEF_e comb_links_d3pdobject_ef_es = 2901 [(root_prefix)="trig_RoI_EF_e_"];
+    
+    // repeated MuonROI muon_rois = 3000 [(root_prefix)="trig_L1_mu_"];
+    // repeated MuonFeature muon_features = 3001 [(root_prefix)="trig_L2_muonfeature_"];
+    // repeated MuonFeatureDetails muon_feature_detailses = 3002 [(root_prefix)="trig_L2_muonfeaturedetails_"];
+    // repeated CombinedMuonFeature combined_muon_features = 3003 [(root_prefix)="trig_L2_combmuonfeature_"];
+    // repeated IsoMuonFeature iso_muon_features = 3004 [(root_prefix)="trig_L2_isomuonfeature_"];
+    // repeated TileMuFeature tile_mu_features = 3005 [(root_prefix)="trig_L2_tilemufeature_"];
+    // repeated TileTrackMuFeature tile_track_mu_features = 3006 [(root_prefix)="trig_L2_tiletrackmufeature_"];
+    // repeated TrigMuonEFInfo trig_ef_trigmuonef = 3007 [(root_prefix)="trig_EF_trigmuonef_"];
+    // repeated TrigMuonEFInfo trig_ef_trigmugirl = 3008 [(root_prefix)="trig_EF_trigmugirl_"];
+    // repeated TrigInDetTrack trig_l2_sitrack_muon = 3009 [(root_prefix)="trig_L2_sitrack_muon_"];
+    // repeated TrigInDetTrack trig_l2_idscan_muon = 3010 [(root_prefix)="trig_L2_idscan_muon_"];
+    // repeated TrigInDetTrack trig_l2_sitrack_isomuon = 3011 [(root_prefix)="trig_L2_sitrack_isomuon_"];
+    // repeated TrigInDetTrack trig_l2_idscan_isomuon = 3012 [(root_prefix)="trig_L2_idscan_isomuon_"];
+    // repeated TrigRoiDesc trig_roi_descs = 3013 [(root_prefix)="trig_roidescriptor_forID_"];
+    
+    // repeated CombLinksD3PDObjectL2_mu comb_links_d3pdobject_l2_mus = 3100 [(root_prefix)="trig_RoI_L2_mu_"];
+    // repeated CombLinksD3PDObjectEF_mu comb_links_d3pdobject_ef_mus = 3101 [(root_prefix)="trig_RoI_EF_mu_"];
+    // repeated CombLinksD3PDObjectL2_TileMu comb_links_d3pdobject_l2_tile_mus = 3102 [(root_prefix)="trig_RoI_L2_TileMu_"];
+    // repeated CombLinksD3PDObjectEF_TileMu comb_links_d3pdobject_ef_tile_mus = 3103 [(root_prefix)="trig_RoI_EF_TileMu_"];
+    
+    // optional EnergySumROI energy_sum_roi = 3200 [(root_prefix)="trig_L1_esum_"];
+    
+    // optional TrigMET trig_l2_met = 3300 [(root_prefix)="trig_L2_met_"];
+    // optional TrigMET trig_ef_met = 3301 [(root_prefix)="trig_EF_met_"];
+}
+
