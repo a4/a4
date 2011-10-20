@@ -40,6 +40,14 @@ using a4::root::root_prefix;
 
 using namespace google;
 
+#include <set>
+static std::set<std::string> leaf_names;
+std::vector<std::string> get_list_of_leaves() { 
+    std::vector<std::string> res;
+    foreach(std::string s, leaf_names) res.push_back(s); 
+    return res;
+};
+
 template<typename SOURCE_TYPE, typename PROTOBUF_TYPE>
 void call_setter(typename Setter<PROTOBUF_TYPE>::ProtobufSetter setter,
     typename Setter<PROTOBUF_TYPE>::ProtobufGetter getter,  
@@ -325,7 +333,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
 
 /// Used to indicate that that it is not possible to copy this message.
 /// Gives an assertion failure if called.
-void null_copier(Message*) { throw a4::Fatal("null_coper called. This should never happen."); }
+void null_copier(Message*) { }; //throw a4::Fatal("null_coper called. This should never happen."); }
 
 
 const vector<const FieldDescriptor*> get_fields(const Descriptor* d) {
@@ -367,6 +375,7 @@ Copier make_repeated_submessage_factory(TTree* tree,
                       << " couldn't load ROOT branch " << leafname << std::endl;
             continue;
         }
+        leaf_names.insert(leafname);
         
         // Re-enable this branch
         br->ResetBit(kDoNotProcess);
@@ -413,7 +422,7 @@ Copier make_submessage_factory(TTree* tree,
                             : field->options().GetExtension(root_prefix));
             auto leafname = prefix + postfix;
             
-            std::cout << "building copier for " << leafname << std::endl;
+            //std::cout << "building copier for " << leafname << std::endl;
             
             TLeaf* leaf = tree->GetLeaf(leafname.c_str());
             if (!leaf)
@@ -421,6 +430,7 @@ Copier make_submessage_factory(TTree* tree,
                 std::cerr << "Branch specified in protobuf file but not in TTree: " << leafname << std::endl;
                 continue;
             }
+            leaf_names.insert(leafname);
             
             // Enable this branch
             TBranch* branch = tree->GetBranch(leafname.c_str());
@@ -479,6 +489,7 @@ RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc,
                 std::cerr << "Branch specified in protobuf file but not in TTree: " << leafname << std::endl;
                 continue;
             }
+            leaf_names.insert(leafname);
             
             // Enable this branch
             TBranch* branch = tree->GetBranch(leafname.c_str());

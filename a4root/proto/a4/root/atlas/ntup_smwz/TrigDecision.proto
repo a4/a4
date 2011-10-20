@@ -12,20 +12,16 @@ message TrigDecision {
     
     repeated int32 L2_passedRaw = 300 [(root_branch)="L2_passedRaw"];
     repeated int32 EF_passedRaw = 301 [(root_branch)="EF_passedRaw"];
+    optional bool L2_truncated = 302 [(root_branch)="L2_truncated"];
+    optional bool EF_truncated = 303 [(root_branch)="EF_truncated"];
+    repeated int32 L2_resurrected = 304 [(root_branch)="L2_resurrected"];
+    repeated int32 EF_resurrected = 305 [(root_branch)="EF_resurrected"];
+    repeated int32 L2_passedThrough = 306 [(root_branch)="L2_passedThrough"];
+    repeated int32 EF_passedThrough = 307 [(root_branch)="EF_passedThrough"];
+    repeated int32 L2_wasPrescaled = 308 [(root_branch)="L2_wasPrescaled"];
+    repeated int32 L2_wasResurrected = 309 [(root_branch)="L2_wasResurrected"];
+    repeated int32 EF_wasPrescaled = 310 [(root_branch)="EF_wasPrescaled"];
+    repeated int32 EF_wasResurrected = 311 [(root_branch)="EF_wasResurrected"];
     
-    optional bool L2_truncated = 400 [(root_branch)="L2_truncated"];
-    optional bool EF_truncated = 401 [(root_branch)="EF_truncated"];
-    repeated int32 L2_resurrected = 402 [(root_branch)="L2_resurrected"];
-    repeated int32 EF_resurrected = 403 [(root_branch)="EF_resurrected"];
-    
-    repeated int32 L2_passedThrough = 500 [(root_branch)="L2_passedThrough"];
-    repeated int32 EF_passedThrough = 501 [(root_branch)="EF_passedThrough"];
-    
-    repeated int32 L2_wasPrescaled = 600 [(root_branch)="L2_wasPrescaled"];
-    repeated int32 L2_wasResurrected = 601 [(root_branch)="L2_wasResurrected"];
-    repeated int32 EF_wasPrescaled = 602 [(root_branch)="EF_wasPrescaled"];
-    repeated int32 EF_wasResurrected = 603 [(root_branch)="EF_wasResurrected"];
-    
-    optional int32 bgCode = 700 [(root_branch)="bgCode"];
-    
+    optional int32 bgCode = 400 [(root_branch)="bgCode"];
 }

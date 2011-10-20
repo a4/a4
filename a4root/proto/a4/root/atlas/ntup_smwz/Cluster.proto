@@ -12,22 +12,16 @@ message Cluster {
     optional float firstEdens = 200 [(root_branch)="firstEdens"];
     
     optional float cellmaxfrac = 300 [(root_branch)="cellmaxfrac"];
+    optional float longitudinal = 301 [(root_branch)="longitudinal"];
+    optional float secondlambda = 302 [(root_branch)="secondlambda"];
+    optional float lateral = 303 [(root_branch)="lateral"];
+    optional float secondR = 304 [(root_branch)="secondR"];
+    optional float centerlambda = 305 [(root_branch)="centerlambda"];
     
-    optional float longitudinal = 400 [(root_branch)="longitudinal"];
+    optional float deltaTheta = 400 [(root_branch)="deltaTheta"];
+    optional float deltaPhi = 401 [(root_branch)="deltaPhi"];
     
-    optional float secondlambda = 500 [(root_branch)="secondlambda"];
+    optional float centermag = 500 [(root_branch)="centermag"];
     
-    optional float lateral = 600 [(root_branch)="lateral"];
-    
-    optional float secondR = 700 [(root_branch)="secondR"];
-    
-    optional float centerlambda = 800 [(root_branch)="centerlambda"];
-    
-    optional float deltaTheta = 900 [(root_branch)="deltaTheta"];
-    optional float deltaPhi = 901 [(root_branch)="deltaPhi"];
-    
-    optional float centermag = 1000 [(root_branch)="centermag"];
-    
-    optional float time = 1100 [(root_branch)="time"];
-    
+    optional float time = 600 [(root_branch)="time"];
 }

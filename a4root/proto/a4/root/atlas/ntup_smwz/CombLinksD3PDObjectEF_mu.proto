@@ -21,5 +21,4 @@ message CombLinksD3PDObjectEF_mu {
     repeated int32 TrigMuonEFInfoContainer_MuGirlStatus = 403 [(root_branch)="TrigMuonEFInfoContainer_MuGirlStatus"];
     repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EF = 404 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EF"];
     repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EFStatus = 405 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EFStatus"];
-    
 }

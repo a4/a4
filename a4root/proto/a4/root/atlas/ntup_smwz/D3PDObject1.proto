@@ -3,5 +3,4 @@ import "a4/root/RootExtension.proto";
 
 message D3PDObject1 {
     optional int32 hfor_type = 1 [(root_branch)="hfor_type"];
-    
 }

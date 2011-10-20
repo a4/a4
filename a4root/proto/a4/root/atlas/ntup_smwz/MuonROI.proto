@@ -24,5 +24,4 @@ message MuonROI {
     optional int32 charge = 700 [(root_branch)="charge"];
     
     optional int32 vetoed = 800 [(root_branch)="vetoed"];
-    
 }

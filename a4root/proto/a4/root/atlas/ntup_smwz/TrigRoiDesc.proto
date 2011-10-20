@@ -13,5 +13,4 @@ message TrigRoiDesc {
     
     optional float etaMinus = 300 [(root_branch)="etaMinus"];
     optional float etaPlus = 301 [(root_branch)="etaPlus"];
-    
 }
