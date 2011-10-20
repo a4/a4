@@ -3,6 +3,7 @@ export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:${prefix}/lib/pkgconfig
 export PROTOBUF_PROTOC=@PROTOBUF_PROTOC@
 
 if test "x@PROTOBUF_ROOT@" != "x"; then
+    export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:@PROTOBUF_ROOT@/lib/pkgconfig
     export PYTHONPATH=@PROTOBUF_ROOT@/python:$PYTHONPATH
     export PROTOBUF_RPATH="-Wl,-rpath @PROTOBUF_ROOT@/lib"
 fi
