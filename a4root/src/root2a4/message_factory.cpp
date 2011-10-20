@@ -333,7 +333,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
 
 /// Used to indicate that that it is not possible to copy this message.
 /// Gives an assertion failure if called.
-void null_copier(Message*) { throw a4::Fatal("null_coper called. This should never happen."); }
+void null_copier(Message*) { }; //throw a4::Fatal("null_coper called. This should never happen."); }
 
 
 const vector<const FieldDescriptor*> get_fields(const Descriptor* d) {
@@ -422,7 +422,7 @@ Copier make_submessage_factory(TTree* tree,
                             : field->options().GetExtension(root_prefix));
             auto leafname = prefix + postfix;
             
-            std::cout << "building copier for " << leafname << std::endl;
+            //std::cout << "building copier for " << leafname << std::endl;
             
             TLeaf* leaf = tree->GetLeaf(leafname.c_str());
             if (!leaf)
