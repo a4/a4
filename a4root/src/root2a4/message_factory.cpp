@@ -35,8 +35,6 @@ using google::protobuf::Reflection;
 #include "common.h"
 
 #include "a4/root/RootExtension.pb.h"
-using a4::root::root_branch;
-using a4::root::root_prefix;
 
 using namespace google;
 
