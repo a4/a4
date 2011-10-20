@@ -9,6 +9,9 @@ FILES="${1}/*.proto"
 FILES="$(echo $FILES | sed -r "s| ${1}/Event.proto||") ${1}/Event.proto"
 
 (
+echo "package ${1};"
+echo 'import "a4/root/RootExtension.proto";'
+
 for file in $FILES;
 do 
   echo Processing ${file} >&2

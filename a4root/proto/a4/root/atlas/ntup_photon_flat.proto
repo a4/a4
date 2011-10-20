@@ -1,3 +1,5 @@
+package ntup_photon;
+import "a4/root/RootExtension.proto";
 
 message BeamSpot {
     // optional float x = 1 [(root_branch)="x"];
