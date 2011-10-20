@@ -31,7 +31,7 @@ all: analysis
 # how to make protobuf objects
 $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: proto/%.proto
 	@mkdir -p $(PYDIR) $(CPPDIR)
-	${PROTOBUF_PROTOC} -I=proto -I/home/j/Johannes.Ebke/Software/protobuf-2.4.1/src --python_out $(PYDIR) --cpp_out $(CPPDIR) $^
+	${PROTOBUF_PROTOC} -I=proto --python_out $(PYDIR) --cpp_out $(CPPDIR) $^
 
 # how to make the python __init__.py
 $(PYDIR)/__init__.py: $(PROTOBUF_PY)
