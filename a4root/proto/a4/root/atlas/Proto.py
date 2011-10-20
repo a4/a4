@@ -141,13 +141,16 @@ class VariableBase(object):
     label, type, name, number, extra, comment = "optional", "unk", "unk", "#", "", ""
 
 TYPECODE_MAP = {
-    "I": "int32",
     "B": "int32",
+    "b": "uint32",
+    "S": "int32",
+    "s": "uint32",
+    "I": "int32",
     "i": "uint32",
     "F": "float",
     "D": "double",
-    "c": "string",
     "O": "bool",
+    "C": "string",
 }
 
 TYPE_MAP = {
