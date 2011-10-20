@@ -16,7 +16,7 @@ int main(int argc, char ** argv) {
     {
         A4Output a4o("test_io.a4", "Event");
 
-        shared<A4OutputStream> stream = a4o.get_stream();
+        shared<OutputStream> stream = a4o.get_stream();
 
         Event e;
         for(int i = 0; i < N; i++) {
@@ -30,7 +30,7 @@ int main(int argc, char ** argv) {
     {
         A4Input in;
         in.add_file("test_io.a4");
-        while (shared<A4InputStream> stream = in.get_stream()) {
+        while (shared<InputStream> stream = in.get_stream()) {
             int cnt = 0;
             while (A4Message msg = stream->next()) {
                 if (shared<Event> te = msg.as<Event>()) {
