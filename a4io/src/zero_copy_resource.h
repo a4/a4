@@ -10,6 +10,8 @@
 
 #include <a4/types.h>
 
+namespace google{ namespace protobuf{ namespace io{ class FileInputStream; };};};
+
 namespace a4{ namespace io{
 
     class ZeroCopyStreamResource : public google::protobuf::io::ZeroCopyInputStream {
@@ -32,7 +34,7 @@ namespace a4{ namespace io{
     };
 
     struct OpenFile {
-        OpenFile(const char * name, int oflag);
+        OpenFile(const char * name, int oflag, bool mmap=true);
         ~OpenFile();
 
         int no;
@@ -42,11 +44,11 @@ namespace a4{ namespace io{
     };
 
     /// Class that deals with the specifics of having a physical file on disk
-    class UnixFile : public ZeroCopyStreamResource {
+    class UnixFileMMap : public ZeroCopyStreamResource {
         public:
 
-            UnixFile(std::string name);
-            virtual ~UnixFile();
+            UnixFileMMap(std::string name);
+            virtual ~UnixFileMMap();
 
             bool open();
             bool close();
@@ -74,6 +76,29 @@ namespace a4{ namespace io{
             bool _error;
             bool _open;
     };
+
+    class UnixStream : public ZeroCopyStreamResource {
+        public:
+            UnixStream();
+            UnixStream(int file_descriptor, int block_size = -1);
+            bool Next(const void** data, int* size);
+            void BackUp(int count);
+            bool Skip(int count);
+            google::protobuf::int64 ByteCount() const;
+              
+        protected:
+            unique<google::protobuf::io::FileInputStream> _impl;
+
+    };
+
+    class UnixFile : public UnixStream {
+        public:
+            UnixFile(std::string filename, int block_size = -1);
+        protected:
+            unique<OpenFile> _file;
+    };
+    
+
 
     unique<ZeroCopyStreamResource> resource_from_url(std::string url);
 
