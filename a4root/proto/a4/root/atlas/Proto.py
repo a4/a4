@@ -284,10 +284,27 @@ class ProtoFile(object):
             if len(vs) <= 1:
                 # It's okay, we only have one name
                 continue
-            
-            for v in vs:
-                v.name = v.orig_name.lower().rstrip("_")
-        
+
+            # collision because there are different prefixes...
+            if len(set(v.orig_name for v in vs)) > 1:
+                for v in vs:
+                    v.name = v.orig_name.lower().rstrip("_")
+
+            for orig_name in set(v.orig_name for v in vs):
+                cols = [v for v in vs if v.orig_name == orig_name]
+                if len(cols) > 1:
+                    # real collision!
+                    def tup(s):
+                        return s.label, s.type, s.extra
+                    if len(set(map(tup, cols))) != 1:
+                        print "Incompatible variables in Class of the same name:"
+                        for c in cols:
+                            print "%s %s %s %s" % (s.label, s.type, orig_name, s.extra)
+                        raise RuntimeError("Incompatible variables in Class of the same name:")
+                    else:
+                        for c in cols[1:]:
+                            variables.remove(c)
+
         this_group = set()
         
         # Generate the text (body of the message) for these variables
@@ -346,7 +363,7 @@ def generate_proto(input_stream):
         is_container = False
         
     event = ProtoFile(Event)
-    files, file_map = [event], {'': event}
+    files, file_map, file_cls_map = [event], {'': event}, {}
     
     # TODO: Also need a mapping between classname (+ crosscheck)
         
@@ -379,8 +396,17 @@ def generate_proto(input_stream):
             file_map[prefix].extend(cls)
             cls.file = file_map[prefix]
             continue
+
+        if cls.name in file_cls_map:
+            # This shares a name with an existing object, so it extends the
+            # fields of that object
+            file_cls_map[cls.name].extend(cls)
+            cls.file = file_cls_map[cls.name]
+            event.append((prefix, cls))
+            continue
         
         cls.file = f = file_map[prefix] = ProtoFile(cls)
+        file_cls_map[cls.name] = f
         event.append((prefix, cls))
         files.append(f)
         
