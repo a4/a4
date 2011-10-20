@@ -208,6 +208,10 @@ int main(int argc, char ** argv) {
             throw a4::Fatal("Couldn't find an \"Event\" class in ", tree_type);
     }
     copy_tree(input, stream, &dynamic_factory, descriptor, event_count);
+
+    foreach(std::string s, get_list_of_leaves()) {
+        std::cout << "-" << s << std::endl;
+    }
 }
 
 

@@ -35,3 +35,5 @@ typedef std::vector<SubmessageSetter> SubmessageSetters;
 
 RootToMessageFactory make_message_factory(TTree*, const Descriptor*,
     const std::string&, MessageFactory*);
+
+std::vector<std::string> get_list_of_leaves();
