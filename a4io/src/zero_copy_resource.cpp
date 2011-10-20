@@ -1,4 +1,5 @@
 #include <sys/stat.h>
+#include <limits.h>
 #include <fcntl.h>
 
 #include "zero_copy_resource.h"
@@ -71,8 +72,12 @@ namespace a4{ namespace io{
         if (!_open && !open()) return false;
         if (_size == _position) return false;
         *data = (uint8_t*)_mmap + _position;
-        *size = _size - _position;
-        _position = _size;
+        if ((_size - _position) > INT_MAX) {
+            *size = INT_MAX;
+        } else {
+            *size = _size - _position;
+        }
+        _position += *size;
         return true;
     }
 
