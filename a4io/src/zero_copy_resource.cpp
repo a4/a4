@@ -149,7 +149,7 @@ namespace a4{ namespace io{
         struct stat buffer;
         if (stat(url.c_str(), &buffer) == -1) throw a4::Fatal("Could not open ", url);
 
-        // If it's a FIFO, use a non-seeking bufferunique<UnixFile>(new UnixFile(url));
+        // If it's a FIFO, use a non-seeking buffer
         if (S_ISFIFO(buffer.st_mode)) return unique<UnixFile>(new UnixFile(url));
         else return unique<UnixFileMMap>(new UnixFileMMap(url));
     }
