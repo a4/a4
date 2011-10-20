@@ -115,28 +115,30 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
 };
 
 class A2RConfig : public ConfigurationOf<A2RProcessor> {
+    public:
+        A2RConfig() : processor_count(0) {};
 
-    virtual ~A2RConfig() {
-        //foreach(string f, root_files) {}
-    };
+        virtual ~A2RConfig() {
+            //foreach(string f, root_files) {}
+        };
 
-    virtual po::options_description get_options() { 
-        po::options_description opt; 
-        opt.add_options()("root-file,R", po::value<string>(&filename), "ROOT output file");
-        return opt;
-    };
+        virtual po::options_description get_options() { 
+            po::options_description opt; 
+            opt.add_options()("root-file,R", po::value<string>(&filename), "ROOT output file");
+            return opt;
+        };
 
-    virtual void setup_processor(A2RProcessor &g) {
-        assert(processor_count++ == 0);
-        g.filename = filename;
-        //g.filename = str_cat(filename, "_", processor_count++);
-        root_files.push_back(g.filename);
-        g.f.reset(new TFile(filename.c_str(), "RECREATE"));
-    }
+        virtual void setup_processor(A2RProcessor &g) {
+            assert(processor_count++ == 0);
+            g.filename = filename;
+            //g.filename = str_cat(filename, "_", processor_count++);
+            root_files.push_back(g.filename);
+            g.f.reset(new TFile(filename.c_str(), "RECREATE"));
+        }
 
-    std::string filename;
-    std::vector<std::string> root_files;
-    int processor_count;
+        std::string filename;
+        std::vector<std::string> root_files;
+        int processor_count;
 };
 
 int main(int argc, const char * argv[]) {

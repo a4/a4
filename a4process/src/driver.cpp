@@ -44,7 +44,7 @@ SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) : configura
     assert(configuration);
 }
 
-void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Processor * p) {
+void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Processor * p, int limit) {
     // This is MY processor! (makes sure processor is deleted on function exit)
     // The argument to this function should be a move into a unique...
     unique<Processor> processor(p);
@@ -59,9 +59,9 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
 
     // Try as long as there are inputs
     A4Message current_metadata;
+    int cnt = 0;
     while (shared<InputStream> instream = self->in->get_stream()) {
         self->set_instream(p, instream);
-
         while (A4Message msg = instream->next()) {
             if (instream->new_metadata()) {
                 A4Message new_metadata = instream->current_metadata();
@@ -108,6 +108,11 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
                 p->process_new_metadata();
             }
             p->process_message(msg);
+            if (++cnt == limit) {
+                // Stream store to output
+                if (self->res) bs->to_stream(*resstream);
+                return;
+            }
         };
         if (instream->error()) {
             std::cerr << "stream error in thread " << boost::this_thread::get_id() << std::endl;
@@ -130,7 +135,7 @@ try
     // Verify that the version of the library that we linked against is
     // compatible with the version of the headers we compiled against
     //GOOGLE_PROTOBUF_VERIFY_VERSION;
-    int n_threads;
+    int n_threads, number;
     int hw_threads = hardware_concurrency();
     FileList inputs;
     po::options_description commandline_options;
@@ -146,6 +151,7 @@ try
         ("input,i", po::value<FileList>(&inputs), "input file(s)")
         ("output,o", po::value<string>(&output), "output file")
         ("results,r", po::value<string>(&results), "result file")
+        ("number,n", po::value<int>(&number)->default_value(-1), "maximum number of events to process (default: all)")
         ("per,p", po::value<string>(&metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
         ("config,c", po::value<string>(), (string("configuration file [default is '") + config_filename + "']").c_str());
 
@@ -198,6 +204,7 @@ try
 
     // DEBUG
     foreach(string & i, inputs) { cout << "inputs += " << i << endl; } 
+    if (number != -1) n_threads = 1;
     cout << "output = " << output << endl;
     cout << "results = " << results << endl;
     cout << "config_filename = " << config_filename << endl;
@@ -218,15 +225,18 @@ try
         }
     }
 
-    std::vector<boost::thread> threads;
-    for (int i = 0; i < n_threads; i++) {
+    if (n_threads > 1) {
+        std::vector<boost::thread> threads;
+        for (int i = 0; i < n_threads; i++) {
+            Processor * p = new_initialized_processor();
+            //threads.push_back(boost::thread(std::bind(&simple_thread, this, processors[i])));
+            threads.push_back(boost::thread(std::bind(&simple_thread, this, p, -1)));
+        };
+        foreach(boost::thread & t, threads) t.join();
+    } else {
         Processor * p = new_initialized_processor();
-        //threads.push_back(boost::thread(std::bind(&simple_thread, this, processors[i])));
-        threads.push_back(boost::thread(std::bind(&simple_thread, this, p)));
-    };
-
-    foreach(boost::thread & t, threads) t.join();
-
+        simple_thread(this, p, number);
+    }
     // Clean Up any memory allocated by libprotobuf
     //google::protobuf::ShutdownProtobufLibrary();
     return 0;
