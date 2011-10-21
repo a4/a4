@@ -44,7 +44,7 @@ SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) : configura
     assert(configuration);
 }
 
-void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Processor * p, int limit) {
+void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Processor * p, int limit, int & processed) {
     // This is MY processor! (makes sure processor is deleted on function exit)
     // The argument to this function should be a move into a unique...
     unique<Processor> processor(p);
@@ -111,6 +111,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
             if (++cnt == limit) {
                 // Stream store to output
                 if (self->res) bs->to_stream(*resstream);
+                processed = cnt;
                 return;
             }
         };
@@ -121,6 +122,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
     }
     // Stream store to output
     if (self->res) bs->to_stream(*resstream);
+    processed = cnt;
 }
 
 Processor * SimpleCommandLineDriver::new_initialized_processor() {
@@ -225,18 +227,22 @@ try
         }
     }
 
+    std::vector<int> processed(n_threads);
     if (n_threads > 1) {
         std::vector<boost::thread> threads;
         for (int i = 0; i < n_threads; i++) {
             Processor * p = new_initialized_processor();
             //threads.push_back(boost::thread(std::bind(&simple_thread, this, processors[i])));
-            threads.push_back(boost::thread(std::bind(&simple_thread, this, p, -1)));
+            threads.push_back(boost::thread(std::bind(&simple_thread, this, p, -1, boost::ref(processed[i]))));
         };
         foreach(boost::thread & t, threads) t.join();
     } else {
         Processor * p = new_initialized_processor();
-        simple_thread(this, p, number);
+        simple_thread(this, p, number, processed[0]);
     }
+    int processed_events = 0;
+    foreach(const int & i, processed) processed_events += i;
+    std::cout << "A4 processed " << processed_events << " events." << std::endl;
     // Clean Up any memory allocated by libprotobuf
     //google::protobuf::ShutdownProtobufLibrary();
     return 0;

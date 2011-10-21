@@ -15,7 +15,7 @@ namespace a4{
                 SimpleCommandLineDriver(Configuration *);
                 int main(int argc, const char * argv[]);
             protected:
-                static void simple_thread(SimpleCommandLineDriver* self, Processor * p, int limit=-1);
+                static void simple_thread(SimpleCommandLineDriver* self, Processor * p, int limit, int & processed);
                 Processor * new_initialized_processor();
                 Configuration * configuration;
                 std::string metakey;
