@@ -20,7 +20,7 @@ class MyProcessor : public ProcessorOf<Event> {
         S.T<H1>("test")("Test Title")(100,0,10,"Test X axis").fill(2.1);
         if (event.mu_staco_size() > 0) {
             ALorentzVector v = ALorentzVector::from(event.mu_staco(0));
-            kinematic_plots(S("leading_mu_"),v);
+            kinematic_plots(S("leading_muon/"),v);
             cf.passed("Muon Cut");
         }
         write(event);
