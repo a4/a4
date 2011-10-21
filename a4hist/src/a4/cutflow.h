@@ -41,14 +41,20 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
         void weight(const double & weight) { _current_weight = weight; };
 
         template <typename... Args>
+        inline void passed(const Args& ...args) { fillw(_current_weight, args...); }
+
+        template <typename... Args>
+        inline void passedw(const double & w, const Args& ...args) { fillw(w, args...); }
+
+        template <typename... Args>
         inline void fill(const Args& ...args) { fillw(_current_weight, args...); }
 
         template <typename... Args>
         void fillw(const double & w, const Args& ...args) {
             void * & res = _fast_access.lookup(args...);
             if (res != NULL) return fill_internal(uintptr_t(res)-1, w);
-            res = new_bin(str_cat(args...));
-            fill_internal(res-1, w);            
+            res = (void*)new_bin(str_cat(args...));
+            fill_internal(uintptr_t(res)-1, w);
         };
     private:
         void fill_internal(const uintptr_t & idx, const double & w);

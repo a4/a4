@@ -15,7 +15,9 @@ using std::vector;
 
 namespace a4{ namespace hist{
 
-Cutflow::Cutflow() : _current_weight(1.0) {};
+Cutflow::Cutflow() : _current_weight(1.0) {
+    _weights_squared.reset();
+};
 
 void Cutflow::constructor() {};
 
@@ -30,9 +32,7 @@ Cutflow::Cutflow(const Cutflow & h):
     }
 }
 
-Cutflow::~Cutflow()
-{
-}
+Cutflow::~Cutflow() {}
 
 Cutflow & Cutflow::__mul__(const double & w) {
     for(uint32_t bin = 0, bins = _bin.size(); bins > bin; ++bin)
@@ -65,7 +65,7 @@ uintptr_t Cutflow::new_bin(std::string name) {
     _cut_names.push_back(name);
     if (_weights_squared) (*_weights_squared).push_back(0);
     _bin.push_back(0);
-    return idx;
+    return idx + 1;
 }
 
 std::vector<Cutflow::CutNameCount> Cutflow::content() const {
