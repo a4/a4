@@ -87,19 +87,27 @@ class StatsCollector {
         double min, min1;
         double max, max1;
         
+        /// Collect one value
+        /// Values aren't counted if they are the minimum or maximum. This is to
+        /// avoid pulling the distribution towards any default values.
         void collect(const double& value) {
-            if (value != min && value != max) {
-                n++;
-                total += value;
-                sum_of_squares += value*value;
-            }
-            
+        
             // (or equal) to make sure don't follow second branch otherwise.
             if (value <= min) min = value;
             else if (value < min1) min1 = value;
             
             if (value >= max) max = value;
             else if (value > max1) max1 = value;
+            
+            // If min1/max1 aren't set, then we haven't seen many interesting 
+            // values. Therefore we should include this value in the count.            
+            if ((value != min && value != max) 
+                || min1 == numeric_limits<double>::max() 
+                || max1 == numeric_limits<double>::min()) {
+                n++;
+                total += value;
+                sum_of_squares += value*value;
+            }
         }
         
         double mean() const {
@@ -119,14 +127,7 @@ class StatsCollector {
 
 public:
 
-    std::map<std::string, Stats> stats;
-    
-    void collect(const std::string& field, const double& value) {
-        Stats& s = stats[field];
-        s.n++;
-        s.total += value;
-        s.sum_of_squares += value*value;
-    }
+    std::unordered_map<const FieldDescriptor*, Stats> stats;
     
     /// Collect values from one message
     void collect(const Message& message) {
@@ -145,7 +146,7 @@ public:
 #define HANDLE_TYPE(CPPTYPE, METHOD)                                           \
                     case FieldDescriptor::CPPTYPE_##CPPTYPE:                           \
                         if (reflection->HasField(message, field))                      \
-                            stats[field->full_name()].collect(reflection->GetRepeated##METHOD(message, field, j)); \
+                            stats[field].collect(reflection->GetRepeated##METHOD(message, field, j)); \
                         break;
                 
                     // Only handle numeric types
@@ -172,7 +173,7 @@ public:
 #define HANDLE_TYPE(CPPTYPE, METHOD)                                           \
                     case FieldDescriptor::CPPTYPE_##CPPTYPE:                           \
                         if (reflection->HasField(message, field))                      \
-                            stats[field->full_name()].collect(reflection->Get##METHOD(message, field)); \
+                            stats[field].collect(reflection->Get##METHOD(message, field)); \
                         break;
                 
                     // Only handle numeric types
@@ -197,7 +198,21 @@ public:
     }
     
     friend std::ostream& operator<< (std::ostream& o, StatsCollector const& sc) {
-        typedef std::pair<std::string, Stats> StatsItem;
+        typedef std::pair<const FieldDescriptor*, Stats> StatsItem;
+        
+        std::vector<StatsItem> sorted_stats;
+        
+        foreach (StatsItem i, sc.stats)
+            sorted_stats.push_back(i);            
+        
+        struct {
+            bool operator() (const StatsItem& lhs, const StatsItem& rhs) { 
+                return lhs.first < rhs.first;
+                // return lhs.first->full_name() < rhs.first->full_name();
+            }
+        } StatsItemOrdering;
+        
+        std::sort(sorted_stats.begin(), sorted_stats.end(), StatsItemOrdering);
         
         ColumnSizeMeasurer csm;
         
@@ -206,9 +221,9 @@ public:
             csm.print(o, "Variable", "n", "mean", "stddev", "min", "max", "min1", "max1");
             csm.newline(o);
         
-            foreach (StatsItem i, sc.stats) {
+            foreach (StatsItem i, sorted_stats) {
                 o << std::left; // left align first column
-                csm.print(o, i.first);
+                csm.print(o, i.first->full_name());
                 o << std::right;
                 i.second.print(o, csm);
                 csm.newline(o);
@@ -268,27 +283,27 @@ int main(int argc, char ** argv) {
     
     StatsCollector sc;
     
-    foreach (std::string filename, input_files) {
-        a4::io::A4Input in;
+    a4::io::A4Input in;
+    
+    foreach (std::string filename, input_files)
         in.add_file(filename);
         
-        shared<a4::io::InputStream> stream = in.get_stream();
-        // Stream in events we don't care about
-        size_t i = 0;
-        for (; i < event_index; i++)
-            if (!stream->next())
-                throw a4::Fatal("Ran out of events! There are only ", i, " on the file!");
-                
-        const size_t total = event_index + event_count;
-        for (; i < total; i++) {
-            a4::io::A4Message m = stream->next();
-            if (!m)
-                throw a4::Fatal("Ran out of events! There are only ", i, " on the file!");
-            if (!collect_stats)
-                dump_message(*m.message, variables);
-            else
-                sc.collect(*m.message);
-        }
+    shared<a4::io::InputStream> stream = in.get_stream();
+    // Stream in events we don't care about
+    size_t i = 0;
+    for (; i < event_index; i++)
+        if (!stream->next())
+            throw a4::Fatal("Ran out of events! There are only ", i, " on the file!");
+            
+    const size_t total = event_index + event_count;
+    for (; i < total; i++) {
+        a4::io::A4Message m = stream->next();
+        if (!m)
+            throw a4::Fatal("Ran out of events! There are only ", i, " on the file!");
+        if (!collect_stats)
+            dump_message(*m.message, variables);
+        else
+            sc.collect(*m.message);
     }
     
     if (collect_stats)
