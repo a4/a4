@@ -150,6 +150,7 @@ void Cutflow::to_pb(bool clear_pb) {
             }
         }
     }
+    pb->set_title(title);
 }
 
 void Cutflow::from_pb() {
@@ -159,6 +160,7 @@ void Cutflow::from_pb() {
         _weights_squared.reset(new vector<double>);
         foreach(double d, pb->weights_squared()) _weights_squared->push_back(d);
     }
+    title = pb->title();
 }
 
 Cutflow & Cutflow::operator+=(const Cutflow &other) {

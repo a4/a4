@@ -62,7 +62,7 @@ namespace a4{ namespace process{
     template <class This, class ProtoClass>
     class StorableAs : public Storable {
         public:
-            StorableAs<This, ProtoClass>() : _initialized(false) {
+            StorableAs<This, ProtoClass>() : _initializations_remaining(1) {
                 pb.reset(new ProtoClass());
             };
 
@@ -93,14 +93,14 @@ namespace a4{ namespace process{
             };
 
             virtual void construct_from(const google::protobuf::Message& msg) {
-                if(_initialized) throw a4::Fatal("Object already constructed!");
+                if(_initialized()) throw a4::Fatal("Object already constructed!");
                 pb.reset(new ProtoClass()); 
                 pb->CopyFrom(msg);
                 from_pb();
             };
 
             virtual void construct_from(shared<google::protobuf::Message> msg) {
-                if(_initialized) throw a4::Fatal("Object already constructed!");
+                if(_initialized()) throw a4::Fatal("Object already constructed!");
                 pb = dynamic_pointer_cast<ProtoClass>(msg);
                 from_pb();
             };
@@ -118,9 +118,9 @@ namespace a4{ namespace process{
             };
 
             template <typename... Args> This& operator()(const Args&... args) {
-                if (!_initialized) {
+                if (_initializations_remaining != 0) {
+                    _initializations_remaining--;
                     static_cast<This*>(this)->constructor(args...);
-                    _initialized = true;
                 }
                 return *static_cast<This*>(this);
             }
@@ -133,7 +133,8 @@ namespace a4{ namespace process{
 
             shared<ProtoClass> pb;
 
-            bool _initialized;
+            int _initializations_remaining;
+            bool _initialized() const { return _initializations_remaining == 0; };
             static bool _registered;
             virtual bool get_registered() { return _registered; } // forces _registered to be inited
     };

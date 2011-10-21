@@ -2,7 +2,7 @@ package a4.hist.pb;
 
 message Cutflow
 {
-    optional int32 CLASS_ID = 402;
+    optional string title = 1;
     repeated double counts_double = 2 [packed=true];
     repeated string counts_double_names = 3;
     repeated double weights_squared = 14 [packed=true];

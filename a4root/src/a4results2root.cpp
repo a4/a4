@@ -59,7 +59,8 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
         mkdirs(*f, name);
         path rpath(name);
 
-        TH1D * h1 = new TH1D(rpath.filename().c_str(), rpath.filename().c_str(), h.x().bins(), h.x().min(), h.x().max());
+        TH1D * h1 = new TH1D(name.c_str(), h.title.c_str(), h.x().bins(), h.x().min(), h.x().max());
+        h1->GetXaxis()->SetTitle(h.x().label.c_str());
         for(uint32_t bin = 0, bins = h.x().bins() + 2; bins > bin; ++bin)
             h1->SetBinContent(bin, *(h.data().get() + bin));
         if (h.weights_squared()) {
@@ -75,7 +76,9 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
         mkdirs(*f, name);
         path rpath(name);
 
-        TH2D * h2 = new TH2D(rpath.filename().c_str(), rpath.filename().c_str(), h.x().bins(), h.x().min(), h.x().max(),  h.y().bins(), h.y().min(), h.y().max());
+        TH2D * h2 = new TH2D(name.c_str(), h.title.c_str(), h.x().bins(), h.x().min(), h.x().max(),  h.y().bins(), h.y().min(), h.y().max());
+        h2->GetXaxis()->SetTitle(h.x().label.c_str());
+        h2->GetYaxis()->SetTitle(h.y().label.c_str());
         const int skip = h.x().bins() + 2;
         for(uint32_t bin = 0, bins = h.x().bins() + 2; bins > bin; ++bin)
             for(uint32_t ybin = 0, ybins = h.y().bins() + 2; ybins > ybin; ++ybin)
@@ -96,7 +99,7 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
         path rpath(name);
 
         std::vector<Cutflow::CutNameCount> content = h.content();
-        TH1D * cf = new TH1D(rpath.filename().c_str(), rpath.filename().c_str(), content.size(), 0, content.size());
+        TH1D * cf = new TH1D(name.c_str(), h.title.c_str(), content.size(), 0, content.size());
         cf->Sumw2();
         int i = 0;
         for (vector<Cutflow::CutNameCount>::const_iterator it = content.begin(); it != content.end(); it++) {

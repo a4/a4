@@ -9,6 +9,7 @@ namespace a4{ namespace hist{
 Axis::Axis() {};
 
 Axis::Axis(const uint32_t &bins, const double &min, const double &max):
+    label(""),
     _min(min),
     _max(max),
     _bins(bins),
@@ -17,6 +18,7 @@ Axis::Axis(const uint32_t &bins, const double &min, const double &max):
 };
 
 Axis::Axis(const Axis & a):
+    label(a.label),
     _min(a._min),
     _max(a._max),
     _bins(a._bins),
@@ -28,7 +30,8 @@ Axis::~Axis()
 {
 };
 
-Axis::Axis(pb::Axis & msg) {
+Axis::Axis(const pb::Axis & msg) {
+    label = msg.label();
     _min = msg.min();
     _max = msg.max();
     _bins = msg.bins();
@@ -40,6 +43,7 @@ unique<pb::Axis> Axis::get_proto() {
     axis->set_bins(_bins);
     axis->set_min(_min);
     axis->set_max(_max);
+    axis->set_label(label);
     return axis;
 };
 
@@ -66,7 +70,7 @@ uint32_t Axis::find_bin(const double &x) const
 //
 ostream &operator<<(ostream &out, const Axis &axis)
 {
-    return out << axis.bins() << " bins in range ["
+    return out << axis.label << " - " << axis.bins() << " bins in range ["
         << axis.min() << "," << axis.max() << "]";
 }
 

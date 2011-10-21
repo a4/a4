@@ -5,11 +5,12 @@ message Axis
     optional int32 bins = 1;
     optional double min = 2;
     optional double max = 3;
+    optional string label = 4;
 }
 
 message H1
 {
-    optional int32 CLASS_ID = 400;
+    optional string title = 1;
     repeated double data = 2 [packed=true];
     required Axis x = 3;
     repeated double weights_squared = 14 [packed=true];
@@ -18,7 +19,7 @@ message H1
 
 message H2
 {
-    optional int32 CLASS_ID = 401;
+    optional string title = 1;
     repeated double data = 2 [packed=true];
     required Axis x = 3;
     required Axis y = 4;

@@ -26,7 +26,8 @@ H1::H1() :
     _entries(0)
 {}
 
-H1::H1(const H1 & h): 
+H1::H1(const H1 & h):
+    title(h.title),
     _axis(h._axis),
     _entries(h._entries),
     _initialized(true)
@@ -62,18 +63,17 @@ H1 & H1::__mul__(const double & w) {
 // Implements StorableAs
 void H1::to_pb(bool blank_pb) {
     if (!blank_pb) pb.reset(new pb::H1());
-    pb->mutable_x()->set_bins(_axis.bins());
-    pb->mutable_x()->set_min(_axis.min());
-    pb->mutable_x()->set_max(_axis.max());
+    pb->mutable_x()->CopyFrom(*_axis.get_proto());
     const uint32_t total_bins = _axis.bins() + 2;
     for(uint32_t i = 0; i < total_bins; i++) pb->add_data(_data[i]);
     if (_weights_squared)
         for(uint32_t i = 0; i < total_bins; i++) pb->add_weights_squared(_weights_squared[i]);
     pb->set_entries(_entries);
+    pb->set_title(title);
 };
 
 void H1::from_pb() {
-    _axis = Axis(pb->x().bins(), pb->x().min(), pb->x().max());
+    _axis = Axis(pb->x());
     _entries = pb->entries();
     const uint32_t total_bins = _axis.bins() + 2;
     _data.reset(new double[total_bins]);
@@ -82,9 +82,10 @@ void H1::from_pb() {
         _weights_squared.reset(new double[total_bins]);
         for (int i = 0; i < total_bins; i++) _weights_squared[i] = pb->weights_squared(i);
     }
+    title = pb->title();
 };
 
- H1 & H1::operator+=(const H1 &other) {
+H1 & H1::operator+=(const H1 &other) {
     return this->__add__(other);
 };
 
@@ -122,6 +123,7 @@ void H1::print(std::ostream &out) const
         return;
     }
 
+    if (!title.empty()) out << "Title: " << title << endl;
     out << "X Axis: " << _axis << endl;
     out << "Entries: " << entries() << " Integral: " << integral() << endl;
 

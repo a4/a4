@@ -22,7 +22,15 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         virtual void from_pb();
         virtual H1 & operator+=(const H1 &other);
 
+        void constructor(const char * _title) {
+            _initializations_remaining++;
+            title = _title;
+        };
         void constructor(const uint32_t &bins, const double &min, const double &max);
+        void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label) {
+            constructor(bins, min, max);
+            _axis.label = _label;
+        };
 
         void fill(const double &, const double &weight = 1);
         H1 & __add__(const H1 &);
@@ -38,6 +46,8 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
 
         const shared_array<double> data() const {return _data;}; //TODO: only for copyin into TH1D
         const shared_array<double> weights_squared() const {return _weights_squared;}; //TODO: only for copyin into TH1D
+
+        std::string title;
 
     private:
         // Prevent copying by assignment
@@ -64,7 +74,14 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         virtual void from_pb();
         virtual H2 & operator+=(const H2 &other);
 
-        void constructor(const uint32_t &binsx, const double &minx, const double &maxx, const uint32_t &binsy, const double &miny, const double &maxy);
+        void constructor(const char * _title) {
+            _initializations_remaining++;
+            title = _title;
+        };
+        void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label);
+        void constructor(const uint32_t &bins, const double &min, const double &max) {
+            constructor(bins, min, max, "");
+        };
 
         void fill(const double &, const double &, const double &weight = 1);
         H2 & __add__(const H2 &);
@@ -81,6 +98,7 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         const shared_array<double> data() const {return _data;}; //TODO: only for copyin into TH2D
         const shared_array<double> weights_squared() const {return _weights_squared;}; //TODO: only for copyin into TH1D
 
+        std::string title;
 
     private:
         // Prevent copying by assignment

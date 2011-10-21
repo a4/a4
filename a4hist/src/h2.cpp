@@ -17,17 +17,25 @@ H2::H2() :
     _y_axis(0, 0, 0),
     _entries(0),
     _initialized(false)
-{}
+{
+    _initializations_remaining = 2;
+}
 
-void H2::constructor(const uint32_t &xbins, const double &xmin, const double &xmax, const uint32_t &ybins, const double &ymin, const double &ymax) {
-    _x_axis = Axis(xbins, xmin, xmax);
-    _y_axis = Axis(ybins, ymin, ymax);
-    _entries = 0;
-    const uint32_t total_bins = (xbins + 2)*(ybins + 2);
-    _data.reset(new double[total_bins]());
+void H2::constructor(const uint32_t &bins, const double &min, const double &max, const char * _label) {
+    if (_initializations_remaining == 1) {
+        _x_axis = Axis(bins, min, max);
+        _x_axis.label = _label;
+    } else {
+        _y_axis = Axis(bins, min, max);
+        _y_axis.label = _label;
+        _entries = 0;
+        const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
+        _data.reset(new double[total_bins]());
+    }
 }
 
 H2::H2(const H2 & h): 
+    title(h.title),
     _x_axis(h._x_axis),
     _y_axis(h._y_axis),
     _entries(h._entries),
@@ -63,22 +71,19 @@ H2 & H2::__mul__(const double & w) {
 // Implements StorableAs
 void H2::to_pb(bool blank_pb) {
     if (!blank_pb) pb.reset(new pb::H2());
-    pb->mutable_x()->set_bins(_x_axis.bins());
-    pb->mutable_x()->set_min(_x_axis.min());
-    pb->mutable_x()->set_max(_x_axis.max());
-    pb->mutable_y()->set_bins(_y_axis.bins());
-    pb->mutable_y()->set_min(_y_axis.min());
-    pb->mutable_y()->set_max(_y_axis.max());
+    pb->mutable_x()->CopyFrom(*_x_axis.get_proto());
+    pb->mutable_y()->CopyFrom(*_y_axis.get_proto());
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     for(uint32_t i = 0; i < total_bins; i++) pb->add_data(_data[i]);
     if (_weights_squared)
         for(uint32_t i = 0; i < total_bins; i++) pb->add_weights_squared(_weights_squared[i]);
     pb->set_entries(_entries);
+    pb->set_title(title);
 };
 
 void H2::from_pb() {
-    _x_axis = Axis(pb->x().bins(), pb->x().min(), pb->x().max());
-    _y_axis = Axis(pb->y().bins(), pb->y().min(), pb->y().max());
+    _x_axis = Axis(pb->x());
+    _y_axis = Axis(pb->y());
     _entries = pb->entries();
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     _data.reset(new double[total_bins]);
@@ -87,6 +92,7 @@ void H2::from_pb() {
         _weights_squared.reset(new double[total_bins]);
         for (int i = 0; i < total_bins; i++) _weights_squared[i] = pb->weights_squared(i);
     }
+    title = pb->title();
 };
 
 H2 & H2::operator+=(const H2 &other) {
@@ -132,6 +138,7 @@ void H2::print(std::ostream &out) const
         return;
     }
 
+    if (!title.empty()) out << "Title: " << title << endl;
     out << "X Axis: " << _x_axis << endl;
     out << "Y Axis: " << _y_axis << endl;
     out << "Entries: " << entries() << " Integral: " << integral() << endl;
