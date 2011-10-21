@@ -3,6 +3,7 @@ using std::numeric_limits;
 #include <utility>
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <map>
 
 #include <boost/program_options.hpp>
@@ -20,29 +21,42 @@ using google::protobuf::Reflection;
 #include <a4/message.h>
 
 class StatsCollector {
-    class ColumnSizeMeasurer {
+    class ColumnSizeMeasurer : public std::ostream {
     public:
+        ColumnSizeMeasurer() : current_index(0), measuring(true) {}
+    
         std::vector<int> lengths;
         size_t current_index;
+        bool measuring;
         
+        void print(std::ostream& out) {}
         
-        template<typename Streamable>
-        friend ColumnSizeMeasurer& operator<< (ColumnSizeMeasurer& o, Streamable const& s) {
-            std::stringstream stream;
-            stream << s;
-            const int this_length = stream.tellp();
-            if (o.current_index > o.lengths.size())
-                o.lengths.push_back(this_length);
-            else {
-                if (o.lengths[o.current_index] < this_length)
-                    o.lengths[o.current_index] = this_length;
-            }
-            o.current_index++;
-            return o;
+        template<typename T, class... Args>
+        void print(std::ostream& out, const T& value, const Args& ...args) {
+            if (measuring) {
+            
+                std::stringstream stream;
+                stream << std::fixed << value;
+                const int this_length = stream.tellp();
+                
+                if (current_index >= lengths.size())
+                    lengths.push_back(this_length);
+                else {
+                    if (lengths.at(current_index) < this_length)
+                        lengths.at(current_index) = this_length;
+                }
+                
+            } else
+                out << std::setw(lengths.at(current_index)) << std::fixed << value << " ";
+            
+            current_index++;
+            print(out, args...);
         }
         
-        void newline() {
+        void newline(std::ostream& out) {
             current_index = 0;
+            if (!measuring)
+                out << std::endl;
         }
     };
 
@@ -62,24 +76,32 @@ class StatsCollector {
         double max, max1;
         
         void collect(const double& value) {
-            n++;
-            total += value;
-            sum_of_squares += value*value;
+            if (value != min && value != max) {
+                n++;
+                total += value;
+                sum_of_squares += value*value;
+            }
             
-            if (value < min) min = value;
+            // (or equal) to make sure don't follow second branch otherwise.
+            if (value <= min) min = value;
             else if (value < min1) min1 = value;
             
-            if (value > max) max = value;
+            if (value >= max) max = value;
             else if (value > max1) max1 = value;
         }
         
-        friend std::ostream& operator<< (std::ostream& o, Stats const& s) {
-            o << " " << s.n
-              << " " << s.total
-              << " " << s.sum_of_squares
-              << " " << s.min << " " << s.min
-              << " " << s.max << " " << s.max;
-            return o;
+        double mean() const {
+            return total / n;
+        }
+        
+        double stddev() const {
+            return sqrt((sum_of_squares - (mean()*mean())) / n);
+        }
+        
+        void print(std::ostream& out, ColumnSizeMeasurer& csm) {
+            csm.print(out, n, mean(), stddev(), min, max, 
+                      (min1 == numeric_limits<double>::max() ? min : min1), 
+                      (max1 == numeric_limits<double>::min() ? max : max1));
         }
     };
 
@@ -162,19 +184,26 @@ public:
     }
     
     friend std::ostream& operator<< (std::ostream& o, StatsCollector const& sc) {
-        typedef std::pair<std::string, Stats> p;
+        typedef std::pair<std::string, Stats> StatsItem;
         
         ColumnSizeMeasurer csm;
         
-        foreach (const p i, sc.stats)
-            (csm << i.first << i.second).newline();
+        // Do two iterations, one to measure, other to print.
+        for (int i = 0; i < 2; i++) {
+            csm.print(o, "Variable", "n", "mean", "stddev", "min", "max", "min1", "max1");
+            csm.newline(o);
         
-        foreach (const int& i, csm.lengths)
-            o << i << " ";
-        o << std::endl;
-                
-        foreach (const p i, sc.stats)
-            o << i.first << i.second << std::endl;
+            foreach (StatsItem i, sc.stats) {
+                o << std::left; // left align first column
+                csm.print(o, i.first);
+                o << std::right;
+                i.second.print(o, csm);
+                csm.newline(o);
+            }
+        
+            csm.measuring = false;
+        }
+        
         return o;
     }
 };
