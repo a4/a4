@@ -145,8 +145,7 @@ public:
                     switch (field->cpp_type()) {
 #define HANDLE_TYPE(CPPTYPE, METHOD)                                           \
                     case FieldDescriptor::CPPTYPE_##CPPTYPE:                           \
-                        if (reflection->HasField(message, field))                      \
-                            stats[field].collect(reflection->GetRepeated##METHOD(message, field, j)); \
+                        stats[field].collect(reflection->GetRepeated##METHOD(message, field, j)); \
                         break;
                 
                     // Only handle numeric types
