@@ -16,6 +16,11 @@ struct ALorentzVector
     ALorentzVector(const double &p1, const double &p2, const double &p3, const double &E): px(p1), py(p2), pz(p3), E(E) {};
     ALorentzVector(const ALorentzVector& p): px(p.px), py(p.py), pz(p.pz), E(p.E) {};
 
+    template<typename V>
+    static ALorentzVector from(const V&v) {
+       return ALorentzVector(v.px(), v.py(), v.pz(), v.e());
+    }
+
     double p()   const {return sqrt(px*px + py*py + pz*pz);}
     double p2()  const {return px*px + py*py + pz*pz;}
     double pt()  const {return sqrt(px*px + py*py);}
