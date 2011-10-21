@@ -1,10 +1,16 @@
+#include <algorithm>
+
 #include <limits>
 using std::numeric_limits;
+
 #include <utility>
 #include <string>
+
 #include <iostream>
 #include <iomanip>
+
 #include <map>
+#include <unordered_map>
 
 #include <boost/program_options.hpp>
 
@@ -20,8 +26,13 @@ using google::protobuf::Reflection;
 #include <a4/input.h>
 #include <a4/message.h>
 
+/// Collect statistics about variables
 class StatsCollector {
-    class ColumnSizeMeasurer : public std::ostream {
+
+    /// A class to measure the largest column width and then print an aligned
+    /// table. Two passes need to be made over the data, one to measure,
+    /// another to print
+    class ColumnSizeMeasurer {
     public:
         ColumnSizeMeasurer() : current_index(0), measuring(true) {}
     
@@ -59,7 +70,8 @@ class StatsCollector {
                 out << std::endl;
         }
     };
-
+    
+    /// Collect stats about one variable
     class Stats {
     public:
         Stats() :
@@ -116,6 +128,7 @@ public:
         s.sum_of_squares += value*value;
     }
     
+    /// Collect values from one message
     void collect(const Message& message) {
         const Reflection* reflection = message.GetReflection();
         
