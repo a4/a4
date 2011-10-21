@@ -242,7 +242,7 @@ try
     }
     int processed_events = 0;
     foreach(const int & i, processed) processed_events += i;
-    std::cout << "A4 processed " << processed_events << " events." << std::endl;
+    std::cout << "A4 processed " << processed_events << " objects." << std::endl;
     // Clean Up any memory allocated by libprotobuf
     //google::protobuf::ShutdownProtobufLibrary();
     return 0;
