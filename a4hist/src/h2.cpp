@@ -15,18 +15,17 @@ using namespace std;
 H2::H2() :
     _x_axis(0, 0, 0),
     _y_axis(0, 0, 0),
-    _entries(0),
-    _initialized(false)
+    _entries(0)
 {
     _initializations_remaining = 2;
 }
 
 void H2::constructor(const uint32_t &bins, const double &min, const double &max, const char * _label) {
     if (_initializations_remaining == 1) {
-        _x_axis = Axis(bins, min, max);
+        _x_axis = SimpleAxis(bins, min, max);
         _x_axis.label = _label;
     } else {
-        _y_axis = Axis(bins, min, max);
+        _y_axis = SimpleAxis(bins, min, max);
         _y_axis.label = _label;
         _entries = 0;
         const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
@@ -38,8 +37,7 @@ H2::H2(const H2 & h):
     title(h.title),
     _x_axis(h._x_axis),
     _y_axis(h._y_axis),
-    _entries(h._entries),
-    _initialized(true)
+    _entries(h._entries)
 {
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     _data.reset(new double[total_bins]);
@@ -48,6 +46,7 @@ H2::H2(const H2 & h):
         _weights_squared.reset(new double[total_bins]);
         memcpy(_weights_squared.get(), h._weights_squared.get(), total_bins * sizeof(double));
     }
+    _initializations_remaining = 0;
 }
 
 H2::~H2()
@@ -82,8 +81,8 @@ void H2::to_pb(bool blank_pb) {
 };
 
 void H2::from_pb() {
-    _x_axis = Axis(pb->x());
-    _y_axis = Axis(pb->y());
+    _x_axis = SimpleAxis(pb->x());
+    _y_axis = SimpleAxis(pb->y());
     _entries = pb->entries();
     const uint32_t total_bins = (_x_axis.bins() + 2)*(_y_axis.bins() + 2);
     _data.reset(new double[total_bins]);

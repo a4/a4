@@ -40,7 +40,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         uint64_t bins() const {return _axis.bins();};
         double integral() const;
 
-        const Axis & x() const {return _axis;};
+        const SimpleAxis & x() const {return _axis;};
 
         void print(std::ostream &) const;
 
@@ -53,7 +53,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         // Prevent copying by assignment
         H1 &operator =(const H1 &);
 
-        Axis _axis;
+        SimpleAxis _axis;
         shared_array<double> _data;
         shared_array<double> _weights_squared;
         uint64_t _entries;
@@ -89,8 +89,8 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         uint64_t entries() const {return _entries;};
         double integral() const;
 
-        const Axis & x() const {return _x_axis;};
-        const Axis & y() const {return _y_axis;};
+        const SimpleAxis & x() const {return _x_axis;};
+        const SimpleAxis & y() const {return _y_axis;};
 
         void print(std::ostream &) const;
 
@@ -103,8 +103,8 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         // Prevent copying by assignment
         H2 &operator =(const H2 &);
 
-        Axis _x_axis;
-        Axis _y_axis;
+        SimpleAxis _x_axis;
+        SimpleAxis _y_axis;
         shared_array<double> _data;
         shared_array<double> _weights_squared;
         uint64_t _entries;

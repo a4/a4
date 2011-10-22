@@ -15,7 +15,7 @@ namespace a4{ namespace hist{
 using namespace std;
 
 void H1::constructor(const uint32_t &bins, const double &min, const double &max) {
-    _axis = Axis(bins, min, max);
+    _axis = SimpleAxis(bins, min, max);
     _entries = 0;
     const uint32_t total_bins = bins + 2;
     _data.reset(new double[total_bins]());
@@ -29,8 +29,7 @@ H1::H1() :
 H1::H1(const H1 & h):
     title(h.title),
     _axis(h._axis),
-    _entries(h._entries),
-    _initialized(true)
+    _entries(h._entries)
 {
     const uint32_t total_bins = h.bins() + 2;
     _data.reset(new double[total_bins]);
@@ -39,6 +38,7 @@ H1::H1(const H1 & h):
         _weights_squared.reset(new double[total_bins]);
         memcpy(_weights_squared.get(), h._weights_squared.get(), total_bins * sizeof(double));
     }
+    _initializations_remaining = 0;
 }
 
 H1::~H1()
@@ -73,7 +73,7 @@ void H1::to_pb(bool blank_pb) {
 };
 
 void H1::from_pb() {
-    _axis = Axis(pb->x());
+    _axis = SimpleAxis(pb->x());
     _entries = pb->entries();
     const uint32_t total_bins = _axis.bins() + 2;
     _data.reset(new double[total_bins]);

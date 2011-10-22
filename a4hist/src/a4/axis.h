@@ -5,17 +5,17 @@
 
 namespace a4{ namespace hist{
 
-namespace pb{class Axis;};
+namespace pb{class SimpleAxis;};
 
-class Axis {
+class SimpleAxis {
     public:
-        Axis();
-        Axis(const uint32_t &bins, const double &min, const double &max);
-        Axis(const Axis &);
-        Axis(const pb::Axis &);
-        ~Axis();
+        SimpleAxis();
+        SimpleAxis(const uint32_t &bins, const double &min, const double &max);
+        SimpleAxis(const SimpleAxis &);
+        SimpleAxis(const pb::SimpleAxis &);
+        ~SimpleAxis();
 
-        unique<pb::Axis> get_proto();
+        unique<pb::SimpleAxis> get_proto();
 
         double min() const {return _min;};
         double max() const {return _max;};
@@ -33,7 +33,7 @@ class Axis {
 
 };
 
-std::ostream &operator<<(std::ostream &, const Axis &);
+std::ostream &operator<<(std::ostream &, const SimpleAxis &);
 
 };};
 

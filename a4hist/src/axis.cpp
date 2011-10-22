@@ -6,9 +6,9 @@
 using namespace std;
 namespace a4{ namespace hist{
 
-Axis::Axis() {};
+SimpleAxis::SimpleAxis() {};
 
-Axis::Axis(const uint32_t &bins, const double &min, const double &max):
+SimpleAxis::SimpleAxis(const uint32_t &bins, const double &min, const double &max):
     label(""),
     _min(min),
     _max(max),
@@ -17,7 +17,7 @@ Axis::Axis(const uint32_t &bins, const double &min, const double &max):
 {   
 };
 
-Axis::Axis(const Axis & a):
+SimpleAxis::SimpleAxis(const SimpleAxis & a):
     label(a.label),
     _min(a._min),
     _max(a._max),
@@ -26,11 +26,11 @@ Axis::Axis(const Axis & a):
 {
 }
 
-Axis::~Axis() 
+SimpleAxis::~SimpleAxis() 
 {
 };
 
-Axis::Axis(const pb::Axis & msg) {
+SimpleAxis::SimpleAxis(const pb::SimpleAxis & msg) {
     label = msg.label();
     _min = msg.min();
     _max = msg.max();
@@ -38,8 +38,8 @@ Axis::Axis(const pb::Axis & msg) {
     _delta = _bins == 0 ? 0 : (_max - _min)/_bins;
 };
 
-unique<pb::Axis> Axis::get_proto() {
-    unique<pb::Axis> axis(new pb::Axis);
+unique<pb::SimpleAxis> SimpleAxis::get_proto() {
+    unique<pb::SimpleAxis> axis(new pb::SimpleAxis);
     axis->set_bins(_bins);
     axis->set_min(_min);
     axis->set_max(_max);
@@ -47,12 +47,12 @@ unique<pb::Axis> Axis::get_proto() {
     return axis;
 };
 
-bool Axis::sane() const
+bool SimpleAxis::sane() const
 {
     return (_bins > 0 && _min <= _max);
 }
 
-uint32_t Axis::find_bin(const double &x) const
+uint32_t SimpleAxis::find_bin(const double &x) const
 {
     if (!sane())
         return 0;
@@ -68,7 +68,7 @@ uint32_t Axis::find_bin(const double &x) const
 
 // Helpers
 //
-ostream &operator<<(ostream &out, const Axis &axis)
+ostream &operator<<(ostream &out, const SimpleAxis &axis)
 {
     return out << axis.label << " - " << axis.bins() << " bins in range ["
         << axis.min() << "," << axis.max() << "]";
