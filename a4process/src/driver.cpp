@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 #include <boost/chrono.hpp>
-using boost::chrono;
+namespace chrono = boost::chrono;
 typedef chrono::duration<double> duration;
 
 #include <boost/thread.hpp>
@@ -44,17 +44,21 @@ int hardware_concurrency() {
 
 namespace a4{ namespace process{
 
-struct ProcessStats {
+class ProcessStats {
+public:
     size_t events, bytes;
     duration cputime;
+    
+    ProcessStats() : events(0), bytes(0), cputime(0) {}
     
     ProcessStats& operator+=(const ProcessStats& rhs) {
         events += rhs.events;
         bytes += rhs.bytes;
         cputime += rhs.cputime;
+        return *this;
     }
-}
-
+};
+        
 SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) : configuration(cfg) {
     assert(configuration);
 }
@@ -74,7 +78,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     self->set_backstore(p, bs);
     self->set_store_prefix(p);
     
-    boost::chrono::thread_clock::time_point start = boost::chrono::thread_clock::now()
+    boost::chrono::thread_clock::time_point start = boost::chrono::thread_clock::now();
 
     // Try as long as there are inputs
     A4Message current_metadata;
@@ -258,7 +262,7 @@ try
         }
     }
 
-    std::vector<ProcessedStats> stats(n_threads);
+    std::vector<ProcessStats> stats(n_threads);
     if (n_threads > 1) {
         std::vector<boost::thread> threads;
         for (int i = 0; i < n_threads; i++) {
@@ -272,14 +276,16 @@ try
         simple_thread(this, p, number, stats[0]);
     }
     
-    ProcessedStats total;
-    foreach(const ProcessedStats& s, stats) 
+    ProcessStats total;
+    foreach(const ProcessStats& s, stats) 
         total += s;
     
     chrono::duration<double> walltime = chrono::steady_clock::now() - start;
     
     std::cout << "A4 processed " << total.events << " objects "
-              << "in " << walltime << " seconds." << std::endl;
+              << "in " << walltime.count() << " seconds. (" << (total.events / walltime.count()) << "Hz)" << std::endl;
+
+    std::cout << "CPU time: " << total.cputime << " (" << (total.events / total.cputime.count()) << "Hz)" << std::endl;
     
     // Clean Up any memory allocated by libprotobuf
     //google::protobuf::ShutdownProtobufLibrary();
