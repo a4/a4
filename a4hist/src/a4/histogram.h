@@ -57,7 +57,6 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         shared_array<double> _data;
         shared_array<double> _weights_squared;
         uint64_t _entries;
-        bool _initialized;
 };
 
 std::ostream &operator<<(std::ostream &, const H1 &);
@@ -109,7 +108,6 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         shared_array<double> _data;
         shared_array<double> _weights_squared;
         uint64_t _entries;
-        bool _initialized;
 };
 
 std::ostream &operator<<(std::ostream &, const H2 &);
