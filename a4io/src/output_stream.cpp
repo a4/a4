@@ -120,6 +120,7 @@ bool OutputStream::close() {
 
 uint64_t OutputStream::get_bytes_written() {
     assert(!_compressed_out);
+    assert(_raw_out);
     _coded_out.reset();
     uint64_t size = _raw_out->ByteCount();
     _coded_out.reset(new CodedOutputStream(_raw_out.get()));

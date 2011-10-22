@@ -1,5 +1,3 @@
-package a4.root;
-
 import "google/protobuf/descriptor.proto";
 
 extend google.protobuf.FieldOptions {
