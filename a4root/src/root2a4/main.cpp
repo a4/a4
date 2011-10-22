@@ -52,6 +52,7 @@ public:
     Bool_t Notify() 
     { 
         assert(_descriptor);
+        // TODO(pwaller): Metadata!
         //std::cout << "Notify start" << std::endl;
         (*_factory) = make_message_factory(&_tree, _descriptor, "", _dynamic_factory);
         //std::cout << "Notify end" << std::endl;
@@ -167,6 +168,9 @@ int main(int argc, char ** argv) {
     std::string ctype; int level;
     ss >> ctype >> level;
     stream->set_compression(ctype, level);
+    
+    // Needed so that the resulting data can be streamed
+    stream->set_forward_metadata();
 
     class ErrorCollector : public MultiFileErrorCollector {
         void AddError(const std::string& filename, int line, int column, const std::string& message) {
