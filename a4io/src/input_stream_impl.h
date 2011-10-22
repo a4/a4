@@ -31,6 +31,8 @@ namespace a4{ namespace io{
             bool error() {return _error;};
             /// True if the stream has finished without error.
             bool end() {return !_error && !_good;};
+            
+            size_t ByteCount() { return _raw_in->ByteCount(); }
 
             std::string str() { return _inputname; };
 

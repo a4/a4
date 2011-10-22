@@ -5,6 +5,10 @@
 #include <vector>
 #include <stdexcept>
 
+#include <boost/chrono.hpp>
+using boost::chrono;
+typedef chrono::duration<double> duration;
+
 #include <boost/thread.hpp>
 
 #include <a4/application.h>
@@ -40,14 +44,27 @@ int hardware_concurrency() {
 
 namespace a4{ namespace process{
 
+struct ProcessStats {
+    size_t events, bytes;
+    duration cputime;
+    
+    ProcessStats& operator+=(const ProcessStats& rhs) {
+        events += rhs.events;
+        bytes += rhs.bytes;
+        cputime += rhs.cputime;
+    }
+}
+
 SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) : configuration(cfg) {
     assert(configuration);
 }
 
-void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Processor * p, int limit, int & processed) {
+void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, 
+    Processor* p, int limit, ProcessStats& stats) {
     // This is MY processor! (makes sure processor is deleted on function exit)
     // The argument to this function should be a move into a unique...
     unique<Processor> processor(p);
+    
     // It is safe to get these, even if they are not used.
     // The ownership of these is shared with A4Input/Output.
     shared<OutputStream> outstream, resstream;
@@ -56,6 +73,8 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
     if (self->res) resstream = self->res->get_stream();
     self->set_backstore(p, bs);
     self->set_store_prefix(p);
+    
+    boost::chrono::thread_clock::time_point start = boost::chrono::thread_clock::now()
 
     // Try as long as there are inputs
     A4Message current_metadata;
@@ -108,13 +127,20 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
                 p->process_new_metadata();
             }
             p->process_message(msg);
+            
             if (++cnt == limit) {
                 // Stream store to output
                 if (self->res) bs->to_stream(*resstream);
-                processed = cnt;
+                stats.cputime = boost::chrono::thread_clock::now() - start;
+                stats.bytes += instream->ByteCount();
+                stats.events = cnt;
                 return;
             }
-        };
+        }
+        
+        // We're about to get a new stream, record how many this one had
+        stats.bytes += instream->ByteCount();
+        
         if (instream->error()) {
             std::cerr << "stream error in thread " << boost::this_thread::get_id() << std::endl;
             return;
@@ -122,7 +148,9 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, Proce
     }
     // Stream store to output
     if (self->res) bs->to_stream(*resstream);
-    processed = cnt;
+    
+    stats.cputime = boost::chrono::thread_clock::now() - start;
+    stats.events = cnt;
 }
 
 Processor * SimpleCommandLineDriver::new_initialized_processor() {
@@ -137,6 +165,9 @@ try
     // Verify that the version of the library that we linked against is
     // compatible with the version of the headers we compiled against
     //GOOGLE_PROTOBUF_VERIFY_VERSION;
+    
+    chrono::steady_clock::time_point start = chrono::steady_clock::now();
+    
     int n_threads, number;
     int hw_threads = hardware_concurrency();
     FileList inputs;
@@ -227,22 +258,29 @@ try
         }
     }
 
-    std::vector<int> processed(n_threads);
+    std::vector<ProcessedStats> stats(n_threads);
     if (n_threads > 1) {
         std::vector<boost::thread> threads;
         for (int i = 0; i < n_threads; i++) {
             Processor * p = new_initialized_processor();
             //threads.push_back(boost::thread(std::bind(&simple_thread, this, processors[i])));
-            threads.push_back(boost::thread(std::bind(&simple_thread, this, p, -1, boost::ref(processed[i]))));
+            threads.push_back(boost::thread(std::bind(&simple_thread, this, p, -1, boost::ref(stats[i]))));
         };
         foreach(boost::thread & t, threads) t.join();
     } else {
         Processor * p = new_initialized_processor();
-        simple_thread(this, p, number, processed[0]);
+        simple_thread(this, p, number, stats[0]);
     }
-    int processed_events = 0;
-    foreach(const int & i, processed) processed_events += i;
-    std::cout << "A4 processed " << processed_events << " objects." << std::endl;
+    
+    ProcessedStats total;
+    foreach(const ProcessedStats& s, stats) 
+        total += s;
+    
+    chrono::duration<double> walltime = chrono::steady_clock::now() - start;
+    
+    std::cout << "A4 processed " << total.events << " objects "
+              << "in " << walltime << " seconds." << std::endl;
+    
     // Clean Up any memory allocated by libprotobuf
     //google::protobuf::ShutdownProtobufLibrary();
     return 0;
