@@ -29,8 +29,9 @@ namespace a4{ namespace io{
             shared<OutputStream> get_stream();
         private:
             bool _closed;
-            std::string output_file;
-            std::string description;
+            bool _regular_file;
+            std::string _output_file;
+            std::string _description;
             std::vector<shared<OutputStream>> _out_streams;
             std::vector<std::string> _filenames;
             mutable boost::mutex _mutex;
