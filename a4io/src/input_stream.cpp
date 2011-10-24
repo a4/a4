@@ -23,6 +23,7 @@ namespace a4{ namespace io{
     bool InputStream::good() { return _impl->good(); }
     bool InputStream::error() { return _impl->error(); }
     bool InputStream::end() { return _impl->end(); }
+    size_t InputStream::ByteCount() { return _impl->ByteCount(); }
     std::string InputStream::str() { return _impl->str(); }
 
 };};

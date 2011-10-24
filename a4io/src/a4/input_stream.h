@@ -47,6 +47,9 @@ namespace a4{ namespace io{
 
             /// True if the stream has finished without error.
             bool end();
+            
+            /// Number of bytes this InputStream has read
+            size_t ByteCount();
 
             /// Human-readable string representation
             std::string str();

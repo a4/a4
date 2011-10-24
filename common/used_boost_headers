@@ -3,6 +3,7 @@ chrono
 filesystem
 foreach
 function
+interprocess/containers/container
 lexical_cast
 program_options
 shared_array
@@ -12,4 +13,5 @@ thread
 thread/locks
 tokenizer
 type_traits
+typeof
 variant

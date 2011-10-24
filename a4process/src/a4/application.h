@@ -9,13 +9,15 @@ namespace a4{
         class A4Output;
     }
     namespace process{
+        
+        class ProcessStats;
 
         class SimpleCommandLineDriver : public Driver {
             public:
                 SimpleCommandLineDriver(Configuration *);
                 int main(int argc, const char * argv[]);
             protected:
-                static void simple_thread(SimpleCommandLineDriver* self, Processor * p, int limit, int & processed);
+                static void simple_thread(SimpleCommandLineDriver*, Processor *, int, ProcessStats&);
                 Processor * new_initialized_processor();
                 Configuration * configuration;
                 std::string metakey;
