@@ -8,6 +8,7 @@ import "a4/root/atlas/ntup_photon/CollisionDecision.proto";
 import "a4/root/atlas/ntup_photon/CombLinksD3PDObjectEF_e.proto";
 import "a4/root/atlas/ntup_photon/CombLinksD3PDObjectL2_e.proto";
 import "a4/root/atlas/ntup_photon/DiPhoton.proto";
+import "a4/root/atlas/ntup_photon/EF.proto";
 import "a4/root/atlas/ntup_photon/EFElectron.proto";
 import "a4/root/atlas/ntup_photon/EFPhoton.proto";
 import "a4/root/atlas/ntup_photon/ElAsPh.proto";
@@ -16,6 +17,8 @@ import "a4/root/atlas/ntup_photon/EmTauROI.proto";
 import "a4/root/atlas/ntup_photon/GenEvent.proto";
 import "a4/root/atlas/ntup_photon/Jet.proto";
 import "a4/root/atlas/ntup_photon/JetTruth.proto";
+import "a4/root/atlas/ntup_photon/L1.proto";
+import "a4/root/atlas/ntup_photon/L2.proto";
 import "a4/root/atlas/ntup_photon/MBTS.proto";
 import "a4/root/atlas/ntup_photon/MBTSTime.proto";
 import "a4/root/atlas/ntup_photon/MET.proto";
@@ -157,4 +160,8 @@ message Event {
     optional TopoMET met_lochadtopo = 2915 [(root_prefix)="MET_LocHadTopo_"];
     
     optional MissingETTruth missing_ettruth = 3000 [(root_prefix)="MET_Truth_"];
+    
+    optional L1 l1 = 4000 [(root_prefix)="L1_"];
+    optional L2 l2 = 4001 [(root_prefix)="L2_"];
+    optional EF ef = 4002 [(root_prefix)="EF_"];
 }
