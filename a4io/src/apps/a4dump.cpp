@@ -92,6 +92,10 @@ class StatsCollector {
         /// avoid pulling the distribution towards any default values.
         void collect(const double& value) {
         
+            if (value == -999 || value == -9999 || value == -99999)
+                // Special case.
+                return;
+        
             // (or equal) to make sure don't follow second branch otherwise.
             if (value <= min) min = value;
             else if (value < min1) min1 = value;
@@ -119,6 +123,10 @@ class StatsCollector {
         }
         
         void print(std::ostream& out, ColumnSizeMeasurer& csm) {
+            if (n == 0) {
+                csm.print(out, 0, 0, 0, 0, 0, 0, 0);
+                return;
+            }
             csm.print(out, n, mean(), stddev(), min, max, 
                       (min1 == numeric_limits<double>::max() ? min : min1), 
                       (max1 == numeric_limits<double>::min() ? max : max1));
