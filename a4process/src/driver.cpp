@@ -72,9 +72,18 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     // It is safe to get these, even if they are not used.
     // The ownership of these is shared with A4Input/Output.
     shared<OutputStream> outstream, resstream;
+    
+    
     shared<ObjectBackStore> bs(new ObjectBackStore());
-    if (self->out) self->set_outstream(p, self->out->get_stream());
-    if (self->res) resstream = self->res->get_stream();
+    if (self->out) {
+        shared<OutputStream> outstream = self->out->get_stream();
+        self->set_outstream(p, outstream);
+        outstream->set_compression("ZLIB", 1);
+    }
+    if (self->res) {
+        resstream = self->res->get_stream();
+        resstream->set_compression("ZLIB", 9);
+    }
     self->set_backstore(p, bs);
     self->set_store_prefix(p);
     

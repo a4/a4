@@ -8,6 +8,7 @@
 #include <TH1.h>
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TH3D.h>
 
 #include <a4/application.h>
 #include <a4/histogram.h>
@@ -51,13 +52,14 @@ void mkdirs(TFile &f, string file) {
     f.cd(rpath.parent_path().string().c_str());
 }
 
-class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass, H1, H2, Cutflow> {
+class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass, H1, H2, H3, Cutflow> {
   public:
     virtual ~A2RProcessor() {f->Close();};
 
     void process(std::string name, H1 & h) {
         mkdirs(*f, name);
         path rpath(name);
+        std::cout << "Processing " << name << " : " << rpath.leaf() << std::endl;
 
         TH1D * h1 = new TH1D(rpath.leaf().c_str(), h.title.c_str(), h.x().bins(), h.x().min(), h.x().max());
         h1->GetXaxis()->SetTitle(h.x().label.c_str());
@@ -75,7 +77,7 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
     void process(std::string name, H2 & h) {
         mkdirs(*f, name);
         path rpath(name);
-
+        
         TH2D * h2 = new TH2D(rpath.leaf().c_str(), h.title.c_str(), h.x().bins(), h.x().min(), h.x().max(),  h.y().bins(), h.y().min(), h.y().max());
         h2->GetXaxis()->SetTitle(h.x().label.c_str());
         h2->GetYaxis()->SetTitle(h.y().label.c_str());
@@ -92,6 +94,38 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
         h2->SetEntries(h.entries());
         h2->SetDirectory((TDirectory*)f->Get(rpath.parent_path().string().c_str()));
         h2->Write();
+
+    }
+    void process(std::string name, H3 & h) {
+        mkdirs(*f, name);
+        path rpath(name);
+
+        TH3D * h3 = new TH3D(rpath.leaf().c_str(), h.title.c_str(), 
+                             h.x().bins(), h.x().min(), h.x().max(),  
+                             h.y().bins(), h.y().min(), h.y().max(),
+                             h.z().bins(), h.z().min(), h.z().max());
+        
+        h3->GetXaxis()->SetTitle(h.x().label.c_str());
+        h3->GetYaxis()->SetTitle(h.y().label.c_str());
+        h3->GetZaxis()->SetTitle(h.z().label.c_str());
+        
+        const int skip_x = h.x().bins() + 2;
+        const int skip_y = h.y().bins() + 2;
+        for(uint32_t binx = 0, binsx = binx + h.x().bins() + 2; binsx > binx; ++binx) 
+            for(uint32_t biny = 0, binys = biny + h.y().bins() + 2; binys > biny; ++biny)
+                for(uint32_t binz = 0, binzs = binz + h.z().bins() + 2; binzs > binz; ++binz)
+                    h3->SetBinContent(binx, biny, binz, *(h.data().get() + binx + skip_x*(biny + skip_y*binz)));
+                
+        if (h.weights_squared()) {
+            h3->Sumw2();
+            for(uint32_t binx = 0, binsx = binx + h.x().bins() + 2; binsx > binx; ++binx) 
+                for(uint32_t biny = 0, binys = biny + h.y().bins() + 2; binys > biny; ++biny)
+                    for(uint32_t binz = 0, binzs = binz + h.z().bins() + 2; binzs > binz; ++binz)
+                        h3->SetBinError(binx, biny, binz, *(h.weights_squared().get()) + binx + skip_x*(biny + skip_y*binz));
+        }
+        h3->SetEntries(h.entries());
+        h3->SetDirectory((TDirectory*)f->Get(rpath.parent_path().string().c_str()));
+        h3->Write();
 
     }
     void process(std::string name, Cutflow & h) {
