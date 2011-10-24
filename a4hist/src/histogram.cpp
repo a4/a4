@@ -5,4 +5,5 @@
 
 A4RegisterClass(a4::hist::pb::H1);
 A4RegisterClass(a4::hist::pb::H2);
+A4RegisterClass(a4::hist::pb::H3);
 A4RegisterClass(a4::hist::pb::Cutflow);

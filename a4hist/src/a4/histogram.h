@@ -91,6 +91,7 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
 
         const SimpleAxis & x() const {return _x_axis;};
         const SimpleAxis & y() const {return _y_axis;};
+        const SimpleAxis & z() const {return _z_axis;};
 
         void print(std::ostream &) const;
 
@@ -105,12 +106,66 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
 
         SimpleAxis _x_axis;
         SimpleAxis _y_axis;
+        SimpleAxis _z_axis;
         shared_array<double> _data;
         shared_array<double> _weights_squared;
         uint64_t _entries;
 };
 
 std::ostream &operator<<(std::ostream &, const H2 &);
+
+class H3 : public a4::process::StorableAs<H3, pb::H3>
+{
+    public:
+        H3();
+        H3(const H3 &);
+        ~H3();
+
+        // Implements StorableAs
+        virtual void to_pb(bool blank_pb);
+        virtual void from_pb();
+        virtual H3 & operator+=(const H3 &other);
+
+        void constructor(const char * _title) {
+            _initializations_remaining++;
+            title = _title;
+        };
+        void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label);
+        void constructor(const uint32_t &bins, const double &min, const double &max) {
+            constructor(bins, min, max, "");
+        };
+
+        void fill(const double &, const double &, const double &, const double &weight = 1);
+        H3 & __add__(const H3 &);
+        H3 & __mul__(const double &);
+
+        uint64_t entries() const {return _entries;};
+        double integral() const;
+
+        const SimpleAxis & x() const {return _x_axis;};
+        const SimpleAxis & y() const {return _y_axis;};
+        const SimpleAxis & z() const {return _z_axis;};
+
+        void print(std::ostream &) const;
+
+        const shared_array<double> data() const {return _data;}; //TODO: only for copyin into TH3D
+        const shared_array<double> weights_squared() const {return _weights_squared;}; //TODO: only for copyin into TH1D
+
+        std::string title;
+
+    private:
+        // Prevent copying by assignment
+        H3 &operator =(const H3 &);
+
+        SimpleAxis _x_axis;
+        SimpleAxis _y_axis;
+        SimpleAxis _z_axis;
+        shared_array<double> _data;
+        shared_array<double> _weights_squared;
+        uint64_t _entries;
+};
+
+std::ostream &operator<<(std::ostream &, const H3 &);
 
 };}; //namespace a4::hist
 

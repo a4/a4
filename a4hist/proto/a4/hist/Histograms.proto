@@ -26,3 +26,14 @@ message H2
     repeated double weights_squared = 14 [packed=true];
     optional int64 entries = 15;
 }
+
+message H3
+{
+    optional string title = 1;
+    repeated double data = 2 [packed=true];
+    required SimpleAxis x = 3;
+    required SimpleAxis y = 4;
+    required SimpleAxis z = 5;
+    repeated double weights_squared = 14 [packed=true];
+    optional int64 entries = 15;
+}

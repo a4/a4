@@ -22,7 +22,7 @@ AM_CPPFLAGS+=$(A4_A4IO_CPPFLAGS) $(A4_A4PROCESS_CPPFLAGS) $(PROTOBUF_CFLAGS) $(B
 # Main a4process library
 lib_LTLIBRARIES=liba4hist.la
 nodist_liba4hist_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
-liba4hist_la_SOURCES=$(a4include_HEADERS) src/axis.cpp src/h1.cpp src/h2.cpp src/cutflow.cpp src/histogram.cpp
+liba4hist_la_SOURCES=$(a4include_HEADERS) src/axis.cpp src/h1.cpp src/h2.cpp src/h3.cpp src/cutflow.cpp src/histogram.cpp
 liba4hist_la_LIBADD=$(LIBS)
 
 ## Test programs
