@@ -46,6 +46,30 @@ class SimpleAxis : public Axis {
 
 std::ostream &operator<<(std::ostream &, const SimpleAxis &);
 
+class VariableAxis : public SimpleAxis {
+    public:
+        VariableAxis();
+        VariableAxis(const std::vector<double>& bins);
+        VariableAxis(const VariableAxis&);
+        VariableAxis(const pb::Axis&);
+        ~VariableAxis();
+
+        unique<pb::Axis> get_proto();
+
+        double min() const {return _bin_bounds[1];};
+        double max() const {return _bin_bounds[bins()-1];};
+        uint32_t bins() const {return _bin_bounds_end - _bin_bounds.get();};
+        uint32_t find_bin(const double&) const;
+
+    protected:
+        bool sane() const;
+        unique<double[]> _bin_bounds;
+        double* _bin_bounds_end;
+
+};
+
+std::ostream &operator<<(std::ostream &, const VariableAxis &);
+
 };};
 
 #endif

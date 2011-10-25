@@ -7,7 +7,10 @@ using namespace std;
 namespace a4{ namespace hist{
 
 unique<Axis> Axis::from_proto(const pb::Axis & msg) {
-    return unique<Axis>(new SimpleAxis(msg));
+    if (msg.has_bins())
+        return unique<Axis>(new SimpleAxis(msg));
+    else
+        return unique<Axis>(new VariableAxis(msg));
 }
 
 SimpleAxis::SimpleAxis() {};
@@ -72,10 +75,81 @@ uint32_t SimpleAxis::find_bin(const double &x) const
 
 // Helpers
 //
-ostream &operator<<(ostream &out, const Axis &axis)
+std::ostream &operator<<(std::ostream &out, const Axis &axis)
 {
     return out << axis.label << " - " << axis.bins() << " bins in range ["
         << axis.min() << "," << axis.max() << "]";
+}
+
+// VariableAxis
+//
+
+VariableAxis::VariableAxis() {};
+
+VariableAxis::VariableAxis(const std::vector<double>& bins)
+{    
+    _bins = bins.size();
+    _bin_bounds.reset(new double[_bins+2]);
+    
+    // Set under and overflow bounds
+    _bin_bounds[0]       = -std::numeric_limits<double>::infinity();
+    _bin_bounds[_bins+1] = +std::numeric_limits<double>::infinity();
+    
+    std::copy(bins.begin(), bins.end(), &(_bin_bounds[1]));
+}
+
+VariableAxis::VariableAxis(const VariableAxis & a)
+{
+    label = a.label;
+}
+
+VariableAxis::~VariableAxis() 
+{
+}
+
+VariableAxis::VariableAxis(const pb::Axis & msg) {
+    label = msg.label();
+    
+    _bins = msg.variable_bins_size();
+    
+    assert(_bins);
+    
+    _bin_bounds.reset(new double[_bins+2]);
+    
+    // Set under and overflow bounds
+    _bin_bounds[0]       = -std::numeric_limits<double>::infinity();
+    _bin_bounds[_bins+1] = +std::numeric_limits<double>::infinity();
+    
+    _bin_bounds_end = _bin_bounds.get() + _bins + 1;
+    
+    int i = 1;
+    for (auto& value: msg.variable_bins())
+        _bin_bounds[i++] = value;
+    
+    _min = _bin_bounds[1];
+    _max = _bin_bounds[_bins];
+    
+    assert(sane());
+}
+
+unique<pb::Axis> VariableAxis::get_proto() {
+    unique<pb::Axis> axis(new pb::Axis);
+    axis->set_label(label);
+    for (double const* x = _bin_bounds.get() + 1; x < _bin_bounds_end - 1; x++)
+        axis->add_variable_bins(*x);
+    return axis;
+}
+
+bool VariableAxis::sane() const
+{
+    return std::is_sorted(_bin_bounds.get(), _bin_bounds_end);
+}
+
+uint32_t VariableAxis::find_bin(const double& value) const
+{
+    // upper_bound does a binary search
+    return std::upper_bound(_bin_bounds.get(), _bin_bounds_end, value) 
+            - _bin_bounds.get() - 1;
 }
 
 };};

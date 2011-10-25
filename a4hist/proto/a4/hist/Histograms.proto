@@ -5,7 +5,11 @@ message Axis
     optional int32 bins = 1;
     optional double min = 2;
     optional double max = 3;
+    
     optional string label = 4;
+    
+    // If `bins` is missing, then assume variable binning.
+    repeated double variable_bins = 5 [packed=true];
 }
 
 message H1
