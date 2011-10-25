@@ -6,7 +6,7 @@
 using namespace std;
 namespace a4{ namespace hist{
 
-unique<Axis> Axis::from_proto(const pb::SimpleAxis & msg) {
+unique<Axis> Axis::from_proto(const pb::Axis & msg) {
     return unique<Axis>(new SimpleAxis(msg));
 }
 
@@ -34,7 +34,7 @@ SimpleAxis::~SimpleAxis()
 {
 };
 
-SimpleAxis::SimpleAxis(const pb::SimpleAxis & msg) {
+SimpleAxis::SimpleAxis(const pb::Axis & msg) {
     label = msg.label();
     _min = msg.min();
     _max = msg.max();
@@ -42,8 +42,8 @@ SimpleAxis::SimpleAxis(const pb::SimpleAxis & msg) {
     _delta = _bins == 0 ? 0 : (_max - _min)/_bins;
 };
 
-unique<pb::SimpleAxis> SimpleAxis::get_proto() {
-    unique<pb::SimpleAxis> axis(new pb::SimpleAxis);
+unique<pb::Axis> SimpleAxis::get_proto() {
+    unique<pb::Axis> axis(new pb::Axis);
     axis->set_bins(_bins);
     axis->set_min(_min);
     axis->set_max(_max);

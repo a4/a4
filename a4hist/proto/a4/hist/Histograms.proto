@@ -1,6 +1,6 @@
 package a4.hist.pb;
 
-message SimpleAxis
+message Axis
 {
     optional int32 bins = 1;
     optional double min = 2;
@@ -12,7 +12,7 @@ message H1
 {
     optional string title = 1;
     repeated double data = 2 [packed=true];
-    required SimpleAxis x = 3;
+    required Axis x = 3;
     repeated double weights_squared = 14 [packed=true];
     optional int64 entries = 15;
 }
@@ -21,8 +21,8 @@ message H2
 {
     optional string title = 1;
     repeated double data = 2 [packed=true];
-    required SimpleAxis x = 3;
-    required SimpleAxis y = 4;
+    required Axis x = 3;
+    required Axis y = 4;
     repeated double weights_squared = 14 [packed=true];
     optional int64 entries = 15;
 }
@@ -31,9 +31,9 @@ message H3
 {
     optional string title = 1;
     repeated double data = 2 [packed=true];
-    required SimpleAxis x = 3;
-    required SimpleAxis y = 4;
-    required SimpleAxis z = 5;
+    required Axis x = 3;
+    required Axis y = 4;
+    required Axis z = 5;
     repeated double weights_squared = 14 [packed=true];
     optional int64 entries = 15;
 }

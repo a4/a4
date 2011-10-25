@@ -5,7 +5,9 @@
 
 namespace a4{ namespace hist{
 
-namespace pb{class SimpleAxis;};
+namespace pb{
+    class Axis;
+};
 
 class Axis {
     public:
@@ -23,10 +25,10 @@ class SimpleAxis : public Axis {
         SimpleAxis();
         SimpleAxis(const uint32_t &bins, const double &min, const double &max);
         SimpleAxis(const SimpleAxis &);
-        SimpleAxis(const pb::SimpleAxis &);
+        SimpleAxis(const pb::Axis &);
         ~SimpleAxis();
 
-        unique<pb::SimpleAxis> get_proto();
+        unique<pb::Axis> get_proto();
 
         double min() const {return _min;};
         double max() const {return _max;};
