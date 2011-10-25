@@ -29,7 +29,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         void constructor(const uint32_t &bins, const double &min, const double &max);
         void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label) {
             constructor(bins, min, max);
-            _axis.label = _label;
+            _axis->label = _label;
         };
 
         void fill(const double &, const double &weight = 1);
@@ -37,15 +37,15 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         H1 & __mul__(const double &);
 
         uint64_t entries() const {return _entries;};
-        uint64_t bins() const {return _axis.bins();};
+        uint64_t bins() const {return _axis->bins();};
         double integral() const;
 
-        const SimpleAxis & x() const {return _axis;};
+        const Axis & x() const {return *_axis;};
 
         void print(std::ostream &) const;
 
-        const shared_array<double> data() const {return _data;}; //TODO: only for copyin into TH1D
-        const shared_array<double> weights_squared() const {return _weights_squared;}; //TODO: only for copyin into TH1D
+        const shared_array<double> data() const {return _data;} //TODO: only for copyin into TH1D
+        const shared_array<double> weights_squared() const {return _weights_squared;} //TODO: only for copyin into TH1D
 
         std::string title;
 
@@ -53,7 +53,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         // Prevent copying by assignment
         H1 &operator =(const H1 &);
 
-        SimpleAxis _axis;
+        unique<Axis> _axis;
         shared_array<double> _data;
         shared_array<double> _weights_squared;
         uint64_t _entries;
@@ -89,14 +89,13 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         uint64_t entries() const {return _entries;};
         double integral() const;
 
-        const SimpleAxis & x() const {return _x_axis;};
-        const SimpleAxis & y() const {return _y_axis;};
-        const SimpleAxis & z() const {return _z_axis;};
+        const Axis & x() const {return *_x_axis;};
+        const Axis & y() const {return *_y_axis;};
 
         void print(std::ostream &) const;
 
-        const shared_array<double> data() const {return _data;}; //TODO: only for copyin into TH2D
-        const shared_array<double> weights_squared() const {return _weights_squared;}; //TODO: only for copyin into TH1D
+        const shared_array<double> data() const {return _data;} //TODO: only for copyin into TH2D
+        const shared_array<double> weights_squared() const {return _weights_squared;} //TODO: only for copyin into TH1D
 
         std::string title;
 
@@ -104,9 +103,9 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         // Prevent copying by assignment
         H2 &operator =(const H2 &);
 
-        SimpleAxis _x_axis;
-        SimpleAxis _y_axis;
-        SimpleAxis _z_axis;
+        unique<Axis> _x_axis;
+        unique<Axis> _y_axis;
+        
         shared_array<double> _data;
         shared_array<double> _weights_squared;
         uint64_t _entries;
@@ -139,12 +138,12 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
         H3 & __add__(const H3 &);
         H3 & __mul__(const double &);
 
-        uint64_t entries() const {return _entries;};
+        uint64_t entries() const {return _entries;}
         double integral() const;
 
-        const SimpleAxis & x() const {return _x_axis;};
-        const SimpleAxis & y() const {return _y_axis;};
-        const SimpleAxis & z() const {return _z_axis;};
+        const Axis & x() const {return *_x_axis;}
+        const Axis & y() const {return *_y_axis;}
+        const Axis & z() const {return *_z_axis;}
 
         void print(std::ostream &) const;
 
@@ -157,9 +156,10 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
         // Prevent copying by assignment
         H3 &operator =(const H3 &);
 
-        SimpleAxis _x_axis;
-        SimpleAxis _y_axis;
-        SimpleAxis _z_axis;
+        unique<Axis> _x_axis;
+        unique<Axis> _y_axis;
+        unique<Axis> _z_axis;
+        
         shared_array<double> _data;
         shared_array<double> _weights_squared;
         uint64_t _entries;

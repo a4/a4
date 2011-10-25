@@ -6,10 +6,13 @@
 using namespace std;
 namespace a4{ namespace hist{
 
+unique<Axis> Axis::from_proto(const pb::SimpleAxis & msg) {
+    return unique<Axis>(new SimpleAxis(msg));
+}
+
 SimpleAxis::SimpleAxis() {};
 
 SimpleAxis::SimpleAxis(const uint32_t &bins, const double &min, const double &max):
-    label(""),
     _min(min),
     _max(max),
     _bins(bins),
@@ -18,12 +21,13 @@ SimpleAxis::SimpleAxis(const uint32_t &bins, const double &min, const double &ma
 };
 
 SimpleAxis::SimpleAxis(const SimpleAxis & a):
-    label(a.label),
+
     _min(a._min),
     _max(a._max),
     _bins(a._bins),
     _delta(a._delta)
 {
+    label = a.label;
 }
 
 SimpleAxis::~SimpleAxis() 
@@ -68,7 +72,7 @@ uint32_t SimpleAxis::find_bin(const double &x) const
 
 // Helpers
 //
-ostream &operator<<(ostream &out, const SimpleAxis &axis)
+ostream &operator<<(ostream &out, const Axis &axis)
 {
     return out << axis.label << " - " << axis.bins() << " bins in range ["
         << axis.min() << "," << axis.max() << "]";
