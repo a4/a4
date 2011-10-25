@@ -65,7 +65,8 @@ class VariableAxis : public SimpleAxis {
         bool sane() const;
         unique<double[]> _bin_bounds;
         double* _bin_bounds_end;
-
+        
+        void _init_bins(const uint32_t bins);
 };
 
 std::ostream &operator<<(std::ostream &, const VariableAxis &);

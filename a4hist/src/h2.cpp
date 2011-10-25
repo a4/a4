@@ -31,6 +31,20 @@ void H2::constructor(const uint32_t &bins, const double &min, const double &max,
     }
 }
 
+void H2::constructor(const std::vector<double>& bins, const char* label) {
+    if (_initializations_remaining == 1) {
+        _x_axis.reset(new VariableAxis(bins));
+        _x_axis->label = label;
+    } else {
+        _y_axis.reset(new VariableAxis(bins));
+        _y_axis->label = label;
+        
+        _entries = 0;
+        const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2);
+        _data.reset(new double[total_bins]());
+    }
+}
+
 H2::H2(const H2 & h): 
     title(h.title),
     _entries(h._entries)
@@ -141,7 +155,7 @@ void H2::print(std::ostream &out) const
     const int skip = _x_axis->bins() + 2;
     for(uint32_t bin = 1, bins = bin + _x_axis->bins(); bins > bin; ++bin) 
         for(uint32_t ybin = 1, ybins = ybin + _y_axis->bins(); ybins > ybin; ++ybin)
-            out << "[" << setw(3) << bin << "]: " << setiosflags(ios::fixed) << setprecision(3) << *(_data.get() + ybin*skip + bin) << endl;
+            out << "[" << setw(3) << bin << ", " << ybin << "]: " << setiosflags(ios::fixed) << setprecision(3) << *(_data.get() + ybin*skip + bin) << endl;
 }
 
 H2 & H2::__add__(const H2 & source)

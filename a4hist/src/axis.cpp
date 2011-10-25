@@ -1,4 +1,6 @@
+#include <algorithm>
 #include <iostream>
+#include <limits>
 
 #include "a4/axis.h"
 #include "a4/hist/Histograms.pb.h"
@@ -88,19 +90,32 @@ VariableAxis::VariableAxis() {};
 
 VariableAxis::VariableAxis(const std::vector<double>& bins)
 {    
-    _bins = bins.size();
+    _init_bins(bins.size());
+    
+    std::copy(bins.begin(), bins.end(), &(_bin_bounds[1]));
+    
+    _min = _bin_bounds[1];
+    _max = _bin_bounds[_bins];
+    
+    assert(sane());
+}
+
+VariableAxis::VariableAxis(const VariableAxis & a)
+{
+    label = a.label;
+}
+
+void VariableAxis::_init_bins(const uint32_t bins) {
+    _bins = bins;
+    assert(_bins);
+
     _bin_bounds.reset(new double[_bins+2]);
     
     // Set under and overflow bounds
     _bin_bounds[0]       = -std::numeric_limits<double>::infinity();
     _bin_bounds[_bins+1] = +std::numeric_limits<double>::infinity();
     
-    std::copy(bins.begin(), bins.end(), &(_bin_bounds[1]));
-}
-
-VariableAxis::VariableAxis(const VariableAxis & a)
-{
-    label = a.label;
+    _bin_bounds_end = _bin_bounds.get() + _bins + 1;
 }
 
 VariableAxis::~VariableAxis() 
@@ -110,17 +125,7 @@ VariableAxis::~VariableAxis()
 VariableAxis::VariableAxis(const pb::Axis & msg) {
     label = msg.label();
     
-    _bins = msg.variable_bins_size();
-    
-    assert(_bins);
-    
-    _bin_bounds.reset(new double[_bins+2]);
-    
-    // Set under and overflow bounds
-    _bin_bounds[0]       = -std::numeric_limits<double>::infinity();
-    _bin_bounds[_bins+1] = +std::numeric_limits<double>::infinity();
-    
-    _bin_bounds_end = _bin_bounds.get() + _bins + 1;
+    _init_bins(msg.variable_bins_size());
     
     int i = 1;
     for (auto& value: msg.variable_bins())

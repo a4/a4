@@ -26,11 +26,11 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
             _initializations_remaining++;
             title = _title;
         };
-        void constructor(const uint32_t &bins, const double &min, const double &max);
-        void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label) {
-            constructor(bins, min, max);
-            _axis->label = _label;
-        };
+        void constructor(const uint32_t &bins, const double &min, const double &max, const char* label="");
+        void constructor(const std::vector<double>& bins, const char* label="");
+        void constructor(const std::initializer_list<double>& bins, const char* label="") {
+            constructor(std::vector<double>(bins), label);
+        }
 
         void fill(const double &, const double &weight = 1);
         H1 & __add__(const H1 &);
@@ -77,10 +77,11 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
             _initializations_remaining++;
             title = _title;
         };
-        void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label);
-        void constructor(const uint32_t &bins, const double &min, const double &max) {
-            constructor(bins, min, max, "");
-        };
+        void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label="");
+        void constructor(const std::vector<double>& bins, const char* label="");
+        void constructor(const std::initializer_list<double>& bins, const char* label="") {
+            constructor(std::vector<double>(bins), label);
+        }
 
         void fill(const double &, const double &, const double &weight = 1);
         H2 & __add__(const H2 &);
@@ -129,10 +130,11 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
             _initializations_remaining++;
             title = _title;
         };
-        void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label);
-        void constructor(const uint32_t &bins, const double &min, const double &max) {
-            constructor(bins, min, max, "");
-        };
+        void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label="");
+        void constructor(const std::vector<double>& bins, const char* label="");
+        void constructor(const std::initializer_list<double>& bins, const char* label="") {
+            constructor(std::vector<double>(bins), label);
+        }
 
         void fill(const double &, const double &, const double &, const double &weight = 1);
         H3 & __add__(const H3 &);

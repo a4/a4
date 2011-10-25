@@ -2,8 +2,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string.h>
-
-#include <boost/foreach.hpp>
+#include <vector>
 
 #include "a4/axis.h"
 #include "a4/histogram.h"
@@ -14,16 +13,26 @@ namespace a4{ namespace hist{
 
 using namespace std;
 
-void H1::constructor(const uint32_t &bins, const double &min, const double &max) {
+H1::H1() :
+    _entries(0)
+{
+    _initializations_remaining = 1;
+}
+
+void H1::constructor(const uint32_t &bins, const double &min, const double &max, const char* label) {
     _axis.reset(new SimpleAxis(bins, min, max));
+    _axis->label = label;
     _entries = 0;
     const uint32_t total_bins = bins + 2;
     _data.reset(new double[total_bins]());
 }
 
-H1::H1() :
-    _entries(0)
-{
+void H1::constructor(const std::vector<double>& bins, const char* label) {
+    _axis.reset(new VariableAxis(bins));
+    _axis->label = label;
+    _entries = 0;
+    const uint32_t total_bins = bins.size() + 2;
+    _data.reset(new double[total_bins]());
 }
 
 H1::H1(const H1 & h):
