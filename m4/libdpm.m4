@@ -29,6 +29,7 @@ AC_DEFUN([A4_LIBDPM_CHECK], [
         with_LIBDPM=/opt/lcg
         AC_MSG_NOTICE([No libdpm specified, trying $with_LIBDPM])
       else
+        with_LIBDPM=/usr
         AC_MSG_NOTICE([No libdpm specified and no builtin found, expecting LIBDPM to be installed])
       fi
     fi
