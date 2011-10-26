@@ -116,7 +116,7 @@ void H1::print(std::ostream &out) const
     }
 
     if (!title.empty()) out << "Title: " << title << endl;
-    out << "Entries: " << entries() << " Integral: " << integral() << endl;
+    out << "Entries: " << entries() << " Integral: " << int(integral()) << endl;
 
     for(uint32_t bin = 0, bins = _axis->bins() + 2; bins > bin; ++bin)
         //out << "[" << setw(3) << bin << "]: " << *(_data.get() + bin) << endl;

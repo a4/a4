@@ -1,3 +1,4 @@
+#include <sstream>
 #include <iostream>
 #include <vector>
 
@@ -8,7 +9,7 @@
 
 using namespace a4::hist;
 
-const size_t GRIND_REPETITIONS = 10000000;
+const size_t GRIND_REPETITIONS = 100000000;
 
 TEST(a4hist, h1) {
     H1 h1;
@@ -32,8 +33,10 @@ TEST(a4hist, basic_variable_binning_check) {
     
     h1("Title")({1., 2., 4., 8., 16.});
     
+    std::vector<double> values = {1., 1.1, 4., 8., 9., 10., 11., 15.};
+    
     unsigned int n = 0;
-    for (double i: {1., 1.1, 4., 8., 9., 10., 11., 16.}) { h1.fill(i); n++; }
+    foreach (double i, values) { h1.fill(i); n++; }
     
     ASSERT_EQ(n, h1.integral());
     
@@ -43,7 +46,7 @@ TEST(a4hist, basic_variable_binning_check) {
     h2("Title")({1., 2., 4., 8., 16.})({1., 2., 4., 8., 16.});
     
     n = 0;
-    for (double i: {1., 1.1, 4., 8., 9., 10., 11., 16.}) { h2.fill(i, i); n++; }
+    foreach (double i, values) { h2.fill(i, i); n++; }
     
     ASSERT_EQ(n, h2.integral());
     
@@ -53,7 +56,7 @@ TEST(a4hist, basic_variable_binning_check) {
     h3("Title")({1., 2., 4., 8., 16.})({1., 2., 4., 8., 16.})({1., 2., 4., 8., 16.});
     
     n = 0;
-    for (double i: {1., 1.1, 4., 8., 9., 10., 11., 16.}) { h3.fill(i, i, i); n++; }
+    foreach (double i, values) { h3.fill(i, i, i); n++; }
     
     ASSERT_EQ(n, h3.integral());
 }
@@ -144,7 +147,7 @@ TEST(a4hist, test_h1_grind_variable) {
     H1 h1;
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         h1({1., 2., 3., 4., 5., 100000., 1000000., 5000000.}).fill(i);
-    std::cout << h1 << std::endl;
+    //std::cout << h1 << std::endl;
 }
 
 TEST(a4hist, test_h2_grind) {
@@ -227,6 +230,25 @@ TEST(a4hist, test_th1d_many) {
         h18.Fill(i+8);
         h19.Fill(i+9);
     }
+}
+
+TEST(a4hist, test_th1d_many_ptr) {
+    const int n = 10;
+    TH1D* h1s[n];
+    
+    for (int i = 0; i < n; i++) {
+        std::stringstream s("test");
+        s << i;
+        h1s[i] = new TH1D(s.str().c_str(), "test", 100, 0, 1);
+    }
+        
+    for (size_t i = 0; i < GRIND_REPETITIONS / n; i++) {
+        for (int j = 0; j < n; j++)
+            h1s[j]->Fill(i+j);
+    }
+    
+    for (int i = 0; i < n; i++)
+        delete h1s[i];
 }
 
 TEST(a4hist, test_th2d) {
