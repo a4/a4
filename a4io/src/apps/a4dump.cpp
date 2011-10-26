@@ -26,6 +26,15 @@ using google::protobuf::Reflection;
 #include <a4/input.h>
 #include <a4/message.h>
 
+
+template<typename T> struct ItemOrdering {
+    bool operator() (const T& lhs, const T& rhs) { 
+        return lhs.first < rhs.first;
+        // return lhs.first->full_name() < rhs.first->full_name();
+    }
+};
+
+
 /// Collect statistics about variables
 class StatsCollector {
 
@@ -212,14 +221,8 @@ public:
         foreach (StatsItem i, sc.stats)
             sorted_stats.push_back(i);            
         
-        struct {
-            bool operator() (const StatsItem& lhs, const StatsItem& rhs) { 
-                return lhs.first < rhs.first;
-                // return lhs.first->full_name() < rhs.first->full_name();
-            }
-        } StatsItemOrdering;
-        
-        std::sort(sorted_stats.begin(), sorted_stats.end(), StatsItemOrdering);
+                
+        std::sort(sorted_stats.begin(), sorted_stats.end(), ItemOrdering<StatsItem>());
         
         ColumnSizeMeasurer csm;
         
