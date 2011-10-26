@@ -29,8 +29,8 @@ liba4hist_la_LIBADD=$(LIBS)
 check_PROGRAMS = gtests
 nodist_gtests_SOURCES = $(GTEST_APP)
 gtests_SOURCES = src/test_hist.cpp
-gtests_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
-gtests_LDADD = $(LDADD) $(GTEST_LIBS)
+gtests_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS) $(CERN_ROOT_SYSTEM_CFLAGS)
+gtests_LDADD = $(LDADD) $(GTEST_LIBS) $(CERN_ROOT_SYSTEM_LIBS)
 
 TESTS=$(check_PROGRAMS)
 
