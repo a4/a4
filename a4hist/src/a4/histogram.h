@@ -32,7 +32,22 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
             constructor(std::vector<double>(bins), label);
         }
 
-        void fill(const double &, const double &weight = 1);
+        void fill(const double& x, const double& weight=1) {
+            int bin = _axis->find_bin(x);
+            *(_data.get() + bin) += weight;
+            ++_entries;
+
+            if (_weights_squared) {
+                *(_weights_squared.get() + bin) += weight*weight;
+            } else if (weight != 1.0) {
+                const uint32_t total_bins = _axis->bins() + 2;
+                _weights_squared.reset(new double[total_bins]);
+                for(uint32_t i = 0; i < total_bins; i++)
+                    _weights_squared[i] = _data[i];
+                *(_weights_squared.get() + bin) += weight*weight;
+            }
+        }
+        
         H1 & __add__(const H1 &);
         H1 & __mul__(const double &);
 
@@ -82,8 +97,26 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         void constructor(const std::initializer_list<double>& bins, const char* label="") {
             constructor(std::vector<double>(bins), label);
         }
+        
+        void fill(const double& x, const double& y, const double& weight=1) {
+            int binx = _x_axis->find_bin(x);
+            int biny = _y_axis->find_bin(y);
 
-        void fill(const double &, const double &, const double &weight = 1);
+            const int skip = _x_axis->bins() + 2;
+            *(_data.get() + binx + biny*skip) += weight;
+            ++_entries;
+
+            if (_weights_squared) {
+                *(_weights_squared.get() + binx + biny*skip) += weight*weight;
+            } else if (weight != 1.0) {
+                const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2);
+                _weights_squared.reset(new double[total_bins]);
+                for(uint32_t i = 0; i < total_bins; i++)
+                    _weights_squared[i] = _data[i];
+                *(_weights_squared.get() + binx + biny*skip) += weight*weight;
+            }
+        }
+
         H2 & __add__(const H2 &);
         H2 & __mul__(const double &);
 
@@ -136,7 +169,27 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
             constructor(std::vector<double>(bins), label);
         }
 
-        void fill(const double &, const double &, const double &, const double &weight = 1);
+        void fill(const double& x, const double& y, const double& z, const double& weight=1) {
+            int binx = _x_axis->find_bin(x);
+            int biny = _y_axis->find_bin(y);
+            int binz = _z_axis->find_bin(z);
+            
+            const int skip_x = _x_axis->bins() + 2;
+            const int skip_y = _y_axis->bins() + 2;
+            *(_data.get() + binx + skip_x*(biny + skip_y*binz)) += weight;
+            ++_entries;
+
+            if (_weights_squared) {
+                *(_weights_squared.get() + binx + skip_x*(biny + skip_y*binz)) += weight*weight;
+            } else if (weight != 1.0) {
+                const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2)*(_z_axis->bins() + 2);
+                _weights_squared.reset(new double[total_bins]);
+                for(uint32_t i = 0; i < total_bins; i++)
+                    _weights_squared[i] = _data[i];
+                *(_weights_squared.get() + binx + skip_x*(biny + skip_y*binz)) += weight*weight;
+            }
+        }
+        
         H3 & __add__(const H3 &);
         H3 & __mul__(const double &);
 

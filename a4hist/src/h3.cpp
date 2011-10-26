@@ -133,28 +133,6 @@ double H3::integral() const
     return integral;
 }
 
-void H3::fill(const double &x, const double & y, const double & z, const double &weight)
-{
-    int binx = _x_axis->find_bin(x);
-    int biny = _y_axis->find_bin(y);
-    int binz = _z_axis->find_bin(z);
-    
-    const int skip_x = _x_axis->bins() + 2;
-    const int skip_y = _y_axis->bins() + 2;
-    *(_data.get() + binx + skip_x*(biny + skip_y*binz)) += weight;
-    ++_entries;
-
-    if (_weights_squared) {
-        *(_weights_squared.get() + binx + skip_x*(biny + skip_y*binz)) += weight*weight;
-    } else if (weight != 1.0) {
-        const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2)*(_z_axis->bins() + 2);
-        _weights_squared.reset(new double[total_bins]);
-        for(uint32_t i = 0; i < total_bins; i++)
-            _weights_squared[i] = _data[i];
-        *(_weights_squared.get() + binx + skip_x*(biny + skip_y*binz)) += weight*weight;
-    }
-}
-
 void H3::print(std::ostream &out) const
 {
     if (!_data)
