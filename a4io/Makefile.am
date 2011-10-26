@@ -37,7 +37,7 @@ LIBRARY_SOURCES=$(a4include_HEADERS) \
 lib_LTLIBRARIES=liba4io.la
 nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
 dist_liba4io_la_SOURCES=$(LIBRARY_SOURCES)
-liba4io_la_LIBADD=$(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS) $(BOOST_LIBS)
+liba4io_la_LIBADD=-ldl $(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS) $(BOOST_LIBS)
 
 bin_PROGRAMS = a4dump
 a4dump_SOURCES = src/apps/a4dump.cpp
@@ -58,7 +58,7 @@ test_write_nomd_bw_SOURCES = src/test_write_nomd_bw.cpp
 nodist_test_rfio_SOURCES = $(GTEST_APP)
 test_rfio_SOURCES = src/rfio/test_rfio.cpp
 test_rfio_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
-test_rfio_LDADD = $(LDADD) $(GTEST_LIBS)
+test_rfio_LDADD = -ldl $(LDADD) $(GTEST_LIBS)
 
 nodist_gtests_SOURCES = $(GTEST_APP)
 gtests_SOURCES = src/test_rw.cpp src/test_merge_metadata.cpp
