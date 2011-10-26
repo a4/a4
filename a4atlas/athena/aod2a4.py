@@ -150,6 +150,6 @@ class AOD2A4Base(PyAthena.Alg):
             total_events += self.runs_encountered[run]
         meta.total_events = total_events
         meta.simulation = self.is_mc
-        self.a4.write(meta)
+        self.a4.metadata(meta)
         self.a4.close()
         return PyAthena.StatusCode.Success
