@@ -128,7 +128,7 @@ VariableAxis::VariableAxis(const pb::Axis & msg) {
     _init_bins(msg.variable_bins_size());
     
     int i = 1;
-    for (auto& value: msg.variable_bins())
+    foreach(auto& value, msg.variable_bins())
         _bin_bounds[i++] = value;
     
     _min = _bin_bounds[1];
