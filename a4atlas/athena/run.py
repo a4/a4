@@ -1,7 +1,7 @@
 from math import sin, atan, atan2, exp, pi
 import gc
 
-from a4 import OutputStream
+from a4.stream import OutputStream
 from aod2a4 import AOD2A4Base, athena_setup
 
 from AthenaCommon.AppMgr import topSequence
@@ -10,9 +10,16 @@ from ROOT import gROOT, TLorentzVector
 from array import array
 from glob import glob
 
-from a4.proto.atlas import Trigger, TriggerFeature, Isolation, TrackHits, MuonTrackHits
-from a4.proto.atlas import Electron, Muon, Photon, Jet, Event, EventStreamInfo
-from a4.proto.atlas import LorentzVector, Vertex, MissingEnergy, Perigee
+from a4.atlas.Atlas.Trigger_pb2 import Trigger, TriggerFeature
+from a4.atlas.Atlas.Isolation_pb2 import Isolation
+from a4.atlas.Atlas.TrackHits_pb2 import TrackHits, MuonTrackHits
+from a4.atlas.Electron_pb2 import Electron
+from a4.atlas.Muon_pb2 import Muon
+from a4.atlas.Photon_pb2 import Photon
+from a4.atlas.Jet_pb2 import Jet
+from a4.atlas.Event_pb2 import Event
+from a4.atlas.Atlas.EventStreamInfo_pb2 import EventStreamInfo
+from a4.atlas.Physics_pb2 import LorentzVector, Vertex, MissingEnergy, Perigee
 
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
 

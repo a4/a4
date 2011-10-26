@@ -1,6 +1,7 @@
 from logging import getLogger; log = getLogger("a4")
 
-from a4.proto.atlas import Atlas, EventStreamInfo, RunInfo
+from a4.atlas.Atlas.EventStreamInfo_pb2 import EventStreamInfo, RunInfo
+from a4.atlas.Atlas import EventStreamInfo_pb2
 
 from AthenaPython import PyAthena
 
@@ -106,8 +107,8 @@ class AOD2A4Base(PyAthena.Alg):
                 self.possible_streams = set(s for s in self.possible_streams if s in s_tags)
 
             event.stream_tag.extend(
-                getattr(Atlas.EventStreamInfo_pb2, name) for name in list(s_tags) 
-                if hasattr(Atlas.EventStreamInfo_pb2, name)
+                getattr(EventStreamInfo_pb2, name) for name in list(s_tags) 
+                if hasattr(EventStreamInfo_pb2, name)
             )
 
 
@@ -144,8 +145,8 @@ class AOD2A4Base(PyAthena.Alg):
             if self.possible_streams:
                 streams = []
                 for s in sorted(self.possible_streams):
-                    if hasattr(Atlas.EventStreamInfo_pb2, s):
-                        streams.append(getattr(Atlas.EventStreamInfo_pb2, s))
+                    if hasattr(EventStreamInfo_pb2, s):
+                        streams.append(getattr(EventStreamInfo_pb2, s))
                 ri.stream.extend(streams)
             total_events += self.runs_encountered[run]
         meta.total_events = total_events
