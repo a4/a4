@@ -43,7 +43,7 @@ bin_PROGRAMS = a4dump
 a4dump_SOURCES = src/apps/a4dump.cpp
 
 ## Test programs
-check_PROGRAMS = test_io test_thread gtests
+check_PROGRAMS = test_io test_thread gtests test_rfio
 test_bigwrite_SOURCES = src/test_bigwrite.cpp
 test_io_SOURCES = src/test_io.cpp
 test_thread_SOURCES = src/test_thread.cpp
@@ -53,6 +53,12 @@ test_write_fw_SOURCES = src/test_write_fw.cpp
 test_write_bw_SOURCES = src/test_write_bw.cpp
 test_write_nomd_fw_SOURCES = src/test_write_nomd_fw.cpp
 test_write_nomd_bw_SOURCES = src/test_write_nomd_bw.cpp
+
+
+nodist_test_rfio_SOURCES = $(GTEST_APP)
+test_rfio_SOURCES = src/rfio/test_rfio.cpp
+test_rfio_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
+test_rfio_LDADD = $(LDADD) $(GTEST_LIBS)
 
 nodist_gtests_SOURCES = $(GTEST_APP)
 gtests_SOURCES = src/test_rw.cpp src/test_merge_metadata.cpp

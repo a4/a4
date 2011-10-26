@@ -35,7 +35,8 @@ A4Output::A4Output(std::string output_file, std::string description) :
         if (S_ISLNK(buffer.st_mode)) {
             // We can call lstat() here to determine the properties of the linkee
             // But I'm not sure exactly what the right thing to do is.
-            throw a4::Fatal("Destination is a link. Not yet implemented");
+            throw a4::Fatal("Destination is a link. Not yet implemented, see "
+                             "https://github.com/JohannesEbke/a4/issues/39");
         }
         
         if (!S_ISREG(buffer.st_mode)) {

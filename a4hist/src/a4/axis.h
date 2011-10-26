@@ -35,7 +35,7 @@ class SimpleAxis : public Axis {
         uint32_t bins() const {return _bins;};
         uint32_t find_bin(const double &x) const;
 
-    private:
+    protected:
         bool sane() const;
         double _min;
         double _max;
@@ -57,8 +57,8 @@ class VariableAxis : public SimpleAxis {
         unique<pb::Axis> get_proto();
 
         double min() const {return _bin_bounds[1];};
-        double max() const {return _bin_bounds[bins()-1];};
-        uint32_t bins() const {return _bin_bounds_end - _bin_bounds.get();};
+        double max() const {return _bin_bounds[bins()];};
+        uint32_t bins() const {return _bin_bounds_end - _bin_bounds.get() - 1;};
         uint32_t find_bin(const double&) const;
 
     protected:
