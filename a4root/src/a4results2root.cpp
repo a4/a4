@@ -144,7 +144,8 @@ class A2RConfig : public ConfigurationOf<A2RProcessor> {
 
         virtual po::options_description get_options() { 
             po::options_description opt; 
-            opt.add_options()("root-file,R", po::value<string>(&filename), "ROOT output file");
+            opt.add_options()("root-file,R", po::value(&filename), "ROOT output file");
+            opt.add_options()("compression-level,C", po::value(&compression_level)->default_value(1), "compression level");
             return opt;
         };
 
@@ -154,9 +155,11 @@ class A2RConfig : public ConfigurationOf<A2RProcessor> {
             //g.filename = str_cat(filename, "_", processor_count++);
             root_files.push_back(g.filename);
             g.f.reset(new TFile(filename.c_str(), "RECREATE"));
+            g.f->SetCompressionLevel(compression_level);
         }
 
         std::string filename;
+        int compression_level;
         std::vector<std::string> root_files;
         int processor_count;
 };
