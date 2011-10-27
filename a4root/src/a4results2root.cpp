@@ -21,7 +21,7 @@ using namespace a4::process;
 using namespace a4::hist;
 using namespace a4::io;
 
-void mkdirs(TFile &f, string file) {
+TDirectory* mkdirs(TFile &f, string file) {
 
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
     boost::char_separator<char> sep("/");
@@ -49,85 +49,68 @@ void mkdirs(TFile &f, string file) {
             prevdir += "/" + tok;
         }
     }
-    f.cd(rpath.parent_path().string().c_str());
+    const char* pth = rpath.parent_path().string().c_str();
+    f.cd(pth);
+    return static_cast<TDirectory*>(f.Get(pth));
 }
 
 class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass, H1, H2, H3, Cutflow> {
   public:
     virtual ~A2RProcessor() {f->Close();};
 
-    void process(std::string name, H1 & h) {
-        mkdirs(*f, name);
-        path rpath(name);
-        std::cout << "Processing " << name << " : " << rpath.leaf() << std::endl;
-
-        TH1D * h1 = new TH1D(rpath.leaf().c_str(), h.title.c_str(), h.x().bins(), h.x().min(), h.x().max());
-        h1->GetXaxis()->SetTitle(h.x().label.c_str());
-        for(uint32_t bin = 0, bins = h.x().bins() + 2; bins > bin; ++bin)
-            h1->SetBinContent(bin, *(h.data().get() + bin));
-        if (h.weights_squared()) {
-            h1->Sumw2();
-            for(uint32_t bin = 0, bins = h.x().bins() + 2; bins > bin; ++bin)
-                h1->SetBinError(bin, sqrt(*(h.weights_squared().get() + bin)));
+    void a4_axis_to_root(const Axis& lhs, TAxis* rhs) {
+        rhs->SetTitle(lhs.label.c_str());
+        if (lhs.variable()) {
+            double* edges = new double[lhs.bins()+1];
+            for (uint32_t i = 0; i < lhs.bins()+1; i++)
+                edges[i] = lhs.bin_edge(i);
+            rhs->Set(lhs.bins(), edges);
+            delete [] edges;
+        } else {
+            rhs->Set(lhs.bins(), lhs.min(), lhs.max());
         }
-        h1->SetEntries(h.entries());
-        h1->SetDirectory((TDirectory*)f->Get(rpath.parent_path().string().c_str()));
-        h1->Write();
     }
-    void process(std::string name, H2 & h) {
-        mkdirs(*f, name);
-        path rpath(name);
+
+    template<class H>
+    void a4_hist_to_root(const std::string& name, const H& h, TH1* root_hist) {
+        uint32_t total_bins = 1;
         
-        TH2D * h2 = new TH2D(rpath.leaf().c_str(), h.title.c_str(), h.x().bins(), h.x().min(), h.x().max(),  h.y().bins(), h.y().min(), h.y().max());
-        h2->GetXaxis()->SetTitle(h.x().label.c_str());
-        h2->GetYaxis()->SetTitle(h.y().label.c_str());
-        const int skip = h.x().bins() + 2;
-        for(uint32_t bin = 0, bins = h.x().bins() + 2; bins > bin; ++bin)
-            for(uint32_t ybin = 0, ybins = h.y().bins() + 2; ybins > ybin; ++ybin)
-                h2->SetBinContent(bin, ybin, *(h.data().get() + ybin*skip + bin));
-        if (h.weights_squared()) {
-            h2->Sumw2();
-            for(uint32_t bin = 0, bins = h.x().bins() + 2; bins > bin; ++bin)
-                for(uint32_t ybin = 0, ybins = h.y().bins() + 2; ybins > ybin; ++ybin)
-                    h2->SetBinError(bin, ybin, sqrt(*(h.weights_squared().get() + ybin*skip + bin)));
+        switch (root_hist->GetDimension()) {
+            // Fallthrough
+            case 3: a4_axis_to_root(h.axis(2), root_hist->GetZaxis()); total_bins *= h.axis(2).bins() + 2;
+            case 2: a4_axis_to_root(h.axis(1), root_hist->GetYaxis()); total_bins *= h.axis(1).bins() + 2;
+            case 1: a4_axis_to_root(h.axis(0), root_hist->GetXaxis()); total_bins *= h.axis(0).bins() + 2;
+                break;
+            default:
+                throw a4::Fatal("Unexpect histogram dimension! "
+                    "(expect 1-3, got ", root_hist->GetDimension(), "!)");
         }
-        h2->SetEntries(h.entries());
-        h2->SetDirectory((TDirectory*)f->Get(rpath.parent_path().string().c_str()));
-        h2->Write();
-
-    }
-    void process(std::string name, H3 & h) {
-        mkdirs(*f, name);
+        
         path rpath(name);
-
-        TH3D * h3 = new TH3D(rpath.leaf().c_str(), h.title.c_str(), 
-                             h.x().bins(), h.x().min(), h.x().max(),  
-                             h.y().bins(), h.y().min(), h.y().max(),
-                             h.z().bins(), h.z().min(), h.z().max());
+        root_hist->SetName(rpath.leaf().c_str());
+        root_hist->SetTitle(h.title.c_str());
         
-        h3->GetXaxis()->SetTitle(h.x().label.c_str());
-        h3->GetYaxis()->SetTitle(h.y().label.c_str());
-        h3->GetZaxis()->SetTitle(h.z().label.c_str());
+        root_hist->Rebuild();
         
-        const int skip_x = h.x().bins() + 2;
-        const int skip_y = h.y().bins() + 2;
-        for(uint32_t binx = 0, binsx = binx + h.x().bins() + 2; binsx > binx; ++binx) 
-            for(uint32_t biny = 0, binys = biny + h.y().bins() + 2; binys > biny; ++biny)
-                for(uint32_t binz = 0, binzs = binz + h.z().bins() + 2; binzs > binz; ++binz)
-                    h3->SetBinContent(binx, biny, binz, *(h.data().get() + binx + skip_x*(biny + skip_y*binz)));
-                
+        for(uint32_t bin = 0; bin < total_bins; ++bin)
+            root_hist->SetBinContent(bin, *(h.data().get() + bin));
+            
         if (h.weights_squared()) {
-            h3->Sumw2();
-            for(uint32_t binx = 0, binsx = binx + h.x().bins() + 2; binsx > binx; ++binx) 
-                for(uint32_t biny = 0, binys = biny + h.y().bins() + 2; binys > biny; ++biny)
-                    for(uint32_t binz = 0, binzs = binz + h.z().bins() + 2; binzs > binz; ++binz)
-                        h3->SetBinError(binx, biny, binz, *(h.weights_squared().get()) + binx + skip_x*(biny + skip_y*binz));
+            root_hist->Sumw2();
+            for(uint32_t bin = 0; bin < total_bins; ++bin)
+                root_hist->SetBinError(bin, sqrt(*(h.weights_squared().get() + bin)));
         }
-        h3->SetEntries(h.entries());
-        h3->SetDirectory((TDirectory*)f->Get(rpath.parent_path().string().c_str()));
-        h3->Write();
-
+        
+        root_hist->SetEntries(h.entries());
+        root_hist->SetDirectory(mkdirs(*f, name));
+        root_hist->Write();
+        delete root_hist;
     }
+
+    void process(std::string name, H1& h) { a4_hist_to_root(name, h, new TH1D()); }
+    void process(std::string name, H2& h) { a4_hist_to_root(name, h, new TH2D()); }
+    void process(std::string name, H3& h) { a4_hist_to_root(name, h, new TH3D()); }
+    
     void process(std::string name, Cutflow & h) {
         mkdirs(*f, name);
         path rpath(name);
