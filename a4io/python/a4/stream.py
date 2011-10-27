@@ -125,7 +125,7 @@ class OutputStream(object):
         protoclass = ProtoClass();
         protoclass.file_descriptor.extend(self.get_file_descriptor_protos(file_descriptors))
         protoclass.class_id = class_id
-        protoclass.full_name = ".".join((o.DESCRIPTOR.file.package, o.DESCRIPTOR.name))
+        protoclass.full_name = ".".join((o.DESCRIPTOR.file.package, o.DESCRIPTOR.name)).strip(".")
         class_id = self.get_class_id(protoclass, metadata=False)
         if self.compressed:
             self.stop_compression()

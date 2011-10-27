@@ -147,7 +147,7 @@ class ProtoClassPool(object):
                   for index, evd in enumerate(e.value)]
         ed = EnumDescriptor(e.name, full_name, filename, values, containing_type=None, 
                 options=e.options, file=None, serialized_start=None, serialized_end=None)
-        fqn = ".".join((package, super_name, e.name)).replace("..",".")
+        fqn = ".".join((package, super_name, e.name)).replace("..",".").strip(".")
         self.enums[fqn] = ed
         return ed
 
@@ -166,7 +166,7 @@ class ProtoClassPool(object):
                        nested_types, enum_types, extensions, options=options,
                        is_extendable=is_extendable, extension_ranges=ext_ranges,
                        file=None, serialized_start=None, serialized_end=None)
-        fqn = ".".join((package, super_name, m.name)).replace("..",".")
+        fqn = ".".join((package, super_name, m.name)).replace("..",".").strip(".")
         self.classes[fqn] = d
         return d
 
@@ -200,15 +200,11 @@ class ProtoClassPool(object):
                     name = f.message_type
                     if f.message_type in self.classes:
                         f.message_type = self.classes[f.message_type]
-                    elif "." + f.message_type in self.classes:
-                        f.message_type = self.classes["." + f.message_type]
                     else:
                         raise RuntimeError("Unknown ProtoClass: %s"%f.message_type)
                 if isinstance(f.enum_type, basestring):
                     if f.enum_type in self.enums:
                         f.enum_type = self.enums[f.enum_type]
-                    elif "." + f.enum_type in self.enums:
-                        f.enum_type = self.enums["." + f.enum_type]
                     else:
                         raise RuntimeError("Unknown Enum: %s"%f.message_type)
         for d in self.classes.itervalues():
