@@ -540,7 +540,7 @@ class AOD2A4(AOD2A4Base):
         event.met_muid.CopyFrom(self.met_named("MET_Muid"))
         event.met_refmuon_track.CopyFrom(self.met_named("MET_RefMuon_Track"))
 
-        #event.jets_antikt4h1topo.extend(self.jets("AntiKt4TopoJets"))
+        #event.jets_antikt4lctopo.extend(self.jets("AntiKt4LCTopoJets"))
         event.jets_antikt4h1topoem.extend(self.jets("AntiKt4TopoEMJets"))
 
         event.muons_staco.extend(self.muons("Staco"))
@@ -577,15 +577,16 @@ else:
     athena_setup(None, -1)
 
 # JVF fix by Scott Snyder
-from RecExConfig.RecFlags import rec
-rec.UserExecs = ["myjets()"]
-def myjets():
-    from JetRec.JetMomentGetter import make_JetMomentGetter
+if False:
+    from RecExConfig.RecFlags import rec
+    rec.UserExecs = ["myjets()"]
+    def myjets():
+        from JetRec.JetMomentGetter import make_JetMomentGetter
 
-    from JetMomentTools.SetupJetMomentTools import getJetVertexAssociationTool
-    jvatool = getJetVertexAssociationTool('AntiKt', 0.4, 'Topo') # parameters are irrelevant, these will work for any jets
-    make_JetMomentGetter( 'AntiKt4TopoJets' , [jvatool] ) 
-    make_JetMomentGetter( 'AntiKt4TopoEMJets' , [jvatool] ) 
+        from JetMomentTools.SetupJetMomentTools import getJetVertexAssociationTool
+        jvatool = getJetVertexAssociationTool('AntiKt', 0.4, 'Topo') # parameters are irrelevant, these will work for any jets
+        make_JetMomentGetter( 'AntiKt4TopoJets' , [jvatool] ) 
+        make_JetMomentGetter( 'AntiKt4TopoEMJets' , [jvatool] ) 
 
 # do autoconfiguration of input
 include ("RecExCommon/RecExCommon_topOptions.py")
