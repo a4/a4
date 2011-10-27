@@ -202,10 +202,22 @@ class ProtoClassPool(object):
                         f.message_type = self.classes[f.message_type]
                     elif "." + f.message_type in self.classes:
                         f.message_type = self.classes["." + f.message_type]
+                    else:
+                        raise RuntimeError("Unknown ProtoClass: %s"%f.message_type)
+                if isinstance(f.enum_type, basestring):
+                    if f.enum_type in self.enums:
+                        f.enum_type = self.enums[f.enum_type]
+                    elif "." + f.enum_type in self.enums:
+                        f.enum_type = self.enums["." + f.enum_type]
+                    else:
+                        raise RuntimeError("Unknown Enum: %s"%f.message_type)
+        for d in self.classes.itervalues():
+            for f in d.fields:
+                if f.message_type:
+                    name = f.message_type.name
                     # We need to generate one of these otherwise the descriptor doesn't have a _concrete_class
                     cls = GeneratedProtocolMessageType(str(name), (Message,), {"DESCRIPTOR" : f.message_type})
-                if isinstance(f.enum_type, basestring):
-                    f.enum_type = self.enums[f.enum_type]
+
         self.clean = True
         return self._class_ids
 
