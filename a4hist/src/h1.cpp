@@ -107,23 +107,6 @@ double H1::integral() const
     return integral;
 }
 
-void H1::fill(const double &x, const double &weight)
-{
-    int bin = _axis->find_bin(x);
-    *(_data.get() + bin) += weight;
-    ++_entries;
-
-    if (_weights_squared) {
-        *(_weights_squared.get() + bin) += weight*weight;
-    } else if (weight != 1.0) {
-        const uint32_t total_bins = _axis->bins() + 2;
-        _weights_squared.reset(new double[total_bins]);
-        for(uint32_t i = 0; i < total_bins; i++)
-            _weights_squared[i] = _data[i];
-        *(_weights_squared.get() + bin) += weight*weight;
-    }
-}
-
 void H1::print(std::ostream &out) const
 {
     if (!_data)
@@ -133,7 +116,7 @@ void H1::print(std::ostream &out) const
     }
 
     if (!title.empty()) out << "Title: " << title << endl;
-    out << "Entries: " << entries() << " Integral: " << integral() << endl;
+    out << "Entries: " << entries() << " Integral: " << int(integral()) << endl;
 
     for(uint32_t bin = 0, bins = _axis->bins() + 2; bins > bin; ++bin)
         //out << "[" << setw(3) << bin << "]: " << *(_data.get() + bin) << endl;

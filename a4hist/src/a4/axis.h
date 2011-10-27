@@ -58,7 +58,7 @@ class VariableAxis : public SimpleAxis {
 
         double min() const {return _bin_bounds[1];};
         double max() const {return _bin_bounds[bins()];};
-        uint32_t bins() const {return _bin_bounds_end - _bin_bounds.get() - 1;};
+        uint32_t bins() const {return _bin_bounds_end - _bin_bounds.get() - 2;};
         uint32_t find_bin(const double&) const;
 
     protected:

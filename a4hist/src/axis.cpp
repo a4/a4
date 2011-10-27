@@ -5,7 +5,6 @@
 #include "a4/axis.h"
 #include "a4/hist/Histograms.pb.h"
 
-using namespace std;
 namespace a4{ namespace hist{
 
 unique<Axis> Axis::from_proto(const pb::Axis & msg) {
@@ -26,7 +25,6 @@ SimpleAxis::SimpleAxis(const uint32_t &bins, const double &min, const double &ma
 };
 
 SimpleAxis::SimpleAxis(const SimpleAxis & a):
-
     _min(a._min),
     _max(a._max),
     _bins(a._bins),

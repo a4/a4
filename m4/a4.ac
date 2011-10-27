@@ -25,7 +25,8 @@ A4_CERN_ROOT_SYSTEM_CHECK([:],[AC_MSG_ERROR([a4root requires the CERN ROOT libra
 
 A4_GTEST_CHECK
 
-A4_LIBDPM_CHECK([:], [:])
+# We don't use this anymore.
+# A4_LIBDPM_CHECK([:], [:])
 
 # Enable this_a4.sh
 AC_CONFIG_FILES([m4/this_a4.sh.in:m4/this_a4.sh.ac])
