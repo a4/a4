@@ -176,6 +176,8 @@ class ProtoClassPool(object):
         fd = FileDescriptor(str(fdp.name), str(fdp.package), serialized_pb=fdp.SerializeToString())
         for m in fdp.message_type:
             fd.message_types_by_name[m.name] = self.type_from_proto(m, str(fdp.package), fdp.name)
+        for e in fdp.enum_type:
+            self.enum_from_proto(e, str(fdp.package), fdp.name)
         self.files.append(fd)
 
     def report_proto_class(self, protoclass):
@@ -206,4 +208,9 @@ class ProtoClassPool(object):
                     f.enum_type = self.enums[f.enum_type]
         self.clean = True
         return self._class_ids
+
+    def find_class_id(self, class_id):
+        if class_id in fixed_class_ids:
+            return fixed_class_ids[class_id]
+        return self.class_ids.get(class_id, None)
 

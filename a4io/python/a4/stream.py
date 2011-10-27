@@ -24,7 +24,6 @@ class OutputStream(object):
         self._raw_out_stream = out_stream
         self.out_stream = out_stream
         self.metadata_refers_forward = metadata_refers_forward
-        file_descriptors = []
         self._written_class_ids = set()
         self._written_fdps = set()
         self.metadata_offsets = []
@@ -96,14 +95,17 @@ class OutputStream(object):
         if all_fds is None:
             import gc
             all_fds = [fd for fd in gc.get_objects() if isinstance(fd, FileDescriptor)]
-        if any(file_descriptor.name == fd.name for fd in file_descriptors):
-            return # We have seen this one before
+        # Do always recurse into dependencies to assure that dependencies are written first
         file_descriptors.append(file_descriptor)
         fdp = FileDescriptorProto()
         file_descriptor.CopyToProto(fdp)
-        for fd in all_fds:
-            if fd.name in fdp.dependency:
-                self.get_descriptors_recursively(fd, all_fds, file_descriptors)
+        for dep in fdp.dependency:
+            matches = [fd for fd in all_fds if fd.name == dep]
+            if len(matches) == 0:
+                raise RuntimeError("MISSING A4 DEPENDENCY: %s" % dep)
+            else:
+                fd, = matches
+                self.get_descriptors_recursively(fd, file_descriptors, all_fds)
         return file_descriptors
 
     def get_file_descriptor_protos(self, file_descriptors):
@@ -119,6 +121,7 @@ class OutputStream(object):
 
     def write_proto_class(self, o, class_id):
         file_descriptors = self.get_descriptors_recursively(o.DESCRIPTOR.file)
+        file_descriptors.reverse()
         protoclass = ProtoClass();
         protoclass.file_descriptor.extend(self.get_file_descriptor_protos(file_descriptors))
         protoclass.class_id = class_id
@@ -299,10 +302,11 @@ class InputStream(object):
 
     def info(self):
         def cname(id):
-            if id in self.pool.class_ids:
-                return self.pool.class_ids[id].__name__
-            else:
+            cls = self.pool.find_class_id(id)
+            if cls is None:
                 return "<unknow class %i>" % id
+            else:
+                return self.pool.class_ids[id].__name__
         self.read_all_meta_info()
         info = []
         version = [h.a4_version for h in self.headers.values()]
@@ -323,7 +327,7 @@ class InputStream(object):
             class_id,  = unpack("<I", self.in_stream.read(4))
         else:
             class_id = 0
-        cls = self.pool.class_ids[class_id]
+        cls = self.pool.find_class_id(class_id)
 
         #print "READ NEXT ", cls, " AT ", self.in_stream.tell()
         msg = cls.FromString(self.in_stream.read(size))
