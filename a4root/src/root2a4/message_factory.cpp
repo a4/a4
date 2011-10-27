@@ -157,7 +157,7 @@ Copier make_copier_from_leaf(TBranch* branch, TLeaf* leaf,
     
     switch (field->cpp_type())
     {
-        #include "convertable_types.cc"
+        #include "root2a4/convertable_types.cc"
         
         default:
             throw a4::Fatal("Unknown field type in make_copier_from_branch ", field->cpp_type());
@@ -318,7 +318,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
     
     switch (field->cpp_type())
     {
-        #include "convertable_types.cc"
+        #include "root2a4/convertable_types.cc"
         
         default:
             FAILURE(str_cat("field with typecode", field->cpp_type()));
