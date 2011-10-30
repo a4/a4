@@ -44,15 +44,15 @@ a4dump_SOURCES = src/apps/a4dump.cpp
 
 ## Test programs
 check_PROGRAMS = test_io test_thread gtests test_rfio
-test_bigwrite_SOURCES = src/test_bigwrite.cpp
-test_io_SOURCES = src/test_io.cpp
-test_thread_SOURCES = src/test_thread.cpp
-test_read_SOURCES = src/test_read.cpp
-test_read_nomd_SOURCES = src/test_read_nomd.cpp
-test_write_fw_SOURCES = src/test_write_fw.cpp
-test_write_bw_SOURCES = src/test_write_bw.cpp
-test_write_nomd_fw_SOURCES = src/test_write_nomd_fw.cpp
-test_write_nomd_bw_SOURCES = src/test_write_nomd_bw.cpp
+test_bigwrite_SOURCES = src/tests/test_bigwrite.cpp
+test_io_SOURCES = src/tests/test_io.cpp
+test_thread_SOURCES = src/tests/test_thread.cpp
+test_read_SOURCES = src/tests/test_read.cpp
+test_read_nomd_SOURCES = src/tests/test_read_nomd.cpp
+test_write_fw_SOURCES = src/tests/test_write_fw.cpp
+test_write_bw_SOURCES = src/tests/test_write_bw.cpp
+test_write_nomd_fw_SOURCES = src/tests/test_write_nomd_fw.cpp
+test_write_nomd_bw_SOURCES = src/tests/test_write_nomd_bw.cpp
 
 
 nodist_test_rfio_SOURCES = $(GTEST_APP)
@@ -61,7 +61,7 @@ test_rfio_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
 test_rfio_LDADD = -ldl $(LDADD) $(GTEST_LIBS)
 
 nodist_gtests_SOURCES = $(GTEST_APP)
-gtests_SOURCES = src/test_rw.cpp src/test_merge_metadata.cpp
+gtests_SOURCES = src/tests/test_rw.cpp src/tests/test_merge_metadata.cpp
 gtests_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
 gtests_LDADD = $(LDADD) $(GTEST_LIBS)
 
