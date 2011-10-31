@@ -1,3 +1,5 @@
+package a4.atlas;
+
 import "a4/atlas/Physics.proto";
 
 message Jet

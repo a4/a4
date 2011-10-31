@@ -1,6 +1,8 @@
 // Taken from
 // http://alxr.usatlas.bnl.gov/lxr-stb5/source/atlas/Tracking/TrkEvent/TrkTrackSummary/TrkTrackSummary/TrackSummary.h#043
 
+package a4.atlas;
+
 message TrackHits
 {
     optional int32 numberOfContribPixelLayers = 9; // number of contributing layers of the pixel detector

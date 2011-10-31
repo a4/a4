@@ -8,19 +8,11 @@ PYDIR=./python
 CPPDIR=./src
 PROTOBUF_CFLAGS += -I$(CPPDIR)/a4/$(A4PACK)
 
-PROTOBUF_PY=$(PYDIR)/a4/atlas/Photon_pb2.py $(PYDIR)/a4/atlas/Event_pb2.py $(PYDIR)/a4/atlas/Jet_pb2.py $(PYDIR)/a4/atlas/Electron_pb2.py $(PYDIR)/a4/atlas/Physics_pb2.py $(PYDIR)/a4/atlas/Muon_pb2.py $(PYDIR)/a4/atlas/Atlas/Isolation_pb2.py $(PYDIR)/a4/atlas/Atlas/TrackHits_pb2.py $(PYDIR)/a4/atlas/Atlas/DataQuality_pb2.py $(PYDIR)/a4/atlas/Atlas/Trigger_pb2.py $(PYDIR)/a4/atlas/Atlas/ShowerShape_pb2.py $(PYDIR)/a4/atlas/Atlas/EventStreamInfo_pb2.py
-PROTOBUF_H=$(CPPDIR)/a4/atlas/Photon.pb.h $(CPPDIR)/a4/atlas/Event.pb.h $(CPPDIR)/a4/atlas/Jet.pb.h $(CPPDIR)/a4/atlas/Electron.pb.h $(CPPDIR)/a4/atlas/Physics.pb.h $(CPPDIR)/a4/atlas/Muon.pb.h $(CPPDIR)/a4/atlas/Atlas/Isolation.pb.h $(CPPDIR)/a4/atlas/Atlas/TrackHits.pb.h $(CPPDIR)/a4/atlas/Atlas/DataQuality.pb.h $(CPPDIR)/a4/atlas/Atlas/Trigger.pb.h $(CPPDIR)/a4/atlas/Atlas/ShowerShape.pb.h $(CPPDIR)/a4/atlas/Atlas/EventStreamInfo.pb.h
-PROTOBUF_CC=$(CPPDIR)/a4/atlas/Photon.pb.cc $(CPPDIR)/a4/atlas/Event.pb.cc $(CPPDIR)/a4/atlas/Jet.pb.cc $(CPPDIR)/a4/atlas/Electron.pb.cc $(CPPDIR)/a4/atlas/Physics.pb.cc $(CPPDIR)/a4/atlas/Muon.pb.cc $(CPPDIR)/a4/atlas/Atlas/Isolation.pb.cc $(CPPDIR)/a4/atlas/Atlas/TrackHits.pb.cc $(CPPDIR)/a4/atlas/Atlas/DataQuality.pb.cc $(CPPDIR)/a4/atlas/Atlas/Trigger.pb.cc $(CPPDIR)/a4/atlas/Atlas/ShowerShape.pb.cc $(CPPDIR)/a4/atlas/Atlas/EventStreamInfo.pb.cc
-PROTOBUF_PROTO=$(PROTOSRCDIR)/a4/atlas/Photon.proto $(PROTOSRCDIR)/a4/atlas/Event.proto $(PROTOSRCDIR)/a4/atlas/Jet.proto $(PROTOSRCDIR)/a4/atlas/Electron.proto $(PROTOSRCDIR)/a4/atlas/Physics.proto $(PROTOSRCDIR)/a4/atlas/Muon.proto $(PROTOSRCDIR)/a4/atlas/Atlas/Isolation.proto $(PROTOSRCDIR)/a4/atlas/Atlas/TrackHits.proto $(PROTOSRCDIR)/a4/atlas/Atlas/DataQuality.proto $(PROTOSRCDIR)/a4/atlas/Atlas/Trigger.proto $(PROTOSRCDIR)/a4/atlas/Atlas/ShowerShape.proto $(PROTOSRCDIR)/a4/atlas/Atlas/EventStreamInfo.proto
+PROTOBUF_PY=$(PYDIR)/a4/atlas/Isolation_pb2.py $(PYDIR)/a4/atlas/TrackHits_pb2.py $(PYDIR)/a4/atlas/Photon_pb2.py $(PYDIR)/a4/atlas/DataQuality_pb2.py $(PYDIR)/a4/atlas/Trigger_pb2.py $(PYDIR)/a4/atlas/Event_pb2.py $(PYDIR)/a4/atlas/Jet_pb2.py $(PYDIR)/a4/atlas/Electron_pb2.py $(PYDIR)/a4/atlas/Physics_pb2.py $(PYDIR)/a4/atlas/ShowerShape_pb2.py $(PYDIR)/a4/atlas/EventStreamInfo_pb2.py $(PYDIR)/a4/atlas/Muon_pb2.py
+PROTOBUF_H=$(CPPDIR)/a4/atlas/Isolation.pb.h $(CPPDIR)/a4/atlas/TrackHits.pb.h $(CPPDIR)/a4/atlas/Photon.pb.h $(CPPDIR)/a4/atlas/DataQuality.pb.h $(CPPDIR)/a4/atlas/Trigger.pb.h $(CPPDIR)/a4/atlas/Event.pb.h $(CPPDIR)/a4/atlas/Jet.pb.h $(CPPDIR)/a4/atlas/Electron.pb.h $(CPPDIR)/a4/atlas/Physics.pb.h $(CPPDIR)/a4/atlas/ShowerShape.pb.h $(CPPDIR)/a4/atlas/EventStreamInfo.pb.h $(CPPDIR)/a4/atlas/Muon.pb.h
+PROTOBUF_CC=$(CPPDIR)/a4/atlas/Isolation.pb.cc $(CPPDIR)/a4/atlas/TrackHits.pb.cc $(CPPDIR)/a4/atlas/Photon.pb.cc $(CPPDIR)/a4/atlas/DataQuality.pb.cc $(CPPDIR)/a4/atlas/Trigger.pb.cc $(CPPDIR)/a4/atlas/Event.pb.cc $(CPPDIR)/a4/atlas/Jet.pb.cc $(CPPDIR)/a4/atlas/Electron.pb.cc $(CPPDIR)/a4/atlas/Physics.pb.cc $(CPPDIR)/a4/atlas/ShowerShape.pb.cc $(CPPDIR)/a4/atlas/EventStreamInfo.pb.cc $(CPPDIR)/a4/atlas/Muon.pb.cc
+PROTOBUF_PROTO=$(PROTOSRCDIR)/a4/atlas/Isolation.proto $(PROTOSRCDIR)/a4/atlas/TrackHits.proto $(PROTOSRCDIR)/a4/atlas/Photon.proto $(PROTOSRCDIR)/a4/atlas/DataQuality.proto $(PROTOSRCDIR)/a4/atlas/Trigger.proto $(PROTOSRCDIR)/a4/atlas/Event.proto $(PROTOSRCDIR)/a4/atlas/Jet.proto $(PROTOSRCDIR)/a4/atlas/Electron.proto $(PROTOSRCDIR)/a4/atlas/Physics.proto $(PROTOSRCDIR)/a4/atlas/ShowerShape.proto $(PROTOSRCDIR)/a4/atlas/EventStreamInfo.proto $(PROTOSRCDIR)/a4/atlas/Muon.proto
 
-protoa4atlasAtlasdir=${protodir}/a4/atlas/Atlas
-protoincludea4atlasAtlasdir=${protoincludedir}/a4/atlas/Atlas
-protopythona4atlasAtlasdir=${protopythondir}/a4/atlas/Atlas
-
-CLEANFILES += $(PYDIR)/a4/atlas/Atlas/__init__.py
-
-$(PYDIR)/a4/atlas/Atlas/__init__.py:
-	touch $@
 protoa4atlasdir=${protodir}/a4/atlas
 protoincludea4atlasdir=${protoincludedir}/a4/atlas
 protopythona4atlasdir=${protopythondir}/a4/atlas
@@ -30,13 +22,9 @@ CLEANFILES += $(PYDIR)/a4/atlas/__init__.py
 $(PYDIR)/a4/atlas/__init__.py:
 	touch $@
 
-dist_protoa4atlasAtlas_DATA=$(PROTOSRCDIR)/a4/atlas/Atlas/DataQuality.proto $(PROTOSRCDIR)/a4/atlas/Atlas/Trigger.proto $(PROTOSRCDIR)/a4/atlas/Atlas/TrackHits.proto $(PROTOSRCDIR)/a4/atlas/Atlas/ShowerShape.proto $(PROTOSRCDIR)/a4/atlas/Atlas/EventStreamInfo.proto $(PROTOSRCDIR)/a4/atlas/Atlas/Isolation.proto
-nodist_protoincludea4atlasAtlas_HEADERS=$(CPPDIR)/a4/atlas/Atlas/DataQuality.pb.h $(CPPDIR)/a4/atlas/Atlas/Trigger.pb.h $(CPPDIR)/a4/atlas/Atlas/TrackHits.pb.h $(CPPDIR)/a4/atlas/Atlas/ShowerShape.pb.h $(CPPDIR)/a4/atlas/Atlas/EventStreamInfo.pb.h $(CPPDIR)/a4/atlas/Atlas/Isolation.pb.h
-nodist_protopythona4atlasAtlas_PYTHON=$(PYDIR)/a4/atlas/Atlas/DataQuality_pb2.py $(PYDIR)/a4/atlas/Atlas/Trigger_pb2.py $(PYDIR)/a4/atlas/Atlas/TrackHits_pb2.py $(PYDIR)/a4/atlas/Atlas/ShowerShape_pb2.py $(PYDIR)/a4/atlas/Atlas/EventStreamInfo_pb2.py $(PYDIR)/a4/atlas/Atlas/Isolation_pb2.py $(PYDIR)/a4/atlas/Atlas/__init__.py
-
-dist_protoa4atlas_DATA=$(PROTOSRCDIR)/a4/atlas/Physics.proto $(PROTOSRCDIR)/a4/atlas/Muon.proto $(PROTOSRCDIR)/a4/atlas/Jet.proto $(PROTOSRCDIR)/a4/atlas/Electron.proto $(PROTOSRCDIR)/a4/atlas/Event.proto $(PROTOSRCDIR)/a4/atlas/Photon.proto
-nodist_protoincludea4atlas_HEADERS=$(CPPDIR)/a4/atlas/Physics.pb.h $(CPPDIR)/a4/atlas/Muon.pb.h $(CPPDIR)/a4/atlas/Jet.pb.h $(CPPDIR)/a4/atlas/Electron.pb.h $(CPPDIR)/a4/atlas/Event.pb.h $(CPPDIR)/a4/atlas/Photon.pb.h
-nodist_protopythona4atlas_PYTHON=$(PYDIR)/a4/atlas/Physics_pb2.py $(PYDIR)/a4/atlas/Muon_pb2.py $(PYDIR)/a4/atlas/Jet_pb2.py $(PYDIR)/a4/atlas/Electron_pb2.py $(PYDIR)/a4/atlas/Event_pb2.py $(PYDIR)/a4/atlas/Photon_pb2.py $(PYDIR)/a4/atlas/__init__.py
+dist_protoa4atlas_DATA=$(PROTOSRCDIR)/a4/atlas/ShowerShape.proto $(PROTOSRCDIR)/a4/atlas/Isolation.proto $(PROTOSRCDIR)/a4/atlas/DataQuality.proto $(PROTOSRCDIR)/a4/atlas/Muon.proto $(PROTOSRCDIR)/a4/atlas/Jet.proto $(PROTOSRCDIR)/a4/atlas/Electron.proto $(PROTOSRCDIR)/a4/atlas/Event.proto $(PROTOSRCDIR)/a4/atlas/Trigger.proto $(PROTOSRCDIR)/a4/atlas/TrackHits.proto $(PROTOSRCDIR)/a4/atlas/Physics.proto $(PROTOSRCDIR)/a4/atlas/EventStreamInfo.proto $(PROTOSRCDIR)/a4/atlas/Photon.proto
+nodist_protoincludea4atlas_HEADERS=$(CPPDIR)/a4/atlas/ShowerShape.pb.h $(CPPDIR)/a4/atlas/Isolation.pb.h $(CPPDIR)/a4/atlas/DataQuality.pb.h $(CPPDIR)/a4/atlas/Muon.pb.h $(CPPDIR)/a4/atlas/Jet.pb.h $(CPPDIR)/a4/atlas/Electron.pb.h $(CPPDIR)/a4/atlas/Event.pb.h $(CPPDIR)/a4/atlas/Trigger.pb.h $(CPPDIR)/a4/atlas/TrackHits.pb.h $(CPPDIR)/a4/atlas/Physics.pb.h $(CPPDIR)/a4/atlas/EventStreamInfo.pb.h $(CPPDIR)/a4/atlas/Photon.pb.h
+nodist_protopythona4atlas_PYTHON=$(PYDIR)/a4/atlas/ShowerShape_pb2.py $(PYDIR)/a4/atlas/Isolation_pb2.py $(PYDIR)/a4/atlas/DataQuality_pb2.py $(PYDIR)/a4/atlas/Muon_pb2.py $(PYDIR)/a4/atlas/Jet_pb2.py $(PYDIR)/a4/atlas/Electron_pb2.py $(PYDIR)/a4/atlas/Event_pb2.py $(PYDIR)/a4/atlas/Trigger_pb2.py $(PYDIR)/a4/atlas/TrackHits_pb2.py $(PYDIR)/a4/atlas/Physics_pb2.py $(PYDIR)/a4/atlas/EventStreamInfo_pb2.py $(PYDIR)/a4/atlas/Photon_pb2.py $(PYDIR)/a4/atlas/__init__.py
 
 
 # how to make protobuf objects
