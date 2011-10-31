@@ -53,10 +53,18 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
 
         uint64_t entries() const { return _entries; }
         uint64_t bins() const { return _axis->bins(); }
+        
         /// Sum of weights in _non overflow_ bins
         double integral() const;
         
         const Axis & x() const { return *_axis; }
+        const Axis& axis(uint32_t i) const {
+            switch (i) {
+                case 0:
+                    return x();
+            }
+            throw a4::Fatal("Requested invalid axis ", i, " of H1");
+        }
 
         void print(std::ostream &) const;
 
@@ -127,6 +135,13 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
 
         const Axis & x() const { return *_x_axis; }
         const Axis & y() const { return *_y_axis; }
+        const Axis& axis(uint32_t i) const {
+            switch (i) {
+                case 1: return y();
+                case 0: return x();
+            }
+            throw a4::Fatal("Requested invalid axis ", i, " of H2");
+        }
 
         void print(std::ostream &) const;
 
@@ -202,6 +217,14 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
         const Axis & x() const { return *_x_axis; }
         const Axis & y() const { return *_y_axis; }
         const Axis & z() const { return *_z_axis; }
+        const Axis& axis(uint32_t i) const {
+            switch (i) {
+                case 2: return z();
+                case 1: return y();
+                case 0: return x();
+            }
+            throw a4::Fatal("Requested invalid axis ", i, " of H3");
+        }
 
         void print(std::ostream &) const;
 

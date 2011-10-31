@@ -17,6 +17,8 @@ class Axis {
         virtual double max() const = 0;
         virtual uint32_t bins() const = 0;
         virtual uint32_t find_bin(const double &x) const = 0;
+        virtual bool variable() const = 0;
+        virtual double bin_edge(const int& i) const = 0;
         std::string label;
 };
 
@@ -34,6 +36,13 @@ class SimpleAxis : public Axis {
         double max() const {return _max;};
         uint32_t bins() const {return _bins;};
         uint32_t find_bin(const double &x) const;
+        bool variable() const { return false; }
+        double bin_edge(const int& i) const {
+            if (i > bins())
+                throw a4::Fatal("Tried to request bin ", i, " of a ", 
+                                 bins(), "-bin axis");
+            return _min + i*_delta;
+        }
 
     protected:
         bool sane() const;
@@ -60,6 +69,13 @@ class VariableAxis : public SimpleAxis {
         double max() const {return _bin_bounds[bins()];};
         uint32_t bins() const {return _bin_bounds_end - _bin_bounds.get() - 2;};
         uint32_t find_bin(const double&) const;
+        bool variable() const { return true; }
+        double bin_edge(const int& i) const {
+            if (i > bins())
+                throw a4::Fatal("Tried to request bin ", i, " of a ", 
+                                 bins(), "-bin axis");
+            return _bin_bounds[i+1];
+        }
 
     protected:
         bool sane() const;

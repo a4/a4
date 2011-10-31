@@ -138,7 +138,7 @@ VariableAxis::VariableAxis(const pb::Axis & msg) {
 unique<pb::Axis> VariableAxis::get_proto() {
     unique<pb::Axis> axis(new pb::Axis);
     axis->set_label(label);
-    for (double const* x = _bin_bounds.get() + 1; x < _bin_bounds_end - 1; x++)
+    for (double const* x = _bin_bounds.get() + 1; x < _bin_bounds_end; x++)
         axis->add_variable_bins(*x);
     return axis;
 }

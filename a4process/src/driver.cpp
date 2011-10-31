@@ -296,6 +296,9 @@ try
 
     std::cout << "CPU time: " << total.cputime << " (" << (total.events / total.cputime.count()) << "Hz)" << std::endl;
     
+    const double megabytes = total.bytes / (1024.*1024.);
+    std::cout << "Total data read  " << megabytes << " (MB) Rate: " << megabytes / walltime.count() << " (MB/s)" << std::endl;
+    
     // Clean Up any memory allocated by libprotobuf
     //google::protobuf::ShutdownProtobufLibrary();
     return 0;
