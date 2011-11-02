@@ -20,7 +20,8 @@ namespace a4{ namespace io{
         if (!do_mmap) return;
         struct stat buffer;
         static_assert(sizeof(buffer.st_size) >= sizeof(size_t), "OS Size information is 32 bit!");
-        static_assert(sizeof(size_t) >= sizeof(uint64_t), "size_t is 32 bit!");
+// See https://github.com/JohannesEbke/a4/issues/34
+//        static_assert(sizeof(size_t) >= sizeof(uint64_t), "size_t is 32 bit!");
         if (fstat(no, &buffer) == -1) {
             close(no);
             return;
