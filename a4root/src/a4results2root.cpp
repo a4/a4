@@ -49,7 +49,9 @@ TDirectory* mkdirs(TFile &f, string file) {
             prevdir += "/" + tok;
         }
     }
-    const char* pth = rpath.parent_path().string().c_str();
+    const char* pth = dir.c_str();
+    if (rpath.parent_path().string().empty())
+        return static_cast<TDirectory*>(&f);
     f.cd(pth);
     return static_cast<TDirectory*>(f.Get(pth));
 }
