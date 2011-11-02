@@ -9,7 +9,7 @@
 
 using namespace a4::hist;
 
-const size_t GRIND_REPETITIONS = 100000000;
+const size_t GRIND_REPETITIONS = 5000000;
 
 TEST(a4hist, h1) {
     H1 h1;
@@ -72,6 +72,27 @@ TEST(a4hist, test_h1_grind_backstore) {
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         S.T<H1>("hist")(100, 0, 1).fill(i);
+}
+
+TEST(a4hist, test_h1_grind_backstore_variable) {
+    a4::process::ObjectBackStore backstore;
+    auto S = backstore("test/");
+    for (size_t i = 0; i < GRIND_REPETITIONS; i++)
+        S.T<H1>("hist")({10., 20., 1000., 1000000., 5000000.}).fill(i);
+}
+
+TEST(a4hist, test_h1_grind_backstore_variable_label) {
+    a4::process::ObjectBackStore backstore;
+    auto S = backstore("test/");
+    for (size_t i = 0; i < GRIND_REPETITIONS; i++)
+        S.T<H1>("hist")({10., 20., 1000., 1000000., 5000000.}, "x").fill(i);
+}
+
+TEST(a4hist, test_h1_grind_backstore_variable_int) {
+    a4::process::ObjectBackStore backstore;
+    auto S = backstore("test/");
+    for (size_t i = 0; i < GRIND_REPETITIONS; i++)
+        S.T<H1>("hist")({10, 20, 1000, 1000000, 5000000}).fill(i);
 }
 
 TEST(a4hist, test_h1_grind_backstore_many) {
