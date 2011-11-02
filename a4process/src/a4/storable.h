@@ -127,6 +127,19 @@ namespace a4{ namespace process{
                 return *static_cast<This*>(this);
             }
             
+            /// This constructor is needed so that you can give integer bin widths
+            template <typename... Args> This& operator()(const std::initializer_list<int>& bins, const char* label="") {
+                if (_initializations_remaining != 0) {
+                    _initializations_remaining--;
+                    std::vector<double> double_bins;
+                    foreach (auto& edge, bins)
+                        double_bins.push_back(edge);
+                    // = bins;
+                    static_cast<This*>(this)->constructor(double_bins, label);
+                }
+                return *static_cast<This*>(this);
+            }
+            
             template <typename... Args> This& operator()(const Args&... args) {
                 if (_initializations_remaining != 0) {
                     _initializations_remaining--;
