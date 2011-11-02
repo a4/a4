@@ -20,6 +20,19 @@ struct ALorentzVector
     static ALorentzVector from(const V&v) {
        return ALorentzVector(v.px(), v.py(), v.pz(), v.e());
     }
+
+    template<typename V>
+    static ALorentzVector from_met(const V&v) {
+       ALorentzVector lv(v.x(), v.y(), 0.0, 0.0);
+       lv.E = lv.pt();
+       return lv;
+    }
+
+    static ALorentzVector from_met(const float& x, const float& y) {
+       ALorentzVector lv(x, y, 0.0, 0.0);
+       lv.E = lv.pt();
+       return lv;
+    }
     
     template<typename V>
     static ALorentzVector from_ptetaphie(const V& v) {

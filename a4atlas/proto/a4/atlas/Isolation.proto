@@ -1,3 +1,5 @@
+package a4.atlas;
+
 message Isolation
 {
     optional double etcone10 = 1;
