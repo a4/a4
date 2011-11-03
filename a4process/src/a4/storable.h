@@ -132,8 +132,8 @@ namespace a4{ namespace process{
                 if (_initializations_remaining != 0) {
                     _initializations_remaining--;
                     std::vector<double> double_bins;
-                    foreach (auto& edge, bins)
-                        double_bins.push_back(edge);
+                    for(auto edge = bins.begin(); edge != bins.end(); edge++)
+                        double_bins.push_back(*edge);
                     // = bins;
                     static_cast<This*>(this)->constructor(double_bins, label);
                 }
