@@ -33,6 +33,16 @@ namespace a4{ namespace io{
         } else if (name.size() != 0) {
             std::map<std::string, internal::classreg>::const_iterator res = all_classes.find(name);
             if (res == all_classes.end()) {
+                // If it is not a FQN, search subpackages...
+                if (name.find('.') == std::string::npos) {
+                    foreach(auto item, all_classes) {
+                        size_t pos = item.first.find_last_of('.');
+                        if (pos != std::string::npos && item.first.substr(pos+1) == name) {
+                            if (warn) std::cerr << "Warning: Substituting " <<  item.first << " for not fully qualified " << name << "!" << std::endl;
+                            return item.second;
+                        }
+                    }
+                }
                 if (warn)
                     std::cerr << "Warning, trying to get a compiled-in reader for class " << name
                               << " when there is none." << std::endl;
