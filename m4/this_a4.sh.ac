@@ -1,18 +1,17 @@
-alias protoc=@PROTOBUF_PROTOC@
-export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:${prefix}/lib/pkgconfig
-export PROTOBUF_PROTOC=@PROTOBUF_PROTOC@
 
+# Also setup protobuf if it is not installed
 if test "x@PROTOBUF_ROOT@" != "x"; then
     export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:@PROTOBUF_ROOT@/lib/pkgconfig
     export PYTHONPATH=@PROTOBUF_ROOT@/python:$PYTHONPATH
-    export PROTOBUF_RPATH="-Wl,-rpath @PROTOBUF_ROOT@/lib"
-fi
-if test "x@BOOST_ROOT@" != "x"; then
-    export BOOST_RPATH="-Wl,-rpath @BOOST_ROOT@/lib"
 fi
 
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:${prefix}/lib/pkgconfig
 export PYTHONPATH=:@pythondir@:$PYTHONPATH
 export PATH=${prefix}/bin:$PATH
-export A4_CXX=@CXX@
-export A4_CPPFLAGS="$CPPFLAGS @BOOST_CPPFLAGS@ @PROTOBUF_CFLAGS@ -std=c++0x -I${prefix}/include"
-export A4_LDFLAGS="$LDFLAGS @BOOST_LIBS@ @PROTOBUF_LIBS@ -L${prefix}/lib -Wl,-rpath ${prefix}/lib $PROTOBUF_RPATH $BOOST_RPATH"
+
+# Get the used compiler with $(pkg-config a4 --variable=CXX)
+# Get the used protoc compiler with $(pkg-config a4 --variable=PROTOC)
+
+# In Makefiles, do not forget that the syntax is:
+# CXX=$(shell pkg-config a4 --variable=CXX)
+
