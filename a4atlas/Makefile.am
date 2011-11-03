@@ -5,8 +5,6 @@ A4PACK=atlas
 include m4/a4.am
 include protobuf.am
 
-AM_CXXFLAGS+= -Wall -Werror
-
 ## What to dostribute and where
 athenadatadir=${pkgdatadir}/athena
 dist_python_SCRIPTS=python/grl2datasets python/grl2xml python/grl_and python/grl_diff python/id2xs python/ids2datasets python/mc_count python/mc_merge python/xml2grl
