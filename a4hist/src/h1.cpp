@@ -86,10 +86,10 @@ void H1::from_pb() {
     _entries = pb->entries();
     const uint32_t total_bins = _axis->bins() + 2;
     _data.reset(new double[total_bins]);
-    for (int i = 0; i < total_bins; i++) _data[i] = pb->data(i);
+    for (uint32_t i = 0; i < total_bins; i++) _data[i] = pb->data(i);
     if (pb->weights_squared_size() > 0) {
         _weights_squared.reset(new double[total_bins]);
-        for (int i = 0; i < total_bins; i++) _weights_squared[i] = pb->weights_squared(i);
+        for (uint32_t i = 0; i < total_bins; i++) _weights_squared[i] = pb->weights_squared(i);
     }
     title = pb->title();
 };
