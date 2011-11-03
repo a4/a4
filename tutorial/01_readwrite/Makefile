@@ -11,9 +11,10 @@ PROTOBUF_PYPACK=$(PROTOBUF_PY) $(foreach protopy,$(dir $(PROTOBUF_PY)),$(protopy
 
 SOURCES=$(wildcard src/*.cpp)
 
-CPPFLAGS+=$(A4_CPPFLAGS)
-CPPFLAGS+=-I$(CPPDIR)
-CXX=$(A4_CXX)
+CXX=$(shell pkg-config a4 --variable=CXX)
+PROTOC=$(shell pkg-config a4 --variable=PROTOC)
+MY_CPPFLAGS+=$(shell pkg-config a4 --cflags) -I$(CPPDIR)
+MY_LDFLAGS=$(shell pkg-config a4 --libs) -la4atlas
 
 .PHONY: all
 .SECONDARY: $(PROTOBUF_PY) $(PROTOBUF_CC) $(PROTOBUF_O)
@@ -22,12 +23,18 @@ all: analysis rwtest $(PROTOBUF_PYPACK)
 
 # Make your binary from the compiled sources and protobuf objects
 %: $(PROTOBUF_O) src/%.o
-	$(CXX) $(A4_LDFLAGS) $(LDFLAGS) -la4io -la4process -o $@ $^
+	libtool --mode=link --tag=CC $(CXX) $(MY_LDFLAGS) $(LDFLAGS) -o $@ $^
+
+%.o: %.cpp
+	libtool --mode=compile --tag=CC $(CXX) $(MY_CPPFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $^
+
+%.o: %.cc
+	libtool --mode=compile --tag=CC $(CXX) $(MY_CPPFLAGS) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $^
 
 # how to make protobuf objects
 $(PYDIR)/%_pb2.py $(CPPDIR)/%.pb.cc $(CPPDIR)/%.pb.h: $(PROTOBUF_PROTO)
 	@mkdir -p $(PYDIR) $(CPPDIR)
-	${PROTOBUF_PROTOC} -I=proto --python_out $(PYDIR) --cpp_out $(CPPDIR) $^
+	$(PROTOC) -I=proto --python_out $(PYDIR) --cpp_out $(CPPDIR) $^
 
 # how to make the python __init__.py
 $(PYDIR)/__init__.py: $(PROTOBUF_PY)
@@ -39,5 +46,4 @@ $(PYDIR)/%/__init__.py:
 clean:
 	rm -rf $(PYDIR) $(CPPDIR)
 	rm -f $(patsubst %.cpp,%.o,$(SOURCES))
-
 
