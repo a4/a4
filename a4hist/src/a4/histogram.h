@@ -33,6 +33,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         }
 
         void fill(const double& x, const double& weight=1) {
+            if (_initializations_remaining) throw a4::Fatal("Histogram is not fully initialized!");
             int bin = _axis->find_bin(x);
             *(_data.get() + bin) += weight;
             ++_entries;
@@ -108,6 +109,7 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         }
         
         void fill(const double& x, const double& y, const double& weight=1) {
+            if (_initializations_remaining) throw a4::Fatal("Histogram is not fully initialized!");
             int binx = _x_axis->find_bin(x);
             int biny = _y_axis->find_bin(y);
 
@@ -187,6 +189,7 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
         }
 
         void fill(const double& x, const double& y, const double& z, const double& weight=1) {
+            if (_initializations_remaining) throw a4::Fatal("Histogram is not fully initialized!");
             int binx = _x_axis->find_bin(x);
             int biny = _y_axis->find_bin(y);
             int binz = _z_axis->find_bin(z);
