@@ -8,7 +8,7 @@ using namespace std;
 
 namespace a4{ namespace atlas{
 
-GRL::GRL(const string & fn) {
+FileGRL::FileGRL(const string & fn) {
     ifstream in(fn.c_str(), ios::in);
     if (!in) {
         cerr << "ERROR - a4::atlas::GRL::GRL - Can not open '" << fn << "'!" << endl;
@@ -28,7 +28,7 @@ GRL::GRL(const string & fn) {
     }
 };
 
-bool GRL::pass(const uint32_t &run, const uint32_t &lb) const {
+bool FileGRL::pass(const uint32_t &run, const uint32_t &lb) const {
     // First, check if the run is actually in the GRL:
     std::map<uint32_t, std::set<LBRange> >::const_iterator i_run = _data.find(run);
     if (i_run == _data.end()) return false;
