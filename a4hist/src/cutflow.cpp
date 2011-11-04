@@ -16,6 +16,7 @@ using std::vector;
 namespace a4{ namespace hist{
 
 Cutflow::Cutflow() : _current_weight(1.0) {
+    _fast_access.reset(new hash_lookup());
     _weights_squared.reset();
 };
 
@@ -26,6 +27,7 @@ Cutflow::Cutflow(const Cutflow & h):
     _cut_names(h._cut_names),
     _current_weight(h._current_weight)
 {
+    _fast_access.reset(new hash_lookup());
     if (h._weights_squared) {
         _weights_squared.reset(new std::vector<double>);
         *_weights_squared = *h._weights_squared;

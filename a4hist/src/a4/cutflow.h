@@ -46,7 +46,7 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
 
         template <typename... Args>
         inline void order(const Args& ...args) { 
-            void * & res = _fast_access.lookup(args...);
+            void * & res = _fast_access->lookup(args...);
             if (res == NULL) res = (void*)new_bin(str_cat(args...));
         }
 
@@ -61,7 +61,7 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
 
         template <typename... Args>
         void fillw(const double & w, const Args& ...args) {
-            void * & res = _fast_access.lookup(args...);
+            void * & res = _fast_access->lookup(args...);
             if (res != NULL) return fill_internal(uintptr_t(res)-1, w);
             res = (void*)new_bin(str_cat(args...));
             fill_internal(uintptr_t(res)-1, w);
@@ -69,7 +69,7 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
     private:
         void fill_internal(const uintptr_t & idx, const double & w);
         uintptr_t new_bin(std::string name);
-        hash_lookup _fast_access;
+        unique<hash_lookup> _fast_access;
         std::vector<double> _bin;
         shared<std::vector<double> > _weights_squared;
         std::vector<std::string> _cut_names;
