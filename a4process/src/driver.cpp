@@ -84,7 +84,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     if (self->res) {
         resstream = self->res->get_stream();
         resstream->set_compression("ZLIB", 9);
-        if (get_auto_metadata(p)) outstream->set_forward_metadata();
+        if (get_auto_metadata(p)) resstream->set_forward_metadata();
     }
     self->set_backstore(p, bs);
     self->set_store_prefix(p);
