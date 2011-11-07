@@ -20,6 +20,25 @@ namespace a4{
     class BackTraceException : public std::exception {
         public:
             BackTraceException() {
+
+                // Try using GDB first...
+                bool gdb_worked = true;
+                FILE *fpipe;
+                std::stringstream cmd1, cmd2, res1, res2;
+                cmd1 << "gdb --batch --eval-command='attach " << getpid() << "' --eval-command='thread apply all bt'";
+                cmd2 << "gdb --batch --eval-command='attach " << getpid() << "' --eval-command='thread apply all bt full'";
+                char line[256];
+                if ( !(fpipe = (FILE*)popen(cmd1.str().c_str(),"r")) ) gdb_worked = false;
+                else while (fgets( line, sizeof line, fpipe)) res1 << line;
+                if (pclose(fpipe) != 0) gdb_worked = false;
+                if ( !(fpipe = (FILE*)popen(cmd2.str().c_str(),"r")) ) gdb_worked = false;
+                else while (fgets( line, sizeof line, fpipe)) res2 << line;
+                if (pclose(fpipe) != 0) gdb_worked = false;
+                _backtrace = res1.str();
+                _full_backtrace = res2.str();
+                if (gdb_worked) return;
+
+                // If GDB did not work...
                 void * stack_funcs[50];
                 int stack_size = backtrace(stack_funcs, 50);
                 char ** symbols = backtrace_symbols(stack_funcs, stack_size);
@@ -70,6 +89,7 @@ namespace a4{
                 }
                 free(symbols);
                 _backtrace = sstr.str();
+                _full_backtrace = sstr.str();
             };
             virtual ~BackTraceException() throw() {};
             virtual const char* what() const throw() {
@@ -77,6 +97,7 @@ namespace a4{
             }
         protected:
             std::string _backtrace;
+            std::string _full_backtrace;
     };
     class Fatal : public BackTraceException {
         public:
@@ -101,7 +122,7 @@ namespace a4{
                     create_directories(dirname);
                     dirname /= "last-fatal-error";
                     std::ofstream out(dirname.string().c_str());
-                    out << sstr.str() << std::endl;
+                    out << sstr.str() << std::endl << "FULL BACKTRACE:" << std::endl << _full_backtrace << std::endl;
                     sstr << "\nNotice: Error has been written to " << dirname.string() << std::endl;
                 } catch (...) {};
                 sstr << "If this is a bug in A4, please submit an issue at https://github.com/JohannesEbke/a4/issues" << std::endl;
