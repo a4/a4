@@ -36,7 +36,7 @@ namespace a4{
             public:
                 Processor() : auto_metadata(true) {};
                 virtual ~Processor() {};
-                /// Override this to proces raw A4 Messages without type checking
+                /// Override this to process raw A4 Messages without type checking
                 virtual void process_message(const A4Message) = 0;
                 /// This function is called if new metadata is available
                 virtual void process_new_metadata() {};
