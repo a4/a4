@@ -145,7 +145,8 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                 p->process_new_metadata();
             }
 
-            p->process_message(msg);
+            process_rerun_systematics(p, msg);
+
             if (get_out_metadata(p)) {
                 if (self->out) outstream->metadata(*get_out_metadata(p));
                 if (self->res) {

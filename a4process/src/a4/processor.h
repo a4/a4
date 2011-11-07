@@ -1,6 +1,8 @@
 #ifndef _A4PROCESS_H_
 #define _A4PROCESS_H_
 
+#include <set>
+
 #include <boost/program_options.hpp>
 
 #include <a4/a4io.h>
@@ -42,6 +44,22 @@ namespace a4{
                 virtual void process_new_metadata() {};
                 bool write(const google::protobuf::Message& m) { if (_outstream) return _outstream->write(m); else return false; };
                 void metadata(const google::protobuf::Message * m) { out_metadata = m; }
+
+                /// The whole analysis is rerun with the prefix "channel/<name>/" and in that run this function always returns true
+                bool channel(const char * name) {
+                    rerun_channels.insert(name);
+                    return rerun_channels_current == name;
+                }
+                /// The whole analysis is rerun with the prefix "syst/<name>/" and in that run this function always returns true
+                bool systematic(const char * name) {
+                    rerun_systematics.insert(name);
+                    return rerun_systematics_current == name;
+                }
+                /// From now all histograms are also saved with the prefix "channel/<name>/"
+                // void now_channel(const char * name);
+                /// (unimplemented) From now on, all histos are saved under prefix "syst/<name>/" and scale <scale>
+                // void scale_systematic(const char * c, double scale) { throw a4::Fatal("Not Implemented"); return false; };
+
             protected:
                 shared<a4::io::InputStream> _instream;
                 shared<a4::io::OutputStream> _outstream;
@@ -50,6 +68,12 @@ namespace a4{
                 A4Message metadata_message;
                 const google::protobuf::Message * out_metadata;
                 bool auto_metadata;
+
+                std::set<const char *> rerun_channels;
+                const char * rerun_channels_current;
+                std::set<const char *> rerun_systematics;
+                const char * rerun_systematics_current;
+
                 friend class a4::process::Driver;
         };
 
