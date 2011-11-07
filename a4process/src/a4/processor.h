@@ -34,19 +34,22 @@ namespace a4{
 
         class Processor {
             public:
+                Processor() : auto_metadata(true) {};
                 virtual ~Processor() {};
                 /// Override this to proces raw A4 Messages without type checking
                 virtual void process_message(const A4Message) = 0;
                 /// This function is called if new metadata is available
                 virtual void process_new_metadata() {};
                 bool write(const google::protobuf::Message& m) { if (_outstream) return _outstream->write(m); else return false; };
-                bool metadata(const google::protobuf::Message& m) { if (_outstream) return _outstream->metadata(m); else return false; };
+                void metadata(const google::protobuf::Message * m) { out_metadata = m; }
             protected:
                 shared<a4::io::InputStream> _instream;
                 shared<a4::io::OutputStream> _outstream;
                 shared<ObjectBackStore> _backstore;
                 ObjectStore S;
                 A4Message metadata_message;
+                const google::protobuf::Message * out_metadata;
+                bool auto_metadata;
                 friend class a4::process::Driver;
         };
 

@@ -76,13 +76,15 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     
     shared<ObjectBackStore> bs(new ObjectBackStore());
     if (self->out) {
-        shared<OutputStream> outstream = self->out->get_stream();
+        outstream = self->out->get_stream();
         self->set_outstream(p, outstream);
         outstream->set_compression("ZLIB", 1);
+        if (get_auto_metadata(p)) outstream->set_forward_metadata();
     }
     if (self->res) {
         resstream = self->res->get_stream();
         resstream->set_compression("ZLIB", 9);
+        if (get_auto_metadata(p)) outstream->set_forward_metadata();
     }
     self->set_backstore(p, bs);
     self->set_store_prefix(p);
@@ -124,22 +126,37 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                         std::cerr << "to "<<current_metadata.message->ShortDebugString() << std::endl;
 
                     } else {
-                        if (self->out) p->metadata(*current_metadata.message);
-                        if (self->res) {
-                            bs->to_stream(*resstream);
-                            resstream->metadata(*current_metadata.message);
-                            bs.reset(new ObjectBackStore()); 
-                            self->set_backstore(p, bs);
-                            self->set_store_prefix(p);
+                        if (get_auto_metadata(p)) {
+                            if (self->out) outstream->metadata(*current_metadata.message);
+                            if (self->res) {
+                                bs->to_stream(*resstream);
+                                resstream->metadata(*current_metadata.message);
+                                bs.reset(new ObjectBackStore()); 
+                                self->set_backstore(p, bs);
+                                self->set_store_prefix(p);
+                            }
+                            current_metadata = new_metadata;
                         }
-                        current_metadata = new_metadata;
                     }
                 } else current_metadata = new_metadata;
 
                 self->set_metadata(p, current_metadata);
+
                 p->process_new_metadata();
             }
+
             p->process_message(msg);
+            if (get_out_metadata(p)) {
+                if (self->out) outstream->metadata(*get_out_metadata(p));
+                if (self->res) {
+                    bs->to_stream(*resstream);
+                    resstream->metadata(*get_out_metadata(p));
+                    bs.reset(new ObjectBackStore()); 
+                    self->set_backstore(p, bs);
+                    self->set_store_prefix(p);
+                }
+                reset_out_metadata(p);
+            }
             
             if (++cnt == limit) {
                 // Stream store to output
