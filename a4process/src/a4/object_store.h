@@ -39,6 +39,11 @@ namespace a4{ namespace process{
             /// If the object does not exist, it is created. If it exists but is
             /// of a non-dynamic-casteable type, find returns NULL.
             template <class C, typename ...Args> C * find(const Args & ...args);
+            /// Get a checked, shared pointer to a C object identified by the concatenated args.
+            /// If the object does not exist, a NULL shared pointer is returned.
+            template <class C> shared<C> get_slow(const std::string & s);
+            void set_slow(const std::string & name, shared<Storable> obj);
+
             /// Version of T that works with dynamic strings (warning: very slow)
             template <class C, typename ...Args> C & T_slow(const Args & ...args);
             /// Version of find that works with dynamic strings (warning: very slow)
@@ -78,6 +83,8 @@ namespace a4{ namespace process{
             };
             /// Get a shared pointer to the given object.
             template <class C> shared<C> get(std::string s) const;
+            /// Insert the given object into the store
+            void set(std::string name, shared<Storable> object) { (*_store)[name] = object; };
             /// Get a list of all keys of all C objects in this store
             template <class C> std::vector<std::string> list() const;
             /// Get a list of all keys in this store

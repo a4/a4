@@ -24,6 +24,14 @@ namespace a4{ namespace process{
         return *static_cast<C*>(backstore->find<C>(hl->get_path(), args...));
     };
 
+    template <class C> shared<C> ObjectStore::get_slow(const std::string & name) {
+        return backstore->get<C>(hl->get_path() + name);
+    };
+
+    inline void ObjectStore::set_slow(const std::string & name, shared<Storable> obj) {
+        backstore->set(hl->get_path() + name, obj);
+    };
+
     template <typename ...Args> ObjectStore ObjectStore::operator()(const Args & ...args) {
         return ObjectStore(hl->subhash(args...), backstore);
     }
