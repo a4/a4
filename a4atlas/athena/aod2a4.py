@@ -1,9 +1,113 @@
 from logging import getLogger; log = getLogger("a4")
 
-from a4.atlas.Atlas.EventStreamInfo_pb2 import EventStreamInfo, RunInfo
-from a4.atlas.Atlas import EventStreamInfo_pb2
+from a4.atlas.Physics_pb2 import MissingEnergy
+from a4.atlas.Event_pb2 import EventMetaData
+from a4.atlas.EventStreamInfo_pb2 import EventStreamInfo, RunInfo
+from a4.atlas import EventStreamInfo_pb2
 
 from AthenaPython import PyAthena
+
+data10_7TeV = {
+"A1" : [152166, 152214, 152220, 152221, 152345, 152409, 152441, 152508, 152777,
+  152844, 152845, 152878, 152933, 152994, 153030, 153134, 153136, 153159, 153200],
+"B1" : [153565, 153599, 154810, 154813, 154815, 154817],
+"B2" : [154822, 155073, 155112, 155116, 155118, 155160],
+"C1" : [155228, 155280, 155569, 155634, 155669, 155678, 155697],
+"C2" : [156682],
+"D1" : [158045, 158116, 158269, 158299, 158392],
+"D2" : [158443, 158466, 158545, 158548, 158549, 158582],
+"D3" : [158632, 158801, 158975],
+"D4" : [159041, 159086],
+"D5" : [159113],
+"D6" : [159179, 159202, 159203, 159224],
+"E1" : [160387, 160472, 160479],
+"E2" : [160530],
+"E3" : [160613, 160736, 160800, 160801, 160879],
+"E4" : [160899, 160953, 160954, 160958, 160963, 160975, 160980],
+"E5" : [161118, 161379],
+"E6" : [161407, 161520],
+"E7" : [161562, 161948],
+"F1" : [162347, 162526, 162576, 162577],
+"F2" : [162620, 162623, 162690, 162764, 162843, 162882],
+"G1" : [165591, 165632],
+"G2" : [165703, 165732],
+"G3" : [165767, 165815],
+"G4" : [165817, 165818],
+"G5" : [165821, 165954, 165956, 166094, 166097, 166142, 166143],
+"G6" : [166198, 166305, 166383],
+"H1" : [166466, 166658, 166786, 166850],
+"H2" : [166856, 166924, 166925, 166927, 166964],
+"I1" : [167575, 167576, 167607, 167661, 167680],
+"I2" : [167776, 167844],
+}
+
+data11_7TeV = {
+"A1" : [177531, 177539, 177540, 177593, 177682],
+"A2" : [177904, 177911, 177912, 177924, 177929, 177960, 177965],
+"B1" : [177986, 178020, 178021, 178026],
+"B2" : [178044, 178047, 178109],
+"D1" : [179710, 179725, 179739],
+"D2" : [179771, 179804],
+"D3" : [179938, 179939, 179940, 180122, 180124, 180139, 180144],
+"D4" : [180149, 180153, 180164, 180212],
+"D5" : [180225, 180241, 180242],
+"D6" : [180309, 180400, 180448],
+"D7" : [180481],
+"E1" : [180614, 180636, 180664, 180710, 180776],
+"F1" : [182013, 182032, 182034],
+"F2" : [182161, 182284, 182346, 182372, 182424, 182449, 182450, 182454, 182455,
+  182456, 182486],
+"F3" : [182516, 182518, 182519],
+"G1" : [182726],
+"G2" : [182747, 182766, 182787, 182796, 182879, 182886],
+"G3" : [182997, 183003, 183021],
+"G4" : [183038, 183045, 183054, 183078, 183079, 183081, 183127, 183129, 183130],
+"G5" : [183216, 183272, 183286, 183347],
+"G6" : [183391, 183407, 183412, 183426, 183462],
+"H1" : [183544, 183580, 183581, 183602],
+"H2" : [183780],
+"H3" : [183963, 184022, 184066, 184072],
+"H4" : [184074, 184088, 184130, 184169],
+"I1" : [185353, 185518, 185536, 185644, 185649],
+"I2" : [185731, 185747, 185761, 185823, 185856, 185976],
+"I3" : [185998, 186049, 186156, 186169, 186178, 186179, 186180, 186182],
+"I4" : [186216, 186217, 186275, 186361, 186396, 186399, 186456, 186493],
+"J1" : [186516, 186532, 186533, 186669, 186673],
+"J2" : [186721, 186729, 186753, 186755],
+"K1" : [186873, 186877, 186878, 186923, 186933, 186934],
+"K2" : [186965, 187014, 187196, 187219],
+"K3" : [187453, 187457, 187501, 187543, 187552],
+"K4" : [187763],
+"K5" : [187811, 187812],
+"K6" : [187815],
+"L1" : [188902, 188903, 188904, 188908, 188909, 188910],
+"L2" : [188921, 188949, 188951, 189011, 189027, 189028, 189049, 189079, 189090],
+"L3" : [189184, 189205, 189207, 189242, 189280, 189288, 189366, 189372, 189421,
+  189425],
+"L4" : [189481, 189483, 189530, 189536, 189561, 189598, 189602, 189610],
+"L5" : [189639, 189655, 189660, 189692, 189693, 189719, 189751, 189774, 189781,
+  189813],
+"L6" : [189822, 189836, 189845, 189875, 189963, 189965, 190046, 190116, 190119,
+  190120],
+"L7" : [190236, 190256, 190295, 190297, 190300, 190343],
+"M1" : [190503, 190504, 190505],
+"M10" : [191635, 191676, 191715, 191920, 191933],
+"M2" : [190608, 190611, 190617, 190618, 190643, 190644, 190661, 190689],
+"M3" : [190728],
+"M4" : [190872, 190878, 190933, 190934, 190975, 191138, 191139],
+"M5" : [191149, 191150, 191190],
+"M6" : [191217, 191218, 191235, 191239],
+"M7" : [191272, 191334, 191341, 191342, 191343, 191355, 191358, 191373, 191376,
+  191381],
+"M8" : [191425, 191426, 191428, 191513, 191514, 191517],
+"M9" : [191628],
+}
+
+data11_7TeV_period = {}
+for p, rns in data11_7TeV.iteritems():
+    for r in rns:
+        data11_7TeV_period[r] = p
+
 
 def athena_setup(input = None, max_events = None):
     # use closest DB replica
@@ -92,10 +196,24 @@ class AOD2A4Base(PyAthena.Alg):
         event.bunch_crossing_id = self.event_info.event_ID().bunch_crossing_id()
         event.error_state_lar = self.event_info.errorState(self.event_info.LAr)
 
-        if not event.run_number in self.runs_encountered:
-            self.runs_encountered[event.run_number] = 0
-            self.runs_encountered_w[event.run_number] = 0
-            self.lbs_encountered[event.run_number] = set()
+        effective_run = event.run_number
+        event_weight = 1.0
+        if self.is_mc:
+            event.average_interactions_per_crossing = self.event_info.averageInteractionsPerCrossing()
+            event.actual_interactions_per_crossing = self.event_info.actualInteractionsPerCrossing()
+            et = self.event_info.event_type()
+            event.mc_channel_number = et.mc_channel_number()
+            effective_run = event.mc_channel_number
+            event_weight = et.mc_event_weight()
+            event.mc_event_weight = event_weight
+            self.sum_mc_event_weights += event_weight
+
+                
+
+        if not effective_run in self.runs_encountered:
+            self.runs_encountered[effective_run] = 0
+            self.runs_encountered_w[effective_run] = 0
+            self.lbs_encountered[effective_run] = set()
 
         if not self.is_mc:
             self.lbs_encountered[event.run_number].add(event.lumi_block)
@@ -111,46 +229,37 @@ class AOD2A4Base(PyAthena.Alg):
                 if hasattr(EventStreamInfo_pb2, name)
             )
 
-
-        event_weight = 1.0
-        if self.is_mc:
-            try:
-                truth = self.sg["GEN_AOD"]
-                try:
-                    truth = truth[0]
-                    weights = truth.weights()
-                    event_weight = weights[0]
-                except IndexError as x:
-                    print("STRANGE: No MC Weight in this event - set to 1.0 (%s)" % x)
-            except KeyError:
-                self.sg.dump()
-                raise RuntimeError("MC weight not found in StoreGate (GEN_AOD)!") 
-            event.mc_event_weight = event_weight
-            self.sum_mc_event_weights += event_weight
-
         self.number_events += 1
-        self.runs_encountered[event.run_number] += 1
-        self.runs_encountered_w[event.run_number] += event_weight
+        self.runs_encountered[effective_run] += 1
+        self.runs_encountered_w[effective_run] += event_weight
 
     def finalize(self):
         log.info("Finalizing AOD2A4")
-        meta = EventStreamInfo()
+        meta = EventMetaData()
+        meta.simulation = self.is_mc
+        meta.run.extend(sorted(self.runs_encountered.keys()))
+
         total_events = 0
+        sum_mc_weights = 0
+        streams = set()
         for run in sorted(self.runs_encountered.keys()):
-            ri = meta.run_info.add()
-            ri.run_number = run
-            ri.event_count = self.runs_encountered[run]
-            ri.sum_mc_weights = self.runs_encountered_w[run]
-            ri.lumi_blocks.extend(sorted(self.lbs_encountered[run]))
+            sum_mc_weights += self.runs_encountered_w[run]
+            for lb in sorted(self.lbs_encountered[run]):
+                rlb = meta.lumiblock.add()
+                rlb.run = run
+                rlb.lumiblock = lb
             if self.possible_streams:
-                streams = []
                 for s in sorted(self.possible_streams):
                     if hasattr(EventStreamInfo_pb2, s):
-                        streams.append(getattr(EventStreamInfo_pb2, s))
-                ri.stream.extend(streams)
+                        streams.add(getattr(EventStreamInfo_pb2, s))
             total_events += self.runs_encountered[run]
-        meta.total_events = total_events
-        meta.simulation = self.is_mc
+
+        meta.stream.extend(streams)
+        if not self.is_mc:
+            meta.period.extend(sorted(set(data11_7TeV_period[r] for r in sorted(self.runs_encountered.keys()))))
+        meta.event_count = total_events
+        meta.sum_mc_weights = sum_mc_weights
+
         self.a4.metadata(meta)
         self.a4.close()
         return PyAthena.StatusCode.Success

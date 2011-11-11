@@ -16,10 +16,13 @@ message Trigger
         L1_MU10 = 2;
         EF_e15_medium = 3;
         EF_e20_medium = 5;
+        EF_e22_medium = 18;
+        EF_e22vh_medium1 = 19;
         EF_mu10_MG = 6;
         EF_mu13_MG = 7; 
         EF_mu13_MG_tight = 8;
         EF_mu18_MG = 9;
+        EF_mu18_MG_medium = 20;
         EF_mu20_MG = 10;
         EF_e10_medium_mu6 = 11;
         EF_2mu10 = 12;
@@ -28,6 +31,7 @@ message Trigger
         EF_mu40_MSonly = 15;
         EF_mu40_MSonly_barrel = 16;
         EF_mu20_empty = 17;
+        // Next ID: 21
     }
 
     required TriggerName name = 1;

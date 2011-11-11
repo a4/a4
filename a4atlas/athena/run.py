@@ -10,15 +10,15 @@ from ROOT import gROOT, TLorentzVector
 from array import array
 from glob import glob
 
-from a4.atlas.Atlas.Trigger_pb2 import Trigger, TriggerFeature
-from a4.atlas.Atlas.Isolation_pb2 import Isolation
-from a4.atlas.Atlas.TrackHits_pb2 import TrackHits, MuonTrackHits
+from a4.atlas.Trigger_pb2 import Trigger, TriggerFeature
+from a4.atlas.Isolation_pb2 import Isolation
+from a4.atlas.TrackHits_pb2 import TrackHits, MuonTrackHits
 from a4.atlas.Electron_pb2 import Electron
 from a4.atlas.Muon_pb2 import Muon
 from a4.atlas.Photon_pb2 import Photon
 from a4.atlas.Jet_pb2 import Jet
-from a4.atlas.Event_pb2 import Event
-from a4.atlas.Atlas.EventStreamInfo_pb2 import EventStreamInfo
+from a4.atlas.Event_pb2 import Event, Track
+from a4.atlas.EventStreamInfo_pb2 import EventStreamInfo
 from a4.atlas.Physics_pb2 import LorentzVector, Vertex, MissingEnergy, Perigee
 
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
@@ -134,7 +134,10 @@ trigger_names = {
         ],
     2011 : [
         "EF_e20_medium",
+        "EF_e22_medium",
+        "EF_e22vh_medium1",
         "EF_mu18_MG",
+        "EF_mu18_MG_medium",
         "EF_mu20_MG",
         "EF_e10_medium_mu6",
         "EF_2mu10",
@@ -235,6 +238,23 @@ class AOD2A4(AOD2A4Base):
         self.tool_tmt = PyAthena.py_tool("TrigMatchTool/TrigMatchTool")
         self.tool_hfor= PyAthena.py_tool("HforTool",iface="IHforTool")
  
+    def tracks(self):
+        trks = []
+        for i, trk in enumerate(self.sg["TrackParticleCandidate"]):
+            if abs(trk.pt()) < 1000:
+                continue
+            t = Track()
+            t.p4.CopyFrom(make_lv(trk))
+            t.charge = int(trk.charge())
+
+            vx = trk.reconstructedVertex()
+            if vx:
+                t.vertex_index = list(self.sg["VxPrimaryCandidate"]).index(vx)
+            t.hits.CopyFrom(make_track_hits(trk))
+            t.perigee.CopyFrom(self.perigee_z0_d0(trk))
+            trks.append(t)
+        return trks
+
     def electrons(self):
         els = []
         for i, el in enumerate(self.sg["ElectronAODCollection"]):
@@ -461,13 +481,6 @@ class AOD2A4(AOD2A4Base):
             return p
         return None
 
-    def met_reffinal(self):
-        met = MissingEnergy()
-        lht = self.sg["MET_RefFinal"]
-        met.x = lht.etx()
-        met.y = lht.ety()
-        return met
-
     def met_reffinal45(self):
         met = MissingEnergy()
         lht = self.sg["MET_RefFinal"]
@@ -517,7 +530,43 @@ class AOD2A4(AOD2A4Base):
         met.x = self.sg[name].etx();
         met.y = self.sg[name].ety();
         met.sum = self.sg[name].sumet();
+        return met
 
+    def met_detail(self, name):
+        met = MissingEnergy()
+        lht = self.sg[name]
+        if not bool(lht):
+            return met
+        met.x = lht.etx()
+        met.y = lht.ety()
+        met.sum = lht.sumet()
+        reg = lht.getRegions()
+        if not bool(reg):
+            return met
+        met.met_central.x = reg.exReg(reg.Central); 
+        met.met_central.y = reg.eyReg(reg.Central); 
+        met.met_central.sum = reg.etSumReg(reg.Central); 
+        met.met_endcap.x = reg.exReg(reg.EndCap); 
+        met.met_endcap.y = reg.eyReg(reg.EndCap); 
+        met.met_endcap.sum = reg.etSumReg(reg.EndCap); 
+        met.met_forward.x = reg.exReg(reg.Forward); 
+        met.met_forward.y = reg.eyReg(reg.Forward);
+        met.met_forward.sum = reg.etSumReg(reg.Forward);
+        return met
+
+    def met_from_particles(self, particles):
+        met = MissingEnergy()
+        met.x = -sum(p.momentum().px() for p in particles)
+        met.y = -sum(p.momentum().py() for p in particles)
+        met.sum = sum(abs(p.momentum().perp()) for p in particles)
+        return met
+
+    def met_detail_from_particles(self, particles):
+        met = self.met_from_particles(particles)
+        # central: 1.5, endcap < 3.2; forward < 4.9
+        met.met_central.CopyFrom(self.met_from_particles([p for p in particles if abs(p.momentum().eta()) <= 1.5]))
+        met.met_endcap.CopyFrom(self.met_from_particles([p for p in particles if 1.5 < abs(p.momentum().eta()) <= 3.2]))
+        met.met_forward.CopyFrom(self.met_from_particles([p for p in particles if 3.2 < abs(p.momentum().eta()) < 4.9]))
         return met
 
     def met(self):
@@ -533,12 +582,32 @@ class AOD2A4(AOD2A4Base):
         event.triggers.extend(self.triggers())
         event.vertices.extend(self.vertices())
 
-        event.met_lochadtopo.CopyFrom(self.met_lochadtopo())
-        event.met_reffinal.CopyFrom(self.met_reffinal())
-        event.met_reffinal45.CopyFrom(self.met_reffinal45())
-        event.met_muonboy.CopyFrom(self.met_named("MET_MuonBoy"))
-        event.met_muid.CopyFrom(self.met_named("MET_Muid"))
-        event.met_refmuon_track.CopyFrom(self.met_named("MET_RefMuon_Track"))
+        event.met_LocHadTopo_modified.CopyFrom(self.met_lochadtopo())
+        event.met_RefFinal45.CopyFrom(self.met_reffinal45())
+
+        event.met_RefFinal.CopyFrom(self.met_detail("MET_RefFinal"))
+        event.met_MuonBoy.CopyFrom(self.met_detail("MET_MuonBoy"))
+        event.met_Muid.CopyFrom(self.met_detail("MET_Muid"))
+        event.met_RefMuon_Track.CopyFrom(self.met_detail("MET_RefMuon_Track"))
+        event.met_CorrTopo.CopyFrom(self.met_detail("MET_CorrTopo"))
+        event.met_Final.CopyFrom(self.met_detail("MET_Final"))
+        event.met_LocHadTopo.CopyFrom(self.met_detail("MET_LocHadTopo"))
+        event.met_Muon.CopyFrom(self.met_detail("MET_Muon"))
+        event.met_MuonMuid.CopyFrom(self.met_detail("MET_MuonMuid"))
+        event.met_RefEle.CopyFrom(self.met_detail("MET_RefEle"))
+        event.met_RefFinal_em.CopyFrom(self.met_detail("MET_RefFinal_em"))
+        event.met_RefGamma.CopyFrom(self.met_detail("MET_RefGamma"))
+        event.met_RefJet.CopyFrom(self.met_detail("MET_RefJet"))
+        event.met_RefMuon.CopyFrom(self.met_detail("MET_RefMuon"))
+        event.met_RefMuon_Muid.CopyFrom(self.met_detail("MET_RefMuon_Muid"))
+        event.met_RefMuon_Track_Muid.CopyFrom(self.met_detail("MET_RefMuon_Track_Muid"))
+        event.met_RefTau.CopyFrom(self.met_detail("MET_RefTau"))
+        event.met_SoftJets.CopyFrom(self.met_detail("MET_SoftJets"))
+        event.met_Topo.CopyFrom(self.met_detail("MET_Topo"))
+        event.met_Track.CopyFrom(self.met_detail("MET_Track"))
+        if self.is_mc:
+            event.met_Truth.CopyFrom(self.met_detail("MET_Truth"))
+            event.met_Truth_PileUp.CopyFrom(self.met_detail("MET_Truth_PileUp"))
 
         #event.jets_antikt4lctopo.extend(self.jets("AntiKt4LCTopoJets"))
         event.jets_antikt4h1topoem.extend(self.jets("AntiKt4TopoEMJets"))
@@ -547,16 +616,55 @@ class AOD2A4(AOD2A4Base):
         event.muons_muid.extend(self.muons("Muid"))
         event.electrons.extend(self.electrons())
         #event.photons.extend(self.photons())
+        event.tracks.extend(self.tracks())
 
-        if self.try_hfor:
-            if not self.tool_hfor.execute().isFailure():
-                decision = self.tool_hfor.getDecision()
-                if decision == "":
-                    decision = "None"
-                event.hfor_decision = getattr(event, decision)
-            else:
-                self.try_hfor = False
-            
+        if self.is_mc:
+            if self.try_hfor:
+                if not self.tool_hfor.execute().isFailure():
+                    decision = self.tool_hfor.getDecision()
+                    if decision == "":
+                        decision = "None"
+                    event.hfor_decision = getattr(event, decision)
+                else:
+                    self.try_hfor = False
+                
+            # extract truth info
+
+            def make_list(begin, end):
+                result = []
+                while begin.__cpp_ne__(end):
+                    result.append(begin.__deref__())
+                    begin.__preinc__()
+                return result
+
+            def get_all_particles(ev):
+                return make_list(ev.particles_begin(), ev.particles_end())
+
+            def get_particles_in(v):
+                begin = v.particles_in_const_begin()
+                end = v.particles_in_const_end()
+                return make_list(begin, end)
+
+            def get_particles_out(v):
+                begin = v.particles_out_const_begin()
+                end = v.particles_out_const_end()
+                return make_list(begin, end)
+
+            def is_coloured(p):
+                pdgid = p.pdg_id()
+                return abs(pdgid) < 10 or pdgid == 21 or (abs(pdgid) < 9999 and (abs(pdgid)/10)%10 == 0)
+
+            def is_final(p):
+                return not bool(p.end_vertex())
+           
+            truth = list(self.sg["GEN_AOD"])
+            hard_event = [x for x in get_all_particles(truth[0]) if is_final(x) and not is_coloured(x)]
+            pileup = sum(([x for x in get_all_particles(t) if is_final(x) and not is_coloured(x)] for t in truth[1:]), [])
+
+            event.truth_met_hard.CopyFrom(self.met_detail_from_particles([p for p in hard_event if not p.pdg_id() in (12, 14, 16, 18)]))
+            event.truth_met_pileup.CopyFrom(self.met_detail_from_particles([p for p in pileup if not p.pdg_id() in (12, 14, 16, 18)]))
+            event.neutrinos.extend(make_lv(p.momentum()) for p in hard_event+pileup if p.pdg_id() in (12, 14, 16, 18))
+
         self.a4.write(event)
         return PyAthena.StatusCode.Success
 
@@ -572,7 +680,7 @@ if os.path.exists(a_local_directory):
         input = glob(options["input"]) 
     else:
         input = glob("/data/etp/ebke/data/*109074*/*")
-    athena_setup(input, 1000)
+    athena_setup(input, 100)
 else:
     athena_setup(None, -1)
 
