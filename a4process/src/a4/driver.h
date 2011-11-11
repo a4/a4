@@ -16,8 +16,8 @@ class Driver {
         void set_store_prefix(Processor* p, const char * dir = "") { p->S = (*p->_backstore)(dir); }
         void set_metadata(Processor* p, A4Message md) { p->metadata_message = md; }
         static bool get_auto_metadata(Processor* p) { return p->auto_metadata; }
-        static const google::protobuf::Message * get_out_metadata(Processor* p) { return p->out_metadata; }
-        static void reset_out_metadata(Processor* p) { p->out_metadata = NULL; }
+        static shared<const google::protobuf::Message> get_out_metadata(Processor* p) { return p->out_metadata; }
+        static void reset_out_metadata(Processor* p) { p->out_metadata.reset(); }
 
         static void process_rerun_channels(Processor* p, A4Message msg) {
             p->process_message(msg);

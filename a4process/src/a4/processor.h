@@ -43,7 +43,7 @@ namespace a4{
                 /// This function is called if new metadata is available
                 virtual void process_new_metadata() {};
                 bool write(const google::protobuf::Message& m) { if (_outstream) return _outstream->write(m); else return false; };
-                void metadata(const google::protobuf::Message * m) { out_metadata = m; }
+                void metadata(shared<const google::protobuf::Message> m) { out_metadata = m; }
 
                 /// The whole analysis is rerun with the prefix "channel/<name>/" and in that run this function always returns true
                 bool channel(const char * name) {
@@ -66,7 +66,7 @@ namespace a4{
                 shared<ObjectBackStore> _backstore;
                 ObjectStore S;
                 A4Message metadata_message;
-                const google::protobuf::Message * out_metadata;
+                shared<const google::protobuf::Message> out_metadata;
                 bool auto_metadata;
 
                 std::set<const char *> rerun_channels;

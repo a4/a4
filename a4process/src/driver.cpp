@@ -145,6 +145,18 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                 p->process_new_metadata();
             }
 
+            if (get_out_metadata(p)) {
+                if (self->out) outstream->metadata(*get_out_metadata(p));
+                if (self->res) {
+                    bs->to_stream(*resstream);
+                    resstream->metadata(*get_out_metadata(p));
+                    bs.reset(new ObjectBackStore()); 
+                    self->set_backstore(p, bs);
+                    self->set_store_prefix(p);
+                }
+                reset_out_metadata(p);
+            }
+
             process_rerun_systematics(p, msg);
 
             if (get_out_metadata(p)) {
