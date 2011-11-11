@@ -19,6 +19,9 @@ LIBS=$(A4_A4IO_LIBS) $(A4_A4PROCESS_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)
 LDADD=liba4hist.la $(LIBS)
 AM_CPPFLAGS+=$(A4_A4IO_CPPFLAGS) $(A4_A4PROCESS_CPPFLAGS) $(PROTOBUF_CFLAGS) $(BOOST_CPPFLAGS)
 
+bin_PROGRAMS = a4merge
+a4merge_SOURCES = src/a4merge.cpp
+
 # Main a4process library
 lib_LTLIBRARIES=liba4hist.la
 nodist_liba4hist_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
