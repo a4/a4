@@ -4,6 +4,7 @@
 #include <string>
 
 #include <google/protobuf/message.h>
+#include <google/protobuf/dynamic_message.h>
 
 #include <a4/types.h>
 
@@ -18,7 +19,8 @@ namespace a4{ namespace io{
     class A4Message {
         public:
             /// Construct A4Message that signifies end of stream or stream error
-            A4Message() :  _class_id(0), _descriptor(NULL), _dynamic_descriptor(NULL) { message.reset(); _pool.reset(); };
+            A4Message() :  _class_id(0), _descriptor(NULL), _dynamic_descriptor(NULL) { message.reset(); _pool.reset(); _factory.reset(); };
+            ~A4Message();
 
             /// Construct normal A4Message with message, (static) descriptor, 
             /// dynamic descriptor and  class_id and protobuf Message
@@ -26,9 +28,9 @@ namespace a4{ namespace io{
                       shared<google::protobuf::Message> msg,
                       const google::protobuf::Descriptor* d,
                       const google::protobuf::Descriptor* dd=NULL,
-                      shared<google::protobuf::DescriptorPool> pool=shared<google::protobuf::DescriptorPool>())
-                : message(msg), _class_id(class_id), _descriptor(d), _dynamic_descriptor(dd), _pool(pool) {};
-
+                      shared<google::protobuf::DescriptorPool> pool=shared<google::protobuf::DescriptorPool>(),
+                      shared<google::protobuf::DynamicMessageFactory> factory=shared<google::protobuf::DynamicMessageFactory>())
+                : message(msg), _class_id(class_id), _descriptor(d), _dynamic_descriptor(dd), _pool(pool), _factory(factory) {};
 
             /// Shared protobuf message 
             shared<google::protobuf::Message> message;
@@ -66,7 +68,7 @@ namespace a4{ namespace io{
             /// Return a field of this message in string representation
             std::string field_as_string(const std::string & field_name);
         private:
-            shared<google::protobuf::Message> as_dynamic_message(const google::protobuf::Descriptor* d, const google::protobuf::DescriptorPool* p) const;
+            A4Message as_dynamic_message(const google::protobuf::Descriptor* d, shared<google::protobuf::DescriptorPool> p) const;
 
             /// Class ID on the wire
             uint32_t _class_id;
@@ -76,6 +78,8 @@ namespace a4{ namespace io{
             const google::protobuf::Descriptor* _dynamic_descriptor;
             /// Shared pointer to the descriptor pool of that message, so that it does not disappear on us.
             shared<google::protobuf::DescriptorPool> _pool;
+            /// Shared pointer to the factory that created this message
+            shared<google::protobuf::DynamicMessageFactory> _factory;
 
     };
 };};

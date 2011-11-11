@@ -8,14 +8,24 @@
 
 #include "dynamic_message.h"
 
+using google::protobuf::DynamicMessageFactory;
+
 namespace a4{ namespace io{
 
-    shared<Message> A4Message::as_dynamic_message(const google::protobuf::Descriptor* d, const google::protobuf::DescriptorPool* p) const {
+    A4Message::~A4Message() {
+        message.reset();
+        _pool.reset();
+        _factory.reset();
+    }
 
-        using google::protobuf::DynamicMessageFactory;
+    A4Message A4Message::as_dynamic_message(const google::protobuf::Descriptor* d, shared<google::protobuf::DescriptorPool> p) const {
+        if (d == descriptor()) return *this;
 
-        if (d == descriptor()) return message;
-        unique<DynamicMessageFactory> _message_factory(new DynamicMessageFactory(p));
+        shared<DynamicMessageFactory> _message_factory;
+
+        if (_factory) _message_factory = _factory;
+        else _message_factory.reset(new DynamicMessageFactory(p.get()));
+
         shared<Message> m(_message_factory->GetPrototype(d)->New());
         // Do version checking if the dynamic descriptors are different
         if (d != _dynamic_descriptor) {
@@ -33,7 +43,7 @@ namespace a4{ namespace io{
             }
         }
         m->ParseFromString(message->SerializeAsString());
-        return m;
+        return A4Message(class_id(), m, d, d, p, _message_factory);
     }
 
     A4Message A4Message::operator+(const A4Message & _m2) const {
@@ -47,24 +57,32 @@ namespace a4{ namespace io{
         const Descriptor * d;
         shared<DescriptorPool> sp;
         const DescriptorPool * p;
+
+        A4Message am1, am2;
+        shared<Message> m1, m2;
         if (_dynamic_descriptor) {
             clsid = class_id();
             d = _dynamic_descriptor;
             sp = _pool;
-            p = sp.get(); 
+            p = sp.get();
+            am1 = this->as_dynamic_message(d, sp); 
+            am2 = _m2.as_dynamic_message(d, sp); 
         } else if (_m2._dynamic_descriptor) {
             clsid = _m2.class_id();
             d = _m2._dynamic_descriptor;
             sp = _m2._pool;
             p = sp.get();
+            am1 = this->as_dynamic_message(d, sp); 
+            am2 = _m2.as_dynamic_message(d, sp); 
         } else {
             clsid = class_id();
             d = descriptor();
             p = DescriptorPool::generated_pool();
+            am1 = *this;
+            am2 = _m2;
         }
-
-        shared<Message> m1 = this->as_dynamic_message(d, p);
-        shared<Message> m2 = _m2.as_dynamic_message(d, p);
+        m1 = am1.message;
+        m2 = am2.message;
         shared<Message> merged(m1->New());
 
         for (int i = 0; i < d->field_count(); i++) {
@@ -77,6 +95,7 @@ namespace a4{ namespace io{
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
                     if(!(f1 == f2)) throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name());
+                    fm.set(f1.value());
                     break;
                 case MERGE_ADD:
                     add_fields(f1, f2, fm);
@@ -94,7 +113,7 @@ namespace a4{ namespace io{
                     throw a4::Fatal("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
             }
         }
-        return A4Message(clsid, merged, d, d, sp);
+        return A4Message(clsid, merged, d, d, sp, am1._factory);
     }
     
     std::string A4Message::field_as_string(const std::string & field_name) {
