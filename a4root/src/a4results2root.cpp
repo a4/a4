@@ -109,16 +109,16 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
         delete root_hist;
     }
 
-    void process(std::string name, H1& h) { a4_hist_to_root(name, h, new TH1D()); }
-    void process(std::string name, H2& h) { a4_hist_to_root(name, h, new TH2D()); }
-    void process(std::string name, H3& h) { a4_hist_to_root(name, h, new TH3D()); }
+    void process(std::string name, shared<H1> h) { a4_hist_to_root(name, *h, new TH1D()); }
+    void process(std::string name, shared<H2> h) { a4_hist_to_root(name, *h, new TH2D()); }
+    void process(std::string name, shared<H3> h) { a4_hist_to_root(name, *h, new TH3D()); }
     
-    void process(std::string name, Cutflow & h) {
+    void process(std::string name, shared<Cutflow> h) {
         mkdirs(*f, name);
         path rpath(name);
 
-        std::vector<Cutflow::CutNameCount> content = h.content();
-        TH1D * cf = new TH1D(rpath.leaf().c_str(), h.title.c_str(), content.size(), 0, content.size());
+        std::vector<Cutflow::CutNameCount> content = h->content();
+        TH1D * cf = new TH1D(rpath.leaf().c_str(), h->title.c_str(), content.size(), 0, content.size());
         cf->Sumw2();
         int i = 0;
         for (vector<Cutflow::CutNameCount>::const_iterator it = content.begin(); it != content.end(); it++) {

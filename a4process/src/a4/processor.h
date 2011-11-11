@@ -20,15 +20,15 @@ namespace a4{
         //INTERNAL
         template <class This, typename... TArgs> struct _test_process_as;
         template <class This, class T, class... TArgs> struct _test_process_as<This, T, TArgs...> { 
-            static bool process(This* that, const std::string &n, Storable * s) { 
-                T* t = dynamic_cast<T*>(s);
+            static bool process(This* that, const std::string &n, shared<Storable> s) { 
+                shared<T> t = dynamic_pointer_cast<T>(s);
                 if (t) {
-                    that->process(n, *t);
+                    that->process(n, t);
                     return true;
                 } else return _test_process_as<This, TArgs...>::process(that, n, s);
             }
         };
-        template <class This> struct _test_process_as<This> { static bool process(This* that, const std::string &n, Storable * s) { return false; }; };
+        template <class This> struct _test_process_as<This> { static bool process(This* that, const std::string &n, shared<Storable> s) { return false; }; };
 
         using a4::io::A4Message;
 
@@ -123,7 +123,7 @@ namespace a4{
                 void process_message(const A4Message msg) {
                     shared<Storable> next = _next_storable(msg);
                     if (next) {
-                        if(!_test_process_as<This, Args...>::process((This*)this, next_name, next.get())) {
+                        if(!_test_process_as<This, Args...>::process((This*)this, next_name, next)) {
                             process(next_name, *next);
                         }
                     }
