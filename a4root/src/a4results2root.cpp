@@ -74,7 +74,8 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
     }
 
     template<class H>
-    void a4_hist_to_root(const std::string& name, const H& h, TH1* root_hist) {
+    void a4_hist_to_root(const std::string& name, H& h, TH1* root_hist) {
+        if (weight != 1.0) h.__mul__(weight);
         uint32_t total_bins = 1;
         
         switch (root_hist->GetDimension()) {
@@ -114,6 +115,7 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
     void process(std::string name, shared<H3> h) { a4_hist_to_root(name, *h, new TH3D()); }
     
     void process(std::string name, shared<Cutflow> h) {
+        if (weight != 1.0) h->__mul__(weight);
         mkdirs(*f, name);
         path rpath(name);
 
@@ -134,6 +136,7 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
 
     std::string filename;
     shared<TFile> f;
+    double weight;
 };
 
 class A2RConfig : public ConfigurationOf<A2RProcessor> {
@@ -146,6 +149,7 @@ class A2RConfig : public ConfigurationOf<A2RProcessor> {
 
         virtual po::options_description get_options() { 
             po::options_description opt; 
+            opt.add_options()("weight,w", po::value(&weight)->default_value(1.0), "Multiplicative weight");
             opt.add_options()("root-file,R", po::value(&filename), "ROOT output file");
             opt.add_options()("compression-level,C", po::value(&compression_level)->default_value(1), "compression level");
             return opt;
@@ -158,12 +162,14 @@ class A2RConfig : public ConfigurationOf<A2RProcessor> {
             root_files.push_back(g.filename);
             g.f.reset(new TFile(filename.c_str(), "RECREATE"));
             g.f->SetCompressionLevel(compression_level);
+            g.weight = weight;
         }
 
         std::string filename;
         int compression_level;
         std::vector<std::string> root_files;
         int processor_count;
+        double weight;
 };
 
 int main(int argc, const char * argv[]) {
