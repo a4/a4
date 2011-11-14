@@ -127,9 +127,12 @@ H1 & H1::__add__(const H1 & source)
 {
     for(uint32_t bin = 0, bins = _axis->bins() + 2; bins > bin; ++bin)
         *(_data.get() + bin) += *(source._data.get() + bin);
-    if (_weights_squared)
+    if (_weights_squared && source._weights_squared) {
         for(uint32_t bin = 0, bins = _axis->bins() + 2; bins > bin; ++bin)
             *(_weights_squared.get() + bin) += *(source._weights_squared.get() + bin);
+    } else if (_weights_squared || source._weights_squared) {
+        std::cerr << "FIXME: discarding errors in " << __FILE__ << ":" << __LINE__ << std::endl;
+    }
     _entries += source._entries;
     return *this;
 }
