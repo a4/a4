@@ -9,6 +9,7 @@ enum MetadataMergeOptions {
     MERGE_AND = 2;      // Take the AND on booleans
     MERGE_UNION = 3;    // Concatenate repeated fields (no duplicates)
     MERGE_APPEND = 4;   // Concatenate repeated fields
+    MERGE_DROP = 5;     // Drop this field on merging
 }
 
 extend google.protobuf.FieldOptions {

@@ -109,6 +109,8 @@ namespace a4{ namespace io{
                 case MERGE_APPEND:
                     append_fields(f1, f2, fm, false);
                     break;
+                case MERGE_DROP:
+                    break;
                 default:
                     throw a4::Fatal("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
             }

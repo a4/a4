@@ -14,6 +14,7 @@
 
 using google::protobuf::Message;
 using google::protobuf::FieldDescriptor;
+using google::protobuf::EnumValueDescriptor;
 using google::protobuf::Reflection;
 
 typedef boost::variant<int32_t, int64_t, uint32_t, uint64_t, double, float, bool, std::string> FieldContentVariant;
@@ -69,7 +70,14 @@ struct visit_adder : public boost::static_visitor<void> {
     Message * m; const FieldDescriptor * f; const Reflection * r;
     void operator()(int32_t i) const { r->AddInt32(m, f, i); };
     void operator()(int64_t i) const { r->AddInt64(m, f, i); };
-    void operator()(uint32_t i) const { r->AddUInt32(m, f, i); };
+    void operator()(uint32_t i) const {
+        if (f->cpp_type() == FieldDescriptor::CPPTYPE_ENUM) {
+            const EnumValueDescriptor * evd = f->default_value_enum()->type()->FindValueByNumber(i);
+            r->AddEnum(m, f, evd);
+        } else {
+            r->AddUInt32(m, f, i); 
+        }
+    };
     void operator()(uint64_t i) const { r->AddUInt64(m, f, i); };
     void operator()(double i) const { r->AddDouble(m, f, i); };
     void operator()(float i) const { r->AddFloat(m, f, i); };
