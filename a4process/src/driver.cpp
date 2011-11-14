@@ -174,6 +174,13 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             if (++cnt == limit) {
                 // Stream store to output
                 if (self->res) bs->to_stream(*resstream);
+                if (get_auto_metadata(p)) {
+                    if (self->out) outstream->metadata(*current_metadata.message);
+                    if (self->res) {
+                        resstream->metadata(*current_metadata.message);
+                        bs.reset(); 
+                    }
+                }
                 stats.cputime = boost::chrono::thread_clock::now() - start;
                 stats.bytes += instream->ByteCount();
                 stats.events = cnt;
@@ -191,6 +198,13 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     }
     // Stream store to output
     if (self->res) bs->to_stream(*resstream);
+    if (get_auto_metadata(p)) {
+        if (self->out) outstream->metadata(*current_metadata.message);
+        if (self->res) {
+            resstream->metadata(*current_metadata.message);
+            bs.reset(); 
+        }
+    }
     
     stats.cputime = boost::chrono::thread_clock::now() - start;
     stats.events = cnt;
