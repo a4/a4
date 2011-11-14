@@ -209,6 +209,11 @@ if __name__=="__main__":
         scratch_overview()
     if cmd == "cache":
         cache(argv[2:])
+    if cmd == "nuke":
+        print("Clearing all cache on all hosts! (nuclear option)...")
+        for host in get_hosts():
+            print ("clearing %s" % host)
+            my_scratch_nuke(host)       
     if cmd == "kill":
         for host in get_hosts():
             system("ssh %s killall rsync" % host)
