@@ -15,8 +15,9 @@ if len(args) == 0:
 run_infos = {}
 
 for fn in args:
+    print("%s: " % fn)
     r = InputStream(open(fn))
-    print("%s: %s" % (fn, r.info()))
+    print("%s" % r.info())
     if options.metadata:
         for md in r.metadata.values():
             print md
@@ -24,8 +25,8 @@ for fn in args:
         for md in r.metadata.values():
             if md.simulation:
                 raise Exception("File '%s' contains simulation data - cannot create GRL from this!" % fn)
-            for ri in md.run_info:
-                run_infos.setdefault(ri.run_number, set()).update(ri.lumi_blocks)
+            for ri in md.lumiblock:
+                run_infos.setdefault(ri.run, set()).add(ri.lumiblock)
 
 if options.grl:
 
