@@ -161,7 +161,9 @@ def cache(dirs):
             continue
         pid = fork()
         if pid == 0:
-            my_scratch_store(host, sorted(file_distribution[host]))
+            chunks = len(file_distribution[host]) // 100
+            for chunk in [sorted(file_distribution[host])[100*c:100*(c+1)] for c in xrange(chunks)]:
+                my_scratch_store(host, chunk)
             exit(0)
         pids.append(pid)
         pidmap[pid] = host
