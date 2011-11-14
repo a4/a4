@@ -41,7 +41,7 @@ bin_PROGRAMS = a4dump
 a4dump_SOURCES = src/apps/a4dump.cpp
 
 ## Test programs
-check_PROGRAMS = test_io test_thread gtests test_rfio
+check_PROGRAMS = test_io test_thread gtests
 test_bigwrite_SOURCES = src/tests/test_bigwrite.cpp
 test_io_SOURCES = src/tests/test_io.cpp
 test_thread_SOURCES = src/tests/test_thread.cpp
@@ -52,14 +52,8 @@ test_write_bw_SOURCES = src/tests/test_write_bw.cpp
 test_write_nomd_fw_SOURCES = src/tests/test_write_nomd_fw.cpp
 test_write_nomd_bw_SOURCES = src/tests/test_write_nomd_bw.cpp
 
-
-nodist_test_rfio_SOURCES = $(GTEST_APP)
-test_rfio_SOURCES = src/rfio/test_rfio.cpp
-test_rfio_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
-test_rfio_LDADD = -ldl $(LDADD) $(GTEST_LIBS)
-
 nodist_gtests_SOURCES = $(GTEST_APP)
-gtests_SOURCES = src/tests/test_rw.cpp src/tests/test_merge_metadata.cpp
+gtests_SOURCES = src/tests/test_rw.cpp src/tests/test_merge_metadata.cpp src/tests/test_remote_io.cpp src/remote_io.cpp src/remote_io.h
 gtests_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
 gtests_LDADD = $(LDADD) $(GTEST_LIBS)
 
