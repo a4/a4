@@ -18,18 +18,18 @@ rfio_filesystem_calls::rfio_filesystem_calls()
     if (dlerror()) return;
     if (!_library) return;
     
-    LOAD(&open, "rfio_open");
-    LOAD(&read, "rfio_read");
-    LOAD(&lseek, "rfio_lseek");
-    LOAD(&write, "rfio_write");
-    LOAD(&close, "rfio_close");
+    LOAD(&_open, "rfio_open");
+    LOAD(&_read, "rfio_read");
+    LOAD(&_lseek, "rfio_lseek");
+    LOAD(&_write, "rfio_write");
+    LOAD(&_close, "rfio_close");
     
     // This function call is probably invalid
-    LOAD(&get_errno, "C__rfio_errno");
+    LOAD(&_get_errno, "C__rfio_errno");
     
     eerrno = reinterpret_cast<int*>(dlsym(_library, "rfio_errno"));
     assert(eerrno);
-    
+    loaded = true;    
 }
 
 int rfio_filesystem_calls::last_errno() {
@@ -46,19 +46,21 @@ dcap_filesystem_calls::dcap_filesystem_calls() {
     if (dlerror()) return;
     if (!_library) return;
     
-    LOAD(&open, "dc_open");
-    LOAD(&read, "dc_read");
-    LOAD(&lseek, "dc_lseek");
-    LOAD(&write, "dc_write");
-    LOAD(&close, "dc_close");
-    LOAD(&set_debug_level, "dc_setDebugLevel");
-    LOAD(&internal_strerror, "dc_strerror");
+    LOAD(&_open, "dc_open");
+    LOAD(&_read, "dc_read");
+    LOAD(&_lseek, "dc_lseek");
+    LOAD(&_write, "dc_write");
+    LOAD(&_close, "dc_close");
+    LOAD(&_set_debug_level, "dc_setDebugLevel");
+    LOAD(&_internal_strerror, "dc_strerror");
+    //std::cerr << "Initialized DCAP filesystem calls" << std::endl;
     //set_debug_level(32);
+    loaded = true;    
 }
 int dcap_filesystem_calls::last_errno() {
     int nr = errno;
     if (nr != 0) {
-        const char * err = internal_strerror(nr);
+        const char * err = _internal_strerror(nr);
         if (err) std::cerr << "Internal DCAP error: " << err << std::endl;
     }
     return nr;
@@ -67,4 +69,79 @@ int dcap_filesystem_calls::last_errno() {
 dcap_filesystem_calls::~dcap_filesystem_calls() {
     if (_library) dlclose(_library);
 }
+
+hdfs_filesystem_calls::hdfs_filesystem_calls() {
+    _errno = 0;
+    _library = dlopen("libhdfs.so", RTLD_LAZY);
+    
+    if (dlerror()) { std::cerr << "dlopen of libhdfs.so failed!" << std::endl; return; }
+    if (!_library) return;
+    
+    LOAD(&_hdfsConnect, "hdfsConnect");
+    LOAD(&_hdfsOpenFile, "hdfsOpenFile");
+    LOAD(&_hdfsCloseFile, "hdfsCloseFile");
+    LOAD(&_hdfsSeek, "hdfsSeek");
+    LOAD(&_hdfsTell, "hdfsTell");
+    LOAD(&_hdfsRead, "hdfsRead");
+    LOAD(&_hdfsWrite, "hdfsWrite");
+    LOAD(&_hdfsGetPathInfo, "hdfsGetPathInfo"); 
+    LOAD(&_hdfsFreeFileInfo,"hdfsFreeFileInfo");
+    LOAD(&_hdfsDisconnect, "hdfsDisconnect");
+
+    fs = _hdfsConnect("default", 0);
+    if(!fs) {
+        std::cerr << "Failed to connect to hdfs!" << std::endl;
+        return;
+    }
+    loaded = true;    
+}
+int hdfs_filesystem_calls::last_errno() {
+    return 0;
+}
+
+hdfs_filesystem_calls::~hdfs_filesystem_calls() {
+    if (_library) {
+        if (fs) {
+            _hdfsDisconnect(fs);
+        }
+        dlclose(_library);
+    }
+}
+
+int    hdfs_filesystem_calls::open(const char* name, int type, mode_t opts) {
+    hdfsFile f = _hdfsOpenFile(fs, name, type, opts, 0, 0);
+    if(f == NULL) return _errno = -1;
+
+    hdfsFileInfo * fi = _hdfsGetPathInfo(fs, name);
+    if (fi == NULL)  return _errno = -1;
+
+    _files.push_back(f);
+    _file_sizes.push_back(fi->mSize);
+    _hdfsFreeFileInfo(fi, 1);
+    
+    return _files.size()-1;
+};
+
+int    hdfs_filesystem_calls::close(int fd) {
+    return _errno = _hdfsCloseFile(fs, _files[fd]);
+};
+
+size_t hdfs_filesystem_calls::read(int fd, void* buf, size_t sz) {
+    return _hdfsRead(fs, _files[fd], buf, sz);
+};
+
+off_t hdfs_filesystem_calls::lseek(int fd, off_t pos, int whence) {
+    if (whence == SEEK_CUR) pos += _hdfsTell(fs, _files[fd]);
+    else if (whence == SEEK_END) {
+        pos = _file_sizes[fd] - pos;
+    }
+    int res = _hdfsSeek(fs, _files[fd], pos);
+    if (res == -1) return _errno = -1;
+
+    return _hdfsTell(fs, _files[fd]);
+};
+
+size_t hdfs_filesystem_calls::write(int fd, const void* buf, size_t sz) {
+    return _hdfsWrite(fs, _files[fd], buf, sz);
+};
 

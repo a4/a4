@@ -188,9 +188,13 @@ namespace a4{ namespace io{
             fscalls.reset(new rfio_filesystem_calls());
         } else if (filename.substr(0,7) == "dcap://") {
             fscalls.reset(new dcap_filesystem_calls());
+        } else if (filename.substr(0,7) == "hdfs://") {
+            fscalls.reset(new hdfs_filesystem_calls());
+            filename = filename.substr(8);
         } else {
             throw a4::Fatal("Unknown remote file type: ", filename);
         }
+        if (!fscalls->loaded) throw a4::Fatal("Failure to load remote access library!");
         _fileno = fscalls->open(const_cast<char*>(filename.c_str()), O_RDONLY, 0);
         _errno = fscalls->last_errno();
         if (_errno != 0 or _fileno == -1) throw a4::Fatal("Could not open ", filename, " - Error ", _errno);
@@ -289,9 +293,10 @@ namespace a4{ namespace io{
         if (url == "-") return unique<UnixStream>(new UnixStream(STDIN_FILENO));
 
         // Deal with rfio, dcap and file URLs
-        if (url.substr(0,7) == "rfio://" or url.substr(0,7) == "dcap://") {
+        string proto = url.substr(0,7);
+        if (proto == "rfio://" or proto == "dcap://" or proto == "hdfs://") {
             return unique<RemoteFile>(new RemoteFile(url));
-        } else if (url.substr(0,7) == "file://") {
+        } else if (proto == "file://") {
             url = url.substr(8);
         }
 
