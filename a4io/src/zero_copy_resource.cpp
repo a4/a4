@@ -161,8 +161,18 @@ namespace a4{ namespace io{
             int Skip(int count);
 
             off_t seek(size_t position, int whence);
-            bool Seek(size_t position) { _position = position; return seek(position, SEEK_SET); }
-            bool SeekBack(size_t position) { if(seek(position, SEEK_END)) {_position = seek(0,SEEK_CUR); return true;}; return false; }
+            bool Seek(size_t position) {
+                _position = position; 
+                return seek(position, SEEK_SET) == _position;
+            }
+            bool SeekBack(size_t position) { 
+                _position = seek(-position, SEEK_END);
+                //off_t cur = seek(0, SEEK_CUR);
+                //if (cur != _position) {
+                //    throw a4::Fatal("Seek failed: Expected position: ", _position, " actual position: ", cur);
+                //};
+                return _position >= 0;
+            }
             size_t Tell() const { return _position; };
 
         protected:
