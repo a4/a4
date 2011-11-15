@@ -72,10 +72,18 @@ dcap_filesystem_calls::~dcap_filesystem_calls() {
 
 hdfs_filesystem_calls::hdfs_filesystem_calls() {
     _errno = 0;
+    if(!dlopen("libjvm.so", RTLD_LAZY) or dlerror()) {
+        if (dlerror()) std::cerr << "libjvm.so dlopen failed: " << dlerror() << std::endl;
+        else std::cerr << "libjvm.so is not available or loading failed!" << std::endl;
+        return;
+    };
+
     _library = dlopen("libhdfs.so", RTLD_LAZY);
-    
-    if (dlerror()) { std::cerr << "dlopen of libhdfs.so failed!" << std::endl; return; }
-    if (!_library) return;
+    if(!_library or dlerror()) {
+        if (dlerror()) std::cerr << "libhdfs.so dlopen failed: " << dlerror() << std::endl;
+        else std::cerr << "libhdfs.so is not available or loading failed!" << std::endl;
+        return; 
+    }
     
     LOAD(&_hdfsConnect, "hdfsConnect");
     LOAD(&_hdfsOpenFile, "hdfsOpenFile");
