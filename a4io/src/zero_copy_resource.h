@@ -10,7 +10,8 @@
 
 #include <a4/types.h>
 
-namespace google{ namespace protobuf{ namespace io{ class FileInputStream; };};};
+
+namespace google{ namespace protobuf{ namespace io{ class FileInputStream; class CopyingInputStreamAdaptor; };};};
 
 namespace a4{ namespace io{
 
@@ -98,7 +99,26 @@ namespace a4{ namespace io{
             unique<OpenFile> _file;
     };
     
-
+    class RemoteCopyingFile;
+    class RemoteFile : public ZeroCopyStreamResource {
+        public:
+            RemoteFile(std::string filename, int block_size = -1);
+            virtual bool seekable() const { return true; };
+            bool Next(const void** data, int* size);
+            void BackUp(int count);
+            bool Skip(int count);
+            bool Seek(size_t position);
+            bool SeekBack(size_t position);
+            size_t Tell() const;
+            google::protobuf::int64 ByteCount() const;
+        protected:
+            void new_adaptor(bool tell=false) const;
+            mutable unique<google::protobuf::io::CopyingInputStreamAdaptor> _adaptor;
+            unique<RemoteCopyingFile> _file;
+            std::string _filename;
+            int _block_size;
+            mutable uint64_t _byte_count;
+    };
 
     unique<ZeroCopyStreamResource> resource_from_url(std::string url);
 
