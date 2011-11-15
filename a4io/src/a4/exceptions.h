@@ -25,8 +25,8 @@ namespace a4{
                 bool gdb_worked = true;
                 FILE *fpipe;
                 std::stringstream cmd1, cmd2, res1, res2;
-                cmd1 << "gdb --batch --eval-command='attach " << getpid() << "' --eval-command='thread apply all bt'";
-                cmd2 << "gdb --batch --eval-command='attach " << getpid() << "' --eval-command='thread apply all bt full'";
+                cmd1 << "gdb -n --batch --eval-command='set complaints 0' --eval-command='attach " << getpid() << "' --eval-command='thread apply all bt'";
+                cmd2 << "gdb -n --batch --eval-command='set complaints 0' --eval-command='attach " << getpid() << "' --eval-command='thread apply all bt full'";
                 char line[256];
                 if ( !(fpipe = (FILE*)popen(cmd1.str().c_str(),"r")) ) gdb_worked = false;
                 else while (fgets( line, sizeof line, fpipe)) res1 << line;
