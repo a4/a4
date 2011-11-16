@@ -31,7 +31,7 @@ LIBRARY_SOURCES=$(a4include_HEADERS) \
     src/snappy_stream.h src/snappy_stream.cpp \
     src/input_stream.cpp src/output_stream.cpp \
     src/register.cpp src/input.cpp src/output.cpp \
-    src/dynamic_message.h \
+    src/dynamic_message.h src/exceptions.cpp \
     src/remote_io.h src/remote_io.cpp
 lib_LTLIBRARIES=liba4io.la
 nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
