@@ -49,7 +49,9 @@ public:
     int last_errno();
     virtual int    open(const char* p1, int p2, mode_t p3) { return _open(p1, p2, p3); };
     virtual size_t read(int p1, void* p2, size_t p3) { return _read(p1, p2, p3); };
-    virtual off_t  lseek(int p1, off_t p2, int p3) { return _lseek(p1, p2, p3); };
+    /// this fix for SEEK_END is necessary for dcap 1.2.47 (and maybe later)
+    /// dcap 1.2.47 does not honor SEEK_END, but returns the right offset, so we use that.
+    virtual off_t  lseek(int p1, off_t p2, int p3) { if(p3 == SEEK_END) return _lseek(p1, _lseek(p1, p2, p3), SEEK_SET); else return _lseek(p1, p2, p3); };
     virtual size_t write(int p1, const void* p2, size_t p3) { return _write(p1, p2, p3); };
     virtual int    close(int p1) { return _close(p1); };
     void* _library;
