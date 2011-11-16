@@ -12,6 +12,8 @@ using namespace std;
 
 namespace a4{ namespace io{
 
+    const uint32_t default_network_block_size = 32*1024;
+
     OpenFile::OpenFile(const char * name, int oflag, bool do_mmap) {
         error = true;
         no = size = 0;
@@ -308,7 +310,7 @@ namespace a4{ namespace io{
         // Deal with rfio, dcap and file URLs
         string proto = url.substr(0,7);
         if (proto == "rfio://" or proto == "dcap://" or proto == "hdfs://") {
-            return unique<RemoteFile>(new RemoteFile(url));
+            return unique<RemoteFile>(new RemoteFile(url, default_network_block_size));
         } else if (proto == "file://") {
             url = url.substr(8);
         }
