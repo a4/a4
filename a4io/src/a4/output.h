@@ -26,14 +26,15 @@ namespace a4{ namespace io{
             /// Make sure all output is written and merge files
             bool close();
             /// Get a stream to write to (threadsafe).
-            shared<OutputStream> get_stream();
+            shared<OutputStream> get_stream(std::string postfix="");
         private:
+            bool concatenate(const std::vector<std::string> & filenames, const std::string target);
             bool _closed;
             bool _regular_file;
             std::string _output_file;
             std::string _description;
-            std::vector<shared<OutputStream>> _out_streams;
-            std::vector<std::string> _filenames;
+            std::map<std::string, std::vector<shared<OutputStream>>> _out_streams;
+            std::map<std::string, std::vector<std::string>> _filenames;
             mutable boost::mutex _mutex;
     };
 };};

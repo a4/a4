@@ -54,24 +54,32 @@ A4Output::~A4Output() {
 /// Create a new output stream. For each call we create an independent output
 /// stream pointing to a different file, unless the destination is a fifo, in
 /// which case we only allow one call to `get_stream()`.
-shared<OutputStream> A4Output::get_stream() {
+shared<OutputStream> A4Output::get_stream(std::string postfix) {
     Lock lock(_mutex);
     int count = _filenames.size() + 1;
     
-    std::string filename;
-    
+    // Determine filename
+    std::string filename; 
     if (!_regular_file) {
         // Destination is non-regular so we should write to it directly.
         if (count != 1)
             throw a4::Fatal("Can only create one output stream on a fifo output");
+        if (postfix != "")
+            throw a4::Fatal("Cannot split output stream on a fifo output");
         filename = _output_file;
     } else {
-        filename = _output_file + "." + boost::lexical_cast<std::string>(count);
+        std::string number = boost::lexical_cast<std::string>(count);
+        if (postfix == "") {
+            filename = _output_file + "." + number;
+        } else {
+            filename = _output_file + "." + postfix + "." + number;
+        }
     }
     
     shared<OutputStream> os(new OutputStream(filename, _description));
-    _out_streams.push_back(os);
-    _filenames.push_back(filename);
+
+    _out_streams[postfix].push_back(os);
+    _filenames[postfix].push_back(filename);
     return os;
 }
 
@@ -82,34 +90,48 @@ bool A4Output::close() {
     Lock lock(_mutex);
     _closed = true;
     
-    foreach(shared<OutputStream> s, _out_streams) {
-        if (s->opened()) s->close();
+    foreach(auto postfix, _out_streams) {
+        foreach(auto s, postfix.second) {
+            if (s->opened()) s->close();
+        }
     }
     
     if (!_regular_file) {
         // We're writing to exactly one output, no filename fixup to do.
         return true;
     }
-    
-    if (_out_streams.size() == 1 && _out_streams[0]->opened()) {
-        const char * from = _filenames[0].c_str();
-        const char * to = _output_file.c_str();
+
+    bool success = true;
+    foreach(auto postfix, _out_streams) {
+        std::vector<std::string> used_streams;
+        for(int i = 0; i < postfix.second.size(); i++) {
+            if (postfix.second[i]->opened()) used_streams.push_back(_filenames[postfix.first][i]);
+        }
+        std::string out = _output_file;
+        if (postfix.first != "") out += "." + postfix.first;
+        success = success && concatenate(used_streams, out);
+    }
+    return success;
+}
+
+bool A4Output::concatenate(const std::vector<std::string> & filenames, const std::string target) {
+    if (filenames.size() == 1) {
+        const char * from = filenames[0].c_str();
+        const char * to = target.c_str();
         unlink(to);
         if (rename(from, to) == -1) {
             std::cerr << "ERROR - a4::io:A4Output - Can not rename " << from << " to " << to << "!" << std::endl;
             return false;
         };
-    } else if (_out_streams.size() > 1) {
+    } else if (filenames.size() > 1) {
         // concatenate all output files
-        std::fstream out(_output_file.c_str(), ios::out | ios::trunc | ios::binary);
+        std::fstream out(target.c_str(), ios::out | ios::trunc | ios::binary);
         if (!out) {
-            std::cerr << "ERROR - a4::io:A4Output - Could not open " << _output_file << " for writing!" << std::endl;
+            std::cerr << "ERROR - a4::io:A4Output - Could not open " << target << " for writing!" << std::endl;
             return false;
         }
-        for (uint32_t i = 0; i < _filenames.size(); i++) {
-            std::string fn = _filenames[i];
-            shared<OutputStream> ostream = _out_streams[i];
-            if (!ostream->opened()) continue; // maybe threads did not use their output
+        for (uint32_t i = 0; i < filenames.size(); i++) {
+            std::string fn = filenames[i];
             std::fstream in(fn.c_str(), ios::in | ios::binary);
             if (!in) {
                 std::cerr << "ERROR - a4::io:A4Output - Could not open " << fn << "! Maybe some threads failed?" << std::endl;
