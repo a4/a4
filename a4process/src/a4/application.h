@@ -20,7 +20,7 @@ namespace a4{
                 static void simple_thread(SimpleCommandLineDriver*, Processor *, int, ProcessStats&);
                 Processor * new_initialized_processor();
                 Configuration * configuration;
-                std::string metakey;
+                std::string metakey, split_metakey;
                 shared<a4::io::A4Input> in;
                 shared<a4::io::A4Output> out, res;
                 int threads;

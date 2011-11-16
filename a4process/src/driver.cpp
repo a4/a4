@@ -93,58 +93,92 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
 
     // Try as long as there are inputs
     A4Message current_metadata;
+    std::string current_postfix = "";
     int cnt = 0;
+    bool run = true;
     while (shared<InputStream> instream = self->in->get_stream()) {
+        if (!run) break;
         self->set_instream(p, instream);
-        while (A4Message msg = instream->next()) {
+        while (A4Message msg = instream->next_with_metadata()) {
+            if (!run) break;
             if (instream->new_metadata()) {
                 A4Message new_metadata = instream->current_metadata();
-                if (current_metadata) {
-                    // Check if we merge the old into the new metadata
-                    // and wait with writing it.
-                    bool merge = false;
+                p->process_new_metadata();
 
-                    // Determine if merging is necessary
-                    if (self->metakey != "") {
+                // Check if we merge the old into the new metadata
+                // and wait with writing it.
+                bool merge = false;
+
+                // Determine if merging is necessary
+                if (current_metadata && self->metakey != "") {
+                    std::string key = self->metakey;
+                    google::protobuf::Message & m = *current_metadata.message;
+                    const google::protobuf::FieldDescriptor* fd = m.GetDescriptor()->FindFieldByName(key);
+                    if (!fd) {
+                        const std::string & classname = m.GetDescriptor()->full_name();
+                        throw a4::Fatal(classname, " has no member ", key, " necessary for metadata merging!");
+                    }
+                    if (fd->is_repeated() && (m.GetReflection()->FieldSize(m, fd)) > 1) {
+                        throw a4::Fatal(fd->full_name(), " has already multiple ", key, " entries - cannot achieve desired granularity!");
+                    }
+                    std::string s1 = current_metadata.field_as_string(key);
+                    std::string s2 = new_metadata.field_as_string(key);
+                    if (s1 == s2) merge = true;
+                }
+                if (merge) {
+                    std::cerr<< "Merging " << current_metadata.message->ShortDebugString() << "\n and " << new_metadata.message->ShortDebugString() << std::endl;
+                    current_metadata = current_metadata + new_metadata;
+                    std::cerr << "to "<<current_metadata.message->ShortDebugString() << std::endl;
+                } else { // Normal action in case of new metadata
+                    if (get_auto_metadata(p)) {
+                        if (self->out) outstream->metadata(*current_metadata.message);
+                        if (self->res) {
+                            bs->to_stream(*resstream);
+                            resstream->metadata(*current_metadata.message);
+                            bs.reset(new ObjectBackStore()); 
+                            self->set_backstore(p, bs);
+                            self->set_store_prefix(p);
+                        }
+                    }
+
+                    if (self->split_metakey != "") {
+                        std::string key = self->split_metakey;
                         google::protobuf::Message & m = *current_metadata.message;
-                        const google::protobuf::FieldDescriptor* fd = m.GetDescriptor()->FindFieldByName(self->metakey);
+                        const google::protobuf::FieldDescriptor* fd = m.GetDescriptor()->FindFieldByName(key);
                         if (!fd) {
                             const std::string & classname = m.GetDescriptor()->full_name();
-                            throw a4::Fatal(classname, " has no member ", self->metakey, " necessary for metadata merging!");
+                            throw a4::Fatal(classname, " has no member ", key, " necessary for splitting by metadata!");
                         }
                         if (fd->is_repeated() && (m.GetReflection()->FieldSize(m, fd)) > 1) {
-                            throw a4::Fatal(fd->full_name(), " has already multiple ", self->metakey, " entries - cannot achieve desired granularity!");
+                            throw a4::Fatal(fd->full_name(), " has already multiple ", key, " entries - cannot achieve desired granularity!");
                         }
-                        std::string s1 = current_metadata.field_as_string(self->metakey);
-                        std::string s2 = new_metadata.field_as_string(self->metakey);
-                        if (s1 == s2) merge = true;
-                    }
 
-                    if (merge) {
-                        std::cerr<< "Merging " << current_metadata.message->ShortDebugString() << "\n and " << new_metadata.message->ShortDebugString() << std::endl;
-                        current_metadata = current_metadata + new_metadata;
-                        std::cerr << "to "<<current_metadata.message->ShortDebugString() << std::endl;
-
-                    } else {
-                        if (get_auto_metadata(p)) {
-                            if (self->out) outstream->metadata(*current_metadata.message);
-                            if (self->res) {
-                                bs->to_stream(*resstream);
-                                resstream->metadata(*current_metadata.message);
-                                bs.reset(new ObjectBackStore()); 
-                                self->set_backstore(p, bs);
-                                self->set_store_prefix(p);
+                        // Check if we have to change output files
+                        std::string postfix = current_metadata.field_as_string(key);
+                        if (postfix != current_postfix) {
+                            // Note that we have already flushed everything to store
+                            // since we just changed metadata blocks
+                            if (self->out) {
+                                outstream = self->out->get_stream(postfix);
+                                self->set_outstream(p, outstream);
+                                outstream->set_compression("ZLIB", 1);
+                                if (get_auto_metadata(p)) outstream->set_forward_metadata();
                             }
-                            current_metadata = new_metadata;
+                            if (self->res) {
+                                resstream = self->res->get_stream(postfix);
+                                resstream->set_compression("ZLIB", 1);
+                                if (get_auto_metadata(p)) resstream->set_forward_metadata();
+                            }
+                            current_postfix = postfix;
                         }
                     }
-                } else current_metadata = new_metadata;
+                    current_metadata = new_metadata;
+                } // end of normal action in case of new metadata
 
                 self->set_metadata(p, current_metadata);
-
-                p->process_new_metadata();
             }
 
+            // Process manual "out" metadata from process_new_metadata
             if (get_out_metadata(p)) {
                 if (self->out) outstream->metadata(*get_out_metadata(p));
                 if (self->res) {
@@ -157,8 +191,12 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                 reset_out_metadata(p);
             }
 
+            // Do not send metadata messages to process()
+            if (msg.metadata()) continue;
+
             process_rerun_systematics(p, msg);
 
+            // Process manual "out" metadata from process()
             if (get_out_metadata(p)) {
                 if (self->out) outstream->metadata(*get_out_metadata(p));
                 if (self->res) {
@@ -171,21 +209,8 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                 reset_out_metadata(p);
             }
             
-            if (++cnt == limit) {
-                // Stream store to output
-                if (self->res) bs->to_stream(*resstream);
-                if (get_auto_metadata(p)) {
-                    if (self->out) outstream->metadata(*current_metadata.message);
-                    if (self->res) {
-                        resstream->metadata(*current_metadata.message);
-                        bs.reset(); 
-                    }
-                }
-                stats.cputime = boost::chrono::thread_clock::now() - start;
-                stats.bytes += instream->ByteCount();
-                stats.events = cnt;
-                return;
-            }
+            // Check if we reached limit
+            if (++cnt == limit) run = false;
         }
         
         // We're about to get a new stream, record how many this one had
@@ -232,7 +257,7 @@ try
     po::options_description config_file_options;
     string config_filename = string(argv[0]) + ".ini";
     string output = "", results = "";
-    metakey = "";
+    metakey = ""; split_metakey = "";
 
     // Define all 
     po::options_description popt("Processing options");
@@ -243,6 +268,7 @@ try
         ("results,r", po::value<string>(&results), "result file")
         ("number,n", po::value<int>(&number)->default_value(-1), "maximum number of events to process (default: all)")
         ("per,p", po::value<string>(&metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
+        ("split-per,s", po::value<string>(&split_metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
         ("config,c", po::value<string>(), (string("configuration file [default is '") + config_filename + "']").c_str());
 
     po::positional_options_description positional_options;
