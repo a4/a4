@@ -318,13 +318,14 @@ try
     po::notify(arguments);
     configuration->read_arguments(arguments);
 
-    // DEBUG
-    foreach(string & i, inputs) { cout << "inputs += " << i << endl; } 
     if (number != -1) n_threads = 1;
-    cout << "output = " << output << endl;
-    cout << "results = " << results << endl;
-    cout << "config_filename = " << config_filename << endl;
-    cout << "n_threads = " << n_threads << endl;
+
+    // DEBUG
+    //foreach(string & i, inputs) { cout << "inputs += " << i << endl; } 
+    //cout << "output = " << output << endl;
+    //cout << "results = " << results << endl;
+    //cout << "config_filename = " << config_filename << endl;
+    //cout << "n_threads = " << n_threads << endl;
 
     // Set up I/O
     in.reset(new A4Input("A4 Input Files"));
