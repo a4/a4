@@ -2,6 +2,8 @@
 #include <limits.h>
 #include <fcntl.h>
 
+#include <boost/algorithm/string.hpp>
+
 #include "zero_copy_resource.h"
 #include "remote_io.h" 
 #include <google/protobuf/io/zero_copy_stream_impl.h>
@@ -300,6 +302,7 @@ namespace a4{ namespace io{
     }
 
     unique<ZeroCopyStreamResource> resource_from_url(std::string url) {
+        boost::trim(url);
         if (url == "-") return unique<UnixStream>(new UnixStream(STDIN_FILENO));
 
         // Deal with rfio, dcap and file URLs
