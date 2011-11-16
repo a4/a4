@@ -69,25 +69,40 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     // The argument to this function should be a move into a unique...
     unique<Processor> processor(p);
     
+    bool metadata_forward;
+    switch(p->get_metadata_behavior()) {
+        case AUTO:
+            metadata_forward = (self->metakey == ""); // forward if no merging
+            break;
+        case MANUAL_FORWARD:
+        case DROP:
+            metadata_forward = true;
+            break;
+        case MANUAL_BACKWARD:
+            metadata_forward = false;
+            break;
+        default:
+            throw a4::Fatal("Unknown metadata behaviour specified: ", p->get_metadata_behavior());
+    }
+
     // It is safe to get these, even if they are not used.
     // The ownership of these is shared with A4Input/Output.
     shared<OutputStream> outstream, resstream;
     
-    
     shared<ObjectBackStore> bs(new ObjectBackStore());
     if (self->out) {
         outstream = self->out->get_stream();
-        self->set_outstream(p, outstream);
         outstream->set_compression("ZLIB", 1);
-        if (get_auto_metadata(p)) outstream->set_forward_metadata();
+        if (metadata_forward) outstream->set_forward_metadata();
     }
+
     if (self->res) {
         resstream = self->res->get_stream();
         resstream->set_compression("ZLIB", 9);
-        if (get_auto_metadata(p)) resstream->set_forward_metadata();
+        if (metadata_forward) resstream->set_forward_metadata();
     }
-    self->set_backstore(p, bs);
-    self->set_store_prefix(p);
+
+    self->set_store(p, bs->store());
     
     boost::chrono::thread_clock::time_point start = boost::chrono::thread_clock::now();
 
@@ -130,6 +145,8 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                     current_metadata = current_metadata + new_metadata;
                     std::cerr << "to "<<current_metadata.message->ShortDebugString() << std::endl;
                 } else { // Normal action in case of new metadata
+                    current_metadata = new_metadata;
+
                     if (get_auto_metadata(p)) {
                         if (self->out) outstream->metadata(*current_metadata.message);
                         if (self->res) {
@@ -172,7 +189,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                             current_postfix = postfix;
                         }
                     }
-                    current_metadata = new_metadata;
+
                 } // end of normal action in case of new metadata
 
                 self->set_metadata(p, current_metadata);
