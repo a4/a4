@@ -36,30 +36,101 @@ bool is_writeable_pointer(const char * _p) {
     return true;
 };
 
-hash_lookup::hash_lookup(std::string path) : _depth(0), _huid(0), _path(path) {
-    _files = new hash_lookup_data[files_size]();
-    _directories = new hash_lookup_data[directories_size]();
-    _collisions = 0;
+hash_lookup::hash_lookup(std::string path) :  _depth(0), _huid(0), _path(path), _files_size(1<<16), _directories_size(1<<16) {
+    _files = new hash_lookup_data[_files_size]();
+    _directories = new hash_lookup_data[_directories_size]();
+    _entries = _collisions = 0;
+    _dir_entries = _dir_collisions = 0;
+    _master = this;
 };
 
 void hash_lookup::tear_down() {
     if(_depth != 0) return;
-    for (int i = 0; i < directories_size; i++) {
+    for (int i = 0; i < _directories_size; i++) {
         if (_directories[i].value) delete static_cast<hash_lookup*>(_directories[i].value);
     }
     delete[] _files;
     delete[] _directories;
 };
 
+bool hash_lookup::bump_up_files() {
+    if(_depth != 0) return false;
+    if (_entries < 0.1*_files_size) return false; // never occupy more than 10 times the memory
+    if (_collisions < 0.05*_entries) return false; // only if more than 5% collisions
+    std::cerr << "BUMP: " << _files_size << "/" << _entries << "/" << _collisions << std::endl;
+
+    hash_lookup_data * old_files = _files;
+    int old_files_size = _files_size;
+    _files_size *= 2;
+    if (_files_size > (1<<25)) {// memory > 512 MB
+        throw std::runtime_error("Too many entries in hash table!");
+
+    }
+    _collisions = 0;
+    _files = new hash_lookup_data[_files_size]();
+    for (int i = 0; i < old_files_size; i++) {
+        hash_lookup_data & data = old_files[i];
+        if (data.huid != 0 || data.value != NULL) {
+            uintptr_t idx0 = idx_from_huid(data.huid, _files_size);
+            uintptr_t idx = idx0;
+            while (_files[idx].huid != 0 || _files[idx].value != NULL) idx = (idx+1) & (_files_size-1);
+            if (idx != idx0) _collisions++;
+            _files[idx] = data;
+        }
+    }
+    delete[] old_files;
+    for (int i = 0; i < _directories_size; i++) {
+        if (_directories[i].value) {
+            static_cast<hash_lookup*>(_directories[i].value)->update_from(this);
+        }
+    }
+    std::cerr << "POST BUMP: " << _files_size << "/" << _entries << "/" << _collisions << std::endl;
+    return true;
+};
+
+bool hash_lookup::bump_up_dirs() {
+    if(_depth != 0) return false;
+    if (_dir_entries < 0.1*_directories_size) return false; // never occupy more than 10 times the memory
+    if (_dir_collisions < 0.05*_dir_entries) return false; // only if more than 5% collisions
+    std::cerr << "BUMP DIR: " << _directories_size << "/" << _dir_entries << "/" << _dir_collisions << std::endl;
+    hash_lookup_data * old_directories = _directories;
+    int old_dir_size = _directories_size;
+    _directories_size *= 2;
+    if (_directories_size > (1<<25)) {// memory > 512 MB
+        throw std::runtime_error("Too many entries in hash table!");
+    }
+    _directories = new hash_lookup_data[_directories_size]();
+    for (int i = 0; i < old_dir_size; i++) {
+        hash_lookup_data & data = old_directories[i];
+        if (data.huid != 0 || data.value != NULL) {
+            uintptr_t idx0 = idx_from_huid(data.huid, _directories_size);
+            uintptr_t idx = idx0;
+            while (_directories[idx].huid != 0 || _directories[idx].value != NULL) idx = (idx+1) & (_directories_size-1);
+            if (idx != idx0) _dir_collisions++;
+            _directories[idx] = data;
+            static_cast<hash_lookup*>(data.value)->update_from(this);
+        }
+    }
+    delete[] old_directories;
+    std::cerr << "POST BUMP DIR: " << _directories_size << "/" << _dir_entries << "/" << _dir_collisions << std::endl;
+    return true;
+};
+
+
 void hash_lookup::dump_stats() {
-    std::cout << "My depth: "<< _depth << std::endl;
-    std::cout << "My huid: "<< std::hex << _huid << std::dec << std::endl;
-    std::cout << "Size of directories table: "<< directories_size << std::endl;
-    std::cout << "Size of files table: "<< files_size << std::endl;
     int dcnt = 0, fcnt = 0;
-    for (int i = 0; i < directories_size; i++) if (_directories[i].value) dcnt++;
-    for (int i = 0; i < files_size; i++) if (_files[i].huid || _files[i].value) fcnt++;
-    std::cout << "# dir "<< dcnt << std::endl;
-    std::cout << "# fls "<< fcnt << std::endl;
-    std::cout << "# collisions "<< _collisions << std::endl;
+    for (int i = 0; i < _directories_size; i++) if (_directories[i].value) dcnt++;
+    for (int i = 0; i < _files_size; i++) if (_files[i].huid || _files[i].value) fcnt++;
+
+    std::cout << "Depth/HUID: "<< _depth << "/" << _huid << std::endl;
+    std::cout << "FILES:" << std::endl;
+    std::cout << " * table size    = " << _files_size << std::endl;
+    std::cout << " * nonzero cells = " << fcnt << std::endl;
+    std::cout << " * entries       = " << _entries << std::endl;
+    std::cout << " * collisions    = " << _collisions << std::endl;
+    std::cout << "DIRECTORIES:" << std::endl;
+    std::cout << " * table size = "<< _directories_size << std::endl;
+    std::cout << " * nonzero cells = " << dcnt << std::endl;
+    std::cout << " * entries       = " << _dir_entries << std::endl;
+    std::cout << " * collisions    = " << _dir_collisions << std::endl;
 };

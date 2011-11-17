@@ -41,22 +41,38 @@ class hash_lookup {
             void * value;  // stored value
         } hash_lookup_data;
 
-        hash_lookup(int depth, uint64_t huid, std::string path, hash_lookup_data * files, hash_lookup_data * directories)
-            : _depth(depth), _huid(huid), _path(path), _files(files), _directories(directories) {};
+        hash_lookup(uint64_t huid, std::string path, hash_lookup * parent) :
+            _depth(parent->_depth + 1),
+            _huid(huid),
+            _path(path)
+        {
+            update_from(parent);
+        };
+
+        void update_from(hash_lookup * master) {
+            _files_size = master->_files_size;
+            _directories_size = master->_directories_size;
+            _files = master->_files;
+            _directories = master->_directories;
+            _master = master->_master;
+        };
 
         void tear_down();
         hash_lookup * subhash() { return this; }
+        uintptr_t idx_from_huid(uint64_t huid, int size);
 
-        const static uintptr_t files_size = 1<<17;
-        const static uintptr_t directories_size = 1<<16;
+        bool bump_up_files();
+        bool bump_up_dirs();
 
-        // _files and _directories are shared between all subhashes
-        int _collisions;
         int _depth;
         uint64_t _huid;
         std::string _path;
+        uintptr_t _files_size, _directories_size;
         hash_lookup_data * _files;
         hash_lookup_data * _directories;
+        hash_lookup * _master;
+        int _entries, _collisions;
+        int _dir_entries, _dir_collisions;
 };
 
 bool is_writeable_pointer(const char * _p);

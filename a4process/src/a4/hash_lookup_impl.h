@@ -59,11 +59,14 @@ std::string checked_str_cat(const Args&... args) {
     return ss.str();
 };
 
+inline uintptr_t hash_lookup::idx_from_huid(uint64_t huid, int size) {
+    return (size-1) & ((huid >> 48) ^ (huid >> 32) ^ (huid >> 16));
+}
+
 template <typename... Args>
 void * & hash_lookup::lookup(const Args& ...args) {
     int64_t huid = _huid ^ (get_huid(args...) << _depth);
-    //uintptr_t idx = huid & (files_size-1);
-    uintptr_t idx = (files_size-1) & ((huid >> 48) ^ (huid >> 32) ^ (huid >> 16));
+    uintptr_t idx = idx_from_huid(huid, _files_size);
     uintptr_t idx0 = idx;
     do {
         hash_lookup_data & data = _files[idx];
@@ -71,30 +74,39 @@ void * & hash_lookup::lookup(const Args& ...args) {
             return data.value;
         } else if (data.huid == 0 && data.value == NULL) {
             checked_str_cat(args...); // just check that no dynamic stuff was used
+            if (idx != idx0) {
+                _master->_collisions++;
+                if(_master->bump_up_files()) return lookup(args...);
+            }
             data.huid = huid;
-            if (idx != idx0) _collisions++;
+            _master->_entries++;
             return data.value;
         }
-        idx = (idx+1) & (files_size-1);
+        idx = (idx+1) & (_files_size-1);
     } while (idx != idx0);
     throw std::runtime_error("ERROR: Hash table full - check your code or increase hash_lookup.files_size.");
 };
 
 template <typename... Args>
 hash_lookup * hash_lookup::subhash(const Args& ...args) {
-    int64_t huid = _huid ^ get_huid(args...) << (_depth*2);
-    uintptr_t idx = huid % directories_size;
-    uintptr_t idx0 = (huid-1) % directories_size;
-    while (idx != idx0) {
+    int64_t huid = _huid ^ (get_huid(args...) << _depth);
+    uintptr_t idx = idx_from_huid(huid, _directories_size);
+    uintptr_t idx0 = idx;
+    do {
         hash_lookup_data & data = _directories[idx];
         if (data.huid == huid) return static_cast<hash_lookup*>(data.value);
         if (data.huid == 0 && data.value == NULL) {
+            if (idx != idx0) {
+                _master->_dir_collisions++;
+                if (_master->bump_up_dirs()) return subhash(args...);
+            }
             data.huid = huid;
-            data.value = new hash_lookup(_depth+1, huid, _path + checked_str_cat(args...), _files, _directories);
+            _master->_dir_entries++;
+            data.value = new hash_lookup(huid, _path + checked_str_cat(args...), this);
             return static_cast<hash_lookup*>(data.value);
         }
-        idx = (idx+1) % directories_size;
-    }
+        idx = (idx+1) & (_directories_size-1);
+    } while (idx != idx0);
     throw std::runtime_error("ERROR: Hash table full - check your code or increase hash_lookup.directories_size.");
 };
 
