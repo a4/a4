@@ -18,8 +18,13 @@ namespace a4{ namespace io{
     /// Wrapped message returned from the InputStream
     class A4Message {
         public:
+            /// Class-IDs for newly constructed messages
+            static const uint32_t NO_CLASS_ID = ((1L<<32) - 2);
+            static const uint32_t NO_CLASS_ID_METADATA = ((1L<<32) - 1);
+
             /// Construct A4Message that signifies end of stream or stream error
             A4Message() :  _class_id(0), _descriptor(NULL), _dynamic_descriptor(NULL) { message.reset(); _pool.reset(); _factory.reset(); };
+            A4Message(shared<google::protobuf::Message> msg, bool metadata=true) : message(msg), _class_id(NO_CLASS_ID_METADATA), _descriptor(msg->GetDescriptor()), _dynamic_descriptor(NULL) { _pool.reset(); _factory.reset(); };
             ~A4Message();
 
             /// Construct normal A4Message with message, (static) descriptor, 
@@ -67,6 +72,7 @@ namespace a4{ namespace io{
 
             /// Return a field of this message in string representation
             std::string field_as_string(const std::string & field_name);
+            std::string assert_field_is_single_value(const std::string & field_name);
         private:
             A4Message as_dynamic_message(const google::protobuf::Descriptor* d, shared<google::protobuf::DescriptorPool> p) const;
 

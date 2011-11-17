@@ -130,5 +130,16 @@ namespace a4{ namespace io{
         }
     }
 
+    std::string A4Message::assert_field_is_single_value(const std::string & field_name) {
+        const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
+        if (!fd) {
+            const std::string & classname = message->GetDescriptor()->full_name();
+            throw a4::Fatal(classname, " has no member ", field_name, " necessary for metadata merging or splitting!");
+        }
+        if (fd->is_repeated() && (message->GetReflection()->FieldSize(*message, fd)) > 1) {
+            throw a4::Fatal(fd->full_name(), " has already multiple ", field_name, " entries - cannot achieve desired granularity!");
+        }
+        return field_as_string(field_name);
+    }
 
 };};
