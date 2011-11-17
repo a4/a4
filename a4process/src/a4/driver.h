@@ -6,10 +6,13 @@
 namespace a4{ namespace process{
 
 class Driver {
+    public:
+        void set_store(Processor* p, ObjectStore S) { p->S = S; }
     protected:
         void set_metadata(Processor* p, A4Message md) { p->metadata_message = md; }
 
-        void set_store(Processor* p, ObjectStore S) { p->S = S; }
+
+        void set_output_adaptor(Processor* p, OutputAdaptor * oa) { p->_output_adaptor = oa; };
 
         static void process_rerun_channels(Processor* p, A4Message msg) {
             p->process_message(msg);

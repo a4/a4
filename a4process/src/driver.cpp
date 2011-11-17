@@ -63,169 +63,164 @@ SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) : configura
     assert(configuration);
 }
 
+class BaseOutputAdaptor : public OutputAdaptor {
+    public:
+        A4Message current_metadata;
+        std::string merge_key, split_key; 
+        A4Output * out;
+        A4Output * res;
+
+        BaseOutputAdaptor(Driver * d, Processor * p, bool forward_metadata, A4Output* out, A4Output* res) : out(out), res(res), forward_metadata(forward_metadata), in_block(false), driver(d), p(p), last_postfix("") {
+            merge_key = split_key = "";
+            outstream.reset();
+            resstream.reset();
+            backstore.reset();
+            start_block(); // This writes no metadata
+        }
+
+        void start_block(std::string postfix = "") {
+            if (out and (!outstream or postfix != last_postfix)) {
+                outstream = out->get_stream(postfix);
+                outstream->set_compression("ZLIB", 1);
+                if (forward_metadata) outstream->set_forward_metadata();
+            }
+            if (res and (!resstream or postfix != last_postfix)) {
+                resstream = res->get_stream(postfix);
+                resstream->set_compression("ZLIB", 1);
+                resstream->set_forward_metadata();
+            }
+            backstore.reset(new ObjectBackStore());
+            driver->set_store(p, backstore->store());
+            if (outstream and forward_metadata and current_metadata) outstream->metadata(*current_metadata.message);
+        }
+
+        void end_block() {
+            if (resstream && current_metadata) {
+                resstream->metadata(*current_metadata.message);
+            }
+            if (backstore && resstream) {
+                backstore->to_stream(*resstream);
+            }
+            backstore.reset();
+            if (outstream and !forward_metadata and current_metadata) {
+                outstream->metadata(*current_metadata.message);
+            }
+            in_block = false;
+        }
+
+        void new_outgoing_metadata(A4Message new_metadata) {
+            // Check if we merge the old into the new metadata
+            // and hold off on writing it.
+            bool merge = false;
+            A4Message old_metadata = current_metadata;
+
+            // Determine if merging is necessary
+            if (old_metadata && merge_key != "") {
+                std::string s1 = old_metadata.assert_field_is_single_value(merge_key);
+                std::string s2 = new_metadata.assert_field_is_single_value(merge_key);
+                if (s1 == s2) merge = true;
+            }
+
+            if (merge) {
+                std::cerr<< "Merging\n" << old_metadata.message->ShortDebugString() << "\n...and...\n" << new_metadata.message->ShortDebugString() << std::endl;
+                current_metadata = old_metadata + new_metadata;
+                std::cerr << "...to...\n" << current_metadata.message->ShortDebugString() << std::endl;
+            } else { // Normal action in case of new metadata
+                // If we are in charge of metadata, start a new block now...
+                std::string postfix = "";
+                if (split_key != "") postfix = new_metadata.assert_field_is_single_value(split_key);
+                end_block();
+                current_metadata = new_metadata;
+                start_block(postfix);
+            } // end of normal action in case of new metadata
+
+        }
+
+        void metadata(shared<const google::protobuf::Message> m) {
+            throw a4::Fatal("To write metadata manually, you have to change the metadata_behavior of the Processor!");
+        }
+    
+        void write(shared<const google::protobuf::Message> m) {
+            if (!in_block) throw a4::Fatal("Whoa?? Writing outside of a metadata block? How did you do this?");
+            outstream->write(*m);
+        }
+
+    protected:
+        bool forward_metadata;
+        shared<OutputStream> outstream, resstream;
+        shared<ObjectBackStore> backstore;
+        bool in_block;
+        Driver * driver;
+        Processor * p;
+        std::string last_postfix;
+};
+
+class ManualOutputAdaptor : public BaseOutputAdaptor {
+    public:
+        ManualOutputAdaptor(Driver * d, Processor * p, bool forward_metadata, A4Output* out, A4Output* res) : BaseOutputAdaptor(d, p, forward_metadata, out, res) {}
+        void metadata(shared<google::protobuf::Message> m) {
+            new_outgoing_metadata(A4Message(m));
+        }
+};
+
+
 void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, 
     Processor* p, int limit, ProcessStats& stats) {
     // This is MY processor! (makes sure processor is deleted on function exit)
     // The argument to this function should be a move into a unique...
     unique<Processor> processor(p);
+    unique<BaseOutputAdaptor> output_adaptor;
     
     bool metadata_forward;
+    bool auto_metadata = false;
     switch(p->get_metadata_behavior()) {
-        case AUTO:
+        case Processor::AUTO:
             metadata_forward = (self->metakey == ""); // forward if no merging
+            auto_metadata = true;
+            output_adaptor.reset(new BaseOutputAdaptor(self, p, metadata_forward, self->out.get(), self->res.get()));
             break;
-        case MANUAL_FORWARD:
-        case DROP:
+        case Processor::MANUAL_FORWARD:
+        case Processor::DROP:
             metadata_forward = true;
+            output_adaptor.reset(new ManualOutputAdaptor(self, p, metadata_forward, self->out.get(), self->res.get()));
             break;
-        case MANUAL_BACKWARD:
+        case Processor::MANUAL_BACKWARD:
             metadata_forward = false;
+            output_adaptor.reset(new ManualOutputAdaptor(self, p, metadata_forward, self->out.get(), self->res.get()));
             break;
         default:
             throw a4::Fatal("Unknown metadata behaviour specified: ", p->get_metadata_behavior());
     }
-
-    // It is safe to get these, even if they are not used.
-    // The ownership of these is shared with A4Input/Output.
-    shared<OutputStream> outstream, resstream;
-    
-    shared<ObjectBackStore> bs(new ObjectBackStore());
-    if (self->out) {
-        outstream = self->out->get_stream();
-        outstream->set_compression("ZLIB", 1);
-        if (metadata_forward) outstream->set_forward_metadata();
-    }
-
-    if (self->res) {
-        resstream = self->res->get_stream();
-        resstream->set_compression("ZLIB", 9);
-        if (metadata_forward) resstream->set_forward_metadata();
-    }
-
-    self->set_store(p, bs->store());
     
     boost::chrono::thread_clock::time_point start = boost::chrono::thread_clock::now();
 
     // Try as long as there are inputs
-    A4Message current_metadata;
-    std::string current_postfix = "";
     int cnt = 0;
     bool run = true;
     while (shared<InputStream> instream = self->in->get_stream()) {
         if (!run) break;
-        self->set_instream(p, instream);
         while (A4Message msg = instream->next_with_metadata()) {
             if (!run) break;
-            if (instream->new_metadata()) {
+            if (instream->new_metadata()) { // Start of new metadata block
                 A4Message new_metadata = instream->current_metadata();
+
+                // Process end of old metadata block, if any.
+                if (output_adaptor->current_metadata) p->process_end_metadata();
+
+                // Process start of new incoming metadata block (this may modify new_metadata)
+                // In Manual Mode, this may also trigger a callback in the output_adaptor.
+                // Note that set_metadata is only called here, since the processor should only
+                // ever see incoming metadata (by contract).
+                self->set_metadata(p, new_metadata.message);
                 p->process_new_metadata();
 
-                // Check if we merge the old into the new metadata
-                // and wait with writing it.
-                bool merge = false;
-
-                // Determine if merging is necessary
-                if (current_metadata && self->metakey != "") {
-                    std::string key = self->metakey;
-                    google::protobuf::Message & m = *current_metadata.message;
-                    const google::protobuf::FieldDescriptor* fd = m.GetDescriptor()->FindFieldByName(key);
-                    if (!fd) {
-                        const std::string & classname = m.GetDescriptor()->full_name();
-                        throw a4::Fatal(classname, " has no member ", key, " necessary for metadata merging!");
-                    }
-                    if (fd->is_repeated() && (m.GetReflection()->FieldSize(m, fd)) > 1) {
-                        throw a4::Fatal(fd->full_name(), " has already multiple ", key, " entries - cannot achieve desired granularity!");
-                    }
-                    std::string s1 = current_metadata.field_as_string(key);
-                    std::string s2 = new_metadata.field_as_string(key);
-                    if (s1 == s2) merge = true;
-                }
-                if (merge) {
-                    std::cerr<< "Merging " << current_metadata.message->ShortDebugString() << "\n and " << new_metadata.message->ShortDebugString() << std::endl;
-                    current_metadata = current_metadata + new_metadata;
-                    std::cerr << "to "<<current_metadata.message->ShortDebugString() << std::endl;
-                } else { // Normal action in case of new metadata
-                    current_metadata = new_metadata;
-
-                    if (get_auto_metadata(p)) {
-                        if (self->out) outstream->metadata(*current_metadata.message);
-                        if (self->res) {
-                            bs->to_stream(*resstream);
-                            resstream->metadata(*current_metadata.message);
-                            bs.reset(new ObjectBackStore()); 
-                            self->set_backstore(p, bs);
-                            self->set_store_prefix(p);
-                        }
-                    }
-
-                    if (self->split_metakey != "") {
-                        std::string key = self->split_metakey;
-                        google::protobuf::Message & m = *current_metadata.message;
-                        const google::protobuf::FieldDescriptor* fd = m.GetDescriptor()->FindFieldByName(key);
-                        if (!fd) {
-                            const std::string & classname = m.GetDescriptor()->full_name();
-                            throw a4::Fatal(classname, " has no member ", key, " necessary for splitting by metadata!");
-                        }
-                        if (fd->is_repeated() && (m.GetReflection()->FieldSize(m, fd)) > 1) {
-                            throw a4::Fatal(fd->full_name(), " has already multiple ", key, " entries - cannot achieve desired granularity!");
-                        }
-
-                        // Check if we have to change output files
-                        std::string postfix = current_metadata.field_as_string(key);
-                        if (postfix != current_postfix) {
-                            // Note that we have already flushed everything to store
-                            // since we just changed metadata blocks
-                            if (self->out) {
-                                outstream = self->out->get_stream(postfix);
-                                self->set_outstream(p, outstream);
-                                outstream->set_compression("ZLIB", 1);
-                                if (get_auto_metadata(p)) outstream->set_forward_metadata();
-                            }
-                            if (self->res) {
-                                resstream = self->res->get_stream(postfix);
-                                resstream->set_compression("ZLIB", 1);
-                                if (get_auto_metadata(p)) resstream->set_forward_metadata();
-                            }
-                            current_postfix = postfix;
-                        }
-                    }
-
-                } // end of normal action in case of new metadata
-
-                self->set_metadata(p, current_metadata);
+                if (auto_metadata) output_adaptor->new_outgoing_metadata(new_metadata);
             }
-
-            // Process manual "out" metadata from process_new_metadata
-            if (get_out_metadata(p)) {
-                if (self->out) outstream->metadata(*get_out_metadata(p));
-                if (self->res) {
-                    bs->to_stream(*resstream);
-                    resstream->metadata(*get_out_metadata(p));
-                    bs.reset(new ObjectBackStore()); 
-                    self->set_backstore(p, bs);
-                    self->set_store_prefix(p);
-                }
-                reset_out_metadata(p);
-            }
-
             // Do not send metadata messages to process()
             if (msg.metadata()) continue;
 
             process_rerun_systematics(p, msg);
 
-            // Process manual "out" metadata from process()
-            if (get_out_metadata(p)) {
-                if (self->out) outstream->metadata(*get_out_metadata(p));
-                if (self->res) {
-                    bs->to_stream(*resstream);
-                    resstream->metadata(*get_out_metadata(p));
-                    bs.reset(new ObjectBackStore()); 
-                    self->set_backstore(p, bs);
-                    self->set_store_prefix(p);
-                }
-                reset_out_metadata(p);
-            }
-            
             // Check if we reached limit
             if (++cnt == limit) run = false;
         }
@@ -238,16 +233,9 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             return;
         }
     }
+
     // Stream store to output
-    if (self->res) bs->to_stream(*resstream);
-    if (get_auto_metadata(p)) {
-        if (self->out) outstream->metadata(*current_metadata.message);
-        if (self->res) {
-            resstream->metadata(*current_metadata.message);
-            bs.reset(); 
-        }
-    }
-    
+    output_adaptor->end_block();
     stats.cputime = boost::chrono::thread_clock::now() - start;
     stats.events = cnt;
 }
@@ -295,7 +283,8 @@ try
     cfgopt.add_options()
         ("config.threads,t", po::value<int>(&n_threads)->default_value(hw_threads), "run N multi-threads [# of cores]");
 
-    po::options_description useropt = configuration->get_options();
+    po::options_description useropt;
+    configuration->add_options(useropt.add_options());
 
     commandline_options.add(popt);
     commandline_options.add(cfgopt);

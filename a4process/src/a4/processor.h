@@ -34,13 +34,18 @@ namespace a4{
 
         class Driver; 
         class Configuration;
+        class OutputAdaptor {
+            public:
+                virtual void write(shared<const google::protobuf::Message> m) = 0;
+                virtual void metadata(shared<const google::protobuf::Message> m) = 0;
+        };
 
         class Processor {
             public:
                 enum MetadataBehavior { AUTO, MANUAL_FORWARD, MANUAL_BACKWARD, DROP };
                 MetadataBehavior get_metadata_behavior() { return metadata_behavior; }
 
-                Processor(const Configuration* const config) : my_configuration(config), metadata_behavior(AUTO) {};
+                Processor() : my_configuration(NULL), metadata_behavior(AUTO) {};
                 virtual ~Processor() {};
 
                 /// This function is called at the start of a new metadata block
@@ -57,11 +62,11 @@ namespace a4{
                 /// To use this method you have to disable automatic metadata writing.
                 /// You also need to think about if you want to write your metadata before (manual_metadata_forward = true)
                 /// or after (manual_metadata_forward = false) the events it refers to.
-                void metadata_start_block(shared<const google::protobuf::Message> m) { assert(metadata_behavior == MANUAL_FORWARD); _metadata_callback(m); }
-                void metadata_end_block(shared<const google::protobuf::Message> m) { assert(metadata_behavior == MANUAL_BACKWARD); _metadata_callback(m); }
+                void metadata_start_block(shared<const google::protobuf::Message> m) { assert(metadata_behavior == MANUAL_FORWARD); _output_adaptor->metadata(m); }
+                void metadata_end_block(shared<const google::protobuf::Message> m) { assert(metadata_behavior == MANUAL_BACKWARD); _output_adaptor->metadata(m); }
 
                 /// Write a message to the output stream
-                void write(shared<const google::protobuf::Message> m) { _write_callback(m); }
+                void write(shared<const google::protobuf::Message> m) { _output_adaptor->write(m); }
 
                 /// Call channel in process_message to rerun with the prefix "channel/<name>/".
                 /// In that run this function always returns true.
@@ -81,6 +86,12 @@ namespace a4{
                 /// (unimplemented) From now on, all histos are saved under prefix "syst/<name>/" and scale <scale>
                 // void scale_systematic(const char * c, double scale) { throw a4::Fatal("Not Implemented"); return false; };
 
+                /// Access your own Configuration.
+                /// WARNING: there is only one configuration per process, and it is shared by thread!
+                /// Therefore, it is const. This may not prevent you from doing non-smart things with it.
+                /// suggestion: Do a dynamic_cast to a "MyConfig* config" ONCE in your MyProcessor constructor.
+                const Configuration* my_configuration;
+
             protected:
                 /// In this store you can put named objects.
                 /// It will be written and cleared at every metadata block boundary.
@@ -93,20 +104,13 @@ namespace a4{
                 /// Set the behaviour of metadata
                 void set_metadata_behavior(MetadataBehavior m) { assert(!locked); metadata_behavior = m; }
 
-                /// Access your own Configuration.
-                /// WARNING: there is only one configuration per process, and it is shared by thread!
-                /// Therefore, it is const. This may not prevent you from doing non-smart things with it.
-                /// suggestion: Do a dynamic_cast to a "MyConfig* config" ONCE in your MyProcessor constructor.
-                const Configuration* const my_configuration;
-
                 // Here follows internal stuff.
                 std::set<const char *> rerun_channels;
                 const char * rerun_channels_current;
                 std::set<const char *> rerun_systematics;
                 const char * rerun_systematics_current;
 
-                void (*_metadata_callback)(shared<const google::protobuf::Message> m);
-                void (*_write_callback)(shared<const google::protobuf::Message> m);
+                OutputAdaptor * _output_adaptor;
 
                 void lock_and_load() { locked = true; };
                 friend class a4::process::Driver;
@@ -119,7 +123,7 @@ namespace a4{
             public: 
                 virtual ~Configuration() {};
                 /// Override this to add options to the command line and configuration file
-                virtual void add_options(po::options_description_easy_init &) {};
+                virtual void add_options(po::options_description_easy_init) {};
                 /// Override this to do further processing of the options from the command line or config file
                 virtual void read_arguments(po::variables_map &arguments) {};
                 virtual void setup_processor(Processor &g) {};
@@ -197,7 +201,7 @@ namespace a4{
                 virtual void setup_processor(MyProcessor &g) {};
 
                 virtual void setup_processor(Processor &g) { setup_processor(dynamic_cast<MyProcessor&>(g)); };
-                virtual Processor * new_processor() { return new MyProcessor(this); };
+                virtual Processor * new_processor() { Processor * p = new MyProcessor(); p->my_configuration = this; return p;};
         };
     };
 };
