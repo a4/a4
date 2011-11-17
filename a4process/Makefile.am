@@ -33,10 +33,11 @@ liba4process_la_LIBADD=$(A4_A4IO_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)
 
 
 ## Test programs
-plain_test_programs=test_hashlookup test_hashlookup_speed test_objstore_speed test_storable test_histo
+plain_test_programs=test_hashlookup test_hashlookup_speed test_objstore test_objstore_speed test_storable test_histo
 check_PROGRAMS = $(plain_test_programs) test_app
 test_hashlookup_SOURCES = src/test_hashlookup.cpp
 test_hashlookup_speed_SOURCES = src/test_hashlookup_speed.cpp
+test_objstore_SOURCES = src/test_objstore.cpp
 test_objstore_speed_SOURCES = src/test_objstore_speed.cpp
 test_storable_SOURCES = src/test_storable.cpp
 test_app_SOURCES = src/test_app.cpp

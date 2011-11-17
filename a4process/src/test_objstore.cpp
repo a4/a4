@@ -1,4 +1,6 @@
-#include "a4/objectstore.h"
+#include "a4/object_store.h"
+#include "a4/object_store_impl.h"
+#include "a4/storable.h"
 
 #include <stdlib.h>
 #include <iostream>
@@ -12,84 +14,84 @@
 #include <boost/shared_ptr.hpp>
 
 using namespace std;
+using namespace a4::process;
 
-class Storable {
-    public:
-        Storable() : _initialized(false) {};
-        virtual bool is_initialized() { return _initialized; }
-
-    protected:
-        bool _initialized;
-};
-
-class Results : public ObjectStore<Storable> {};
+class Results {};
 
 class TestStringThing : public Storable {
     public:
-        //TestStringThing(const string s, const int n) : s(s), n(n) {}
+        TestStringThing() : _initialized(false) {};
+        virtual shared<const google::protobuf::Message> as_message() {return shared<google::protobuf::Message>();};
+        virtual void set_message(const google::protobuf::Message&) {};
+        virtual void set_message(shared<google::protobuf::Message>) {};
+        void construct_from(const google::protobuf::Message&) {};
+        void construct_from(std::shared_ptr<google::protobuf::Message>) {};
+        Storable&  operator+=(const a4::process::Storable&) { return *this; };
+        Storable&& clone_storable() { return TestStringThing(*this);};
+
         TestStringThing & operator()(const int &nr) {
             if (_initialized) return *this;
-            n = nr;
             _initialized = true;
+            n = nr;
             return *this;
         };
+        bool _initialized;
         void foo() { n++; };
         string s;
         int n;
-    private:
 };
 
-void process(Results & r, const char * pf) {
-    r.get_cat<TestStringThing>(1,pf)(0).foo();
-    r.get_cat<TestStringThing>(2,pf)(0).foo();
-    r.get_cat<TestStringThing>(3,pf)(0).foo();
-    r.get_cat<TestStringThing>(4,pf)(0).foo();
-    r.get_cat<TestStringThing>(5,pf)(0).foo();
-    r.get_cat<TestStringThing>(6,pf)(0).foo();
-    r.get_cat<TestStringThing>(7,pf)(0).foo();
-    r.get_cat<TestStringThing>(8,pf)(0).foo();
-    r.get_cat<TestStringThing>(9,pf)(0).foo();
-    r.get_cat<TestStringThing>(pf,"10")(0).foo();
-    r.get_cat<TestStringThing>(pf,"11")(0).foo();
-    r.get_cat<TestStringThing>(pf,"12")(0).foo();
-    r.get_cat<TestStringThing>(pf,"13")(0).foo();
-    r.get_cat<TestStringThing>(pf,"14")(0).foo();
-    r.get_cat<TestStringThing>(pf, pf,"15")(0).foo();
-    r.get_cat<TestStringThing>(pf,"16")(0).foo();
-    r.get_cat<TestStringThing>(pf,"17")(0).foo();
-    r.get_cat<TestStringThing>(pf,"18")(0).foo();
-    r.get_cat<TestStringThing>(pf,"19")(0).foo();
-    r.get_cat<TestStringThing>(pf,"20")(0).foo();
-    r.get_cat<TestStringThing>(pf,"21")(0).foo();
-    r.get_cat<TestStringThing>(pf,"22")(0).foo();
-    r.get_cat<TestStringThing>(pf,"23")(0).foo();
-    r.get_cat<TestStringThing>(pf,"24")(0).foo();
-    r.get_cat<TestStringThing>(pf,"25")(0).foo();
-    r.get_cat<TestStringThing>(pf,"26")(0).foo();
-    r.get_cat<TestStringThing>(pf,"27")(0).foo();
-    r.get_cat<TestStringThing>(pf,"28")(0).foo();
-    r.get_cat<TestStringThing>(pf,"29")(0).foo();
-    r.get_cat<TestStringThing>(pf,"30")(0).foo();
-    r.get_cat<TestStringThing>(pf,"31")(0).foo();
-    r.get_cat<TestStringThing>(pf,"32")(0).foo();
-    r.get_cat<TestStringThing>(pf,"33")(0).foo();
-    r.get_cat<TestStringThing>(pf,"34")(0).foo();
-    r.get_cat<TestStringThing>(pf,"35")(0).foo();
-    r.get_cat<TestStringThing>(pf,"36")(0).foo();
-    r.get_cat<TestStringThing>(pf,"37")(0).foo();
-    r.get_cat<TestStringThing>(pf,"38")(0).foo();
-    r.get_cat<TestStringThing>(pf,"39")(0).foo();
-    r.get_cat<TestStringThing>(pf,"40")(0).foo();
-    r.get_cat<TestStringThing>(pf,"41")(0).foo();
-    r.get_cat<TestStringThing>(pf,"42")(0).foo();
-    r.get_cat<TestStringThing>(pf,"43")(0).foo();
-    r.get_cat<TestStringThing>(pf,"44")(0).foo();
-    r.get_cat<TestStringThing>(pf,"45")(0).foo();
-    r.get_cat<TestStringThing>(pf,"46")(0).foo();
-    r.get_cat<TestStringThing>(pf,"47")(0).foo();
-    r.get_cat<TestStringThing>(pf,"48")(0).foo();
-    r.get_cat<TestStringThing>(pf,"49")(0).foo();
-    r.get_cat<TestStringThing>(pf,"50")(0).foo();
+void process(ObjectStore S, const char * pf) {
+    S.T<TestStringThing>(1,pf)(0).foo();
+    S.T<TestStringThing>(2,pf)(0).foo();
+    S.T<TestStringThing>(3,pf)(0).foo();
+    S.T<TestStringThing>(4,pf)(0).foo();
+    S.T<TestStringThing>(5,pf)(0).foo();
+    S.T<TestStringThing>(6,pf)(0).foo();
+    S.T<TestStringThing>(7,pf)(0).foo();
+    S.T<TestStringThing>(8,pf)(0).foo();
+    S.T<TestStringThing>(9,pf)(0).foo();
+    S.T<TestStringThing>(pf,"10")(0).foo();
+    S.T<TestStringThing>(pf,"11")(0).foo();
+    S.T<TestStringThing>(pf,"12")(0).foo();
+    S.T<TestStringThing>(pf,"13")(0).foo();
+    S.T<TestStringThing>(pf,"14")(0).foo();
+    S.T<TestStringThing>(pf, pf,"15")(0).foo();
+    S.T<TestStringThing>(pf,"16")(0).foo();
+    S.T<TestStringThing>(pf,"17")(0).foo();
+    S.T<TestStringThing>(pf,"18")(0).foo();
+    S.T<TestStringThing>(pf,"19")(0).foo();
+    S.T<TestStringThing>(pf,"20")(0).foo();
+    S.T<TestStringThing>(pf,"21")(0).foo();
+    S.T<TestStringThing>(pf,"22")(0).foo();
+    S.T<TestStringThing>(pf,"23")(0).foo();
+    S.T<TestStringThing>(pf,"24")(0).foo();
+    S.T<TestStringThing>(pf,"25")(0).foo();
+    S.T<TestStringThing>(pf,"26")(0).foo();
+    S.T<TestStringThing>(pf,"27")(0).foo();
+    S.T<TestStringThing>(pf,"28")(0).foo();
+    S.T<TestStringThing>(pf,"29")(0).foo();
+    S.T<TestStringThing>(pf,"30")(0).foo();
+    S.T<TestStringThing>(pf,"31")(0).foo();
+    S.T<TestStringThing>(pf,"32")(0).foo();
+    S.T<TestStringThing>(pf,"33")(0).foo();
+    S.T<TestStringThing>(pf,"34")(0).foo();
+    S.T<TestStringThing>(pf,"35")(0).foo();
+    S.T<TestStringThing>(pf,"36")(0).foo();
+    S.T<TestStringThing>(pf,"37")(0).foo();
+    S.T<TestStringThing>(pf,"38")(0).foo();
+    S.T<TestStringThing>(pf,"39")(0).foo();
+    S.T<TestStringThing>(pf,"40")(0).foo();
+    S.T<TestStringThing>(pf,"41")(0).foo();
+    S.T<TestStringThing>(pf,"42")(0).foo();
+    S.T<TestStringThing>(pf,"43")(0).foo();
+    S.T<TestStringThing>(pf,"44")(0).foo();
+    S.T<TestStringThing>(pf,"45")(0).foo();
+    S.T<TestStringThing>(pf,"46")(0).foo();
+    S.T<TestStringThing>(pf,"47")(0).foo();
+    S.T<TestStringThing>(pf,"48")(0).foo();
+    S.T<TestStringThing>(pf,"49")(0).foo();
+    S.T<TestStringThing>(pf,"50")(0).foo();
 }
 
 
@@ -98,7 +100,8 @@ const int N = 100*1000;
 
 int main(int argv, char ** argc) {
 
-    Results * r = new Results();
+    ObjectBackStore backstore;
+    ObjectStore S = backstore.store();
 
     assert(!is_writeable_pointer("test"));
     string a = "50";
@@ -107,21 +110,21 @@ int main(int argv, char ** argc) {
     assert(is_writeable_pointer(a.c_str()));
 
     for(int i = 0; i < N; i++) {
-        process(*r, "p1f_");
-        process(*r, "p2f_");
-        process(*r, "p3f_");
-        process(*r, "p4f_");
-        process(*r, "p5f_");
-        process(*r, "p6f_");
-        process(*r, "p7f_");
-        process(*r, "p8f_");
-        process(*r, "p9f_");
-        process(*r, "p10f_");
-        process(*r, "p11f_");
+        process(S, "p1f_");
+        process(S, "p2f_");
+        process(S, "p3f_");
+        process(S, "p4f_");
+        process(S, "p5f_");
+        process(S, "p6f_");
+        process(S, "p7f_");
+        process(S, "p8f_");
+        process(S, "p9f_");
+        process(S, "p10f_");
+        process(S, "p11f_");
     }
-    for (auto l = r->list<TestStringThing>(), it = l.begin(), end = l.end(); it != end; it++) {
-        string & name = *it;
-        int npro = r->get_checked<TestStringThing>(name)->n;
+
+    foreach(string name, backstore.list<TestStringThing>()) {
+        int npro = S.find_slow<TestStringThing>(name)->n;
         if (npro != N) {
             std::cerr << "Uh oh: " << name << " has " << npro << " != " << N << std::endl;
             assert(npro == N);
