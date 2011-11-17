@@ -21,42 +21,42 @@ class hash_lookup {
     public:
         /// Create an empty hash table with the @path prefix.
         hash_lookup(std::string path="");
-        ~hash_lookup();
+        ~hash_lookup() { if (_depth == 0) tear_down(); };
 
-        /// Lookup a piece of _data_ by const char * index
-        void * & lookup(const char * index);
-        /// Lookup a piece of _data_ by uint32_t index
-        void * & lookup(uint32_t index);
-        /// Lookup a _subhash_ by const char * index
+        /// Lookup a file (leaf)
         template <typename... Args>
-        void * & lookup(const char * index, const Args& ...args);
-        /// Lookup a _subhash_ uint32_t index
-        template <typename... Args>
-        void * & lookup(uint32_t index, const Args& ...args);
+        void * & lookup(const Args& ...args);
 
-        /// Lookup a _subhash_ by const char * index
+        /// Lookup a directory
         template <typename... Args>
-        hash_lookup * subhash(const char * index, const Args& ...args);
-        /// Lookup a _subhash_ uint32_t index
-        template <typename... Args>
-        hash_lookup * subhash(uint32_t index, const Args& ...args);
-        hash_lookup * subhash();
+        hash_lookup * subhash(const Args& ...args);
 
-        const std::string & get_path() const {return path;};
+        const std::string & get_path() const { return _path; }
 
+        void dump_stats();
     private:
-        std::string path;
-        const static uintptr_t size = 1<<16;
         typedef struct hash_lookup_data_s {
-            hash_lookup_data_s() : cc_key(NULL), ui_key(0), value(NULL) {};
-            const char * cc_key;
-            uint32_t ui_key;
-            void * value;
+            hash_lookup_data_s() : huid(0), value(NULL) {};
+            uint64_t huid; // hopefully unique ID
+            void * value;  // stored value
         } hash_lookup_data;
-        const char * cc_key;
-        uint32_t ui_key;
-        hash_lookup_data _data[size];
-        hash_lookup * _subhash[size];
+
+        hash_lookup(int depth, uint64_t huid, std::string path, hash_lookup_data * files, hash_lookup_data * directories)
+            : _depth(depth), _huid(huid), _path(path), _files(files), _directories(directories) {};
+
+        void tear_down();
+        hash_lookup * subhash() { return this; }
+
+        const static uintptr_t files_size = 1<<17;
+        const static uintptr_t directories_size = 1<<16;
+
+        // _files and _directories are shared between all subhashes
+        int _collisions;
+        int _depth;
+        uint64_t _huid;
+        std::string _path;
+        hash_lookup_data * _files;
+        hash_lookup_data * _directories;
 };
 
 bool is_writeable_pointer(const char * _p);

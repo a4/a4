@@ -140,5 +140,6 @@ int main(int argv, char ** argc) {
     hash_lookup * h = new hash_lookup();
     for (int i = 0; i < N; i++) for(int j = 0; j < M; j++) lookup1000(h->subhash("test/", i%2, "/", j%5, "/"));
     std::cout << 1000*N*M << std::endl;
+    h->dump_stats();
     return 0;
 }
