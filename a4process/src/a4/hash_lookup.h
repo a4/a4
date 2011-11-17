@@ -6,6 +6,9 @@
 #include <string>
 #include <stdexcept>
 
+#define HUID_CHECK
+#define HUID_CHECK_ONLY_ONCE
+
 /// \internal
 /// hash_lookup accelerates lookup of concatenated strings and numbers
 /// as occur often in analysis. It consists of a sequence of hash tables
@@ -47,6 +50,7 @@ class hash_lookup {
             _path(path)
         {
             update_from(parent);
+            _check_huid = 0;
         };
 
         void update_from(hash_lookup * master) {
@@ -73,6 +77,8 @@ class hash_lookup {
         hash_lookup * _master;
         int _entries, _collisions;
         int _dir_entries, _dir_collisions;
+        std::map<uint64_t, std::string> * _huid_check;
+        int _check_huid;
 };
 
 bool is_writeable_pointer(const char * _p);

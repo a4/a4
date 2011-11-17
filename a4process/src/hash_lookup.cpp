@@ -42,6 +42,11 @@ hash_lookup::hash_lookup(std::string path) :  _depth(0), _huid(0), _path(path), 
     _entries = _collisions = 0;
     _dir_entries = _dir_collisions = 0;
     _master = this;
+    _huid_check = NULL;
+    _check_huid = 0;
+#ifdef HUID_CHECK
+    _huid_check = new std::map<uint64_t, std::string>();
+#endif
 };
 
 void hash_lookup::tear_down() {
@@ -51,13 +56,14 @@ void hash_lookup::tear_down() {
     }
     delete[] _files;
     delete[] _directories;
+    delete _huid_check;
 };
 
 bool hash_lookup::bump_up_files() {
     if(_depth != 0) return false;
     if (_entries < 0.1*_files_size) return false; // never occupy more than 10 times the memory
     if (_collisions < 0.05*_entries) return false; // only if more than 5% collisions
-    std::cerr << "BUMP: " << _files_size << "/" << _entries << "/" << _collisions << std::endl;
+    //std::cerr << "BUMP: " << _files_size << "/" << _entries << "/" << _collisions << std::endl;
 
     hash_lookup_data * old_files = _files;
     int old_files_size = _files_size;
@@ -84,7 +90,7 @@ bool hash_lookup::bump_up_files() {
             static_cast<hash_lookup*>(_directories[i].value)->update_from(this);
         }
     }
-    std::cerr << "POST BUMP: " << _files_size << "/" << _entries << "/" << _collisions << std::endl;
+    //std::cerr << "POST BUMP: " << _files_size << "/" << _entries << "/" << _collisions << std::endl;
     return true;
 };
 
@@ -92,7 +98,7 @@ bool hash_lookup::bump_up_dirs() {
     if(_depth != 0) return false;
     if (_dir_entries < 0.1*_directories_size) return false; // never occupy more than 10 times the memory
     if (_dir_collisions < 0.05*_dir_entries) return false; // only if more than 5% collisions
-    std::cerr << "BUMP DIR: " << _directories_size << "/" << _dir_entries << "/" << _dir_collisions << std::endl;
+    //std::cerr << "BUMP DIR: " << _directories_size << "/" << _dir_entries << "/" << _dir_collisions << std::endl;
     hash_lookup_data * old_directories = _directories;
     int old_dir_size = _directories_size;
     _directories_size *= 2;
@@ -112,7 +118,7 @@ bool hash_lookup::bump_up_dirs() {
         }
     }
     delete[] old_directories;
-    std::cerr << "POST BUMP DIR: " << _directories_size << "/" << _dir_entries << "/" << _dir_collisions << std::endl;
+    //std::cerr << "POST BUMP DIR: " << _directories_size << "/" << _dir_entries << "/" << _dir_collisions << std::endl;
     return true;
 };
 

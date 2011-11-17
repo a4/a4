@@ -71,12 +71,34 @@ void * & hash_lookup::lookup(const Args& ...args) {
     do {
         hash_lookup_data & data = _files[idx];
         if (data.huid == huid) {
+#ifdef HUID_CHECK
+#ifdef HUID_CHECK_ONLY_ONCE
+            if (_check_huid > 0) 
+#endif
+            {
+                std::string full_name = _path + str_cat(args...);
+                std::string & other = (*_master->_huid_check)[huid];
+                if (other == "") {
+                    other = full_name;
+                } else if (other != full_name) {
+                    std::cerr << "ERROR: Hopefully Unique ID is not Unique: " << full_name << " has same HUID than " << other << std::endl;
+                    std::cerr << "Please report this to the A4 developers!" << std::cerr;
+                    throw std::runtime_error("ERROR: Hopefully Unique ID is not Unique!");
+                }
+                _check_huid--;
+            }
+#endif
             return data.value;
         } else if (data.huid == 0 && data.value == NULL) {
-            checked_str_cat(args...); // just check that no dynamic stuff was used
+            std::string full_name = _path + checked_str_cat(args...); // just check that no dynamic stuff was used
+#ifdef HUID_CHECK
+            _check_huid++;
+            (*_master->_huid_check)[huid] = full_name;
+#endif
             if (idx != idx0) {
                 _master->_collisions++;
                 if(_master->bump_up_files()) return lookup(args...);
+
             }
             data.huid = huid;
             _master->_entries++;
@@ -94,15 +116,40 @@ hash_lookup * hash_lookup::subhash(const Args& ...args) {
     uintptr_t idx0 = idx;
     do {
         hash_lookup_data & data = _directories[idx];
-        if (data.huid == huid) return static_cast<hash_lookup*>(data.value);
+        if (data.huid == huid) {
+
+#ifdef HUID_CHECK
+#ifdef HUID_CHECK_ONLY_ONCE
+            if (_check_huid > 0) 
+#endif
+            {
+                std::string full_name = _path + str_cat(args...);
+                std::string & other = (*_master->_huid_check)[huid];
+                if (other == "") {
+                    other = full_name;
+                } else if (other != full_name) {
+                    std::cerr << "ERROR: Hopefully Unique ID is not Unique: " << full_name << " has same HUID than " << other << std::endl;
+                    std::cerr << "Please report this to the A4 developers!" << std::cerr;
+                    throw std::runtime_error("ERROR: Hopefully Unique ID is not Unique!");
+                }
+                _check_huid--;
+            }
+#endif
+            return static_cast<hash_lookup*>(data.value);
+        }
         if (data.huid == 0 && data.value == NULL) {
+            std::string new_path = _path + checked_str_cat(args...);
+#ifdef HUID_CHECK
+            _check_huid++;
+            (*_master->_huid_check)[huid] = new_path;
+#endif
             if (idx != idx0) {
                 _master->_dir_collisions++;
                 if (_master->bump_up_dirs()) return subhash(args...);
             }
             data.huid = huid;
             _master->_dir_entries++;
-            data.value = new hash_lookup(huid, _path + checked_str_cat(args...), this);
+            data.value = new hash_lookup(huid, new_path, this);
             return static_cast<hash_lookup*>(data.value);
         }
         idx = (idx+1) & (_directories_size-1);
