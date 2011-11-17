@@ -29,7 +29,7 @@ bool is_writeable_pointer(const char * _p) {
     uintptr_t p = reinterpret_cast<uintptr_t>(_p);
     for (int c = 0; c < 2; c++) { // try twice, refilling the regions the second time through
         if (c == 1) refill_read_only_regions(p);
-        for(int i = 0; i < read_only_regions_start.size(); i++) {
+        for(unsigned int i = 0; i < read_only_regions_start.size(); i++) {
             if (read_only_regions_start[i] < p && p < read_only_regions_end[i]) return false;
         }
     }
@@ -51,7 +51,7 @@ hash_lookup::hash_lookup(std::string path) :  _depth(0), _huid(0), _path(path), 
 
 void hash_lookup::tear_down() {
     if(_depth != 0) return;
-    for (int i = 0; i < _directories_size; i++) {
+    for (unsigned int i = 0; i < _directories_size; i++) {
         if (_directories[i].value) delete static_cast<hash_lookup*>(_directories[i].value);
     }
     delete[] _files;
@@ -85,7 +85,7 @@ bool hash_lookup::bump_up_files() {
         }
     }
     delete[] old_files;
-    for (int i = 0; i < _directories_size; i++) {
+    for (unsigned int i = 0; i < _directories_size; i++) {
         if (_directories[i].value) {
             static_cast<hash_lookup*>(_directories[i].value)->update_from(this);
         }
@@ -125,8 +125,8 @@ bool hash_lookup::bump_up_dirs() {
 
 void hash_lookup::dump_stats() {
     int dcnt = 0, fcnt = 0;
-    for (int i = 0; i < _directories_size; i++) if (_directories[i].value) dcnt++;
-    for (int i = 0; i < _files_size; i++) if (_files[i].huid || _files[i].value) fcnt++;
+    for (unsigned int i = 0; i < _directories_size; i++) if (_directories[i].value) dcnt++;
+    for (unsigned int i = 0; i < _files_size; i++) if (_files[i].huid || _files[i].value) fcnt++;
 
     std::cout << "Depth/HUID: "<< _depth << "/" << _huid << std::endl;
     std::cout << "FILES:" << std::endl;

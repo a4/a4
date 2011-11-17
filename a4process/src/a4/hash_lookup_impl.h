@@ -111,7 +111,7 @@ void * & hash_lookup::lookup(const Args& ...args) {
 
 template <typename... Args>
 hash_lookup * hash_lookup::subhash(const Args& ...args) {
-    int64_t huid = _huid ^ (get_huid(args...) << _depth);
+    uint64_t huid = _huid ^ (get_huid(args...) << _depth);
     uintptr_t idx = idx_from_huid(huid, _directories_size);
     uintptr_t idx0 = idx;
     do {

@@ -167,7 +167,7 @@ namespace a4{ namespace io{
             off_t seek(size_t position, int whence);
             bool Seek(size_t position) {
                 _position = position; 
-                return seek(position, SEEK_SET) == _position;
+                return seek(position, SEEK_SET) == static_cast<int64_t>(_position);
             }
             bool SeekBack(size_t position) { 
                 _position = seek(-position, SEEK_END);
