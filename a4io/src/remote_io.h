@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <inttypes.h>
+#include <unistd.h>
 #include <vector>
 
 class filesystem_calls {
