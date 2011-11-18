@@ -147,7 +147,7 @@ class A2RConfig : public ConfigurationOf<A2RProcessor> {
             //foreach(string f, root_files) {}
         };
 
-        void add_options(po::options_description_easy_init opt); 
+        void add_options(po::options_description_easy_init opt) {
             opt("weight,w", po::value(&weight)->default_value(1.0), "Multiplicative weight");
             opt("root-file,R", po::value(&filename), "ROOT output file");
             opt("compression-level,C", po::value(&compression_level)->default_value(1), "compression level");
