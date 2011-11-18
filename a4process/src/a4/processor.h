@@ -38,6 +38,16 @@ namespace a4{
             public:
                 virtual void write(shared<const google::protobuf::Message> m) = 0;
                 virtual void metadata(shared<const google::protobuf::Message> m) = 0;
+                void write(const google::protobuf::Message & m) {
+                    shared<google::protobuf::Message> msg(m.New());
+                    msg->CopyFrom(m);
+                    write(msg);
+                };
+                void metadata(const google::protobuf::Message & m) {
+                    shared<google::protobuf::Message> msg(m.New());
+                    msg->CopyFrom(m);
+                    metadata(msg);
+                };
         };
 
         class Processor {
@@ -63,10 +73,13 @@ namespace a4{
                 /// You also need to think about if you want to write your metadata before (manual_metadata_forward = true)
                 /// or after (manual_metadata_forward = false) the events it refers to.
                 void metadata_start_block(shared<const google::protobuf::Message> m) { assert(metadata_behavior == MANUAL_FORWARD); _output_adaptor->metadata(m); }
+                void metadata_start_block(const google::protobuf::Message & m) { assert(metadata_behavior == MANUAL_FORWARD); _output_adaptor->metadata(m); }
                 void metadata_end_block(shared<const google::protobuf::Message> m) { assert(metadata_behavior == MANUAL_BACKWARD); _output_adaptor->metadata(m); }
+                void metadata_end_block(const google::protobuf::Message & m) { assert(metadata_behavior == MANUAL_BACKWARD); _output_adaptor->metadata(m); }
 
                 /// Write a message to the output stream
                 void write(shared<const google::protobuf::Message> m) { _output_adaptor->write(m); }
+                void write(const google::protobuf::Message & m) { _output_adaptor->write(m); }
 
                 /// Call channel in process_message to rerun with the prefix "channel/<name>/".
                 /// In that run this function always returns true.
@@ -133,7 +146,7 @@ namespace a4{
         template<class ProtoMessage, class ProtoMetaData = a4::io::NoProtoClass>
         class ProcessorOf : public Processor {
             public:
-                ProcessorOf(const Configuration* const my_cfg) : Processor(my_cfg) {
+                ProcessorOf() {
                     a4::io::RegisterClass<ProtoMessage> _e;
                     a4::io::RegisterClass<ProtoMetaData> _m;
                 };
