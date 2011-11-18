@@ -1,4 +1,12 @@
-import thread, time, os, random, subprocess
+#!/usr/bin/env python
+
+import fcntl
+import thread
+import time
+import os
+import random
+import subprocess
+
 color = {}  
 color['normal'] = os.popen("tput sgr0").read()  
 color['darkred'] = os.popen("tput setaf 1").read()  
@@ -10,31 +18,31 @@ color['turquoise'] = os.popen("tput setaf 5").read()
 color['white'] = os.popen("tput setaf 7").read()  
 color['red'] = os.popen("tput setaf 8").read()
 
-filter = []
-
 class PMBSJob(object):
-   cmd = ""
-   process = None
-   status = "new"
-   id = 0
-   def __init__(self,command):
-      self.cmd = command
+    def __init__(self,command):
+        self.cmd = command
+        self.id = 0
+        self.process = None
+        self.status = "new"
+
+def get_slots_from_pod():
+    os.system("/bin/bash -c '. /project/etpsw/Common/PoD/setup.sh; lproofnodes.sh 20'")
+    slots_pod = [l.split(",") for l in file("pod_ssh.cfg").readlines()]
+    slots = []
+    for n, host, x, tmp, nw in slots_pod:
+        host = host.strip()
+        slots.append((host, tmp, int(nw)))
+    return slots
 
 qlock   = thread.allocate_lock()
+filter = []
 jobs    = []
-
-import os
-os.system("/bin/bash -c '. /project/etpsw/Common/PoD/setup.sh; lproofnodes.sh 20'")
-
-slots_pod = [l.split(",") for l in file("pod_ssh.cfg").readlines()]
-slots = []
-for n, host, x, tmp, nw in slots_pod:
-    host = host.strip()
-    slots.append((host, tmp, int(nw)))
-
-#slots   = [l.strip() for l in file(os.getenv("HOME")+os.sep+".pmbs").readlines()]
+# Uncomment this for manual selection
+slots   = [l.strip().split() for l in file(os.getenv("HOME")+os.sep+".pmbs").readlines() if l.strip() and not l.strip().startswith("#")]
+#slots = get_slots_from_pod()
 slotmap = [None]*len(slots)
 
+# 'External' function
 def submit(cmd):
    j = PMBSJob(cmd)
    qlock.acquire()
@@ -81,7 +89,7 @@ def PMBSMainLoop():
          slotmap[slotn] = j
          #j.pid = os.spawnvp(os.P_NOWAIT, "ssh", ["ssh","-x",slots[slotn],j.cmd])
          host, tmp, n = slots[slotn]
-         j.process = subprocess.Popen(["ssh","-x",host,j.cmd % n],bufsize=0,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+         j.process = subprocess.Popen(["ssh","-x",host,j.cmd.replace("THREADS", n)],bufsize=0,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
          fcntl.fcntl(j.process.stdout, fcntl.F_SETFL, os.O_NONBLOCK) 
          fcntl.fcntl(j.process.stderr, fcntl.F_SETFL, os.O_NONBLOCK) 
          j.id = jobid
@@ -132,4 +140,11 @@ def flush():
    print "PMBS done %i jobs succeeded, %i failed." % (len([j for j in jobs if j.status in ["completed"]]), len([j for j in jobs if j.status in ["failed"]]))
 
 pbmsthread = thread.start_new(PMBSMainLoop, ())
+
+if __name__=="__main__":
+    submit("echo test1; sleep 10")
+    submit("echo test2; sleep 12")
+    submit("echo test3; sleep 5")
+    submit("echo test4; sleep 2")
+    flush()
 
