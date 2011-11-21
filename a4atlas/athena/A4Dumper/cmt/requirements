@@ -1,0 +1,17 @@
+package A4Dumper
+
+use AtlasPolicy                AtlasPolicy-*     
+
+private
+use GaudiInterface             GaudiInterface-*        External
+use AtlasROOT                  AtlasROOT-*             External
+use AthenaKernel               AthenaKernel-*          Control
+use AnalysisTools              AnalysisTools-*         PhysicsAnalysis/AnalysisCommon
+end_private
+
+library A4Dumper *.cxx components/*.cxx
+apply_pattern component_library
+
+apply_pattern declare_python_modules files="*.py Generator"
+#apply_pattern declare_scripts files="generate_proto.py"
+
