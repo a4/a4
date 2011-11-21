@@ -1,0 +1,37 @@
+#!/usr/bin/env python
+
+import os, sys, optparse
+parser = optparse.OptionParser()
+parser.add_option("-x", "--xs", default="", help="Cross-Section file with cross-section map", metavar="FILE")
+parser.add_option("-l", "--lumi", default=0.0, help="Luminosity [pb]")
+parser.add_option("-1", "--step1", action="store_true", default=False, help="Only run merge/split per run")
+parser.add_option("-2", "--step2", action="store_true", default=False, help="Only run second merge")
+parser.add_option("-3", "--step3", action="store_true", default=False, help="Only run reweight")
+(options, args) = parser.parse_args()
+
+s1, s2, s3 = options.step1, options.step2, options.step3
+if not (s1 or s2 or s3):
+    s1, s2, s3 = True, True, True
+
+if s1:
+    os.system("rm -rf _a4post")
+    os.mkdir("_a4post")
+
+    if os.system("a4merge --per run --split-per run -r _a4post/step1 %s" % " ".join(args)) != 0:
+        print "Failed first merge"
+        sys.exit(-1)
+
+if s2:
+    for f in os.listdir("_a4post"):
+        f = f[len("step1_"):]
+        if os.system("a4merge --per run -r _a4post/step2_%s _a4post/step1_%s" % (f, f)) != 0:
+            print "Failed a4merge of ", f
+            sys.exit(-1)
+
+if s3:
+    print "a4reweight -x %s -l %s --split-per run -r _a4post/step3_  _a4post/step2_*" % (options.xs, options.lumi)
+    if os.system("a4reweight -x %s -l %s --split-per run -r _a4post/step3_  _a4post/step2_*" % (options.xs, options.lumi)) != 0:
+        print "Failed a4reweight!"
+        sys.exit(-1)
+
+
