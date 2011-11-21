@@ -92,6 +92,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
             backstore.reset(new ObjectBackStore());
             driver->set_store(p, backstore->store());
             if (outstream and forward_metadata and current_metadata) outstream->metadata(*current_metadata.message);
+            in_block = true;
         }
 
         void end_block() {
@@ -142,7 +143,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
     
         void write(shared<const google::protobuf::Message> m) {
             if (!in_block) throw a4::Fatal("Whoa?? Writing outside of a metadata block? How did you do this?");
-            outstream->write(*m);
+            if (outstream) outstream->write(*m);
         }
 
     protected:
@@ -191,8 +192,12 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
         default:
             throw a4::Fatal("Unknown metadata behaviour specified: ", p->get_metadata_behavior());
     }
+    output_adaptor->merge_key = self->metakey;
+    output_adaptor->split_key = self->split_metakey;
     
     boost::chrono::thread_clock::time_point start = boost::chrono::thread_clock::now();
+
+    self->set_output_adaptor(p, output_adaptor.get());
 
     // Try as long as there are inputs
     int cnt = 0;

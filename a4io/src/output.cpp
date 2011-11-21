@@ -56,7 +56,7 @@ A4Output::~A4Output() {
 /// which case we only allow one call to `get_stream()`.
 shared<OutputStream> A4Output::get_stream(std::string postfix) {
     Lock lock(_mutex);
-    int count = _filenames.size() + 1;
+    int count = _filenames[postfix].size() + 1;
     
     // Determine filename
     std::string filename; 
