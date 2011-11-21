@@ -110,6 +110,14 @@ H2 & H2::operator+=(const H2 &other) {
     return this->__add__(other);
 };
 
+void H2::ensure_weights() {
+    const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2);
+    if (!_weights_squared) {
+        _weights_squared.reset(new double[total_bins]);
+        for(uint32_t i = 0; i < total_bins; i++) _weights_squared[i] = _data[i];
+    }
+}
+
 double H2::integral() const
 {
     double integral = 0;
@@ -143,9 +151,14 @@ H2 & H2::__add__(const H2 & source)
     const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2);
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) += *(source._data.get() + bin);
-    if (_weights_squared)
+    if (source._weights_squared) {
+        ensure_weights();
         for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
             *(_weights_squared.get() + bin) += *(source._weights_squared.get() + bin);
+    } else if (_weights_squared) {
+        for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
+            *(_weights_squared.get() + bin) += *(source._data.get() + bin);
+    }
     _entries += source._entries;
     return *this;
 }

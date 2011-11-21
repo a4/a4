@@ -54,6 +54,14 @@ H1::~H1()
 {
 }
 
+void H1::ensure_weights() {
+    const uint32_t total_bins = _axis->bins() + 2;
+    if (!_weights_squared) {
+        _weights_squared.reset(new double[total_bins]);
+        for(uint32_t i = 0; i < total_bins; i++) _weights_squared[i] = _data[i];
+    }
+}
+
 H1 & H1::__mul__(const double & w) {
     const uint32_t total_bins = _axis->bins() + 2;
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
@@ -127,11 +135,13 @@ H1 & H1::__add__(const H1 & source)
 {
     for(uint32_t bin = 0, bins = _axis->bins() + 2; bins > bin; ++bin)
         *(_data.get() + bin) += *(source._data.get() + bin);
-    if (_weights_squared && source._weights_squared) {
+    if (source._weights_squared) {
+        ensure_weights();
         for(uint32_t bin = 0, bins = _axis->bins() + 2; bins > bin; ++bin)
             *(_weights_squared.get() + bin) += *(source._weights_squared.get() + bin);
-    } else if (_weights_squared || source._weights_squared) {
-        std::cerr << "FIXME: discarding errors in " << __FILE__ << ":" << __LINE__ << std::endl;
+    } else if (_weights_squared) {
+        for(uint32_t bin = 0, bins = _axis->bins() + 2; bins > bin; ++bin)
+            *(_weights_squared.get() + bin) += *(source._data.get() + bin);
     }
     _entries += source._entries;
     return *this;

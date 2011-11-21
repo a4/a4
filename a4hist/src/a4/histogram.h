@@ -77,6 +77,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
     private:
         // Prevent copying by assignment
         H1 &operator =(const H1 &);
+        void ensure_weights();
 
         unique<Axis> _axis;
         shared_array<double> _data;
@@ -155,6 +156,7 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
     private:
         // Prevent copying by assignment
         H2 &operator =(const H2 &);
+        void ensure_weights();
 
         unique<Axis> _x_axis;
         unique<Axis> _y_axis;
@@ -239,6 +241,7 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
     private:
         // Prevent copying by assignment
         H3 &operator =(const H3 &);
+        void ensure_weights();
 
         unique<Axis> _x_axis;
         unique<Axis> _y_axis;

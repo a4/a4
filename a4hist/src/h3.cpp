@@ -120,6 +120,14 @@ H3 & H3::operator+=(const H3 &other) {
     return this->__add__(other);
 };
 
+void H3::ensure_weights() {
+    const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2)*(_z_axis->bins() + 2);
+    if (!_weights_squared) {
+        _weights_squared.reset(new double[total_bins]);
+        for(uint32_t i = 0; i < total_bins; i++) _weights_squared[i] = _data[i];
+    }
+}
+
 double H3::integral() const
 {
     double integral = 0;
@@ -158,9 +166,14 @@ H3 & H3::__add__(const H3 & source)
     const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2)*(_z_axis->bins() + 2);
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) += *(source._data.get() + bin);
-    if (_weights_squared)
+    if (source._weights_squared) {
+        ensure_weights();
         for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
             *(_weights_squared.get() + bin) += *(source._weights_squared.get() + bin);
+    } else if (_weights_squared) {
+        for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
+            *(_weights_squared.get() + bin) += *(source._data.get() + bin);
+    }
     _entries += source._entries;
     return *this;
 }
