@@ -103,7 +103,7 @@ bool OutputStream::open() {
 }
 
 bool OutputStream::close() {
-    assert(!_closed);
+    if(_closed) return true;
     assert(_opened);
     _closed = true;
     if (_compressed_out) stop_compression();

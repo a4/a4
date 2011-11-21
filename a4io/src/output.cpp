@@ -51,6 +51,10 @@ A4Output::~A4Output() {
     if (!_closed) close();
 }
 
+void A4Output::report_finished(A4Output * output, OutputStream* s) {
+    if (s->opened()) s->close();
+}
+
 /// Create a new output stream. For each call we create an independent output
 /// stream pointing to a different file, unless the destination is a fifo, in
 /// which case we only allow one call to `get_stream()`.
@@ -80,7 +84,10 @@ shared<OutputStream> A4Output::get_stream(std::string postfix) {
 
     _out_streams[postfix].push_back(os);
     _filenames[postfix].push_back(filename);
-    return os;
+
+    std::function<void (OutputStream*)> cb = std::bind(&A4Output::report_finished, this, std::placeholders::_1);
+    shared<OutputStream> ret(os.get(), cb);
+    return ret;
 }
 
 /// Close all output streams and merge their contents together.
