@@ -4,34 +4,165 @@ import os, sys, optparse
 parser = optparse.OptionParser()
 parser.add_option("-x", "--xs", default="", help="Cross-Section file with cross-section map", metavar="FILE")
 parser.add_option("-l", "--lumi", default=0.0, help="Luminosity [pb]")
+parser.add_option("-s", "--set", default="", help="MC Set file")
 parser.add_option("-1", "--step1", action="store_true", default=False, help="Only run merge/split per run")
 parser.add_option("-2", "--step2", action="store_true", default=False, help="Only run second merge")
 parser.add_option("-3", "--step3", action="store_true", default=False, help="Only run reweight")
+parser.add_option("-4", "--step4", action="store_true", default=False, help="Only run set maker")
+parser.add_option("-5", "--step5", action="store_true", default=False, help="Only run a4results2root on runs")
+parser.add_option("-6", "--step6", action="store_true", default=False, help="Only run a4results2root on sets")
+
 (options, args) = parser.parse_args()
 
-s1, s2, s3 = options.step1, options.step2, options.step3
-if not (s1 or s2 or s3):
-    s1, s2, s3 = True, True, True
+
+s1, s2, s3, s4, s5, s6 = options.step1, options.step2, options.step3, options.step4, options.step5, options.step6
+if not any((s1, s2, s3, s4, s5, s6)):
+    s1 = s2 = s3 = s4 = s5 = s6 = True
+
+try:
+    os.mkdir("_a4post")
+except OSError:
+    pass
+
+def read_mc_set(fn):
+    current_name, current_title = None, None
+    current_ids = []
+    result_set = {}
+    result_titles = {}
+    result_xs = {}
+    def push_back():
+        if current_name is None:
+            return
+        result_titles[current_name] = current_title
+        result_set[current_name] = set(run for (run, nm, gen, nev, wght, kfac, filt, xsec, tag) in current_ids)
+        result_xs[current_name] = dict((run, (xsec, kfac, filt)) for (run, nm, gen, nev, wght, kfac, filt, xsec, tag) in current_ids)
+        for x in xrange(len(current_ids)):
+            current_ids.pop()
+
+    for l in file(fn).readlines():
+        l = l.strip()
+        if not l:
+            continue
+        if l.startswith("#"):
+            continue
+        if l.startswith(":"):
+            push_back()
+            dummy, current_name, current_title = l.split(":")
+            continue
+        ls = l.split()
+        if len(ls) != 9:
+            print "UNKNOWN ",l
+        current_ids.append(l.split())
+    push_back()
+    return result_titles, result_set, result_xs
+
+
+if s3:
+    assert options.xs or options.set
+
+if options.set:
+    stitles, ssets, sxs = read_mc_set(options.set)
+    if not options.xs:
+        d = {}
+        for dd in sxs.values():
+            d.update(dd)
+        options.xs = "_a4post/xs"
+        f = file(options.xs, "w")
+        lines = (("%s %s %s %s\n" % (rn, xsec, kfac, filt)) for (rn, (xsec, kfac, filt)) in d.iteritems())
+        f.writelines(lines)
+        f.close()
+
 
 if s1:
-    os.system("rm -rf _a4post")
-    os.mkdir("_a4post")
+    os.system("rm -rf _a4post/step1")
+    os.mkdir("_a4post/step1")
 
-    if os.system("a4merge --per run --split-per run -r _a4post/step1 %s" % " ".join(args)) != 0:
+    if os.system("a4merge --per run --split-per run -r _a4post/step1/run %s" % " ".join(args)) != 0:
         print "Failed first merge"
         sys.exit(-1)
 
 if s2:
-    for f in os.listdir("_a4post"):
-        f = f[len("step1_"):]
-        if os.system("a4merge --per run -r _a4post/step2_%s _a4post/step1_%s" % (f, f)) != 0:
-            print "Failed a4merge of ", f
-            sys.exit(-1)
-
-if s3:
-    print "a4reweight -x %s -l %s --split-per run -r _a4post/step3_  _a4post/step2_*" % (options.xs, options.lumi)
-    if os.system("a4reweight -x %s -l %s --split-per run -r _a4post/step3_  _a4post/step2_*" % (options.xs, options.lumi)) != 0:
-        print "Failed a4reweight!"
+    os.system("rm -rf _a4post/step2")
+    os.mkdir("_a4post/step2")
+    if os.system("a4merge --per run --split-per simulation -r _a4post/step2/sim _a4post/step1/*") != 0:
+        print "Failed a4merge of ", f
         sys.exit(-1)
 
+if s3:
+    os.system("rm -rf _a4post/result")
+    os.mkdir("_a4post/result")
+    os.mkdir("_a4post/result/data")
+    os.mkdir("_a4post/result/mc")
+    if os.path.exists("_a4post/step2/sim.0"):
+        if not options.lumi:
+            os.system("a4info.py --grl _a4post/result/data.xml _a4post/step2/sim.0")
+            print "Take _a4post/result/data.xml to the luminosity calculator and call me again with the additional arguments '-3 -4 -l <lumi in pb>'"
+            sys.exit(-1)
+
+        if os.system("a4merge --per period -r _a4post/result/data/period _a4post/step2/sim.0") != 0:
+            print "Failed a4merge of data!"
+            sys.exit(-1)
+    else:
+        assert options.lumi
+
+    if os.system("a4reweight -x %s -l %s --split-per run -r _a4post/result/mc/run  _a4post/step2/sim.1" % (options.xs, options.lumi)) != 0:
+        print "Failed a4reweight of MC!"
+        sys.exit(-1)
+
+if s4 and options.set:
+    os.system("rm -rf _a4post/sets")
+    os.mkdir("_a4post/sets")
+    os.mkdir("_a4post/sets/mc")
+    if len(os.listdir("_a4post/result/data")) > 0:
+        if os.system("a4merge -t1 --per simulation -r _a4post/sets/data.a4 _a4post/result/data/*") != 0:
+            print "Failed a4merge of data!"
+            sys.exit(-1)
+    for name, runs in ssets.iteritems():
+        fl = []
+        for run in sorted(runs):
+            fn = "_a4post/result/mc/run.%s" % run
+            if not os.path.exists(fn):
+                print "Warning: Expected MCID %s is not available for the set %s" % (run, name)
+            else:
+                fl.append(fn)
+        if len(fl) == 0:
+            print "Warning: Set %s is empty!" % (name)
+            continue
+        cmd = "a4merge -t1 --per simulation -r _a4post/sets/mc/%s.a4 %s" % (name.strip(), " ".join(fl))
+        if os.system(cmd):
+            print "Failed a4merge of mc: ", cmd
+            sys.exit(-1)
+
+
+if s5 and not options.set:
+    os.system("rm -rf _a4post/root")
+    os.mkdir("_a4post/root")
+    os.mkdir("_a4post/root/data")
+    os.mkdir("_a4post/root/mc")
+    for f in os.listdir("_a4post/result/data"):
+        run = f.split(".")[-1]
+        fn = os.path.join("_a4post/result/data", f)
+        if os.system("a4results2root -t1 -R _a4post/root/data/%s.root %s" % (run, fn)) != 0:
+            print "Failed a4resumts2root of %s!"%f
+            sys.exit(-1)
+    for f in os.listdir("_a4post/result/mc"):
+        run = f.split(".")[-1]
+        fn = os.path.join("_a4post/result/mc", f)
+        if os.system("a4results2root -t1 -R _a4post/root/mc/%s.root %s" % (run, fn)) != 0:
+            print "Failed a4resumts2root of %s!"%f
+            sys.exit(-1)
+
+if s6 and options.set:
+    os.system("rm -rf _a4post/root_sets")
+    os.mkdir("_a4post/root_sets")
+    if os.path.exists("_a4post/sets/data.a4"):
+        if os.system("a4results2root -t1 -R _a4post/root_sets/data.root _a4post/sets/data.a4") != 0:
+            print "Failed a4results2root of data!"
+            sys.exit(-1)
+    for f in os.listdir("_a4post/sets/mc"):
+        run = f.split(".")[-2]
+        fn = os.path.join("_a4post/sets/mc", f)
+        if os.system("a4results2root -t1 -R _a4post/root_sets/%s.root %s" % (run, fn)) != 0:
+            print "Failed a4results2root of %s!"%f
+            sys.exit(-1)
 
