@@ -105,6 +105,9 @@ namespace a4{
                 /// suggestion: Do a dynamic_cast to a "MyConfig* config" ONCE in your MyProcessor constructor.
                 const Configuration* my_configuration;
 
+                template<class T>
+                const T* my() { return dynamic_cast<const T*>(my_configuration); }
+
             protected:
                 /// In this store you can put named objects.
                 /// It will be written and cleared at every metadata block boundary.
