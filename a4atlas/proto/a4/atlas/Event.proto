@@ -41,6 +41,7 @@ message EventMetaData
 
     optional int32 event_count = 6 [(a4.io.merge)=MERGE_ADD];
     optional double sum_mc_weights = 7 [(a4.io.merge)=MERGE_ADD];
+    optional double reweight_lumi = 8 [(a4.io.merge)=MERGE_BLOCK_IF_DIFFERENT];
 }
 
 message Event

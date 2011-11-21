@@ -11,16 +11,22 @@ dist_python_SCRIPTS=python/grl2datasets python/grl2xml python/grl_and python/grl
 dist_athenadata_SCRIPTS=athena/gangatask.py
 a4include_HEADERS = src/a4/grl.h
 a4python_PYTHON = python/root2a4.py
+bin_PROGRAMS = a4reweight
 
 ## Compilation flags
-AM_CPPFLAGS+=$(PROTOBUF_CFLAGS) $(A4_A4IO_CPPFLAGS)
-LDADD=liba4atlas.la $(PROTOBUF_LIBS) $(A4_A4IO_LIBS)
+AM_CPPFLAGS+=$(BOOST_CPPFLAGS) $(PROTOBUF_CFLAGS) $(A4_A4IO_CPPFLAGS) $(A4_A4PROCESS_CPPFLAGS) $(A4_A4HIST_CPPFLAGS)
+LIBS=$(BOOST_LIBS) $(PROTOBUF_LIBS) $(A4_A4IO_LIBS) $(A4_A4PROCESS_LIBS) $(A4_A4HIST_LIBS)
+LDADD=liba4atlas.la $(LIBS)
 
 ## Main a4atlas library
 lib_LTLIBRARIES=liba4atlas.la
 nodist_liba4atlas_la_SOURCES=$(PROTOBUF_H) $(PROTOBUF_CC)
 dist_liba4atlas_la_SOURCES=src/a4/grl.h src/grl.cpp
 liba4atlas_la_LIBADD=$(PROTOBUF_LIBS)
+
+## Programs
+a4reweight_SOURCES=src/a4reweight.cpp
+#a4reweight_LDADD=$(LDADD)
 
 ## Tests programs
 check_PROGRAMS = test_grl
