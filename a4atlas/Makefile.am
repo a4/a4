@@ -8,7 +8,7 @@ include protobuf.am
 ## What to dostribute and where
 athenadatadir=${pkgdatadir}/athena
 dist_python_SCRIPTS=python/grl2datasets python/grl2xml python/grl_and python/grl_diff python/id2xs python/ids2datasets python/mc_count python/mc_merge python/xml2grl
-dist_athenadata_SCRIPTS=athena/aod2a4.py athena/gangatask.py athena/run.py
+dist_athenadata_SCRIPTS=athena/gangatask.py
 a4include_HEADERS = src/a4/grl.h
 a4python_PYTHON = python/root2a4.py
 

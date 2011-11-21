@@ -7,6 +7,18 @@ import os
 import random
 import subprocess
 
+def add_env(cmd):
+    envs = set()
+    envs.add("PATH")
+    envs.add("LD_LIBRARY_PATH")
+    envs.add("PYTHONPATH")
+    for e in os.environ.keys():
+        if not "PID" in e and not e[0] == "_":
+            envs.add(e)
+    opts = "cd %s; LD_LIBRARY_PATH=%s PATH=%s" % (os.getcwd(), os.getenv("LD_LIBRARY_PATH"), os.getenv("PATH"))
+    myenv = " ".join("export %s='%s';" % (e, os.getenv(e)) for e in envs)
+    return "cd %s; %s %s" % (os.getcwd(), myenv, cmd)
+
 color = {}  
 color['normal'] = os.popen("tput sgr0").read()  
 color['darkred'] = os.popen("tput setaf 1").read()  
@@ -97,6 +109,7 @@ def PMBSMainLoop():
          cmd = str(j.cmd)
          cmd = cmd.replace("{JOBID}", str(j.id))
          cmd = cmd.replace("{HOST}", str(host))
+         cmd = add_env(cmd)
          if j.debug:
             j.process = subprocess.Popen(["echo", cmd], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
          else:
