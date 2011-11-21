@@ -3,6 +3,8 @@
 #define D3PDMAKERREADER_A4DumpALG_H
 
 #include <string>
+#include <map>
+#include <set>
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -28,20 +30,17 @@ namespace D3PD {
         virtual StatusCode execute();
 
     private:      
-        ServiceHandle< ID3PDSvc > m_d3pdSvc; /// Property: The D3PD creation service.
-        ToolHandleArray< IObjFillerTool > m_tools; /// Property: List of object filler tools to run.
-        ToolHandleArray< IMetadataTool > m_metadataTools; /// Property: List of metadata tools to run.
-
+        int m_year; /// Property: The year of data being processed
         std::string m_filename; ///< The output filename
-        std::string m_tuplePath; ///< The D3PD base name
-        std::vector< std::string > m_prefixes; ///< Variable name prefixes
-        std::vector< std::string > m_classnames; ///< Reader class names
 
-        std::string m_dir; ///< Directory where the sources should be put
+        bool m_is_mc;
+        std::string m_event_info_key;
 
-        std::vector< ID3PD* > m_d3pds;
-
-        bool m_booked; /// Flag that we've called book().
+        std::list<std::string> m_possible_streams;
+        std::map<int, int> m_runs_encountered;
+        std::map<int, double> m_runs_encountered_w;
+        std::map<int, std::set<int> > m_lbs_encountered;
+        ServiceHandle< A4DumperSvc > m_dumperSvc; /// Property: The Dumper service.
 
     }; 
 
