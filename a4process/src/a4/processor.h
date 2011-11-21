@@ -202,7 +202,6 @@ namespace a4{
             protected:
                 std::string next_name;
                 bool have_name;
-                virtual const int metadata_class_id() const { return ProtoMetaData::kCLASSIDFieldNumber; };
                 friend class a4::process::Driver;
         };
 

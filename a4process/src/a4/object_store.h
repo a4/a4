@@ -48,14 +48,6 @@ namespace a4{ namespace process{
             template <class C, typename ...Args> C & T_slow(const Args & ...args);
             /// Version of find that works with dynamic strings (warning: very slow)
             template <class C, typename ...Args> C * find_slow(const Args & ...args);
-            /// Gets the compiler to print a better warning if one forgets the template args
-            template <typename ...Args> void T(const Args & ...args) { 
-                BOOST_STATIC_ASSERT_MSG(IS_FALSE(Args), "ObjectStore::T must be called with a template parameter: S.T<H1>(\"my histogram\")"); 
-            };
-            /// Gets the compiler to print a better warning if one forgets the template args
-            template <typename ...Args> void find(const Args & ...args) { 
-                BOOST_STATIC_ASSERT_MSG(IS_FALSE(Args), "ObjectStore::find must be called with a template parameter: S.find<H1>(\"my histogram\")"); 
-            };
             /// Get an ObjectStore with a "prefix" which can be handed to functions
             template <typename ...Args> ObjectStore operator()(const Args & ...args);
         protected:

@@ -88,7 +88,7 @@ namespace a4{ namespace io{
             _class_id_descriptor[class_id] = reg.descriptor;
             _dynamic_descriptor[class_id] = gd;
         } else { // Use dynamic reading
-            std::cerr << "Warning: No compiled version of " << protoclass.full_name() << " found!" << std::endl;
+            //std::cerr << "Warning: No compiled version of " << protoclass.full_name() << " found!" << std::endl;
             const Message* prototype = _message_factory->GetPrototype(gd);
             _class_id_reader[class_id] = bind(&ProtoClassPool::message_factory, this, prototype, _1);
             _class_id_descriptor[class_id] = gd;
