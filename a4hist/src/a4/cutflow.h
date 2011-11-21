@@ -34,6 +34,7 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
         virtual void to_pb(bool blank_pb);
         virtual void from_pb();
         virtual Cutflow & operator+=(const Cutflow &other);
+        virtual Cutflow & operator*=(const double &v) { return __mul__(v); };
 
         std::vector<CutNameCount> content() const;
 

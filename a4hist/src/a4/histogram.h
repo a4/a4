@@ -21,6 +21,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         virtual void to_pb(bool blank_pb);
         virtual void from_pb();
         virtual H1 & operator+=(const H1 &other);
+        virtual H1 & operator*=(const double & v) { return __mul__(v); };
 
         void constructor(const char * _title) {
             _initializations_remaining++;
@@ -98,6 +99,7 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         virtual void to_pb(bool blank_pb);
         virtual void from_pb();
         virtual H2 & operator+=(const H2 &other);
+        virtual H2 & operator*=(const double & v) { return __mul__(v); };
 
         void constructor(const char * _title) {
             _initializations_remaining++;
@@ -179,6 +181,7 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
         virtual void to_pb(bool blank_pb);
         virtual void from_pb();
         virtual H3 & operator+=(const H3 &other);
+        virtual H3 & operator*=(const double & v) { return __mul__(v); };
 
         void constructor(const char * _title) {
             _initializations_remaining++;

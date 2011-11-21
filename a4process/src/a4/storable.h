@@ -25,6 +25,12 @@ namespace a4{ namespace process{
             virtual Storable&& operator+(const Storable &other) {
                 return std::move(this->clone_storable() += other);
             };
+            /// Require that reweighting works.
+            virtual Storable& operator*=(const double &) = 0;
+            // Trying C++0x move semantics...
+            virtual Storable&& operator*(const double &v) {
+                return std::move(this->clone_storable() *= v);
+            };
             /// Cloneable
             virtual Storable&& clone_storable() = 0;
             virtual ~Storable() {};
