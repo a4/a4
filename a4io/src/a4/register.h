@@ -22,7 +22,7 @@ namespace a4{ namespace io{
             from_stream_func from_stream;
         } classreg;
     
-        classreg map_class(std::string name, uint32_t class_id=0, classreg=classreg(), bool warn=true);
+        classreg map_class(std::string name, uint32_t class_id=0, classreg=classreg(), bool warn=false);
 
         template <typename ProtoClass>
         shared<Message> from_stream(google::protobuf::io::CodedInputStream * instr) {
