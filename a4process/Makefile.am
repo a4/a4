@@ -13,7 +13,7 @@ a4include_HEADERS = \
     src/a4/object_store.h src/a4/object_store_impl.h\
     src/a4/results_processor.h
 
-bin_SCRIPTS += python/poorcache python/poorprocess
+bin_SCRIPTS += python/poorcache python/poorprocess python/pmbs
 python_PYTHON = python/pmbs.py python/poorcache.py
 
 # Compilation options

@@ -20,6 +20,7 @@ color['red'] = os.popen("tput setaf 8").read()
 
 class PMBSJob(object):
     def __init__(self,command):
+        self.debug = False
         self.cmd = command
         self.id = 0
         self.process = None
@@ -31,20 +32,22 @@ def get_slots_from_pod():
     slots = []
     for n, host, x, tmp, nw in slots_pod:
         host = host.strip()
-        slots.append((host, tmp, int(nw)))
+        for n in xrange(int(nw)):
+            slots.append(host)
     return slots
 
 qlock   = thread.allocate_lock()
 filter = []
 jobs    = []
 # Uncomment this for manual selection
-slots   = [l.strip().split() for l in file(os.getenv("HOME")+os.sep+".pmbs").readlines() if l.strip() and not l.strip().startswith("#")]
+slots   = [l.strip() for l in file(os.getenv("HOME")+os.sep+".pmbs").readlines() if l.strip() and not l.strip().startswith("#")]
 #slots = get_slots_from_pod()
 slotmap = [None]*len(slots)
 
 # 'External' function
-def submit(cmd):
+def submit(cmd, debug=False):
    j = PMBSJob(cmd)
+   j.debug = debug
    qlock.acquire()
    jobs.append(j)
    qlock.release()
@@ -88,12 +91,18 @@ def PMBSMainLoop():
          j.status = "running"
          slotmap[slotn] = j
          #j.pid = os.spawnvp(os.P_NOWAIT, "ssh", ["ssh","-x",slots[slotn],j.cmd])
-         host, tmp, n = slots[slotn]
-         j.process = subprocess.Popen(["ssh","-x",host,j.cmd.replace("THREADS", n)],bufsize=0,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-         fcntl.fcntl(j.process.stdout, fcntl.F_SETFL, os.O_NONBLOCK) 
-         fcntl.fcntl(j.process.stderr, fcntl.F_SETFL, os.O_NONBLOCK) 
+         host = slots[slotn]
          j.id = jobid
          jobid += 1
+         cmd = str(j.cmd)
+         cmd = cmd.replace("{JOBID}", str(j.id))
+         cmd = cmd.replace("{HOST}", str(host))
+         if j.debug:
+            j.process = subprocess.Popen(["echo", cmd], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+         else:
+            j.process = subprocess.Popen(["ssh", "-x", str(host), cmd], bufsize=0, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+         fcntl.fcntl(j.process.stdout, fcntl.F_SETFL, os.O_NONBLOCK)
+         fcntl.fcntl(j.process.stderr, fcntl.F_SETFL, os.O_NONBLOCK) 
          runningjobs.append(j)
          print "Submitted job %s to %s" % (j.id, host)
          #print "Submitted job %s to %s to do %s" % (j.id, host, j.cmd % n)
@@ -142,9 +151,37 @@ def flush():
 pbmsthread = thread.start_new(PMBSMainLoop, ())
 
 if __name__=="__main__":
-    submit("echo test1; sleep 10")
-    submit("echo test2; sleep 12")
-    submit("echo test3; sleep 5")
-    submit("echo test4; sleep 2")
+    import sys, optparse, math
+    parser = optparse.OptionParser()
+    parser.add_option("-c", "--command", default="echo I am {JOBID} on {HOST}!", help="The command to execute", metavar="CMD")
+    parser.add_option("-f", "--filelist", default=None, help="file with files to process", metavar="FILE")
+    parser.add_option("-n", "--number", default=1, help="number of files from filelist to append to each command")
+    parser.add_option("-d", "--debug", action="store_true", help="Just do debug print of commands")
+    (options, args) = parser.parse_args()
+
+    if options.filelist is None:
+        parser.print_help()
+        sys.exit(-1)
+
+    files = [f.strip() for f in file(options.filelist).readlines() if f.strip() and not f.strip().startswith("#")]
+    n_files = len(files)
+    n_chunks = int(math.ceil(n_files * 1.0 / int(options.number)))
+    fpc = int(math.ceil(n_files/n_chunks))
+    print files[0]
+
+    chunks = []
+    while files:
+        chunk = []
+        try:
+            for x in xrange(fpc):
+                chunk.append(files.pop())
+        except IndexError:
+            pass
+        chunks.append(chunk)
+    assert sum(map(len, chunks)) == n_files
+
+    for c in chunks:
+        j = submit(options.command + " " + " ".join(c), debug=options.debug)
     flush()
+        
 
