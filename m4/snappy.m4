@@ -39,6 +39,8 @@ AC_DEFUN([A4_SNAPPY_CHECK], [
     #AC_SUBST([SNAPPY_LIBS],[-lsnappy -L$with_snappy/lib])
     AC_SUBST([SNAPPY_LDFLAGS],["-L$with_snappy/lib -lsnappy"])
     AC_SUBST([SNAPPY_CPPFLAGS],[-I$with_snappy/include])
+  else
+    AC_SUBST([SNAPPY_LDFLAGS],["-lsnappy"])
   fi
   
   AC_MSG_CHECKING([if snappy is available])
