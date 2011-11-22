@@ -32,7 +32,7 @@ namespace a4{ namespace process{
 
     template <class C> shared<C> ObjectStore::get_slow(const std::string & name) {
         auto res = backstore->get<C>(hl->get_path() + name);
-        static_cast<Storable*>(res.get())->weight(current_weight);
+        if (res) static_cast<Storable*>(res.get())->weight(current_weight);
         return res;
     };
 
