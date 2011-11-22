@@ -19,7 +19,7 @@ A4_PROTOBUF_CHECK([:],[AC_MSG_ERROR([A4 requires the google protobuf library, wh
 
 A4_SNAPPY_CHECK([:],[AC_MSG_ERROR([A4 requires the google snappy library, which configure could not find! Run $srcdir/get_snappy.sh to setup a 'builtin' copy and rerun configure.])])
 
-A4_BOOST_CHECK([:],[AC_MSG_ERROR([A4 requires the C++ boost library version >= 1.43, which configure could not find! Run ./get_miniboost.sh" in your a4 directory to setup a 'builtin' copy of the required part of boost and rerun configure.])])
+A4_BOOST_CHECK([:],[AC_MSG_ERROR([A4 requires the C++ boost library version >= 1.47, which configure could not find! Run ./get_miniboost.sh" in your a4 directory to setup a 'builtin' copy of the required part of boost and rerun configure.])])
 
 A4_CERN_ROOT_SYSTEM_CHECK([:],[AC_MSG_ERROR([a4root requires the CERN ROOT library. http://root.cern.ch/])])
 

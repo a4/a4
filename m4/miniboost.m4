@@ -43,11 +43,11 @@ AC_DEFUN([A4_BOOST_CHECK], [
   enable_static_boost=no
   # Make the whole boost checks much faster if we have miniboost 
   if test x$have_miniboost == xyes; then
-    BOOST_REQUIRE([1.43], [$2])
+    BOOST_REQUIRE([1.47], [$2])
     pf=--a4-mt-1_47
     AC_SUBST([BOOST_LIBS], ["-L$with_boost/lib -lboost_program_options$pf -lboost_thread$pf -pthread -lboost_filesystem$pf -lboost_system$pf -lboost_chrono$pf"])
   else
-    BOOST_REQUIRE([1.43], [$2])
+    BOOST_REQUIRE([1.47], [$2])
     BOOST_PROGRAM_OPTIONS
     BOOST_THREADS
     BOOST_FILESYSTEM
