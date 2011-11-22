@@ -50,11 +50,16 @@ namespace a4{ namespace process{
             template <class C, typename ...Args> C * find_slow(const Args & ...args);
             /// Get an ObjectStore with a "prefix" which can be handed to functions
             template <typename ...Args> ObjectStore operator()(const Args & ...args);
+            /// set weight
+            void set_weight(const double & w) { current_weight = w; }
+            void mul_weight(const double & w) { current_weight *= w; }
+            double weight() { return current_weight; }
         protected:
             ObjectBackStore * backstore;
             hash_lookup * hl;
+            double current_weight;
             /// Always create ObjectStores from ObjectBackStore.store() and ObjectStore("prefix/")
-            ObjectStore(hash_lookup * hl, ObjectBackStore* bs) : backstore(bs), hl(hl) {};
+            ObjectStore(hash_lookup * hl, ObjectBackStore* bs, const double & weight) : backstore(bs), hl(hl), current_weight(weight) {};
             // Let ObjectBackStore use the protected constructor
             friend class ObjectBackStore;
     };

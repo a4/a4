@@ -43,8 +43,6 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
 
         void print(std::ostream &) const;
 
-        void weight(const double & weight) { _current_weight = weight; };
-
         template <typename... Args>
         inline void order(const Args& ...args) { 
             void * & res = _fast_access->lookup(args...);
@@ -74,7 +72,6 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
         std::vector<double> _bin;
         shared<std::vector<double> > _weights_squared;
         std::vector<std::string> _cut_names;
-        double _current_weight;
 };
 
 };}; //namespace a4::hist

@@ -12,7 +12,7 @@ namespace a4{ namespace process{
     /// This class is mainly for "dealers in Storables" (heh).
     class Storable {
         public:
-            Storable() {};
+            Storable() : _current_weight(1.0) {};
             /// Get a Protobuf message that contains the information about this object
             virtual shared<const google::protobuf::Message> as_message() = 0;
             /// Use this function if the Storable should copy the info from the message
@@ -31,9 +31,13 @@ namespace a4{ namespace process{
             virtual Storable&& operator*(const double &v) {
                 return std::move(this->clone_storable() *= v);
             };
+            /// Require that a current weight can be set
+            void weight(const double & weight) { _current_weight = weight; };
             /// Cloneable
             virtual Storable&& clone_storable() = 0;
             virtual ~Storable() {};
+        protected:
+            double _current_weight;
     };
 
     namespace internal {

@@ -69,6 +69,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
         std::string merge_key, split_key; 
         A4Output * out;
         A4Output * res;
+        shared<ObjectBackStore> backstore;
 
         BaseOutputAdaptor(Driver * d, Processor * p, bool forward_metadata, A4Output* out, A4Output* res) : out(out), res(res), forward_metadata(forward_metadata), in_block(false), driver(d), p(p), last_postfix("") {
             merge_key = split_key = "";
@@ -149,7 +150,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
     protected:
         bool forward_metadata;
         shared<OutputStream> outstream, resstream;
-        shared<ObjectBackStore> backstore;
+
         bool in_block;
         Driver * driver;
         Processor * p;
@@ -224,6 +225,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             // Do not send metadata messages to process()
             if (msg.metadata()) continue;
 
+            self->set_store(p, output_adaptor->backstore->store());
             process_rerun_systematics(p, msg);
 
             // Check if we reached limit

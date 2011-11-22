@@ -19,7 +19,7 @@ namespace a4{ namespace process{
 
     ObjectBackStore::~ObjectBackStore() {};
 
-    ObjectStore ObjectBackStore::store() { return ObjectStore(hl.get(), this); };
+    ObjectStore ObjectBackStore::store() { return ObjectStore(hl.get(), this, 1.0); };
 
     void ObjectBackStore::to_stream(a4::io::OutputStream &outs) const {
         std::map<std::string, shared<Storable>>::const_iterator i;

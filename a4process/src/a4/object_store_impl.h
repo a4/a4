@@ -12,20 +12,28 @@ namespace a4{ namespace process{
         // First, get a reference(!) to a void pointer from the fast lookup table
         void * & res = hl->lookup(args...);
         // if these args... are found, return the result as a C*
-        if (res) return *static_cast<C*>(res);
+        if (res) {
+            static_cast<Storable*>(res)->weight(current_weight);
+            return *static_cast<C*>(res);
+        }
         // ..otherwise _set_ the reference to the backstore result.
         // This updates the fast lookup table.
         res = backstore->find<C>(hl->get_path(), args...);
         // Return the result from the backstore.
+        static_cast<Storable*>(res)->weight(current_weight);
         return *static_cast<C*>(res);
     };
 
     template <class C, typename ...Args> C & ObjectStore::T_slow(const Args & ...args) {
-        return *static_cast<C*>(backstore->find<C>(hl->get_path(), args...));
+        auto res = *static_cast<C*>(backstore->find<C>(hl->get_path(), args...));
+        static_cast<Storable*>(res)->weight(current_weight);
+        return res;
     };
 
     template <class C> shared<C> ObjectStore::get_slow(const std::string & name) {
-        return backstore->get<C>(hl->get_path() + name);
+        auto res = backstore->get<C>(hl->get_path() + name);
+        static_cast<Storable*>(res.get())->weight(current_weight);
+        return res;
     };
 
     inline void ObjectStore::set_slow(const std::string & name, shared<Storable> obj) {
@@ -33,17 +41,21 @@ namespace a4{ namespace process{
     };
 
     template <typename ...Args> ObjectStore ObjectStore::operator()(const Args & ...args) {
-        return ObjectStore(hl->subhash(args...), backstore);
+        return ObjectStore(hl->subhash(args...), backstore, current_weight);
     }
 
     template <class C, typename ...Args> C * ObjectStore::find(const Args & ...args) {
         BOOST_STATIC_ASSERT_MSG((boost::is_convertible<C*, Storable*>::value), "You can only store objects that implement the Storable interface into the ObjectStore!");
-        return dynamic_cast<C*>(static_cast<Storable*>(&T<C>(args...)));
+        auto res = dynamic_cast<C*>(static_cast<Storable*>(&T<C>(args...)));
+        static_cast<Storable*>(res)->weight(current_weight);
+        return res;
     }
 
     template <class C, typename ...Args> C * ObjectStore::find_slow(const Args & ...args) {
         BOOST_STATIC_ASSERT_MSG((boost::is_convertible<C*, Storable*>::value), "You can only store objects that implement the Storable interface into the ObjectStore!");
-        return dynamic_cast<C*>(static_cast<Storable*>(backstore->find<C>(hl->get_path(), args...)));
+        auto res = dynamic_cast<C*>(static_cast<Storable*>(backstore->find<C>(hl->get_path(), args...)));
+        static_cast<Storable*>(res)->weight(current_weight);
+        return res;
     };
 
     template <class C, typename ...Args> C * ObjectBackStore::find(const Args & ...args) {

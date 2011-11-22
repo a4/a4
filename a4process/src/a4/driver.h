@@ -15,8 +15,8 @@ class Driver {
         void set_output_adaptor(Processor* p, OutputAdaptor * oa) { p->_output_adaptor = oa; };
 
         static void process_rerun_channels(Processor* p, A4Message msg) {
-            p->process_message(msg);
             ObjectStore S = p->S;
+            p->process_message(msg);
             std::set<const char *> finished_channels;
             do {
                 std::set<const char *> channels = p->rerun_channels;
