@@ -13,18 +13,19 @@ if not options.data and len(args) == 0:
     parser.print_help()
     exit(-1)
 
-if options.output:
-    try:
-        makedirs(options.output)
-    except OSError:
-        pass
-
 from sys import exit
 from rooplot import make_page
 from rooplot import atlas_style, get_legend, get_lumi_label, set_styles, stack_1D, plot_1D, draw_preliminary
 
 from os import makedirs
 from uncertain import UncertainNumber, CertainNumber
+if options.output:
+    try:
+        makedirs(options.output)
+    except OSError:
+        pass
+
+
 
 disp = "1.02 fb^{-1}"
 
