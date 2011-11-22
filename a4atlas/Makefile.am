@@ -12,6 +12,7 @@ dist_athenadata_SCRIPTS=athena/gangatask.py
 a4include_HEADERS = src/a4/grl.h
 a4python_PYTHON = python/root2a4.py
 bin_PROGRAMS = a4reweight
+bin_SCRIPTS += python/grl2xml python/xml2grl python/grl_and python/grl_diff python/id2xs python/ids2datasets
 
 ## Compilation flags
 AM_CPPFLAGS+=$(BOOST_CPPFLAGS) $(PROTOBUF_CFLAGS) $(A4_A4IO_CPPFLAGS) $(A4_A4PROCESS_CPPFLAGS) $(A4_A4HIST_CPPFLAGS)
