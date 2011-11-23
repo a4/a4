@@ -72,6 +72,9 @@ if options.roostats:
 
 
 for hn in histos_1d:
+    data_fns = [f.fn for f in data_files if hn in f.dir]
+    bg_fns = [f.fn for f in bg_files if hn in f.dir]
+    sg_fns = [f.fn for f in sg_files if hn in f.dir]
     data = [f.get(hn) for f in data_files if hn in f.dir]
     bg = [f.get(hn) for f in bg_files if hn in f.dir]
     sg = [f.get(hn) for f in sg_files if hn in f.dir]
@@ -80,8 +83,10 @@ for hn in histos_1d:
     sg_names = [base(f.fn) for f in sg_files if hn in f.dir]
 
     xtitle, ytitle = None, None
-    for h in data+bg+sg:
+    for h, orig_fn in zip(data+bg+sg, data_fns+bg_fns+sg_fns):
         h.SetDirectory(0)
+        if not h.GetTitle():
+            h.SetTitle(orig_fn.rstrip(".root"))
         if xrebin.get(hn,1) != 1:
             h.Rebin(int(xrebin[hn]))
 
