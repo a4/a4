@@ -144,6 +144,7 @@ trigger_names = {
         "EF_2e12_medium",
         "EF_mu40_MSonly",
         "EF_mu40_MSonly_barrel",
+        "EF_mu40_MSonly_barrel_medium",
         "EF_mu20_empty"
         ]
 }
