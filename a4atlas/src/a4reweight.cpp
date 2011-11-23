@@ -80,7 +80,7 @@ void A4ReweightProcessor::process_new_metadata() {
     if (!metadata().has_sum_mc_weights()) {
         throw a4::Fatal("Cannot reweight without sum of MC weights!");
     }
-    if (metadata().has_reweight_lumi()) {
+    if (metadata().reweight_lumi() != 0) {
         throw a4::Fatal("This set of histograms has already been reweighted!");
     }
     double sum_mcw = metadata().sum_mc_weights();
