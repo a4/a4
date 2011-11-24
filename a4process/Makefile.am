@@ -31,6 +31,8 @@ liba4process_la_SOURCES= $(a4include_HEADERS)\
     src/driver.cpp
 liba4process_la_LIBADD=$(A4_A4IO_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)
 
+bin_PROGRAMS = a4copy
+a4copy_SOURCES = src/apps/a4copy.cpp
 
 ## Test programs
 plain_test_programs=test_hashlookup test_hashlookup_speed test_objstore test_objstore_speed test_storable test_histo
