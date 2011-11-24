@@ -28,12 +28,40 @@ message RunLB
     optional int32 lumiblock = 2;
 }
 
+// Note: Many of the properties of this class will only be correct when 
+//       aggregated by keying on `name`.
+
+message InputFile
+{
+    optional string filename = 1;
+    optional uint64 size = 2;
+    
+    optional string grl_string = 10;
+}
+
+message ProcessingStep
+{
+    optional string name = 1;
+
+    optional uint64 input_events = 10 [default=0];
+    
+    // Bytes read to generate this data
+    optional uint64 input_bytes_read = 20 [default=0];
+    
+    optional float walltime = 30 [default=0];
+    optional float cputime = 31 [default=0];
+    
+    repeated InputFile input_files = 40;
+}
+
 message EventMetaData
 {
     option (a4.io.major_version) = "v2011.11";
     option (a4.io.patch_version) = "1";
 
     optional bool simulation = 1 [(a4.io.merge)=MERGE_BLOCK_IF_DIFFERENT];
+    repeated int32 mc_channel = 11 [(a4.io.merge)=MERGE_UNION];
+    
     repeated Stream stream = 2 [(a4.io.merge)=MERGE_UNION];
     repeated string period = 3 [(a4.io.merge)=MERGE_UNION];
     repeated int32 run = 4 [(a4.io.merge)=MERGE_UNION];
@@ -42,6 +70,9 @@ message EventMetaData
     optional int32 event_count = 6 [(a4.io.merge)=MERGE_ADD];
     optional double sum_mc_weights = 7 [(a4.io.merge)=MERGE_ADD];
     optional double reweight_lumi = 8 [(a4.io.merge)=MERGE_BLOCK_IF_DIFFERENT];
+    
+    // Information about a run over the input files
+    repeated ProcessingStep processing_steps = 9 [(a4.io.merge)=MERGE_UNION];
 }
 
 message Event
