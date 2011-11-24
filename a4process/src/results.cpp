@@ -22,7 +22,7 @@ class A4Key : public StreamableTo<a4::io::A4Key, A4Key> {
 using namespace std;
 
 void Results::to_file(std::string fn) {
-    auto w = new Writer(fn, "Results");
+    unique<Writer> w(new Writer(fn, "Results"));
     auto l = list<Streamable>();
     for (auto it = l.begin(), end = l.end(); it != end; it++) {
         A4Key key(*it);
@@ -30,13 +30,13 @@ void Results::to_file(std::string fn) {
         w->write(*get_checked<Streamable>(*it));
     }
     if (metadata) w->metadata(*metadata);
-    delete w;
 }
 
-std::vector<Results *> Results::from_file(std::string fn) {
+std::vector<unique<Results>> Results::from_file(std::string fn) {
     auto r = boost::shared_ptr<Reader>(new Reader(fn));
-    std::vector<Results *> resv;
-    Results * res = NULL;
+    std::vector<unique<Results>> resv;
+    unique<Results> res;
+    res.reset();
     while (r->is_good()) {
         ReadResult keyres = r->read();
         if (keyres.class_id == A4Key::class_id) {
@@ -44,10 +44,10 @@ std::vector<Results *> Results::from_file(std::string fn) {
             ReadResult rr = r->read();
             if (!rr.object) throw "up";
             auto obj = boost::dynamic_pointer_cast<Printable>(rr.object);
-            if (!res) res = new Results();
+            if (!res) res.reset(new Results());
             res->set(key->name, obj);
         } else if (boost::dynamic_pointer_cast<MetaData>(keyres.object)) {
-            if (!res) res = new Results();
+            if (!res) res.reset(new Results());
             res->metadata = boost::dynamic_pointer_cast<MetaData>(keyres.object);
             resv.push_back(res);
             res = NULL;
