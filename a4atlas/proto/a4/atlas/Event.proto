@@ -161,6 +161,6 @@ message Event
     optional MissingEnergy truth_met_hard = 100;
     optional MissingEnergy truth_met_pileup = 101;
     repeated LorentzVector truth_neutrinos = 102;
-    repeated Muon truth_electrons = 103;
-    repeated Muon truth_muons = 104;
+    repeated TruthParticle truth_electrons = 103;
+    repeated TruthParticle truth_muons = 104;
 }

@@ -192,9 +192,9 @@ def make_ms_track_hits(tp):
         setattr(t, n, ts.get(getattr(SummaryType, n)))
     return t
 
-def make_truth(p, charge, pdg_id=None):
+def make_truth(p4, charge, pdg_id=None):
     p = TruthParticle()
-    p.p4 = p
+    p.p4.CopyFrom(make_lv(p4))
     p.charge = charge
     if pdg_id:
         p.pdg_id = pdg_id
