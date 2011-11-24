@@ -41,7 +41,7 @@ bool is_writeable_pointer(const char * _p) {
     return true;
 };
 
-hash_lookup::hash_lookup(std::string path) :  _depth(0), _huid(0), _path(path), _files_size(1<<16), _directories_size(1<<16) {
+hash_lookup::hash_lookup(std::string path, int initial_size_log2) :  _depth(0), _huid(0), _path(path), _files_size(1<<initial_size_log2), _directories_size(1<<initial_size_log2) {
     _files = new hash_lookup_data[_files_size]();
     _directories = new hash_lookup_data[_directories_size]();
     _entries = _collisions = 0;

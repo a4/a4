@@ -23,7 +23,7 @@
 class hash_lookup {
     public:
         /// Create an empty hash table with the @path prefix.
-        hash_lookup(std::string path="");
+        hash_lookup(std::string path="", int initial_size_log2=16);
         ~hash_lookup() { if (_depth == 0) tear_down(); };
 
         /// Lookup a file (leaf)
