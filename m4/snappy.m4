@@ -40,7 +40,12 @@ AC_DEFUN([A4_SNAPPY_CHECK], [
     AC_SUBST([SNAPPY_LDFLAGS],["-L$with_snappy/lib -lsnappy"])
     AC_SUBST([SNAPPY_CPPFLAGS],[-I$with_snappy/include])
   else
-    AC_SUBST([SNAPPY_LDFLAGS],["-lsnappy"])
+      AC_CHECK_LIB(snappy, snappy_compress, 
+        [
+            AC_DEFINE(HAVE_SNAPPY, 1, ["Snappy is present"])
+            AC_SUBST([SNAPPY_LDFLAGS],["-lsnappy"])
+        ], 
+        [AC_MSG_RESULT([not found])])
   fi
   
   AC_MSG_CHECKING([if snappy is available])
