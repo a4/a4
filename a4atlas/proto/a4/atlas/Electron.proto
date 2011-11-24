@@ -21,6 +21,16 @@ message Electron
     optional bool medium = 17;
     optional bool tight = 18;
 
+    optional bool loose_iso = 51;
+    optional bool medium_iso = 52;
+    optional bool tight_iso = 53;
+    optional bool loose_pp = 54;
+    optional bool medium_pp = 55;
+    optional bool tight_pp = 56;
+    optional bool loose_pp_iso = 57;
+    optional bool medium_pp_iso = 58;
+    optional bool tight_pp_iso = 59;
+
     optional bool bad_oq = 6;
 
     optional LorentzVector p4_track = 7;

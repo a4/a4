@@ -13,6 +13,13 @@ import "a4/atlas/Muon.proto";
 import "a4/atlas/Jet.proto";
 import "a4/atlas/TrackHits.proto";
 
+message TruthParticle
+{
+    optional LorentzVector p4 = 1;
+    optional int32 charge = 2;
+    optional int32 pdg_id = 3;
+}
+
 message Track
 {
     optional LorentzVector p4 = 1;
@@ -66,6 +73,7 @@ message Event
 
     repeated Jet jets = 8;
     repeated Muon muons = 9;
+
     repeated Electron electrons = 10;
     repeated Photon photons = 11;
     repeated Track tracks = 18;
@@ -82,6 +90,9 @@ message Event
     optional MissingEnergy met_Muid = 34;
     optional MissingEnergy met_RefMuon_Track = 35;
     optional MissingEnergy met_CorrTopo = 36;
+    optional MissingEnergy met_CellOut_em = 84;
+    optional MissingEnergy met_CellOut_Eflow = 85;
+    optional MissingEnergy met_CellOut_Eflow_Muid = 86;
     optional MissingEnergy met_Final = 37;
     optional MissingEnergy met_LocHadTopo = 38;
     optional MissingEnergy met_Muon = 39;
@@ -100,6 +111,7 @@ message Event
     optional MissingEnergy met_Truth = 82;
     optional MissingEnergy met_Truth_PileUp = 83;
 
+
     repeated Jet jets_antikt4h1topo = 40;
     repeated Jet jets_antikt4h1topoem = 41;
 
@@ -117,5 +129,7 @@ message Event
 
     optional MissingEnergy truth_met_hard = 100;
     optional MissingEnergy truth_met_pileup = 101;
-    repeated LorentzVector neutrinos = 102;
+    repeated LorentzVector truth_neutrinos = 102;
+    repeated Muon truth_electrons = 103;
+    repeated Muon truth_muons = 104;
 }

@@ -17,7 +17,7 @@ from a4.atlas.Electron_pb2 import Electron
 from a4.atlas.Muon_pb2 import Muon
 from a4.atlas.Photon_pb2 import Photon
 from a4.atlas.Jet_pb2 import Jet
-from a4.atlas.Event_pb2 import Event, Track
+from a4.atlas.Event_pb2 import Event, Track, TruthParticle
 from a4.atlas.EventStreamInfo_pb2 import EventStreamInfo
 from a4.atlas.Physics_pb2 import LorentzVector, Vertex, MissingEnergy, Perigee
 
@@ -192,6 +192,14 @@ def make_ms_track_hits(tp):
         setattr(t, n, ts.get(getattr(SummaryType, n)))
     return t
 
+def make_truth(p, charge, pdg_id=None):
+    p = TruthParticle()
+    p.p4 = p
+    p.charge = charge
+    if pdg_id:
+        p.pdg_id = pdg_id
+    return p
+
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
 
 class AOD2A4(AOD2A4Base):
@@ -291,6 +299,16 @@ class AOD2A4(AOD2A4Base):
                 e.tight = bool(el.isElectron(self.egammaPID.ElectronTight_WithTrackMatch))
             else:
                 e.tight = bool(el.isElectron(self.egammaPID.ElectronTight))
+            if self.year == 2011:
+                e.loose_iso = bool(el.isElectron(self.egammaPID.ElectronLooseIso))
+                e.medium_iso = bool(el.isElectron(self.egammaPID.ElectronMediumIso))
+                e.tight_iso = bool(el.isElectron(self.egammaPID.ElectronTightIso))
+                e.loose_pp = bool(el.isElectron(self.egammaPID.ElectronLoosePP))
+                e.medium_pp = bool(el.isElectron(self.egammaPID.ElectronMediumPP))
+                e.tight_pp = bool(el.isElectron(self.egammaPID.ElectronTightPP))
+                e.loose_pp_iso = bool(el.isElectron(self.egammaPID.ElectronLoosePPIso))
+                e.medium_pp_iso = bool(el.isElectron(self.egammaPID.ElectronMediumPPIso))
+                e.tight_pp_iso = bool(el.isElectron(self.egammaPID.ElectronTightPPIso))
 
             trk = el.trackParticle()
             if trk:
@@ -380,6 +398,7 @@ class AOD2A4(AOD2A4Base):
             j.p4_em.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
             j.EMJES = jet.getMoment("EMJES")
             j.SV0 = jet.getFlavourTagWeight("SV0")
+            j.JetFitterCOMBNN = jet.getFlavourTagWeight("JetFitterCOMBNN")
             cc = jet.getMoment("BCH_CORR_CELL")
             if cc != 0:
                 j.BCH_CORR_CELL = cc
@@ -590,6 +609,9 @@ class AOD2A4(AOD2A4Base):
         event.met_MuonBoy.CopyFrom(self.met_detail("MET_MuonBoy"))
         event.met_Muid.CopyFrom(self.met_detail("MET_Muid"))
         event.met_RefMuon_Track.CopyFrom(self.met_detail("MET_RefMuon_Track"))
+        event.met_CellOut_em.CopyFrom(self.met_detail("MET_CellOut_em"))
+        event.met_CellOut_Eflow.CopyFrom(self.met_detail("MET_CellOut_Eflow"))
+        event.met_CellOut_Eflow_Muid.CopyFrom(self.met_detail("MET_CellOut_Eflow_Muid"))
         event.met_CorrTopo.CopyFrom(self.met_detail("MET_CorrTopo"))
         event.met_Final.CopyFrom(self.met_detail("MET_Final"))
         event.met_LocHadTopo.CopyFrom(self.met_detail("MET_LocHadTopo"))
@@ -664,7 +686,10 @@ class AOD2A4(AOD2A4Base):
 
             event.truth_met_hard.CopyFrom(self.met_detail_from_particles([p for p in hard_event if not p.pdg_id() in (12, 14, 16, 18)]))
             event.truth_met_pileup.CopyFrom(self.met_detail_from_particles([p for p in pileup if not p.pdg_id() in (12, 14, 16, 18)]))
-            event.neutrinos.extend(make_lv(p.momentum()) for p in hard_event+pileup if p.pdg_id() in (12, 14, 16, 18))
+            event.truth_neutrinos.extend(make_lv(p.momentum()) for p in hard_event+pileup if p.pdg_id() in (12, 14, 16, 18))
+            event.truth_electrons.extend(make_truth(p.momentum(), p.pdg_id()/11) for p in hard_event+pileup if p.pdg_id() == 11)
+            event.truth_muons.extend(make_truth(p.momentum(), p.pdg_id()/13) for p in hard_event+pileup if p.pdg_id() == 13)
+
 
         self.a4.write(event)
         return PyAthena.StatusCode.Success
