@@ -85,6 +85,8 @@ shared<OutputStream> A4Output::get_stream(std::string postfix) {
     _out_streams[postfix].push_back(os);
     _filenames[postfix].push_back(filename);
 
+    if (!_regular_file) os->open();
+
     std::function<void (OutputStream*)> cb = std::bind(&A4Output::report_finished, this, std::placeholders::_1);
     shared<OutputStream> ret(os.get(), cb);
     return ret;

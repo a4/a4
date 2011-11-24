@@ -465,9 +465,6 @@ int main(int argc, char ** argv) {
     
     // Needed so that the resulting data can be streamed
     stream->set_forward_metadata();
-    // Force opening
-    std::cout << "Forcing stream open" << std::endl;
-    stream->open();
 
     class ErrorCollector : public MultiFileErrorCollector {
         void AddError(const std::string& filename, int line, int column, const std::string& message) {

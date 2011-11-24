@@ -45,6 +45,8 @@ namespace a4{ namespace io{
             /// Take care to respect the metadata message direction - forward means the events following
             bool metadata(const google::protobuf::Message& m);
 
+            /// \internal Explicitly open the file. \endinternal
+            bool open();
             /// \internal Explicitly close the file. \endinternal
             bool close();
             bool opened() { return _opened; };
@@ -83,7 +85,7 @@ namespace a4{ namespace io{
             unique<BaseCompressedOutputStream> _compressed_out;
             unique<google::protobuf::io::CodedOutputStream> _coded_out;
 
-            bool open();
+
             bool write(uint32_t class_id, const google::protobuf::Message& m);
             bool write_header(std::string description);
             bool write_footer();
