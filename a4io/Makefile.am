@@ -38,8 +38,9 @@ nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
 dist_liba4io_la_SOURCES=$(LIBRARY_SOURCES)
 liba4io_la_LIBADD=-ldl $(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS) $(BOOST_LIBS)
 
-bin_PROGRAMS = a4dump
+bin_PROGRAMS = a4dump a4info
 a4dump_SOURCES = src/apps/a4dump.cpp
+a4info_SOURCES = src/apps/a4info.cpp
 
 ## Test programs
 check_PROGRAMS = test_io test_thread gtests

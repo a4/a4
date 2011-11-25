@@ -35,6 +35,10 @@ namespace a4{ namespace io{
             size_t ByteCount() { return _raw_in->ByteCount(); }
 
             std::string str() { return _inputname; };
+            
+            const std::vector<std::vector<A4Message>>& all_metadata() {
+                return _metadata_per_header;
+            }
 
         private:
             unique<ZeroCopyStreamResource> _raw_in;

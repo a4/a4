@@ -9,6 +9,7 @@
 namespace a4{ namespace io{
 
     class InputStreamImpl;
+    class A4Message;
 
     /// A4 Input Stream - reads protobuf messages from file
 
@@ -53,6 +54,10 @@ namespace a4{ namespace io{
 
             /// Human-readable string representation
             std::string str();
+            
+            /// Return a vector containing a vector of metadata per x.
+            const std::vector<std::vector<a4::io::A4Message>>& all_metadata();
+            
         private:
             bool _new_metadata;
             unique<InputStreamImpl> _impl;

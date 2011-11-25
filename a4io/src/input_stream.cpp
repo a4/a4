@@ -1,4 +1,5 @@
 #include "a4/input_stream.h"
+#include "a4/message.h"
 #include "input_stream_impl.h"
 
 namespace a4{ namespace io{
@@ -26,4 +27,7 @@ namespace a4{ namespace io{
     size_t InputStream::ByteCount() { return _impl->ByteCount(); }
     std::string InputStream::str() { return _impl->str(); }
 
+    const std::vector<std::vector<A4Message>>& InputStream::all_metadata() { 
+        return _impl->all_metadata();
+    }
 };};
