@@ -106,7 +106,7 @@ namespace a4{ namespace io{
             std::vector<uint64_t> metadata_positions;
             std::vector<uint64_t> protoclass_positions;
             
-            shared<google::protobuf::SimpleDescriptorDatabase> _written_file_descriptors;
+            std::set<std::string> _written_file_descriptor_set;
             std::set<uint32_t> _written_classids;
             uint32_t _next_class_id;
             uint32_t _next_metadata_class_id;

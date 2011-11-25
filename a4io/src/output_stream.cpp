@@ -50,7 +50,6 @@ OutputStream::OutputStream(const string &output_file,
     _opened(false),
     _closed(false),
     _metadata_refers_forward(false),
-    _written_file_descriptors(new ::google::protobuf::SimpleDescriptorDatabase()),
     _next_class_id(0),
     _next_metadata_class_id(1)
 {
@@ -66,8 +65,7 @@ OutputStream::OutputStream(shared<google::protobuf::io::ZeroCopyOutputStream> ou
     _compression(true),
     _opened(false),
     _closed(false),
-    _metadata_refers_forward(false),
-    _written_file_descriptors(new ::google::protobuf::SimpleDescriptorDatabase())
+    _metadata_refers_forward(false)
 {
     _raw_out = out;
     _class_id_counts.resize(200);
@@ -294,13 +292,9 @@ void OutputStream::write_protoclass(uint32_t class_id, const google::protobuf::D
     std::vector<const google::protobuf::FileDescriptor*> file_descriptors;
     get_descriptors_recursively(file_descriptors, d->file());
     foreach (const google::protobuf::FileDescriptor* fd, file_descriptors) {
+        if (!_written_file_descriptor_set.insert(fd->name()).second) continue;
         google::protobuf::FileDescriptorProto fdp;
         fd->CopyTo(&fdp); // Necessary to have it in proto form
-        {
-            google::protobuf::LogSilencer silencer;
-            if (!_written_file_descriptors->Add(fdp))
-                continue; // This filedescriptor has been written as a a4proto before.
-        }
         a4proto.add_file_descriptor()->CopyFrom(fdp);
     }
     if (_compressed_out) {
