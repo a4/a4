@@ -307,19 +307,24 @@ namespace a4{ namespace io{
         boost::trim(url);
         if (url == "-") return unique<UnixStream>(new UnixStream(STDIN_FILENO));
 
+        bool try_mmap = true;
+
         // Deal with rfio, dcap and file URLs
         string proto = url.substr(0,7);
         if (proto == "rfio://" or proto == "dcap://" or proto == "hdfs://") {
             return unique<RemoteFile>(new RemoteFile(url, default_network_block_size));
         } else if (proto == "file://") {
-            url = url.substr(8);
+            url = url.substr(7);
+        } else if (proto == "nomm://") {
+            url = url.substr(7);
+            try_mmap = false;
         }
 
         struct stat buffer;
         if (stat(url.c_str(), &buffer) == -1) throw a4::Fatal("Could not open ", url);
 
         // If it's a FIFO, use a non-seeking buffer
-        if (S_ISFIFO(buffer.st_mode)) return unique<UnixFile>(new UnixFile(url));
+        if (S_ISFIFO(buffer.st_mode) || !try_mmap) return unique<UnixFile>(new UnixFile(url));
         else return unique<UnixFileMMap>(new UnixFileMMap(url));
     }
 
