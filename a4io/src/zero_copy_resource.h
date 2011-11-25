@@ -70,7 +70,7 @@ namespace a4{ namespace io{
 
             virtual unique<ZeroCopyStreamResource> Clone(size_t offset);
 
-        private:
+        protected:
             std::string _name;
             shared<OpenFile> _file;
             size_t _size;
@@ -78,6 +78,21 @@ namespace a4{ namespace io{
             void* _mmap;
             bool _error;
             bool _open;
+    };
+
+    /// Class that deals with the specifics of having a physical file on disk
+    class UnixFilePartMMap : public UnixFileMMap {
+        public:
+            UnixFilePartMMap(std::string name);
+            bool open();
+            bool close();
+            bool Next(const void** data, int* size);
+            virtual unique<ZeroCopyStreamResource> Clone(size_t offset);
+
+        private:
+            void remap();
+            size_t _mmap_offset;
+            size_t _mmap_blocksize;
     };
 
     class UnixStream : public ZeroCopyStreamResource {

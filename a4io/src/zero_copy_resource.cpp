@@ -24,7 +24,10 @@ namespace a4{ namespace io{
                       << "' - error: " << strerror(errno) << std::endl;
             return;
         }
-        if (!do_mmap) return;
+        if (!do_mmap) {
+            error = false;
+            return;
+        }
         struct stat buffer;
         static_assert(sizeof(buffer.st_size) >= sizeof(size_t), "OS Size information is 32 bit!");
 // See https://github.com/JohannesEbke/a4/issues/34
@@ -135,6 +138,68 @@ namespace a4{ namespace io{
         return std::move(f);
     };
 
+    UnixFilePartMMap::UnixFilePartMMap(std::string name) : UnixFileMMap(name), _mmap_offset(0), _mmap_blocksize(1<<28) {}
+
+    bool UnixFilePartMMap::open() {
+        if (_error) return false;
+        if (_open) { _error = true; return false; }
+
+        _file.reset(new OpenFile(_name.c_str(), O_RDONLY, false));
+        if (_file->error) {
+            std::cerr << "ERROR - Could not open '" << _name \
+                      << "' - error: " << strerror(errno) << std::endl;
+            _error = true;
+            return false;
+        }
+        struct stat buffer;
+        static_assert(sizeof(buffer.st_size) >= sizeof(size_t), "OS Size information is 32 bit!");
+// See https://github.com/JohannesEbke/a4/issues/34
+//        static_assert(sizeof(size_t) >= sizeof(uint64_t), "size_t is 32 bit!");
+        if (fstat(_file->no, &buffer) == -1) {
+            std::cerr << "ERROR - Could not stat '" << _name << "' - error: " << strerror(errno) << std::endl;
+            return false;
+        }
+        _size = buffer.st_size;
+        remap();
+        _open = true;
+        return true;
+    }
+
+    void UnixFilePartMMap::remap() {
+        if (_mmap) munmap(_mmap, _mmap_blocksize);
+        _mmap = ::mmap(NULL, _mmap_blocksize, PROT_READ, MAP_PRIVATE, _file->no, _mmap_offset);
+        if (mmap == MAP_FAILED) {
+            throw a4::Fatal("ERROR - Could not mmap '", _name, "': ", strerror(errno));
+        }
+    }
+
+    bool UnixFilePartMMap::close() {
+        if (_mmap) munmap(_mmap, _mmap_blocksize);
+        _file.reset();
+        _error = true;
+        return true;
+    }
+
+    bool UnixFilePartMMap::Next(const void** data, int* size) {
+        if (_error) return false;
+        if (!_open && !open()) return false;
+        if (_size == _position) return false;
+        if (_position < _mmap_offset || _position >= _mmap_offset + _mmap_blocksize) {
+            _mmap_offset = (_position/_mmap_blocksize)*_mmap_blocksize;
+            remap();
+        }
+        *data = (uint8_t*)_mmap + _position - _mmap_offset;
+        *size = _mmap_blocksize - (_position - _mmap_offset);
+        if ((_size - _position) < *size) {
+            *size = _size - _position;
+        }
+        _position += *size;
+        return true;
+    }
+
+    unique<ZeroCopyStreamResource> UnixFilePartMMap::Clone(size_t offset) {
+        return unique<ZeroCopyStreamResource>();
+    };
         
     UnixStream::UnixStream() {};
 
@@ -325,7 +390,8 @@ namespace a4{ namespace io{
 
         // If it's a FIFO, use a non-seeking buffer
         if (S_ISFIFO(buffer.st_mode) || !try_mmap) return unique<UnixFile>(new UnixFile(url));
-        else return unique<UnixFileMMap>(new UnixFileMMap(url));
+        else return unique<UnixFilePartMMap>(new UnixFilePartMMap(url));
+        //else return unique<UnixFileMMap>(new UnixFileMMap(url));
     }
 
 };};
