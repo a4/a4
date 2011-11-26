@@ -79,7 +79,13 @@ class VariableAxis : public SimpleAxis {
 
     protected:
         bool sane() const;
+        #ifdef __clang__
+        // The standard library implementation of unique<> is broken under clang
+        // so we just use a shared array instead.
+        shared_array<double> _bin_bounds;
+        #else
         unique<double[]> _bin_bounds;
+        #endif
         double* _bin_bounds_end;
         
         void _init_bins(const uint32_t bins);

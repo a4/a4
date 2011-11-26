@@ -30,7 +30,22 @@
 #include <boost/shared_array.hpp>
 using boost::shared_array;
 
-#if HAVE_STD_SMART_PTR
+#ifdef __clang__
+
+// GCC <=4.6's implementation of shared_ptr is broken under the new C++0x 
+// standard. See good explanation here. Might be fixed one day.
+// http://stackoverflow.com/questions/7964360/using-stdshared-ptr-with-clang-and-libstdc
+
+#include <boost/shared_ptr.hpp>
+#define shared boost::shared_ptr
+
+// Boost doesn't define a unique<> so we use shared instead, which can lead
+// to incorrect code being allowed.
+#define unique shared
+
+namespace std_memory_prefix = std;
+
+#elif HAVE_STD_SMART_PTR
 
 #include <memory>
 // Since we are aiming for gcc 4.3, 

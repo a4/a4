@@ -6,11 +6,15 @@ using boost::function;
 
 #include <a4/types.h>
 
+namespace google {
+namespace protobuf {
 class Message;
 class MessageFactory;
-class TBranchElement;
 class FieldDescriptor;
+};
+};
 
+class TBranchElement;
 
 template<typename T>
 class Setter
