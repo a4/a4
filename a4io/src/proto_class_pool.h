@@ -21,6 +21,7 @@ namespace a4{ namespace io{
     class ProtoClassPool {
         public:
             ProtoClassPool();
+            ~ProtoClassPool();
             A4Message read(uint32_t class_id, google::protobuf::io::CodedInputStream* instream);
             void add_protoclass(const ProtoClass & protoclass);
             shared<Message> message_factory(const google::protobuf::Message* prototype, google::protobuf::io::CodedInputStream* instr);
@@ -31,7 +32,7 @@ namespace a4{ namespace io{
             std::vector<const google::protobuf::Descriptor*> _class_id_descriptor;
             std::vector<const google::protobuf::Descriptor*> _dynamic_descriptor;
             shared<google::protobuf::DescriptorPool> _descriptor_pool;
-            unique<google::protobuf::DynamicMessageFactory> _message_factory;
+            shared<google::protobuf::DynamicMessageFactory> _message_factory;
     };
 
 };};

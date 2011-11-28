@@ -13,9 +13,12 @@ using google::protobuf::DynamicMessageFactory;
 namespace a4{ namespace io{
 
     A4Message::~A4Message() {
+        std::cerr << "RESET MESSAGE" <<std::endl;
         message.reset();
-        _pool.reset();
+        std::cerr << "RESET FACTORY" <<std::endl;
         _factory.reset();
+        std::cerr << "RESET POOL" <<std::endl;
+        _pool.reset();
     }
 
     A4Message A4Message::as_dynamic_message(const google::protobuf::Descriptor* d, shared<google::protobuf::DescriptorPool> p) const {

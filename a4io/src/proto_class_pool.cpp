@@ -19,6 +19,11 @@ namespace a4{ namespace io{
         _message_factory.reset(new DynamicMessageFactory(_descriptor_pool.get()));
     }
 
+    ProtoClassPool::~ProtoClassPool() {
+        _message_factory.reset();
+        _descriptor_pool.reset();
+    }
+
     A4Message ProtoClassPool::read(uint32_t class_id, google::protobuf::io::CodedInputStream* instream) {
         if (class_id < _class_id_reader.size()) {
             internal::from_stream_func factory = _class_id_reader[class_id];
@@ -27,7 +32,9 @@ namespace a4{ namespace io{
                                  _class_id_reader[class_id](instream),
                                  _class_id_descriptor[class_id],
                                  _dynamic_descriptor[class_id],
-                                 _descriptor_pool);
+                                 _descriptor_pool,
+                                 _message_factory
+                                 );
             }
         }
         // Look for fixed class_id message
