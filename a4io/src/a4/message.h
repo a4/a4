@@ -61,7 +61,7 @@ namespace a4{ namespace io{
             bool metadata() const { return class_id() % 2 == 1; }
 
             /// true if the message pointer is None (end, unknown or no metadata)
-            bool null() const {return message.get() == NULL; };
+            bool null() const { return message.get() == NULL; }
 
             /// this object can be used in if() expressions, it will be true if it contains a message
             operator bool() const { return !null(); }
@@ -70,7 +70,7 @@ namespace a4{ namespace io{
             /// Quick check if the message is of that class
             /// example: if (result.is<TestEvent>())
             template <class T>
-            bool is() const { return T::descriptor() == descriptor(); };
+            bool is() const { return T::descriptor() == descriptor(); }
 
             /// Checked Cast of the message to the given class.
             /// Returns null if the cast fails.

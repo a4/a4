@@ -37,7 +37,7 @@ namespace a4{
         class OutputAdaptor {
             public:
                 virtual void write(shared<const google::protobuf::Message> m) = 0;
-                virtual void metadata(shared<const google::protobuf::Message> m) = 0;
+                virtual void metadata(shared<google::protobuf::Message> m) = 0;
                 void write(const google::protobuf::Message & m) {
                     shared<google::protobuf::Message> msg(m.New());
                     msg->CopyFrom(m);
@@ -55,7 +55,7 @@ namespace a4{
                 enum MetadataBehavior { AUTO, MANUAL_FORWARD, MANUAL_BACKWARD, DROP };
                 MetadataBehavior get_metadata_behavior() { return metadata_behavior; }
 
-                Processor() : my_configuration(NULL), metadata_behavior(AUTO) {};
+                Processor() : my_configuration(NULL), metadata_behavior(AUTO), locked(false) {};
                 virtual ~Processor() {};
 
                 /// This function is called at the start of a new metadata block
@@ -72,10 +72,20 @@ namespace a4{
                 /// To use this method you have to disable automatic metadata writing.
                 /// You also need to think about if you want to write your metadata before (manual_metadata_forward = true)
                 /// or after (manual_metadata_forward = false) the events it refers to.
-                void metadata_start_block(shared<const google::protobuf::Message> m) { assert(metadata_behavior == MANUAL_FORWARD); _output_adaptor->metadata(m); }
-                void metadata_start_block(const google::protobuf::Message & m) { assert(metadata_behavior == MANUAL_FORWARD); _output_adaptor->metadata(m); }
-                void metadata_end_block(shared<const google::protobuf::Message> m) { assert(metadata_behavior == MANUAL_BACKWARD); _output_adaptor->metadata(m); }
-                void metadata_end_block(const google::protobuf::Message & m) { assert(metadata_behavior == MANUAL_BACKWARD); _output_adaptor->metadata(m); }
+                void metadata_start_block(shared<const google::protobuf::Message> m) {
+                    metadata_start_block(*m);
+                }
+                void metadata_start_block(const google::protobuf::Message & m) {
+                    assert(metadata_behavior == MANUAL_FORWARD); 
+                    _output_adaptor->metadata(m); 
+                }
+                void metadata_end_block(shared<const google::protobuf::Message> m) { 
+                    metadata_end_block(*m);
+                }
+                void metadata_end_block(const google::protobuf::Message & m) {
+                    assert(metadata_behavior == MANUAL_BACKWARD); 
+                    _output_adaptor->metadata(m); 
+                }
 
                 /// Write a message to the output stream
                 void write(shared<const google::protobuf::Message> m) { _output_adaptor->write(m); }
@@ -126,7 +136,7 @@ namespace a4{
                 std::set<const char *> rerun_systematics;
                 const char * rerun_systematics_current;
 
-                OutputAdaptor * _output_adaptor;
+                OutputAdaptor* _output_adaptor;
 
                 void lock_and_load() { locked = true; };
                 friend class a4::process::Driver;

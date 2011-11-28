@@ -138,7 +138,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
 
         }
 
-        void metadata(shared<const google::protobuf::Message> m) {
+        virtual void metadata(shared<google::protobuf::Message> m) {
             throw a4::Fatal("To write metadata manually, you have to change the metadata_behavior of the Processor!");
         }
     
