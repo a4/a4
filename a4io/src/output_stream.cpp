@@ -127,8 +127,7 @@ uint64_t OutputStream::get_bytes_written() {
 
 /// Get a class ID. Even for data, Odd for Metadata.
 uint32_t OutputStream::find_class_id(const google::protobuf::Descriptor * d, bool metadata) {
-    // I miss the auto keyword :(
-    std::map<const google::protobuf::Descriptor *, uint32_t>::const_iterator i = _class_id.find(d);
+    auto i = _class_id.find(d->full_name());
     if (i != _class_id.end()) {
         if (metadata != (i->second % 2 == 1)) {
             throw a4::Fatal("Sorry, you can use the same Message class (", d->full_name() ,") either for metadata or for content, but not both.");
@@ -146,7 +145,8 @@ uint32_t OutputStream::find_class_id(const google::protobuf::Descriptor * d, boo
     if (_next_metadata_class_id == 101) _next_metadata_class_id += 100; // skip the 100's, since the a4 messages are there.
     if (_next_class_id == 100) _next_class_id += 100; // skip the 100's, since the a4 messages are there.
     write_protoclass(class_id, d);
-    _class_id[d] = class_id;
+    _class_id[d->full_name()] = class_id;
+    assert((class_id % 2) == metadata);
     return class_id;
 }
 
