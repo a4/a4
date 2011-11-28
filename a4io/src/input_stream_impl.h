@@ -46,7 +46,7 @@ namespace a4{ namespace io{
             unique<ZeroCopyStreamResource> _raw_in;
             shared<BaseCompressedInputStream> _compressed_in;
             shared<google::protobuf::io::CodedInputStream> _coded_in;
-            std::vector<shared<ProtoClassPool>> _class_pools;
+            shared<ProtoClassPool> _current_class_pool;
 
             // variables set at construction time
             std::string _inputname;

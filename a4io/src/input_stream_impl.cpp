@@ -160,10 +160,7 @@ bool InputStreamImpl::read_header()
                 _new_metadata = true;
             }
         } else {
-            assert(_current_header_index == _class_pools.size());
-            shared<ProtoClassPool> new_pool(new ProtoClassPool());
-            _class_pools.push_back(new_pool);
-            
+            _current_class_pool.reset(new ProtoClassPool());
             //if (_raw_in->seekable()) {
             //    // Stream is seekable, go ahead and find all metadata
             //    discover_all_metadata();
@@ -175,16 +172,13 @@ bool InputStreamImpl::read_header()
 
 bool InputStreamImpl::discover_all_metadata() {
     assert(_metadata_per_header.size() == 0);
-    _class_pools.clear(); // Just drop them for now.
     // Temporary ProtoClassPool for reading static messages
     shared<ProtoClassPool> temp_pool(new ProtoClassPool());
-    _class_pools.push_back(temp_pool);
     unsigned int _temp_header_index = _current_header_index;
     _current_header_index = 0;
 
     int64_t size = 0;
     std::deque<uint64_t> headers;
-    std::deque<shared<ProtoClassPool>> _temp_class_pools;
     std::deque<std::vector<A4Message>> _temp_metadata_per_header;
 
     while (true) {
@@ -212,9 +206,7 @@ bool InputStreamImpl::discover_all_metadata() {
         shared<StreamFooter> footer = msg.as<StreamFooter>();
         size += footer->size() + footer_msgsize;
 
-        shared<ProtoClassPool> this_pool(new ProtoClassPool());
-        _temp_class_pools.push_front(this_pool);
-        _class_pools[0] = this_pool;
+        _current_class_pool.reset(new ProtoClassPool());
         foreach(uint64_t offset, footer->protoclass_offsets()) {
             uint64_t metadata_start = footer_abs_start - footer->size() + offset;
             if (seek(metadata_start) == -1) return false;
@@ -222,7 +214,7 @@ bool InputStreamImpl::discover_all_metadata() {
             drop_compression();
             shared<ProtoClass> proto = msg.as<ProtoClass>();
             assert(proto);
-            this_pool->add_protoclass(*proto);
+            _current_class_pool->add_protoclass(*proto);
         }
 
         std::vector<A4Message> _this_headers_metadata;
@@ -244,8 +236,6 @@ bool InputStreamImpl::discover_all_metadata() {
     seek(headers[_temp_header_index] + START_MAGIC_len);
     next_message(); // read the header again
     _discovery_complete = true;
-    _class_pools.clear();
-    _class_pools.insert(_class_pools.end(), _temp_class_pools.begin(), _temp_class_pools.end());
     _metadata_per_header.insert(_metadata_per_header.end(), _temp_metadata_per_header.begin(), _temp_metadata_per_header.end());
     _current_header_index = _temp_header_index;
     return true;
@@ -348,7 +338,7 @@ A4Message InputStreamImpl::bare_message() {
     }
 
     CodedInputStream::Limit lim = _coded_in->PushLimit(size);
-    A4Message msg = _class_pools[_current_header_index]->read(class_id, _coded_in.get());
+    A4Message msg = _current_class_pool->read(class_id, _coded_in.get());
     _coded_in->PopLimit(lim);
 
     if (!msg) throw a4::Fatal("a4::io:InputStreamImpl - Failure to parse object!");
@@ -409,7 +399,7 @@ bool InputStreamImpl::handle_stream_command(A4Message & msg) {
     } else if (msg.is<StreamHeader>()) {
         throw a4::Fatal("a4::io:InputStreamImpl - Unexpected header!");
     } else if (msg.is<ProtoClass>()) {
-        _class_pools[_current_header_index]->add_protoclass(*msg.as<ProtoClass>());
+        _current_class_pool->add_protoclass(*msg.as<ProtoClass>());
         return true;
     }
     return false;
