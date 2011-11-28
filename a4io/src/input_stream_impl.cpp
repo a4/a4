@@ -444,4 +444,11 @@ A4Message InputStreamImpl::next(bool skip_metadata) {
     return msg;
 }
 
+A4Message InputStreamImpl::next_bare_message() {
+    A4Message msg = next_message();
+    if (handle_stream_command(msg)) return msg;
+    if (handle_metadata(msg)) return msg;
+    return msg;
+}
+
 };}; // namespace a4::io

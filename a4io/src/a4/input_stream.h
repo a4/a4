@@ -34,6 +34,9 @@ namespace a4{ namespace io{
             /// always precede the data they refer to.
             A4Message next_with_metadata();
 
+            /// \internal Return the next bare message (includes stream messages)
+            A4Message next_bare_message();
+
             /// Return the currently applicable metadata message.
             const A4Message current_metadata();
 

@@ -19,6 +19,8 @@ namespace a4{ namespace io{
 
             /// Returns the next regular message in the stream.
             A4Message next(bool skip_metadata=true);
+            /// Returns the next bare message in the stream.
+            A4Message next_bare_message();
             /// Returns the next regular or metadata message in the stream.
             A4Message next_with_metadata() { return next(false);} ;
             /// Return the current metadata message.

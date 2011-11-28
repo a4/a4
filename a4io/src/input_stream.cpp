@@ -17,6 +17,9 @@ namespace a4{ namespace io{
     A4Message InputStream::next_with_metadata() {
         return _impl->next_with_metadata();
     }
+    A4Message InputStream::next_bare_message() {
+        return _impl->next_bare_message();
+    }
     const A4Message InputStream::current_metadata() { 
         return _impl->current_metadata(); 
     }
