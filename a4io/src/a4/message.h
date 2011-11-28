@@ -31,7 +31,7 @@ namespace a4{ namespace io{
                 _dynamic_descriptor(m._dynamic_descriptor),
                 _factory(m._factory),
                 _pool(m._pool) {};
-            A4Message(shared<google::protobuf::Message> msg, bool metadata=true) : 
+            explicit A4Message(shared<google::protobuf::Message> msg, bool metadata=true) : 
                 message(msg),
                 _class_id(NO_CLASS_ID_METADATA),
                 _descriptor(msg->GetDescriptor()),

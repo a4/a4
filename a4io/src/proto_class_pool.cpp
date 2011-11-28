@@ -15,7 +15,7 @@ namespace a4{ namespace io{
         // This descriptor pool must be kept alive as long as messages
         // generated in this stream block are around (one might need to
         // dynamically merge metadata, for example)
-        _descriptor_pool.reset(new DescriptorPool(DescriptorPool::generated_pool()));
+        _descriptor_pool.reset(new DescriptorPool());
         _message_factory.reset(new DynamicMessageFactory(_descriptor_pool.get()));
     }
 

@@ -217,7 +217,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                 // In Manual Mode, this may also trigger a callback in the output_adaptor.
                 // Note that set_metadata is only called here, since the processor should only
                 // ever see incoming metadata (by contract).
-                self->set_metadata(p, new_metadata.message);
+                self->set_metadata(p, new_metadata);
                 p->process_new_metadata();
 
                 if (auto_metadata) output_adaptor->new_outgoing_metadata(new_metadata);
