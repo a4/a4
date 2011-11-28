@@ -252,6 +252,7 @@ void dump_message(const Message& message, const std::vector<std::string>& vars) 
         throw a4::Fatal("Not implemented yet");
     } else {
         std::string str;
+        std::cout << "message of type '" << message.GetDescriptor()->name() << "':" <<std::endl;
         google::protobuf::TextFormat::PrintToString(message, &str);
         std::cout << str << std::endl;
     }    
@@ -265,6 +266,7 @@ int main(int argc, char ** argv) {
     std::vector<std::string> input_files, variables;
     size_t event_count = -1, event_index = -1;
     bool collect_stats = false;
+    bool stream_msg, dump_all;
     
     po::positional_options_description p;
     p.add("input", -1);
@@ -273,9 +275,11 @@ int main(int argc, char ** argv) {
     commandline_options.add_options()
         ("help,h", "produce help message")
         ("event-index,i", po::value(&event_index)->default_value(0), "event to start dumping from (starts at 0)")
-        ("count,c", po::value(&event_count)->default_value(1), "number to dump'")
+        ("count,c", po::value(&event_count)->default_value(1), "maximum number to dump'")
+        ("all,a", po::value(&dump_all)->default_value(1), "maximum number to dump'")
         ("input", po::value(&input_files), "input file names (runs once per specified file)")
         ("var,v", po::value(&variables), "variables to dump (defaults to all)")
+        ("stream,s", po::bool_switch(&stream_msg), "also dump stream internal messages")
         ("collect-stats,S", po::value(&collect_stats), "should collect statistics for all numeric variables")
     ;
     
@@ -302,14 +306,13 @@ int main(int argc, char ** argv) {
     // Stream in events we don't care about
     size_t i = 0;
     for (; i < event_index; i++)
-        if (!stream->next())
+        if (stream_msg ? !stream->next_bare_message() : !stream->next())
             throw a4::Fatal("Ran out of events! There are only ", i, " on the file!");
             
     const size_t total = event_index + event_count;
-    for (; i < total; i++) {
-        a4::io::A4Message m = stream->next();
-        if (!m)
-            throw a4::Fatal("Ran out of events! There are only ", i, " on the file!");
+    for (; dump_all || i < total; i++) {
+        a4::io::A4Message m = stream_msg ? stream->next_bare_message() : stream->next();
+        if (!m) break;
         if (!collect_stats)
             dump_message(*m.message, variables);
         else

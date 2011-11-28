@@ -164,10 +164,10 @@ bool InputStreamImpl::read_header()
             shared<ProtoClassPool> new_pool(new ProtoClassPool());
             _class_pools.push_back(new_pool);
             
-            if (_raw_in->seekable()) {
-                // Stream is seekable, go ahead and find all metadata
-                discover_all_metadata();
-            }
+            //if (_raw_in->seekable()) {
+            //    // Stream is seekable, go ahead and find all metadata
+            //    discover_all_metadata();
+            // }
         }
     }
     return true;
