@@ -24,7 +24,18 @@ namespace a4{ namespace io{
 
             /// Construct A4Message that signifies end of stream or stream error
             A4Message() :  _class_id(0), _descriptor(NULL), _dynamic_descriptor(NULL) { message.reset(); _pool.reset(); _factory.reset(); };
-            A4Message(shared<google::protobuf::Message> msg, bool metadata=true) : message(msg), _class_id(NO_CLASS_ID_METADATA), _descriptor(msg->GetDescriptor()), _dynamic_descriptor(NULL) { _pool.reset(); _factory.reset(); };
+            A4Message(const A4Message &m) : 
+                message(m.message),
+                _class_id(m._class_id),
+                _descriptor(m._descriptor),
+                _dynamic_descriptor(m._dynamic_descriptor),
+                _factory(m._factory),
+                _pool(m._pool) {};
+            A4Message(shared<google::protobuf::Message> msg, bool metadata=true) : 
+                message(msg),
+                _class_id(NO_CLASS_ID_METADATA),
+                _descriptor(msg->GetDescriptor()),
+                _dynamic_descriptor(NULL) { _pool.reset(); _factory.reset(); };
             ~A4Message();
 
             /// Construct normal A4Message with message, (static) descriptor, 
@@ -32,10 +43,11 @@ namespace a4{ namespace io{
             A4Message(uint32_t class_id, 
                       shared<google::protobuf::Message> msg,
                       const google::protobuf::Descriptor* d,
-                      const google::protobuf::Descriptor* dd=NULL,
-                      shared<google::protobuf::DescriptorPool> pool=shared<google::protobuf::DescriptorPool>(),
-                      shared<google::protobuf::DynamicMessageFactory> factory=shared<google::protobuf::DynamicMessageFactory>())
-                : message(msg), _class_id(class_id), _descriptor(d), _dynamic_descriptor(dd), _pool(pool), _factory(factory) {
+                      const google::protobuf::Descriptor* dd,
+                      shared<google::protobuf::DescriptorPool> pool,
+                      shared<google::protobuf::DynamicMessageFactory> factory) 
+                : message(msg), _class_id(class_id), _descriptor(d), _dynamic_descriptor(dd), _pool(pool), _factory(factory) 
+            {
                 assert(_descriptor == msg->GetDescriptor());
             };
 
