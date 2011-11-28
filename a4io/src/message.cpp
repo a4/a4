@@ -57,7 +57,7 @@ namespace a4{ namespace io{
         version_check(m2_);
 
         const Descriptor * d;
-        if (m2_._dynamic_descriptor) d = _dynamic_descriptor;
+        if (m2_._dynamic_descriptor) d = m2_._dynamic_descriptor;
         else d = m2_._pool->FindMessageTypeByName(m2_.descriptor()->full_name());
 
         // Prepare dynamic messages
