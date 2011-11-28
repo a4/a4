@@ -389,9 +389,7 @@ bool InputStreamImpl::handle_stream_command(A4Message & msg) {
             _good = false; // Slightly strange but regular end of stream
             return true;
         }
-        std::cerr << "BANG" << std::endl;
         _current_metadata = A4Message();
-        std::cerr << "BONG" << std::endl;
         if (!_current_metadata_refers_forward) {
             _current_metadata_index = 0;
             if (_metadata_per_header[_current_header_index].size() > 0)
@@ -408,11 +406,11 @@ bool InputStreamImpl::handle_stream_command(A4Message & msg) {
 }
 
 bool InputStreamImpl::handle_metadata(A4Message & msg) {
-    if (_current_header_index > 0) {
-        for (int i = 0; i < _current_header_index; i++) {
-            _metadata_per_header[i].clear();
-        }
-    }
+    //if (_current_header_index > 0) {
+    //    for (int i = 0; i < _current_header_index; i++) {
+    //        _metadata_per_header[i].clear();
+    //    }
+    //}
     if (msg.metadata()) {
         if (_current_metadata_refers_forward) {
             _current_metadata = msg;

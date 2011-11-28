@@ -82,10 +82,11 @@ namespace a4{ namespace io{
             const google::protobuf::Descriptor* _descriptor;
             /// Pointer to the dynamically loaded descriptor, used for merging
             const google::protobuf::Descriptor* _dynamic_descriptor;
-            /// Shared pointer to the descriptor pool of that message, so that it does not disappear on us.
-            shared<google::protobuf::DescriptorPool> _pool;
             /// Shared pointer to the factory that created this message
             shared<google::protobuf::DynamicMessageFactory> _factory;
+            /// Shared pointer to the descriptor pool of that message, so that it does not disappear on us.
+            shared<google::protobuf::DescriptorPool> _pool;
+
 
     };
 };};
