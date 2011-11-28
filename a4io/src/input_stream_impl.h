@@ -39,6 +39,10 @@ namespace a4{ namespace io{
             std::string str() { return _inputname; };
             
             const std::vector<std::vector<A4Message>>& all_metadata() {
+                if (_metadata_per_header.size() == 0) {
+                    if(_started) throw a4::Fatal("Coding Bug: all_metadata first called after reading started!");
+                    startup(true);
+                }
                 return _metadata_per_header;
             }
 
@@ -64,13 +68,13 @@ namespace a4{ namespace io{
             std::vector<std::vector<A4Message>> _metadata_per_header;
     
             // internal functions
-            void startup();
+            void startup(bool discovery_requested=false);
             void reset_coded_stream();
             bool discover_all_metadata();
             bool start_compression(const a4::io::StartCompressedSection& cs);
             bool stop_compression(const a4::io::EndCompressedSection& cs);
             void drop_compression();
-            bool read_header();
+            bool read_header(bool discovery_requested=false);
             int64_t seek(int64_t position);
             int64_t seek_back(int64_t position);
             A4Message bare_message();

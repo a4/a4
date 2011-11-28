@@ -91,14 +91,14 @@ A4Message InputStreamImpl::set_end() {
     return A4Message();
 }
 
-void InputStreamImpl::startup() {
+void InputStreamImpl::startup(bool discovery_requested) {
     // Initialize to defined state
     _started = true;
     _coded_in.reset(new CodedInputStream(_raw_in.get()));
     // Push limit of read bytes
     _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
 
-    if (!read_header()) {
+    if (!read_header(discovery_requested)) {
         if(_error) std::cerr << "ERROR - a4::io:InputStreamImpl - Header corrupted!" << std::endl;
         else std::cerr << "ERROR - a4::io:InputStreamImpl - File empty!" << std::endl;
         set_error();
@@ -107,7 +107,7 @@ void InputStreamImpl::startup() {
     _current_header_index = 0;
 }
 
-bool InputStreamImpl::read_header()
+bool InputStreamImpl::read_header(bool discovery_requested)
 {
     // Note: in the following i use that bool(set_end()) == false 
     // && bool(set_error()) == false
@@ -161,10 +161,7 @@ bool InputStreamImpl::read_header()
                 _new_metadata = true;
             }
         } else {
-            //if (_raw_in->seekable()) {
-            //    // Stream is seekable, go ahead and find all metadata
-            //    discover_all_metadata();
-            // }
+            if (discovery_requested) discover_all_metadata();
         }
     }
     return true;

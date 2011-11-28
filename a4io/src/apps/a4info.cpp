@@ -79,9 +79,6 @@ int main(int argc, char ** argv) {
         
     shared<a4::io::InputStream> stream = in.get_stream();
     
-    stream->next();
-    std::cout << "Read one event.." << std::endl;
-    
     const std::vector<std::vector<a4::io::A4Message>>& all_metadata = stream->all_metadata();
     
     std::cout << "Got " << all_metadata.size() << " header(s)" << std::endl;
