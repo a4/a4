@@ -26,16 +26,22 @@ namespace a4{ namespace io{
             throw a4::Fatal("Typenames of objects to merge do not agree: ", descriptor()->full_name(), " != ", m2.descriptor()->full_name());
         }
         const Descriptor * d1;
-        if (_dynamic_descriptor) d1 = _dynamic_descriptor;
-        else d1 = _pool->FindMessageTypeByName(descriptor()->full_name());
+        if (_dynamic_descriptor) {
+            d1 = _dynamic_descriptor;
+        } else if (_pool) {
+            d1 = _pool->FindMessageTypeByName(descriptor()->full_name());
+        } else {
+            d1 = _descriptor;
+        }
         
         const Descriptor * d2;
-        if (m2._dynamic_descriptor) d2 = m2._dynamic_descriptor;
-        else d2 = m2._pool->FindMessageTypeByName(m2.descriptor()->full_name());
-
-        assert(d1);
-        assert(d2);
-
+        if (_dynamic_descriptor) {
+            d2 = m2._dynamic_descriptor;
+        } else if (m2._pool) {
+            d2 = m2._pool->FindMessageTypeByName(m2.descriptor()->full_name());
+        } else {
+            d2 = m2._descriptor;
+        }
         if (d1 == d2) return;
 
         // Do version checking if the dynamic descriptors are different
@@ -57,8 +63,13 @@ namespace a4{ namespace io{
         version_check(m2_);
 
         const Descriptor * d;
-        if (m2_._dynamic_descriptor) d = m2_._dynamic_descriptor;
-        else d = m2_._pool->FindMessageTypeByName(m2_.descriptor()->full_name());
+        if (m2_._dynamic_descriptor) {
+            d = m2_._dynamic_descriptor;
+        } else if (m2_._pool) {
+            d = m2_._pool->FindMessageTypeByName(m2_.descriptor()->full_name());
+        } else {
+            d = m2_._descriptor;
+        }
 
         // Prepare dynamic messages
         A4Message res, m1, m2;
