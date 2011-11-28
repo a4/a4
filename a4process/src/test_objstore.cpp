@@ -22,11 +22,12 @@ class TestStringThing : public Storable {
     public:
         TestStringThing() : _initialized(false) {};
         virtual shared<const google::protobuf::Message> as_message() {return shared<google::protobuf::Message>();};
-        virtual void set_message(const google::protobuf::Message&) {};
-        virtual void set_message(shared<google::protobuf::Message>) {};
+        virtual void construct_from(const google::protobuf::Message&) {};
+        virtual void construct_from(shared<google::protobuf::Message>) {};
         void construct_from(const google::protobuf::Message&) {};
         void construct_from(std::shared_ptr<google::protobuf::Message>) {};
         Storable&  operator+=(const a4::process::Storable&) { return *this; };
+        Storable&  operator*=(const a4::process::Storable&) { return *this; };
         Storable&& clone_storable() { return TestStringThing(*this);};
 
         TestStringThing & operator()(const int &nr) {

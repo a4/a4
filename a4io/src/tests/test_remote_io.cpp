@@ -19,7 +19,7 @@ using std::string;
 TEST(a4io_netio, try_dynamic_rfio) {
         
     rfio_filesystem_calls calls;
-    if (calls.open == NULL) return;
+    if (!calls.loaded) return;
     
     char tmpl[] = {"rfio_test_XXXXXXX"};
     errno = 0;
@@ -40,7 +40,7 @@ TEST(a4io_netio, try_dynamic_rfio) {
 TEST(a4io_netio, try_dynamic_dcache_io) {
         
     dcap_filesystem_calls calls;
-    if (calls.open == NULL) return;
+    if (!calls.loaded) return;
     
     char tmpl[] = {"dcap_test_XXXXXXX"};
     errno = 0;
