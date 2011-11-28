@@ -144,6 +144,7 @@ bool InputStreamImpl::read_header()
     }
 
     _current_metadata_refers_forward = h.metadata_refers_forward();
+    _current_class_pool.reset(new ProtoClassPool());
     if (!_discovery_complete) {
         if (!_current_metadata_refers_forward) {
             if (!_raw_in->seekable()) {
@@ -160,7 +161,6 @@ bool InputStreamImpl::read_header()
                 _new_metadata = true;
             }
         } else {
-            _current_class_pool.reset(new ProtoClassPool());
             //if (_raw_in->seekable()) {
             //    // Stream is seekable, go ahead and find all metadata
             //    discover_all_metadata();
