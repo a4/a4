@@ -328,8 +328,7 @@ A4Message InputStreamImpl::bare_message() {
     if (!_started) startup();
     if (!_good) return A4Message();
 
-    static int i = 0;
-    if (i++ % 100 == 0) reset_coded_stream();
+    if (_items_read++ % 100 == 0) reset_coded_stream();
 
     uint32_t size = 0;
     if (!_coded_in->ReadLittleEndian32(&size)) {
