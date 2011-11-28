@@ -143,8 +143,8 @@ uint32_t OutputStream::find_class_id(const google::protobuf::Descriptor * d, boo
         class_id = _next_class_id;
         _next_class_id += 2;
     }
-    if (_next_metadata_class_id >= 100) _next_metadata_class_id += 100; // skip the 100's, since the a4 messages are there.
-    if (_next_class_id >= 100) _next_class_id += 100; // skip the 100's, since the a4 messages are there.
+    if (_next_metadata_class_id == 101) _next_metadata_class_id += 100; // skip the 100's, since the a4 messages are there.
+    if (_next_class_id == 100) _next_class_id += 100; // skip the 100's, since the a4 messages are there.
     write_protoclass(class_id, d);
     _class_id[d] = class_id;
     return class_id;

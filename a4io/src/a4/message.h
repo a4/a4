@@ -35,7 +35,9 @@ namespace a4{ namespace io{
                       const google::protobuf::Descriptor* dd=NULL,
                       shared<google::protobuf::DescriptorPool> pool=shared<google::protobuf::DescriptorPool>(),
                       shared<google::protobuf::DynamicMessageFactory> factory=shared<google::protobuf::DynamicMessageFactory>())
-                : message(msg), _class_id(class_id), _descriptor(d), _dynamic_descriptor(dd), _pool(pool), _factory(factory) {};
+                : message(msg), _class_id(class_id), _descriptor(d), _dynamic_descriptor(dd), _pool(pool), _factory(factory) {
+                assert(_descriptor == msg->GetDescriptor());
+            };
 
             /// Shared protobuf message 
             shared<google::protobuf::Message> message;
@@ -74,7 +76,7 @@ namespace a4{ namespace io{
             std::string field_as_string(const std::string & field_name);
             std::string assert_field_is_single_value(const std::string & field_name);
         private:
-            A4Message as_dynamic_message(const google::protobuf::Descriptor* d, shared<google::protobuf::DescriptorPool> p) const;
+            void version_check(const A4Message &m2) const;
 
             /// Class ID on the wire
             uint32_t _class_id;

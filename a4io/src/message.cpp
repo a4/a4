@@ -9,6 +9,9 @@
 #include "dynamic_message.h"
 
 using google::protobuf::DynamicMessageFactory;
+using google::protobuf::Descriptor;
+using google::protobuf::DescriptorPool;
+using google::protobuf::Message;
 
 namespace a4{ namespace io{
 
@@ -18,79 +21,72 @@ namespace a4{ namespace io{
         _pool.reset();
     }
 
-    A4Message A4Message::as_dynamic_message(const google::protobuf::Descriptor* d, shared<google::protobuf::DescriptorPool> p) const {
-        if (d == descriptor()) return *this;
-
-        shared<DynamicMessageFactory> _message_factory;
-
-        if (_factory) _message_factory = _factory;
-        else _message_factory.reset(new DynamicMessageFactory(p.get()));
-
-        shared<Message> m(_message_factory->GetPrototype(d)->New());
-        // Do version checking if the dynamic descriptors are different
-        if (d != _dynamic_descriptor) {
-            const google::protobuf::Descriptor* my_d = _dynamic_descriptor ? _dynamic_descriptor : descriptor();
-
-            std::string mymajor = my_d->options().GetExtension(major_version);
-            std::string myminor = my_d->options().GetExtension(minor_version);
-            std::string dmajor = d->options().GetExtension(major_version);
-            std::string dminor = d->options().GetExtension(minor_version);
-
-            if (mymajor != dmajor) {
-                throw a4::Fatal("Major versions of objects to merge do not agree:", mymajor, " != ", dmajor);
-            } else if (myminor != dminor) {
-                std::cerr << "Warning: Minor versions of merged messages do not agree:" << myminor << " != " << dminor << std::endl;
-            }
+    void A4Message::version_check(const A4Message &m2) const {
+        if (descriptor()->full_name() != m2.descriptor()->full_name()) {
+            throw a4::Fatal("Typenames of objects to merge do not agree: ", descriptor()->full_name(), " != ", m2.descriptor()->full_name());
         }
-        m->ParseFromString(message->SerializeAsString());
-        return A4Message(class_id(), m, d, d, p, _message_factory);
+        const Descriptor * d1;
+        if (_dynamic_descriptor) d1 = _dynamic_descriptor;
+        else d1 = _pool->FindMessageTypeByName(descriptor()->full_name());
+        
+        const Descriptor * d2;
+        if (m2._dynamic_descriptor) d2 = m2._dynamic_descriptor;
+        else d2 = m2._pool->FindMessageTypeByName(m2.descriptor()->full_name());
+
+        assert(d1);
+        assert(d2);
+
+        if (d1 == d2) return;
+
+        // Do version checking if the dynamic descriptors are different
+        std::string mymajor = d1->options().GetExtension(major_version);
+        std::string myminor = d1->options().GetExtension(minor_version);
+        std::string dmajor = d2->options().GetExtension(major_version);
+        std::string dminor = d2->options().GetExtension(minor_version);
+
+        if (mymajor != dmajor) {
+            throw a4::Fatal("Major versions of objects to merge do not agree:", mymajor, " != ", dmajor);
+        } else if (myminor != dminor) {
+            std::cerr << "Warning: Minor versions of merged messages do not agree:" << myminor << " != " << dminor << std::endl;
+        }
     }
 
-    A4Message A4Message::operator+(const A4Message & _m2) const {
-        using google::protobuf::Descriptor;
-        using google::protobuf::DescriptorPool;
-        using google::protobuf::Message;
-
+    A4Message A4Message::operator+(const A4Message & m2_) const {
         // Find out which descriptor to use. Prefer dynamic descriptors
         // since they are probably contain all fields.
-        uint32_t clsid;
-        const Descriptor * d;
-        shared<DescriptorPool> sp;
-        const DescriptorPool * p;
+        version_check(m2_);
 
-        A4Message am1, am2;
-        shared<Message> m1, m2;
-        if (_dynamic_descriptor) {
-            clsid = class_id();
-            d = _dynamic_descriptor;
-            sp = _pool;
-            p = sp.get();
-            am1 = this->as_dynamic_message(d, sp); 
-            am2 = _m2.as_dynamic_message(d, sp); 
-        } else if (_m2._dynamic_descriptor) {
-            clsid = _m2.class_id();
-            d = _m2._dynamic_descriptor;
-            sp = _m2._pool;
-            p = sp.get();
-            am1 = this->as_dynamic_message(d, sp); 
-            am2 = _m2.as_dynamic_message(d, sp); 
+        const Descriptor * d;
+        if (m2_._dynamic_descriptor) d = _dynamic_descriptor;
+        else d = m2_._pool->FindMessageTypeByName(m2_.descriptor()->full_name());
+
+        // Prepare dynamic messages
+        A4Message res, m1, m2;
+        res = m2_;
+        res._dynamic_descriptor = d;
+        m1 = m2 = res;
+
+        res.message.reset(m2._factory->GetPrototype(d)->New());
+        if (_dynamic_descriptor == d) {
+            m1.message = this->message;
         } else {
-            clsid = class_id();
-            d = descriptor();
-            p = DescriptorPool::generated_pool();
-            am1 = *this;
-            am2 = _m2;
+            m1.message.reset(res.message->New());
+            m1.message->ParseFromString(message->SerializeAsString());
         }
-        m1 = am1.message;
-        m2 = am2.message;
-        shared<Message> merged(m1->New());
+
+        if (m2_._dynamic_descriptor == d) {
+            m2.message = m2_.message;
+        } else {
+            m2.message.reset(res.message->New());
+            m2.message->ParseFromString(m2_.message->SerializeAsString());
+        }
 
         for (int i = 0; i < d->field_count(); i++) {
             MetadataMergeOptions merge_opts = d->field(i)->options().GetExtension(merge);
 
-            DynamicField f1(*m1, d->field(i));
-            DynamicField f2(*m2, d->field(i));
-            DynamicField fm(*merged, d->field(i));
+            DynamicField f1(*m1.message, d->field(i));
+            DynamicField f2(*m2.message, d->field(i));
+            DynamicField fm(*res.message, d->field(i));
 
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
@@ -115,10 +111,11 @@ namespace a4{ namespace io{
                     throw a4::Fatal("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
             }
         }
-        return A4Message(clsid, merged, d, d, sp, am1._factory);
+        return res;
     }
     
     std::string A4Message::field_as_string(const std::string & field_name) {
+        assert(descriptor() == message->GetDescriptor());
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         DynamicField f(*message, fd);
         if (f.repeated()) {
@@ -131,6 +128,7 @@ namespace a4{ namespace io{
     }
 
     std::string A4Message::assert_field_is_single_value(const std::string & field_name) {
+        assert(descriptor() == message->GetDescriptor());
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         if (!fd) {
             const std::string & classname = message->GetDescriptor()->full_name();

@@ -48,7 +48,7 @@ namespace a4{ namespace io{
             _class_id_descriptor[class_id] = reg.descriptor;
             _dynamic_descriptor[class_id] = NULL;
         }
-        return A4Message(class_id, reg.from_stream(instream), reg.descriptor);
+        return A4Message(class_id, reg.from_stream(instream), reg.descriptor, NULL, _descriptor_pool, _message_factory);
     };
 
     void ProtoClassPool::add_protoclass(const ProtoClass & protoclass) {
