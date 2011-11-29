@@ -182,6 +182,8 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             output_adaptor.reset(new BaseOutputAdaptor(self, p, metadata_forward, self->out.get(), self->res.get()));
             break;
         case Processor::MANUAL_FORWARD:
+            if (self->metakey != "") throw a4::Fatal("This program is not compatible with metadata merging!"); // forward if no merging
+            // fall through to ...
         case Processor::DROP:
             metadata_forward = true;
             output_adaptor.reset(new ManualOutputAdaptor(self, p, metadata_forward, self->out.get(), self->res.get()));
