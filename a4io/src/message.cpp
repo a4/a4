@@ -63,22 +63,29 @@ namespace a4{ namespace io{
         version_check(m2_);
 
         const Descriptor * d;
+        const Descriptor * dd;
         if (m2_._dynamic_descriptor) {
-            d = m2_._dynamic_descriptor;
+            dd = d = m2_._dynamic_descriptor;
         } else if (m2_._pool) {
-            d = m2_._pool->FindMessageTypeByName(m2_.descriptor()->full_name());
+            dd = d = m2_._pool->FindMessageTypeByName(m2_.descriptor()->full_name());
         } else {
             d = m2_._descriptor;
+            dd = NULL;
         }
 
         // Prepare dynamic messages
         A4Message res, m1, m2;
         res = m2_;
         res._descriptor = d;
-        res._dynamic_descriptor = d;
+        res._dynamic_descriptor = dd;
         m1 = m2 = res;
 
-        res.message.reset(m2._factory->GetPrototype(d)->New());
+        if (m2._factory) {
+            res.message.reset(m2._factory->GetPrototype(d)->New());
+        } else {
+            res.message.reset(m2.message->New());
+        }
+
         if (_dynamic_descriptor == d) {
             m1 = *this;
         } else {
@@ -141,8 +148,6 @@ namespace a4{ namespace io{
 
     std::string A4Message::assert_field_is_single_value(const std::string & field_name) {
         assert(descriptor() == message->GetDescriptor());
-        assert(_pool);
-        assert(_factory);
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         if (!fd) {
             const std::string & classname = message->GetDescriptor()->full_name();
