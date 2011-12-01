@@ -27,6 +27,9 @@ namespace a4{ namespace io{
             /// Returns the next regular message in the stream.
             A4Message next();
 
+            /// Explicitely end processing on this stream. Sets end() to true
+            void close();
+
             /// Returns the next regular or metadata message.
             /// This is needed to process all metadata in streams where 
             /// metadata messages immediately follow each other.

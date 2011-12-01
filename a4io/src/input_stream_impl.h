@@ -33,6 +33,8 @@ namespace a4{ namespace io{
             bool error() {return _error;};
             /// True if the stream has finished without error.
             bool end() {return !_error && !_good;};
+            /// explicitely close the stream
+            void close() { _coded_in.reset(); _compressed_in.reset(); _raw_in.reset(); _good = false; };
             
             size_t ByteCount() { return _raw_in->ByteCount(); }
 

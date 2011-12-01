@@ -25,6 +25,7 @@ using google::protobuf::Message;
 using google::protobuf::Reflection;
 
 #include <a4/input.h>
+#include <a4/output.h>
 #include <a4/message.h>
 
 
@@ -47,6 +48,7 @@ int main(int argc, char ** argv) {
     std::vector<std::string> input_files, variables;
     size_t event_count = -1, event_index = -1;
     bool collect_stats = false;
+    std::string output_file;
     
     po::positional_options_description p;
     p.add("input", -1);
@@ -57,6 +59,7 @@ int main(int argc, char ** argv) {
         ("event-index,i", po::value(&event_index)->default_value(0), "event to start dumping from (starts at 0)")
         ("count,c", po::value(&event_count)->default_value(1), "number to dump'")
         ("input", po::value(&input_files), "input file names (runs once per specified file)")
+        ("output", po::value(&output_file)->default_value(""), "output file name")
         ("var,v", po::value(&variables), "variables to dump (defaults to all)")
         ("collect-stats,S", po::value(&collect_stats), "should collect statistics for all numeric variables")
     ;
@@ -76,19 +79,29 @@ int main(int argc, char ** argv) {
     a4::io::A4Input in;
     foreach (std::string filename, input_files)
         in.add_file(filename);
+
+    shared<a4::io::A4Output> out;
+    shared<a4::io::OutputStream> outs;
+    if (output_file != "") {
+        out.reset(new a4::io::A4Output(output_file, "Metadata"));
+        outs = out->get_stream();
+        outs->set_forward_metadata();
+    }
         
-    shared<a4::io::InputStream> stream = in.get_stream();
-    
-    const std::vector<std::vector<a4::io::A4Message>>& all_metadata = stream->all_metadata();
-    
-    std::cout << "Got " << all_metadata.size() << " header(s)" << std::endl;
-    
-    int i = 0;
-    foreach (const auto& header, all_metadata) {
-        std::cout << "Header " << i++ << std::endl;
-        foreach (const a4::io::A4Message& metadata, header) {
-            dump_message(*metadata.message, variables);
-        }   
+    while(shared<a4::io::InputStream> stream = in.get_stream()) {
+        const std::vector<std::vector<a4::io::A4Message>>& all_metadata = stream->all_metadata();
+        
+        std::cout << "Got " << all_metadata.size() << " header(s)" << std::endl;
+        
+        int i = 0;
+        foreach (const auto& header, all_metadata) {
+            std::cout << "Header " << i++ << std::endl;
+            foreach (const a4::io::A4Message& metadata, header) {
+                if (outs) outs->metadata(*metadata.message);
+                else dump_message(*metadata.message, variables);
+            }
+        }
+        stream->close();
     }
 }
 
