@@ -49,13 +49,6 @@ namespace a4{ namespace io{
                 : message(msg), _class_id(class_id), _descriptor(d), _dynamic_descriptor(dd), _pool(pool), _factory(factory) 
             {
                 assert(_descriptor == msg->GetDescriptor());
-                if (dd) {
-                    assert(pool);
-                    assert(factory);
-                } else {
-                    assert(!pool);
-                    assert(!factory);
-                }
             };
 
             /// Shared protobuf message 
