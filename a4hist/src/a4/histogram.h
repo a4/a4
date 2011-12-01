@@ -29,6 +29,15 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         }
         void constructor(const uint32_t &bins, const double &min, const double &max, const char* label="");
         void constructor(const std::vector<double>& bins, const char* label="");
+        H1 & with_axis(const Axis& axis) {
+            if (_initializations_remaining == 0) return *this;
+            _initializations_remaining--;
+            _axis = std::move(axis.clone());
+            bin_init();
+            return *this;
+        }
+
+
         void constructor(const std::initializer_list<double>& bins, const char* label="") {
             constructor(std::vector<double>(bins), label);
         }
@@ -80,6 +89,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         // Prevent copying by assignment
         H1 &operator =(const H1 &);
         void ensure_weights();
+        void bin_init();
 
         unique<Axis> _axis;
         shared_array<double> _data;
@@ -110,6 +120,12 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         void constructor(const std::vector<double>& bins, const char* label="");
         void constructor(const std::initializer_list<double>& bins, const char* label="") {
             constructor(std::vector<double>(bins), label);
+        }
+        H2 & with_axis(const Axis& axis) {
+            if (_initializations_remaining == 0) return *this;
+            _initializations_remaining--;
+            add_axis(axis.clone());
+            return *this;
         }
         
         void fill(const double& x, const double& y) { fill(x, y, _current_weight); }
@@ -161,6 +177,8 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         // Prevent copying by assignment
         H2 &operator =(const H2 &);
         void ensure_weights();
+        void bin_init();
+        void add_axis(unique<Axis> axis);
 
         unique<Axis> _x_axis;
         unique<Axis> _y_axis;
@@ -193,6 +211,13 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
         void constructor(const std::vector<double>& bins, const char* label="");
         void constructor(const std::initializer_list<double>& bins, const char* label="") {
             constructor(std::vector<double>(bins), label);
+        }
+        template <class AxisClass>
+        H3 & with_axis(const AxisClass& axis) {
+            if (_initializations_remaining == 0) return *this;
+            _initializations_remaining--;
+            add_axis(axis.clone());
+            return *this;
         }
 
         void fill(const double& x, const double& y, const double& z) { fill(x, y, z, _current_weight); }
@@ -248,6 +273,8 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
         // Prevent copying by assignment
         H3 &operator =(const H3 &);
         void ensure_weights();
+        void bin_init();
+        void add_axis(unique<Axis> axis);
 
         unique<Axis> _x_axis;
         unique<Axis> _y_axis;

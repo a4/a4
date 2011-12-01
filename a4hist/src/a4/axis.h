@@ -11,8 +11,9 @@ namespace pb{
 
 class Axis {
     public:
-        virtual unique<pb::Axis> get_proto() = 0;
+        virtual unique<pb::Axis> get_proto() const = 0;
         static unique<Axis> from_proto(const pb::Axis &);
+        unique<Axis> clone() const;
         virtual double min() const = 0;
         virtual double max() const = 0;
         virtual uint32_t bins() const = 0;
@@ -30,7 +31,7 @@ class SimpleAxis : public Axis {
         SimpleAxis(const pb::Axis &);
         ~SimpleAxis();
 
-        unique<pb::Axis> get_proto();
+        unique<pb::Axis> get_proto() const;
 
         double min() const {return _min;};
         double max() const {return _max;};
@@ -63,7 +64,7 @@ class VariableAxis : public SimpleAxis {
         VariableAxis(const pb::Axis&);
         ~VariableAxis();
 
-        unique<pb::Axis> get_proto();
+        unique<pb::Axis> get_proto() const;
 
         double min() const {return _bin_bounds[1];};
         double max() const {return _bin_bounds[bins()];};

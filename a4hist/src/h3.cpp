@@ -18,37 +18,33 @@ H3::H3() :
     _initializations_remaining = 3;
 }
 
-void H3::constructor(const uint32_t &bins, const double &min, const double &max, const char * _label) {
+void H3::bin_init() {
+    _entries = 0;
+    const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2)*(_z_axis->bins() + 2);
+    _data.reset(new double[total_bins]());
+}
+
+void H3::add_axis(unique<Axis> axis) {
     if (_initializations_remaining == 2) {
-        _x_axis.reset(new SimpleAxis(bins, min, max));
-        _x_axis->label = _label;
+        _x_axis = std::move(axis);
     } else if (_initializations_remaining == 1)  {
-        _y_axis.reset(new SimpleAxis(bins, min, max));
-        _y_axis->label = _label;
+        _y_axis = std::move(axis);
     } else {
-        _z_axis.reset(new SimpleAxis(bins, min, max));
-        _z_axis->label = _label;
-        _entries = 0;
-        const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2)*(_z_axis->bins() + 2);
-        _data.reset(new double[total_bins]());
+        _z_axis = std::move(axis);
+        bin_init();
     }
 }
 
+void H3::constructor(const uint32_t &bins, const double &min, const double &max, const char * label) {
+    unique<Axis> axis(new SimpleAxis(bins, min, max));
+    axis->label = label;
+    add_axis(std::move(axis));
+}
+
 void H3::constructor(const std::vector<double>& bins, const char* label) {
-    if (_initializations_remaining == 2) {
-        _x_axis.reset(new VariableAxis(bins));
-        _x_axis->label = label;
-    } else if (_initializations_remaining == 1)  {
-        _y_axis.reset(new VariableAxis(bins));
-        _y_axis->label = label;
-    } else {
-        _z_axis.reset(new VariableAxis(bins));
-        _z_axis->label = label;
-        
-        _entries = 0;
-        const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2)*(_z_axis->bins() + 2);
-        _data.reset(new double[total_bins]());
-    }
+    unique<Axis> axis(new VariableAxis(bins));
+    axis->label = label;
+    add_axis(std::move(axis));
 }
 
 H3::H3(const H3 & h): 

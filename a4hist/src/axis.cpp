@@ -7,6 +7,11 @@
 
 namespace a4{ namespace hist{
 
+unique<Axis> Axis::clone() const { 
+    unique<pb::Axis> pb = get_proto();
+    return from_proto(*pb);
+};
+
 unique<Axis> Axis::from_proto(const pb::Axis & msg) {
     if (msg.has_bins())
         return unique<Axis>(new SimpleAxis(msg));
@@ -45,7 +50,7 @@ SimpleAxis::SimpleAxis(const pb::Axis & msg) {
     _delta = _bins == 0 ? 0 : (_max - _min)/_bins;
 };
 
-unique<pb::Axis> SimpleAxis::get_proto() {
+unique<pb::Axis> SimpleAxis::get_proto() const {
     unique<pb::Axis> axis(new pb::Axis);
     axis->set_bins(_bins);
     axis->set_min(_min);
@@ -135,7 +140,7 @@ VariableAxis::VariableAxis(const pb::Axis & msg) {
     assert(sane());
 }
 
-unique<pb::Axis> VariableAxis::get_proto() {
+unique<pb::Axis> VariableAxis::get_proto() const {
     unique<pb::Axis> axis(new pb::Axis);
     axis->set_label(label);
     for (double const* x = _bin_bounds.get() + 1; x < _bin_bounds_end; x++)
