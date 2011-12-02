@@ -22,10 +22,17 @@ A4Input & A4Input::add_stream(shared<InputStream> s) {
 
 /// Add a file to be processed, Returns this object again.
 A4Input & A4Input::add_file(const std::string & filename) {
+    _filenames.push_back(filename);
+    return *this;
+}
+
+InputStream * A4Input::pop_file() {
+    if (_filenames.empty()) return NULL;
+    std::string filename = _filenames.front();
+    _filenames.pop_front();
     shared<InputStream> s(new InputStream(filename));
     _streams.push_back(s);
-    _ready.push_front(s.get());
-    return *this;
+    return s.get();
 };
 
 void A4Input::report_finished(A4Input * input, InputStream* _s) {
@@ -49,9 +56,13 @@ void A4Input::report_finished(A4Input * input, InputStream* _s) {
 /// Optionally give your "name" (for debugging)
 shared<InputStream> A4Input::get_stream() {
     Lock lock(_mutex);
-    if (_ready.empty()) return shared<InputStream>();
-    InputStream * s = _ready.back();
-    _ready.pop_back();
+    InputStream * s = NULL;
+    if (!_ready.empty()) {
+        s = _ready.back();
+        _ready.pop_back();
+    } else if (!_filenames.empty()) {
+        s = pop_file();
+    } else return shared<InputStream>();
 
     _processing.insert(s);
 
