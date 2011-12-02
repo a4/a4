@@ -7,6 +7,7 @@
 
 static std::vector<uintptr_t> read_only_regions_start;
 static std::vector<uintptr_t> read_only_regions_end;
+static boost::mutex read_only_regions_mutex;
 
 typedef boost::unique_lock<boost::mutex> Lock;
 
@@ -30,7 +31,7 @@ void refill_read_only_regions(uintptr_t p) {
 }
 
 bool is_writeable_pointer(const char * _p) {
-    Lock l;
+    Lock l(read_only_regions_mutex);
     uintptr_t p = reinterpret_cast<uintptr_t>(_p);
     for (int c = 0; c < 2; c++) { // try twice, refilling the regions the second time through
         if (c == 1) refill_read_only_regions(p);
