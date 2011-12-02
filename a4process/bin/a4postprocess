@@ -34,8 +34,8 @@ def read_mc_set(fn):
         if current_name is None:
             return
         result_titles[current_name] = current_title
-        result_set[current_name] = set(run for (run, nm, gen, nev, wght, kfac, filt, xsec, tag) in current_ids)
-        result_xs[current_name] = dict((run, (xsec, kfac, filt)) for (run, nm, gen, nev, wght, kfac, filt, xsec, tag) in current_ids)
+        result_set[current_name] = set(run for (run, xsec, kfac, filt) in current_ids)
+        result_xs[current_name] = dict((run, (xsec, kfac, filt)) for (run, xsec, kfac, filt) in current_ids)
         for x in xrange(len(current_ids)):
             current_ids.pop()
 
@@ -50,9 +50,12 @@ def read_mc_set(fn):
             dummy, current_name, current_title = l.split(":")
             continue
         ls = l.split()
-        if len(ls) != 9:
+        if len(ls) == 9:
+            current_ids.append([ls[0], ls[7], ls[5], ls[6]])
+        elif len(ls) == 8:
+            current_ids.append(ls[:4])
+        else:
             print "UNKNOWN ",l
-        current_ids.append(l.split())
     push_back()
     return result_titles, result_set, result_xs
 
@@ -71,7 +74,6 @@ if options.set:
         lines = (("%s %s %s %s\n" % (rn, xsec, kfac, filt)) for (rn, (xsec, kfac, filt)) in d.iteritems())
         f.writelines(lines)
         f.close()
-
 
 if s1:
     os.system("rm -rf _a4post/step1")
