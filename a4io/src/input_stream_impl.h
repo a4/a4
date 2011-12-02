@@ -34,7 +34,12 @@ namespace a4{ namespace io{
             /// True if the stream has finished without error.
             bool end() {return !_error && !_good;};
             /// explicitely close the stream
-            void close() { _coded_in.reset(); _compressed_in.reset(); _raw_in.reset(); _good = false; };
+            void close() {
+                _coded_in.reset();
+                _compressed_in.reset();
+                _raw_in.reset();
+                _good = false;
+            };
             
             size_t ByteCount() { return _raw_in->ByteCount(); }
 
@@ -50,8 +55,8 @@ namespace a4{ namespace io{
 
         private:
             unique<ZeroCopyStreamResource> _raw_in;
-            shared<BaseCompressedInputStream> _compressed_in;
-            shared<google::protobuf::io::CodedInputStream> _coded_in;
+            unique<BaseCompressedInputStream> _compressed_in;
+            unique<google::protobuf::io::CodedInputStream> _coded_in;
             shared<ProtoClassPool> _current_class_pool;
 
             // variables set at construction time

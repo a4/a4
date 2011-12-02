@@ -34,6 +34,7 @@ void A4Input::report_finished(A4Input * input, InputStream* _s) {
         assert(input->_processing.erase(_s) == 1);
         input->_finished.insert(_s);
         std::cerr << "Finished processing " << _s->str() << std::endl;
+        _s->close();
     } else if (_s->error() || input->_resched_count[_s] > 0) {
         std::cerr << "ERROR - a4::io::A4Input - '" << _s->str() << "' encountered an error during reading!" << std::endl;
         input->_error.insert(_s);

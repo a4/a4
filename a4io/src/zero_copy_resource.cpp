@@ -18,7 +18,7 @@ namespace a4{ namespace io{
         error = true;
         no = size = 0;
         mmap = NULL;
-        no = open(name, oflag);
+        no = ::open(name, oflag);
         if (no < 0) {
             std::cerr << "ERROR - Could not open '" << name \
                       << "' - error: " << strerror(errno) << std::endl;
@@ -49,8 +49,10 @@ namespace a4{ namespace io{
     OpenFile::~OpenFile() { 
         if (error) return;
         error = true;
-        if (mmap) munmap(mmap, size);
-        close(no);
+        if (mmap) {
+            munmap(mmap, size);
+        }
+        ::close(no);
     }
 
     UnixFileMMap::UnixFileMMap(std::string name) : _name(name), _size(0), _position(0), _mmap(0), _error(false), _open(false) {};

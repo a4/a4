@@ -17,6 +17,8 @@ namespace a4{ namespace io{
 
     class ZeroCopyStreamResource : public google::protobuf::io::ZeroCopyInputStream {
         public:
+            virtual ~ZeroCopyStreamResource() { std::cerr << "dtor ZCSR" << std::endl; };
+
             /// True if arbitrary seeks are allowed
             virtual bool seekable() const { return false; };
 
