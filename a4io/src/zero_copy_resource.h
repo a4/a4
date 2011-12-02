@@ -55,8 +55,8 @@ namespace a4{ namespace io{
             UnixFileMMap(std::string name);
             virtual ~UnixFileMMap();
 
-            bool open();
-            bool close();
+            virtual bool open();
+            virtual bool close();
 
             bool Next(const void** data, int* size);
             void BackUp(int count);

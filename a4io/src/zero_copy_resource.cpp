@@ -392,8 +392,8 @@ namespace a4{ namespace io{
 
         // If it's a FIFO, use a non-seeking buffer
         if (S_ISFIFO(buffer.st_mode) || !try_mmap) return unique<UnixFile>(new UnixFile(url));
-        else return unique<UnixFilePartMMap>(new UnixFilePartMMap(url));
-        //else return unique<UnixFileMMap>(new UnixFileMMap(url));
+        //else return unique<UnixFilePartMMap>(new UnixFilePartMMap(url));
+        else return unique<UnixFileMMap>(new UnixFileMMap(url));
     }
 
 };};
