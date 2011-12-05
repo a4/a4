@@ -44,7 +44,7 @@ struct ALorentzVector
 
     double p()   const {return sqrt(px*px + py*py + pz*pz);}
     double p2()  const {return px*px + py*py + pz*pz;}
-    double pt()  const {return sqrt(px*px + py*py);}
+    double pt()  const {return hypot(px, py);}
     double pt2()  const {return px*px + py*py;}
     double m2()  const {return (E - p()) * (E + p());}
     double m()   const {double msq = m2(); return msq < 0 ? -sqrt(-msq) : sqrt(msq);}///sqrt(fabs(msq));}
@@ -68,13 +68,13 @@ struct ALorentzVector
     {
         double d_eta = eta() - p_eta;
         double d_phi = delta_phi(p_phi);
-        return sqrt(d_eta*d_eta + d_phi*d_phi);
+        return hypot(d_eta, d_phi);
     }
     double delta_r(const ALorentzVector &p) const
     {
         double d_eta = eta() - p.eta();
         double d_phi = delta_phi(p);
-        return sqrt(d_eta*d_eta + d_phi*d_phi);
+        return hypot(d_eta, d_phi);
     }
 
     bool operator==(const ALorentzVector & rhs) const {
