@@ -86,14 +86,14 @@ namespace a4{ namespace io{
             res.message.reset(m2.message->New());
         }
 
-        if (_dynamic_descriptor == d) {
+        if (_descriptor == d) {
             m1 = *this;
         } else {
             m1.message.reset(res.message->New());
             m1.message->ParseFromString(message->SerializeAsString());
         }
 
-        if (m2_._dynamic_descriptor == d) {
+        if (m2_._descriptor == d) {
             m2 = m2_;
         } else {
             m2.message.reset(res.message->New());
