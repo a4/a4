@@ -97,10 +97,16 @@ namespace a4{
                     rerun_channels.insert(name);
                     return rerun_channels_current == name;
                 }
+                bool in_channel(const char * name) const {
+                    return rerun_channels_current == name;
+                }
                 /// Call systematic in process_message to rerun with the prefix "syst/<name>/".
                 /// In that run this function always returns true.
                 bool systematic(const char * name) {
                     rerun_systematics.insert(name);
+                    return rerun_systematics_current == name;
+                }
+                bool in_systematic(const char * name) const {
                     return rerun_systematics_current == name;
                 }
 
