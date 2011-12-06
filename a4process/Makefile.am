@@ -9,9 +9,9 @@ include protobuf.am
 a4include_HEADERS = \
     src/a4/storable.h \
     src/a4/a4process.h src/a4/processor.h src/a4/driver.h src/a4/application.h \
-    src/a4/hash_lookup.h src/a4/hash_lookup_impl.h\
-    src/a4/object_store.h src/a4/object_store_impl.h\
-    src/a4/results_processor.h
+    src/a4/hash_lookup.h src/a4/hash_lookup_impl.h \
+    src/a4/object_store.h src/a4/object_store_impl.h \
+    src/a4/results_processor.h src/a4/utility.h
 
 bin_SCRIPTS += python/poorcache python/poorprocess python/pmbs bin/a4postprocess
 python_PYTHON = python/pmbs.py python/poorcache.py
