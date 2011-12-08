@@ -31,10 +31,10 @@ color['white'] = os.popen("tput setaf 7").read()
 color['red'] = os.popen("tput setaf 8").read()
 
 class PMBSJob(object):
-    def __init__(self,command):
+    def __init__(self, command, id=None):
         self.debug = False
         self.cmd = command
-        self.id = 0
+        self.id = id
         self.process = None
         self.status = "new"
 
@@ -57,8 +57,8 @@ slots   = [l.strip() for l in file(os.getenv("HOME")+os.sep+".pmbs").readlines()
 slotmap = [None]*len(slots)
 
 # 'External' function
-def submit(cmd, debug=False):
-   j = PMBSJob(cmd)
+def submit(cmd, debug=False, id=None):
+   j = PMBSJob(cmd, id)
    j.debug = debug
    qlock.acquire()
    jobs.append(j)
@@ -104,8 +104,10 @@ def PMBSMainLoop():
          slotmap[slotn] = j
          #j.pid = os.spawnvp(os.P_NOWAIT, "ssh", ["ssh","-x",slots[slotn],j.cmd])
          host = slots[slotn]
-         j.id = jobid
-         jobid += 1
+         if j.id is None:
+             j.id = jobid
+             jobid += 1
+            
          cmd = str(j.cmd)
          cmd = cmd.replace("{JOBID}", str(j.id))
          cmd = cmd.replace("{HOST}", str(host))
@@ -170,6 +172,7 @@ if __name__=="__main__":
     parser.add_option("-f", "--filelist", default=None, help="file with files to process", metavar="FILE")
     parser.add_option("-n", "--number", default=1, help="number of files from filelist to append to each command")
     parser.add_option("-d", "--debug", action="store_true", help="Just do debug print of commands")
+    parser.add_option("-j", "--jobs", action="append", default=[], help="Just do these jobs")
     (options, args) = parser.parse_args()
 
     if options.filelist is None:
@@ -177,10 +180,10 @@ if __name__=="__main__":
         sys.exit(-1)
 
     files = [f.strip() for f in file(options.filelist).readlines() if f.strip() and not f.strip().startswith("#")]
+    orig_files = list(files)
     n_files = len(files)
     n_chunks = int(math.ceil(n_files * 1.0 / int(options.number)))
     fpc = int(math.ceil(n_files/n_chunks))
-    print files[0]
 
     chunks = []
     while files:
@@ -192,9 +195,15 @@ if __name__=="__main__":
             pass
         chunks.append(chunk)
     assert sum(map(len, chunks)) == n_files
+    s1 = set(sum(chunks, []))
+    s2 = set(orig_files)
+    assert s1 == s2
 
+    cnt = 0
     for c in chunks:
-        j = submit(options.command + " " + " ".join(c), debug=options.debug)
+        if (not options.jobs) or (str(cnt) in options.jobs):
+            j = submit(options.command + " " + " ".join(c), debug=options.debug, id=cnt)
+        cnt += 1
     flush()
         
 
