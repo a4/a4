@@ -73,6 +73,10 @@ class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
 
 void A4ReweightProcessor::process_new_metadata() {
     auto config = my<A4ReweightConfiguration>();
+    if (not metadata().simulation()) {
+        weight = 1;
+        return;
+    }
     if (metadata().run_size() != 1) {
         throw a4::Fatal("Cannot reweight if runs have been merged!");
     }
