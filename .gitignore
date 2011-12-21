@@ -8,7 +8,9 @@
 *.eps
 *.ps
 
-build/
+/build/
+/build-clang/
+
 install/
 InstallArea/
 D3PDMakerA4/

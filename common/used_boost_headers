@@ -15,4 +15,5 @@ thread/locks
 tokenizer
 type_traits
 typeof
+ptr_container/ptr_vector
 variant

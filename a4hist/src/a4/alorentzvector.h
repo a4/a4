@@ -35,11 +35,16 @@ struct ALorentzVector
     }
     
     template<typename V>
+    static ALorentzVector from_ptetaphie(const double& pt, 
+      const double& eta, const double& phi, const double& e) {
+        return std::move(ALorentzVector(
+            pt*cos(phi), pt*sin(phi), pt*sinh(eta), e));
+    }
+    
+    template<typename V>
     static ALorentzVector from_ptetaphie(const V& v) {
-        return std::move(ALorentzVector(v.pt()*cos(v.phi()), 
-                               v.pt()*sin(v.phi()), 
-                               v.pt()*sinh(v.eta()), 
-                               v.e()));
+        return std::move(ALorentzVector::from_ptetaphie(
+            v.pt(), v.eta(), v.phi(), v.e()));
     }
 
     double p()   const {return sqrt(px*px + py*py + pz*pz);}
