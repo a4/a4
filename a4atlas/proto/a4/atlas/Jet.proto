@@ -17,6 +17,7 @@ message Jet
     optional double EMJES = 100;
     optional double SV0 = 102;
     optional double JetFitterCOMBNN = 104;
+    optional double MV1 = 120;
     optional double BCH_CORR_CELL = 110;
     optional double BCH_CORR_JET = 111;
     optional double lar_quality = 112;

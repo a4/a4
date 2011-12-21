@@ -290,7 +290,7 @@ class AOD2A4(AOD2A4Base):
     def tracks(self):
         trks = []
         for i, trk in enumerate(self.sg["TrackParticleCandidate"]):
-            if abs(trk.pt()) < 1000:
+            if abs(trk.pt()) < 5000:
                 continue
             t = Track()
             t.p4.CopyFrom(make_lv(trk))
@@ -359,9 +359,11 @@ class AOD2A4(AOD2A4Base):
                 e.p4_cluster.CopyFrom(make_lv(el.cluster()))
 
             if trk:
-                for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigElectron, INavigable4Momentum>")(trk, 0.15)):
+                chns = self.tool_tmt.__getattribute__("chainsPassedByObject<TrigElectron, INavigable4Momentum>")(trk, 0.15)
+                for chain in list(chns):
                     if chain in trigger_names[self.year]:
                         e.matched_trigger.append(getattr(Trigger,chain))
+                chns.clear()
 
             els.append(e)
         return els
@@ -408,17 +410,21 @@ class AOD2A4(AOD2A4Base):
             m.matched_trigger_efi_cb.extend(self.matched_chains(mu, useCombinedTrack))
             m.matched_trigger_efi_mg.extend(self.matched_chains(mu, useMuGirlTrack))
             #A17 m.matched_trigger_efi_mgt.extend(self.matched_chains(mu, useMuGirlTagTrack))
-
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<CombinedMuonFeature, INavigable4Momentum>")(mu,0.1)):
+            chns = self.tool_tmt.__getattribute__("chainsPassedByObject<CombinedMuonFeature, INavigable4Momentum>")(mu,0.1)
+            for chain in list(chns):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger_cmf.append(getattr(Trigger,chain))
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEF, INavigable4Momentum>")(mu,0.1)):
+            chns.clear()
+            chns = self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEF, INavigable4Momentum>")(mu,0.1)
+            for chain in list(chns):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger_ef.append(getattr(Trigger,chain))
-            for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<MuonFeature, INavigable4Momentum>")(mu,0.1)):
+            chns.clear()
+            chns = self.tool_tmt.__getattribute__("chainsPassedByObject<MuonFeature, INavigable4Momentum>")(mu,0.1)
+            for chain in list(chns):
                 if chain in trigger_names[self.year]:
                     m.matched_trigger_mf.append(getattr(Trigger,chain))
-
+            chns.clear()
             mus.append(m)
         return mus
 
@@ -439,6 +445,7 @@ class AOD2A4(AOD2A4Base):
             j.EMJES = jet.getMoment("EMJES")
             j.SV0 = jet.getFlavourTagWeight("SV0")
             j.JetFitterCOMBNN = jet.getFlavourTagWeight("JetFitterCOMBNN")
+            j.MV1 = jet.getFlavourTagWeight("MV1")
             cc = jet.getMoment("BCH_CORR_CELL")
             if cc != 0:
                 j.BCH_CORR_CELL = cc
@@ -472,9 +479,11 @@ class AOD2A4(AOD2A4Base):
     def matched_chains(self, mu, which_track):
         self.tmefih.setTrackToUse(which_track)
         chains = []
-        for chain in list(self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEFInfo, INavigable4Momentum>")(mu, 0.1)):
+        cpbo = self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEFInfo, INavigable4Momentum>")(mu, 0.1)
+        for chain in list(cpbo):
             if chain in trigger_names[self.year]:
                 chains.append(getattr(Trigger, chain))
+        cpbo.clear()
         return chains
         
     def triggers(self):
@@ -485,12 +494,14 @@ class AOD2A4(AOD2A4Base):
             t.name = getattr(t, tn)
             t.fired = self.tool_tdt.isPassed(tn)
             if t.fired:
-                te  = list(self.tool_tmt.__getattribute__("getTriggerObjects<TrigElectron>")(tn, True))
-                tp  = list(self.tool_tmt.__getattribute__("getTriggerObjects<TrigPhoton>")(tn, True))
-                tme = list(self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEF>")(tn, True))
-                mf  = list(self.tool_tmt.__getattribute__("getTriggerObjects<MuonFeature>")(tn, True))
-                cmf = list(self.tool_tmt.__getattribute__("getTriggerObjects<CombinedMuonFeature>")(tn, True))
-                tmei= list(self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEFInfo>")(tn, True))
+                c_te  = self.tool_tmt.__getattribute__("getTriggerObjects<TrigElectron>")(tn, True)
+                c_tp  = self.tool_tmt.__getattribute__("getTriggerObjects<TrigPhoton>")(tn, True)
+                c_tme = self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEF>")(tn, True)
+                c_mf  = self.tool_tmt.__getattribute__("getTriggerObjects<MuonFeature>")(tn, True)
+                c_cmf = self.tool_tmt.__getattribute__("getTriggerObjects<CombinedMuonFeature>")(tn, True)
+                c_tmei= self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEFInfo>")(tn, True)
+
+                te, tp, tme, mf, cmf, tmei = map(list, (c_te, c_tp, c_tme, c_mf, c_cmf, c_tmei))
 
                 tmeit = sum((list(efi.TrackContainer()) for efi in tmei), [])
                 tmeit_ms = [tr.SpectrometerTrack() for tr in tmeit if tr.MuonType() == 1 and tr.hasSpectrometerTrack()]
@@ -516,6 +527,8 @@ class AOD2A4(AOD2A4Base):
                 t.features_muon_combined.extend(make_tf(f) for f in cmf)
  
                 triggers.append(t)
+                for vec in (c_te, c_tp, c_tme, c_mf, c_cmf, c_tmei):
+                    vec.clear()
         return triggers
 
     def vertices(self):
@@ -719,17 +732,45 @@ class AOD2A4(AOD2A4Base):
 
             def is_final(p):
                 return not bool(p.end_vertex())
-           
+          
+            #hard_event = [x for x in get_all_particles(truth[0]) if is_final(x) and not is_coloured(x)]
+            #pileup = sum(([x for x in get_all_particles(t) if is_final(x) and not is_coloured(x)] for t in truth[1:]), [])
+            tmx, tmy, tms = 0, 0, 0
+            ptmx, ptmy, ptms = 0, 0, 0
+
             truth = list(self.sg["GEN_AOD"])
-            hard_event = [x for x in get_all_particles(truth[0]) if is_final(x) and not is_coloured(x)]
-            pileup = sum(([x for x in get_all_particles(t) if is_final(x) and not is_coloured(x)] for t in truth[1:]), [])
+            hard = True
+            for t in truth:
+                for p in get_all_particles(t):
+                    if is_final(p) and not is_coloured(p) and p.momentum().perp() > 500.0:
+                        if p.pdg_id() == 11:
+                            event.truth_electrons.add().CopyFrom(make_truth(p.momentum(), p.pdg_id()/11))
+                        elif p.pdg_id() == 13:
+                            event.truth_muons.add().CopyFrom(make_truth(p.momentum(), p.pdg_id()/13))
+                        if p.pdg_id() in (12, 14, 16, 18):
+                            event.truth_neutrinos.add().CopyFrom(make_lv(p.momentum()))
+                        elif hard:
+                            tmx -= p.momentum().px()
+                            tmy -= p.momentum().py()
+                            tms -= p.momentum().perp()
+                        else:
+                            ptmx -= p.momentum().px()
+                            ptmy -= p.momentum().py()
+                            ptms -= p.momentum().perp()
+                hard = False
 
-            event.truth_met_hard.CopyFrom(self.met_detail_from_particles([p for p in hard_event if not p.pdg_id() in (12, 14, 16, 18)]))
-            event.truth_met_pileup.CopyFrom(self.met_detail_from_particles([p for p in pileup if not p.pdg_id() in (12, 14, 16, 18)]))
-            event.truth_neutrinos.extend(make_lv(p.momentum()) for p in hard_event+pileup if p.pdg_id() in (12, 14, 16, 18))
-            event.truth_electrons.extend(make_truth(p.momentum(), p.pdg_id()/11) for p in hard_event+pileup if p.pdg_id() == 11)
-            event.truth_muons.extend(make_truth(p.momentum(), p.pdg_id()/13) for p in hard_event+pileup if p.pdg_id() == 13)
+            event.truth_met_hard.x = tmx
+            event.truth_met_hard.y = tmy
+            event.truth_met_hard.sum = tms
+            event.truth_met_pileup.x = ptmx
+            event.truth_met_pileup.y = ptmy
+            event.truth_met_pileup.sum = ptms
 
+            #event.truth_met_hard.CopyFrom(self.met_detail_from_particles([p for p in hard_event if not p.pdg_id() in (12, 14, 16, 18)]))
+            #event.truth_met_pileup.CopyFrom(self.met_detail_from_particles([p for p in pileup if not p.pdg_id() in (12, 14, 16, 18)]))
+            #event.truth_neutrinos.extend(make_lv(p.momentum()) for p in hard_event+pileup if p.pdg_id() in (12, 14, 16, 18))
+            #event.truth_electrons.extend(make_truth(p.momentum(), p.pdg_id()/11) for p in hard_event+pileup if p.pdg_id() == 11)
+            #event.truth_muons.extend(make_truth(p.momentum(), p.pdg_id()/13) for p in hard_event+pileup if p.pdg_id() == 13)
 
         self.a4.write(event)
         return PyAthena.StatusCode.Success
@@ -746,7 +787,7 @@ if os.path.exists(a_local_directory):
         input = glob(options["input"]) 
     else:
         input = glob("/data/etp/ebke/data/*109074*/*")
-    athena_setup(input, 100)
+    athena_setup(input, 300)
 else:
     athena_setup(None, -1)
 
