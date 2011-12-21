@@ -11,29 +11,60 @@ message Trigger
 {
     enum TriggerName 
     {
-        
-        L1_EM14 = 1; 
+        L1_EM14 = 1;
         L1_MU10 = 2;
+
+        // Single-electron Trigger
         EF_e15_medium = 3;
-        EF_e20_medium = 5;
-        EF_e22_medium = 18;
-        EF_e22_medium1 = 22;
-        EF_e22vh_medium1 = 19;
+        EF_e20_medium = 5; //# PRIMARY 2011
+        EF_e22_medium = 18; //# PRIMARY 2011
+        EF_e22_medium1 = 22; //# MC 2011
+        EF_e22vh_medium1 = 19; //# PRIMARY 2011
+        EF_e40_medium1 = 23;
+        EF_e45_medium1 = 24; //# SECONDARY 2011
+
+        // Di- and Multielectron Triggers
+        EF_2e10_medium = 25;
+        EF_2e12_medium = 13;
+        EF_2e12T_medium = 26;
+        EF_2e12Tvh_medium = 27;
+        EF_2e15_medium = 28;
+        EF_2e15vh_medium = 29;
+        
+        // Gamma triggers
+        EF_g20_loose = 30;
+        EF_g40_loose = 31;
+        EF_g60_loose = 32;
+        EF_g80_loose = 33;
+        EF_g100_loose = 34;
+        EF_2g20_loose = 14;
+
+        // Single Muon Trigger
         EF_mu10_MG = 6;
         EF_mu13_MG = 7; 
         EF_mu13_MG_tight = 8;
+        EF_mu15i = 35;
+        EF_mu18 = 36;
+        EF_mu18_medium = 37;
         EF_mu18_MG = 9;
         EF_mu18_MG_medium = 20;
         EF_mu20_MG = 10;
-        EF_e10_medium_mu6 = 11;
-        EF_2mu10 = 12;
-        EF_2e12_medium = 13;
-        EF_2g20_loose = 14;
+        EF_mu20i_medium = 38;
+        EF_mu20_empty = 17;
         EF_mu40_MSonly = 15;
+        EF_mu40_MSonly_tight = 39;
         EF_mu40_MSonly_barrel = 16;
         EF_mu40_MSonly_barrel_medium = 21;
-        EF_mu20_empty = 17;
-        // Next ID: 23
+
+        // Dimuon triggers
+        EF_2mu10 = 12;
+        EF_2mu10_loose = 40;
+        EF_mu15_mu10_EFFS = 41;
+        EF_mu15_mu10_EFFS_medium = 42;
+
+        // e/mu triggers
+        EF_e10_medium_mu6 = 11;
+        // Next ID: 43
     }
 
     required TriggerName name = 1;

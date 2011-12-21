@@ -133,21 +133,60 @@ trigger_names = {
         "EF_mu18_MG",
         ],
     2011 : [
+        "L1_EM14",
+        "L1_MU10",
+        
+        # Single-electron Trigger
+        "EF_e15_medium",
         "EF_e20_medium",
         "EF_e22_medium",
         "EF_e22_medium1",
         "EF_e22vh_medium1",
+        "EF_e40_medium1",
+        "EF_e45_medium1",
+        
+        # Di- and Multielectron Triggers
+        "EF_2e10_medium",
+        "EF_2e12_medium",
+        "EF_2e12T_medium",
+        "EF_2e12Tvh_medium",
+        "EF_2e15_medium",
+        "EF_2e15vh_medium",
+        
+        # Gamma triggers
+        "EF_g20_loose",
+        "EF_g40_loose",
+        "EF_g60_loose",
+        "EF_g80_loose",
+        "EF_g100_loose",
+        "EF_2g20_loose",
+        
+        # Single Muon Trigger
+        "EF_mu10_MG",
+        "EF_mu13_MG",
+        "EF_mu13_MG_tight",
+        "EF_mu15i",
+        "EF_mu18",
+        "EF_mu18_medium",
         "EF_mu18_MG",
         "EF_mu18_MG_medium",
         "EF_mu20_MG",
-        "EF_e10_medium_mu6",
-        "EF_2mu10",
-        "EF_2e12_medium",
+        "EF_mu20i_medium",
+        "EF_mu20_empty",
         "EF_mu40_MSonly",
+        "EF_mu40_MSonly_tight",
         "EF_mu40_MSonly_barrel",
         "EF_mu40_MSonly_barrel_medium",
-        "EF_mu20_empty"
-        ]
+        
+        # Dimuon triggers
+        "EF_2mu10",
+        "EF_2mu10_loose",
+        "EF_mu15_mu10_EFFS",
+        "EF_mu15_mu10_EFFS_medium",
+        
+        # e/mu triggers
+        "EF_e10_medium_mu6"
+    ]
 }
 
 isolations = ("etcone20", "etcone30", "etcone40", "ptcone20", "ptcone30", "ptcone40")
