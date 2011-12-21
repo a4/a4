@@ -1,0 +1,88 @@
+#!/usr/bin/env python
+
+import os, sys, optparse
+parser = optparse.OptionParser()
+parser.add_option("-s", "--set", default="", help="MC Set file")
+
+(options, args) = parser.parse_args()
+if len(args) != 1:
+    print "Please specify a4post directory"
+    sys.exit(-1)
+assert options.set
+
+def read_mc_set(fn):
+    current_name, current_title = None, None
+    current_ids = []
+    current_info = []
+    result_set = {}
+    result_titles = {}
+    result_info = {}
+    result_xs = {}
+    def push_back():
+        if current_name is None:
+            return
+        result_titles[current_name] = current_title
+        result_set[current_name] = set(int(run) for (run, xsec, kfac, filt) in current_ids)
+        result_info[current_name] = dict((int(run), ifo) for (run, ifo) in current_info)
+        result_xs[current_name] = dict((int(run), (xsec, kfac, filt)) for (run, xsec, kfac, filt) in current_ids)
+        for x in xrange(len(current_ids)):
+            current_ids.pop()
+
+    for l in file(fn).readlines():
+        l = l.strip()
+        if not l:
+            continue
+        if l.startswith("#"):
+            continue
+        if l.startswith(":"):
+            push_back()
+            dummy, current_name, current_title = map(str.strip, l.split(":"))
+            continue
+        ls = l.split()
+        if len(ls) == 9:
+            current_ids.append([ls[0], ls[7], ls[5], ls[6]])
+            current_info.append([ls[0], (ls[1], ls[2])])
+        elif len(ls) == 8:
+            current_ids.append(ls[:4])
+            current_info.append([ls[0], (ls[6], ls[7])])
+        else:
+            print "UNKNOWN ",l
+    push_back()
+    return result_titles, result_set, result_xs, result_info
+
+
+
+
+from a4.stream import InputStream
+infile = InputStream(open("_a4post/step2/sim.1"))
+infile.info()
+num_events = {}
+sum_weights = {}
+for md in infile.metadata.values():
+    if len(md.run) != 1:
+        raise Exception("AAAH!: %s"%str(md.run))
+    run, = md.run
+    run = int(run)
+    num_events[run] = num_events.get(run, 0) + md.event_count
+    sum_weights[run] = sum_weights.get(run, 0) + md.sum_mc_weights
+
+stitles, ssets, sxs, sinfo = read_mc_set(options.set)
+for name, runs in sorted(ssets.iteritems()):
+    print "%s" % name
+    print "=" * len(name)
+    print
+    print "ID      | Events      | SumWeights | Lumi            | Generator/Process"
+    print "------- | ----------- | ---------- | --------------- | -----------------"
+    for run in sorted(runs):
+        print run, " | ",
+        assert run == int(run)
+        if not run in num_events:
+            print "%10s | %10s | %8s fb^-1" % ("N/A", "N/A", "N/A"),
+        else:
+            xs, kfac, filt = map(float, sxs[name][run])
+            print "%10i | %10.2f | %8.3f fb^-1" % (num_events[run], sum_weights[run], sum_weights[run]/(1000*xs*kfac*filt)),
+
+        gen, procname = sinfo[name][run]
+        print " | %s %s" % (gen, procname)
+    print
+
