@@ -100,7 +100,7 @@ for hn in histos_1d:
     for (title, numbers) in bg + [("Total SM",sumbg)] + data + sg:
         if "#" in title:
             title = "$%s$"%title.replace("#","\\")
-        table.append([title] + [numbers[label].latex() for label in labels])
+        table.append([title] + [numbers.get(label, UncertainNumber(0,0)).latex() for label in labels])
 
     widths_h = [max(len(line[i]) for line in table) for i in range(len(table[0]))]
     widths_v = [max(len(w) for w in line) for line in table]

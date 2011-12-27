@@ -59,6 +59,8 @@ class CertainNumber:
         self.n += ucn.n
     
     def get_physics_number(self, latex=False):
+        return "%i" % self.n
+        """
         n = self.n
         if n < 1e6:
             return "%i" % n
@@ -74,6 +76,7 @@ class CertainNumber:
             s = "%%.%ife%i" % (max(prec,0), exponent)
             return s%n
         return "%i" % n
+        """
 
     def latex(self):
         n = self.get_physics_number(latex=True)
