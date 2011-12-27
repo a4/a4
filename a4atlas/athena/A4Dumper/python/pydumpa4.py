@@ -444,6 +444,8 @@ class AOD2A4(AOD2A4Base):
             j.p4_em.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
             j.EMJES = jet.getMoment("EMJES")
             j.SV0 = jet.getFlavourTagWeight("SV0")
+            j.SV1 = jet.getFlavourTagWeight("SV1")
+            j.IP3D = jet.getFlavourTagWeight("IP3D")
             j.JetFitterCOMBNN = jet.getFlavourTagWeight("JetFitterCOMBNN")
             j.MV1 = jet.getFlavourTagWeight("MV1")
             cc = jet.getMoment("BCH_CORR_CELL")

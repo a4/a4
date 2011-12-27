@@ -16,6 +16,8 @@ message Jet
     optional LorentzVector p4_em = 101;
     optional double EMJES = 100;
     optional double SV0 = 102;
+    optional double SV1 = 121;
+    optional double IP3D = 122;
     optional double JetFitterCOMBNN = 104;
     optional double MV1 = 120;
     optional double BCH_CORR_CELL = 110;
