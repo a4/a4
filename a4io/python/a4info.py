@@ -6,6 +6,7 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-g", "--grl", default=False, help="create a GRL from the given files", metavar="grl.xml")
 parser.add_option("-m", "--metadata", action="store_true", help="print metadata from file")
+parser.add_option("-f", "--footer", action="store_true", help="print metadata in footer")
 (options, args) = parser.parse_args()
 
 if len(args) == 0:
@@ -14,6 +15,14 @@ if len(args) == 0:
 
 run_infos = {}
 
+def cname(id, stream):
+    cls = stream.pool.find_class_id(id)
+    if cls is None:
+        return "<unknow class %i>" % id
+    else:
+        return stream.pool.class_ids[id].__name__
+
+
 for fn in args:
     print("%s: " % fn)
     r = InputStream(open(fn))
@@ -21,6 +30,22 @@ for fn in args:
     if options.metadata:
         for md in r.metadata.values():
             print md
+
+    if options.footer:
+        counts = {}
+        for f in r.footers.itervalues():
+            for cc in f.class_count:
+                nm = cname(cc.class_id, r)
+                counts[nm] = cc.count + counts.get(nm, 0)
+        if len(counts) == 0:
+            print "No event count information in file found! (Probably python generated)"
+        else:
+            print "Object counts:"
+            print "--------------"
+            maxlen = max(map(len, counts.keys()))
+            for n in sorted(counts.keys()):
+                print "%s: %i" % (n + " "*(maxlen-len(n)), counts[n])
+                    
     if options.grl:
         for md in r.metadata.values():
             if md.simulation:
