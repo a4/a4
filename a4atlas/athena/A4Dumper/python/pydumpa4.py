@@ -333,22 +333,19 @@ class AOD2A4(AOD2A4Base):
             elif self.year == 2010:
                 e.bad_oq = not (self.egOQ.checkOQClusterElectron(167521, el.cluster.Eta(), el.cluster.Phi()) != 3)
 
-            e.loose = bool(el.isElectron(self.egammaPID.ElectronLoose))
-            e.medium = bool(el.isElectron(self.egammaPID.ElectronMedium))
+
             if self.year == 2010:
+                e.loose = bool(el.isElectron(self.egammaPID.ElectronLoose))
+                e.medium = bool(el.isElectron(self.egammaPID.ElectronMedium))
                 e.tight = bool(el.isElectron(self.egammaPID.ElectronTight_WithTrackMatch))
-            else:
-                e.tight = bool(el.isElectron(self.egammaPID.ElectronTight))
+
             if self.year == 2011:
-                e.loose_iso = bool(el.isElectron(self.egammaPID.ElectronLooseIso))
-                e.medium_iso = bool(el.isElectron(self.egammaPID.ElectronMediumIso))
-                e.tight_iso = bool(el.isElectron(self.egammaPID.ElectronTightIso))
-                e.loose_pp = bool(el.isElectron(self.egammaPID.ElectronLoosePP))
-                e.medium_pp = bool(el.isElectron(self.egammaPID.ElectronMediumPP))
-                e.tight_pp = bool(el.isElectron(self.egammaPID.ElectronTightPP))
-                e.loose_pp_iso = bool(el.isElectron(self.egammaPID.ElectronLoosePPIso))
-                e.medium_pp_iso = bool(el.isElectron(self.egammaPID.ElectronMediumPPIso))
-                e.tight_pp_iso = bool(el.isElectron(self.egammaPID.ElectronTightPPIso))
+                e.loose = bool(el.isElectron(self.egammaPID.ElectronLoose, self.egammaPID.IsEM))
+                e.medium = bool(el.isElectron(self.egammaPID.ElectronMedium, self.egammaPID.IsEM))
+                e.tight = bool(el.isElectron(self.egammaPID.ElectronTight, self.egammaPID.IsEM))
+                e.loose_pp = bool(el.isElectron(self.egammaPID.ElectronLoosePP, self.egammaPID.IsEMLoose))
+                e.medium_pp = bool(el.isElectron(self.egammaPID.ElectronMediumPP, self.egammaPID.IsEMMedium))
+                e.tight_pp = bool(el.isElectron(self.egammaPID.ElectronTightPP, self.egammaPID.IsEMTight))
 
             trk = el.trackParticle()
             if trk:
