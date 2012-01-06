@@ -340,12 +340,13 @@ class AOD2A4(AOD2A4Base):
                 e.tight = bool(el.isElectron(self.egammaPID.ElectronTight_WithTrackMatch))
 
             if self.year == 2011:
-                e.loose = bool(el.isElectron(self.egammaPID.ElectronLoose, self.egammaPID.IsEM))
-                e.medium = bool(el.isElectron(self.egammaPID.ElectronMedium, self.egammaPID.IsEM))
-                e.tight = bool(el.isElectron(self.egammaPID.ElectronTight, self.egammaPID.IsEM))
-                e.loose_pp = bool(el.isElectron(self.egammaPID.ElectronLoosePP, self.egammaPID.IsEMLoose))
-                e.medium_pp = bool(el.isElectron(self.egammaPID.ElectronMediumPP, self.egammaPID.IsEMMedium))
-                e.tight_pp = bool(el.isElectron(self.egammaPID.ElectronTightPP, self.egammaPID.IsEMTight))
+                e.loose = bool(el.passID(self.egammaPID.ElectronIDLoose))
+                e.medium = bool(el.passID(self.egammaPID.ElectronIDMedium))
+                e.tight = bool(el.passID(self.egammaPID.ElectronIDTight))
+                e.loose_pp = bool(el.passID(self.egammaPID.ElectronIDLoosePP))
+                e.medium_pp = bool(el.passID(self.egammaPID.ElectronIDMediumPP))
+                e.tight_pp = bool(el.passID(self.egammaPID.ElectronIDTightPP))
+
 
             trk = el.trackParticle()
             if trk:
@@ -471,6 +472,7 @@ class AOD2A4(AOD2A4Base):
                 j.timing = jet.getMoment("Timing")
                 j.fmax = self.jet_fmax(jet)
                 j.sum_pt_trk = jet.getMoment("sumPtTrk")
+                j.avg_lar_qf = jet.getMoment("AverageLArQF")
 
             jets.append(j)
         return jets

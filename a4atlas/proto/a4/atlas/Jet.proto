@@ -30,6 +30,7 @@ message Jet
     optional double timing = 117;
     optional double fmax = 118;
     optional double sum_pt_trk = 119;
+    optional double avg_lar_qf = 123; 
     
     enum TruthFlavor {
         Light = 0;
