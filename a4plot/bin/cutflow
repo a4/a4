@@ -98,7 +98,14 @@ for hn in histos_1d:
 
     table = []
     table.append([""] + ["$%s$"%l.replace("#","\\") for l in labels])
-    for (title, numbers) in bg + [("Total SM",sumbg)] + data + sg:
+
+    content = bg[:]
+    if bg:
+        content += [("Total SM",sumbg)]
+    content += data
+    content += sg
+    
+    for (title, numbers) in content:
         if "#" in title:
             title = "$%s$"%title.replace("#","\\")
         if options.ndigits != -1:
