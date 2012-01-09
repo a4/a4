@@ -375,12 +375,12 @@ class AOD2A4(AOD2A4Base):
             if el.cluster():
                 e.p4_cluster.CopyFrom(make_lv(el.cluster()))
 
-            if trk:
-                chns = self.tool_tmt.__getattribute__("chainsPassedByObject<TrigElectron, INavigable4Momentum>")(trk, 0.15)
-                for chain in list(chns):
-                    if chain in trigger_names[self.year]:
-                        e.matched_trigger.append(getattr(Trigger,chain))
-                chns.clear()
+            #if trk:
+            #    chns = self.tool_tmt.__getattribute__("chainsPassedByObject<TrigElectron, INavigable4Momentum>")(trk, 0.15)
+            #    for chain in list(chns):
+            #        if chain in trigger_names[self.year]:
+            #            e.matched_trigger.append(getattr(Trigger,chain))
+            #    chns.clear()
 
             els.append(e)
         return els
@@ -423,26 +423,26 @@ class AOD2A4(AOD2A4Base):
                 m.perigee_cmb.CopyFrom(self.perigee_z0_d0(trk))
                 m.ms_hits.CopyFrom(make_ms_track_hits(ctrk))
 
-            m.matched_trigger_efi_ms.extend(self.matched_chains(mu, useSpectrometerTrack))
-            m.matched_trigger_efi_ex.extend(self.matched_chains(mu, useExtrapolatedTrack))
-            m.matched_trigger_efi_cb.extend(self.matched_chains(mu, useCombinedTrack))
-            m.matched_trigger_efi_mg.extend(self.matched_chains(mu, useMuGirlTrack))
+            #m.matched_trigger_efi_ms.extend(self.matched_chains(mu, useSpectrometerTrack))
+            #m.matched_trigger_efi_ex.extend(self.matched_chains(mu, useExtrapolatedTrack))
+            #m.matched_trigger_efi_cb.extend(self.matched_chains(mu, useCombinedTrack))
+            #m.matched_trigger_efi_mg.extend(self.matched_chains(mu, useMuGirlTrack))
             #A17 m.matched_trigger_efi_mgt.extend(self.matched_chains(mu, useMuGirlTagTrack))
-            chns = self.tool_tmt.__getattribute__("chainsPassedByObject<CombinedMuonFeature, INavigable4Momentum>")(mu,0.1)
-            for chain in list(chns):
-                if chain in trigger_names[self.year]:
-                    m.matched_trigger_cmf.append(getattr(Trigger,chain))
-            chns.clear()
-            chns = self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEF, INavigable4Momentum>")(mu,0.1)
-            for chain in list(chns):
-                if chain in trigger_names[self.year]:
-                    m.matched_trigger_ef.append(getattr(Trigger,chain))
-            chns.clear()
-            chns = self.tool_tmt.__getattribute__("chainsPassedByObject<MuonFeature, INavigable4Momentum>")(mu,0.1)
-            for chain in list(chns):
-                if chain in trigger_names[self.year]:
-                    m.matched_trigger_mf.append(getattr(Trigger,chain))
-            chns.clear()
+            #chns = self.tool_tmt.__getattribute__("chainsPassedByObject<CombinedMuonFeature, INavigable4Momentum>")(mu,0.1)
+            #for chain in list(chns):
+            #    if chain in trigger_names[self.year]:
+            #        m.matched_trigger_cmf.append(getattr(Trigger,chain))
+            #chns.clear()
+            #chns = self.tool_tmt.__getattribute__("chainsPassedByObject<TrigMuonEF, INavigable4Momentum>")(mu,0.1)
+            #for chain in list(chns):
+            #    if chain in trigger_names[self.year]:
+            #        m.matched_trigger_ef.append(getattr(Trigger,chain))
+            #chns.clear()
+            #chns = self.tool_tmt.__getattribute__("chainsPassedByObject<MuonFeature, INavigable4Momentum>")(mu,0.1)
+            #for chain in list(chns):
+            #    if chain in trigger_names[self.year]:
+            #        m.matched_trigger_mf.append(getattr(Trigger,chain))
+            #chns.clear()
             mus.append(m)
         return mus
 
@@ -465,7 +465,7 @@ class AOD2A4(AOD2A4Base):
             j.SV1 = jet.getFlavourTagWeight("SV1")
             j.IP3D = jet.getFlavourTagWeight("IP3D")
             j.JetFitterCOMBNN = jet.getFlavourTagWeight("JetFitterCOMBNN")
-            j.MV1 = jet.getFlavourTagWeight("MV1")
+            #j.MV1 = jet.getFlavourTagWeight("MV1") # not yet in data
             cc = jet.getMoment("BCH_CORR_CELL")
             if cc != 0:
                 j.BCH_CORR_CELL = cc
