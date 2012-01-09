@@ -2,6 +2,7 @@
 #define _ALORENTZVECTOR_H_
 
 #include <cmath>
+#include <iostream>
 
 #ifdef M_PI
 #undef M_PI
@@ -12,7 +13,7 @@ struct ALorentzVector
 {
     double px, py, pz, E;
 
-    ALorentzVector(): px(0), py(0), pz(0), E(0) {};
+    ALorentzVector(): px(0.0), py(0.0), pz(0.0), E(0.0) {};
     ALorentzVector(const double &p1, const double &p2, const double &p3, const double &E): px(p1), py(p2), pz(p3), E(E) {};
     ALorentzVector(const ALorentzVector& p): px(p.px), py(p.py), pz(p.pz), E(p.E) {};
 
@@ -28,7 +29,7 @@ struct ALorentzVector
        return lv;
     }
 
-    static ALorentzVector from_met(const float& x, const float& y) {
+    static ALorentzVector from_met(const double& x, const double& y) {
        ALorentzVector lv(x, y, 0.0, 0.0);
        lv.E = lv.pt();
        return lv;
@@ -131,5 +132,8 @@ ALorentzVector operator*(const double &sf, const ALorentzVector &rhs) {
     return result;
 }
 
+std::ostream& operator<<(std::ostream& os, const ALorentzVector& lv) {
+    return os << "ALV(" << lv.px << ", " << lv.py << ", " << lv.pz << "; " << lv.E << ")";
+}
 
 #endif
