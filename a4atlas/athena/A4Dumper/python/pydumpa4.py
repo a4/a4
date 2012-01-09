@@ -218,7 +218,10 @@ def make_track_hits(idtp):
         return None
     t = TrackHits()
     for n in id_hit_names:
-        setattr(t, n, ts.get(getattr(SummaryType, n)))
+        idx = getattr(SummaryType, n)
+        val = ts.get(idx)
+        if int(val) != -1:
+            setattr(t, n, val)
     return t
 
 def make_ms_track_hits(tp):
@@ -229,7 +232,10 @@ def make_ms_track_hits(tp):
         return None
     t = MuonTrackHits()
     for n in ms_hit_names:
-        setattr(t, n, ts.get(getattr(SummaryType, n)))
+        idx = getattr(SummaryType, n)
+        val = ts.get(idx)
+        if int(val) != -1:
+            setattr(t, n, val)
     return t
 
 def make_truth(p4, charge, pdg_id=None):
