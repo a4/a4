@@ -17,6 +17,7 @@ message Muon
     
     optional bool combined = 16;
     optional bool tight = 18;
+    optional bool segment_tagged = 19;
 
     optional LorentzVector p4_track = 7;
     optional LorentzVector p4_ms = 9;

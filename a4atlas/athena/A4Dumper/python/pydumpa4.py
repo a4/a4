@@ -383,6 +383,7 @@ class AOD2A4(AOD2A4Base):
                 setattr(m.isolation, iso, mu.parameter(getattr(self.MuonParameters, iso)))
 
             m.tight = (mu.isTight() == 1)
+            m.segment_tagged = mu.isSegmentTaggedMuon()
             if muon_algo == "Muid":
                 m.combined = mu.isAuthor(self.MuonParameters.MuidCo)
             elif muon_algo == "Staco":
