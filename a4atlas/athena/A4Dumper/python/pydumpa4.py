@@ -253,6 +253,9 @@ class AOD2A4(AOD2A4Base):
         PyCintex.loadDictionary("TrigObjectMatching")
         self.tmefih = PyCintex.makeClass("TrigMatch::TrigMuonEFInfoHelper")
 
+        #PyCintex.loadDictionary("egammaAnalysisUtils")
+        #from ROOT import isEMPlusPlusHelper
+        #self.isEMPlusPlusHelper = isEMPlusPlusHelper()
 
         from ROOT import vector
 
@@ -286,6 +289,11 @@ class AOD2A4(AOD2A4Base):
         self.tool_tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
         self.tool_tmt = PyAthena.py_tool("TrigMatchTool/TrigMatchTool")
         self.tool_hfor= PyAthena.py_tool("HforTool",iface="IHforTool")
+
+        #self.tight_same_count = 0
+        #self.only_othertight_count = 0
+        #self.only_tight_count = 0
+        #self.event_counter = 0
  
     def tracks(self):
         trks = []
@@ -347,6 +355,17 @@ class AOD2A4(AOD2A4Base):
                 e.medium_pp = bool(el.passID(self.egammaPID.ElectronIDMediumPP))
                 e.tight_pp = bool(el.passID(self.egammaPID.ElectronIDTightPP))
 
+                #if el.pt() > 1000.0 and e.author in (1,3) and el.trackParticle() and el.trackParticle().trackSummary() and abs(el.trackParticle().eta()) < 2.47 and not (1.37 < abs(el.trackParticle().eta()) < 1.52):
+                #    e.tight = self.isEMPlusPlusHelper.IsTightPlusPlus(el)
+                    
+                    #other_tight = self.isEMPlusPlusHelper.IsTightPlusPlus(el)
+                    #if e.tight_pp == other_tight:
+                    #    self.tight_same_count += 1
+                    #elif e.tight_pp:
+                    #    self.only_tight_count += 1
+                    #else:
+                    #    self.only_othertight_count += 1
+                    #assert e.tight_pp == other_tight
 
             trk = el.trackParticle()
             if trk:
@@ -775,6 +794,9 @@ class AOD2A4(AOD2A4Base):
             #event.truth_muons.extend(make_truth(p.momentum(), p.pdg_id()/13) for p in hard_event+pileup if p.pdg_id() == 13)
 
         self.a4.write(event)
+        #self.event_counter += 1
+        #print "TIGHT INFO at event ", self.event_counter , ": ", self.tight_same_count, self.only_othertight_count, self.only_tight_count
+
         return PyAthena.StatusCode.Success
 
 
