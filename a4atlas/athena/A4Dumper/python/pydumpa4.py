@@ -776,22 +776,22 @@ class AOD2A4(AOD2A4Base):
                             event.truth_muons.add().CopyFrom(make_truth(p.momentum(), p.pdg_id()/13))
                         if p.pdg_id() in (12, 14, 16, 18):
                             event.truth_neutrinos.add().CopyFrom(make_lv(p.momentum()))
-                        elif hard:
-                            tmx -= p.momentum().px()
-                            tmy -= p.momentum().py()
-                            tms -= p.momentum().perp()
-                        else:
-                            ptmx -= p.momentum().px()
-                            ptmy -= p.momentum().py()
-                            ptms -= p.momentum().perp()
+                        #elif hard:
+                        #    tmx -= p.momentum().px()
+                        #    tmy -= p.momentum().py()
+                        #    tms -= p.momentum().perp()
+                        #else:
+                        #    ptmx -= p.momentum().px()
+                        #    ptmy -= p.momentum().py()
+                        #    ptms -= p.momentum().perp()
                 hard = False
 
-            event.truth_met_hard.x = tmx
-            event.truth_met_hard.y = tmy
-            event.truth_met_hard.sum = tms
-            event.truth_met_pileup.x = ptmx
-            event.truth_met_pileup.y = ptmy
-            event.truth_met_pileup.sum = ptms
+            #event.truth_met_hard.x = tmx
+            #event.truth_met_hard.y = tmy
+            #event.truth_met_hard.sum = tms
+            #event.truth_met_pileup.x = ptmx
+            #event.truth_met_pileup.y = ptmy
+            #event.truth_met_pileup.sum = ptms
 
             #event.truth_met_hard.CopyFrom(self.met_detail_from_particles([p for p in hard_event if not p.pdg_id() in (12, 14, 16, 18)]))
             #event.truth_met_pileup.CopyFrom(self.met_detail_from_particles([p for p in pileup if not p.pdg_id() in (12, 14, 16, 18)]))
