@@ -304,7 +304,7 @@ class AOD2A4(AOD2A4Base):
     def tracks(self):
         trks = []
         for i, trk in enumerate(self.sg["TrackParticleCandidate"]):
-            if abs(trk.pt()) < 5000:
+            if abs(trk.pt()) < 10000:
                 continue
             t = Track()
             t.p4.CopyFrom(make_lv(trk))
