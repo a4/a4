@@ -25,6 +25,7 @@ def a4_tasks(todo, year = 2011, files_per_job=1, app=None):
             tf.backend = Panda()
             tf.backend.extOutFile = ["events.a4"]
             tf.backend.nobuild = True
+            tf.backend.location = "LRZ-LMU_LOCALGROUPDISK"
         tsks.append(t)
 
     return tsks
