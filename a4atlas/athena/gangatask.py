@@ -2,7 +2,7 @@ from glob import glob
 
 def a4_app(year = 2011):
     app = Athena()
-    app.option_file = "./run.py"
+    app.option_file = "./pydumpa4.py"
     app.atlas_dbrelease = "LATEST"
     app.options = "-c 'options={\"year\":%i}'" % year
     app.athena_compile = False
@@ -25,7 +25,7 @@ def a4_tasks(todo, year = 2011, files_per_job=1, app=None):
             tf.backend = Panda()
             tf.backend.extOutFile = ["events.a4"]
             tf.backend.nobuild = True
-            tf.backend.location = "LRZ-LMU_LOCALGROUPDISK"
+            tf.outputdata.location = "LRZ-LMU_LOCALGROUPDISK"
         tsks.append(t)
 
     return tsks
