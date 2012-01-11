@@ -15,6 +15,22 @@
         std::sort(container.begin(), container.end(), key_predicate); \
     }
 
+template<class Container, class Predicate>
+bool any(const Container& container, const Predicate& pred) {
+    foreach (const auto& item, container)
+        if (pred(item)) 
+            return true;
+    return false;
+}
+
+template<class Container, class Predicate>
+bool all(const Container& container, const Predicate& pred) {
+    foreach (const auto& item, container)
+        if (!pred(item)) 
+            return false;
+    return true;
+}
+
 /// Remove elements from  `container` which satisfy the result of a function
 /// fragment `condition` which operates on the variable `itemname`
 #define REMOVE_IF(container, itemname, condition) \
@@ -42,6 +58,18 @@ std::vector<const typename ContainerType::value_type*>
         out.push_back(&value);
     }
     return out; // std::move(out);
+}
+
+
+template<class ContainerType, class Cmp>
+typename ContainerType::value_type& 
+  max_element(const ContainerType& container, const Cmp& cmp) {
+    return max_element(container.begin(), container.end(), cmp);
+}
+
+template<class Map, typename T>
+bool in_map(const Map& input, const T& value) {
+    return input.find(value) != input.end();
 }
 
 };};};

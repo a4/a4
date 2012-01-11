@@ -68,10 +68,12 @@ namespace std_memory_prefix = std::tr1;
 #ifndef foreach
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH
+
+/// Loop with variable `index` which gives the index of `value` into `iterable`
 #define foreach_enumerate(index, value_def, iterable)                        \
     for(unsigned int index = static_cast<unsigned int>(-1), index##run_once = true; \
         index##run_once; index##run_once = false)            \
-            BOOST_FOREACH(value_def, iterable) if(++index,true)
+            foreach(value_def, iterable) if(++index,true)
 #endif
 
 using std_memory_prefix::static_pointer_cast;
