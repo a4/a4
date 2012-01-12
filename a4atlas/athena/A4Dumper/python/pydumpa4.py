@@ -205,24 +205,26 @@ def make_lv(lv):
     v.px, v.py, v.pz, v.e = lv.px(), lv.py(), lv.pz(), lv.e()
     return v
 
+def set_lv(v, lv):
+    v.px, v.py, v.pz, v.e = lv.px(), lv.py(), lv.pz(), lv.e()
+
 def make_vertex(vx):
     v = Vertex()
     v.x, v.y, v.z = vx.x(), vx.y(), vx.z()
     return v
 
-def make_track_hits(idtp):
+def set_track_hits(t, idtp):
     if not idtp:
-        return None
+        return False
     ts = idtp.trackSummary()
     if not ts:
-        return None
-    t = TrackHits()
+        return False
     for n in id_hit_names:
         idx = getattr(SummaryType, n)
         val = ts.get(idx)
         if int(val) != -1:
             setattr(t, n, val)
-    return t
+    return True
 
 def make_ms_track_hits(tp):
     if not tp:
@@ -238,8 +240,7 @@ def make_ms_track_hits(tp):
             setattr(t, n, val)
     return t
 
-def make_truth(p4, charge, pdg_id=None):
-    p = TruthParticle()
+def set_truth(p, p4, charge, pdg_id=None):
     p.p4.CopyFrom(make_lv(p4))
     p.charge = charge
     if pdg_id:
@@ -301,22 +302,19 @@ class AOD2A4(AOD2A4Base):
         #self.only_tight_count = 0
         #self.event_counter = 0
  
-    def tracks(self):
-        trks = []
+    def tracks(self, pb):
         for i, trk in enumerate(self.sg["TrackParticleCandidate"]):
             if abs(trk.pt()) < 10000:
                 continue
-            t = Track()
-            t.p4.CopyFrom(make_lv(trk))
+            t = pb.add()
+            set_lv(t.p4, trk)
             t.charge = int(trk.charge())
 
             vx = trk.reconstructedVertex()
             if vx:
-                t.vertex_index = list(self.sg["VxPrimaryCandidate"]).index(vx)
-            t.hits.CopyFrom(make_track_hits(trk))
-            t.perigee.CopyFrom(self.perigee_z0_d0(trk))
-            trks.append(t)
-        return trks
+                t.vertex_index = self.PV.index(vx)
+            set_track_hits(t.hits, trk)
+            self.perigee_z0_d0(t.perigee, trk)
 
     def electrons(self):
         els = []
@@ -337,7 +335,7 @@ class AOD2A4(AOD2A4Base):
             if vx:
                 #if vx.position():
                 #    e.vertex.CopyFrom(make_vertex(vx.position()))
-                e.vertex_index = list(vc.recVertex() for vc in self.sg["VxPrimaryCandidate"]).index(vx)
+                e.vertex_index = self.PV_rec.index(vx)
             e.author = el.author()
             for iso in isolations:
                 setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
@@ -376,8 +374,8 @@ class AOD2A4(AOD2A4Base):
             trk = el.trackParticle()
             if trk:
                 e.p4_track.CopyFrom(make_lv(trk))
-                e.perigee.CopyFrom(self.perigee_z0_d0(trk))
-                e.track_hits.CopyFrom(make_track_hits(trk))
+                self.perigee_z0_d0(e.perigee, trk)
+                set_track_hits(e.track_hits, trk)
             if el.cluster():
                 e.p4_cluster.CopyFrom(make_lv(el.cluster()))
 
@@ -403,7 +401,7 @@ class AOD2A4(AOD2A4Base):
             if vx:
                 #if vx.position():
                 #    m.vertex.CopyFrom(make_vertex(vx.position()))
-                m.vertex_index = list(vc.recVertex() for vc in self.sg["VxPrimaryCandidate"]).index(vx)
+                m.vertex_index = self.PV_rec.index(vx)
             for iso in isolations:
                 setattr(m.isolation, iso, mu.parameter(getattr(self.MuonParameters, iso)))
 
@@ -417,8 +415,8 @@ class AOD2A4(AOD2A4Base):
             trk = mu.inDetTrackParticle()
             if trk:
                 m.p4_track.CopyFrom(make_lv(trk))
-                m.perigee_id.CopyFrom(self.perigee_z0_d0(trk))
-                m.track_hits.CopyFrom(make_track_hits(trk))
+                self.perigee_z0_d0(m.perigee_id, trk)
+                set_track_hits(m.track_hits, trk)
     
             ms_trk = mu.muonExtrapolatedTrackParticle()
             if ms_trk:
@@ -426,7 +424,7 @@ class AOD2A4(AOD2A4Base):
 
             ctrk = mu.combinedMuonTrackParticle()
             if ctrk:
-                m.perigee_cmb.CopyFrom(self.perigee_z0_d0(trk))
+                self.perigee_z0_d0(m.perigee_cmb, trk)
                 m.ms_hits.CopyFrom(make_ms_track_hits(ctrk))
 
             #m.matched_trigger_efi_ms.extend(self.matched_chains(mu, useSpectrometerTrack))
@@ -513,22 +511,21 @@ class AOD2A4(AOD2A4Base):
         cpbo.clear()
         return chains
         
-    def triggers(self):
-        triggers = []
-        self.tmei = []
+    def triggers(self, pb):
         for tn in trigger_names[self.year]:
-            t = Trigger()
-            t.name = getattr(t, tn)
-            t.fired = self.tool_tdt.isPassed(tn)
-            if t.fired:
+            if self.tool_tdt.isPassed(tn):
+                t = pb.add()
+                t.name = getattr(t, tn)
+                t.fired = True
                 c_te  = self.tool_tmt.__getattribute__("getTriggerObjects<TrigElectron>")(tn, True)
                 c_tp  = self.tool_tmt.__getattribute__("getTriggerObjects<TrigPhoton>")(tn, True)
                 c_tme = self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEF>")(tn, True)
+                c_mroi= self.tool_tmt.__getattribute__("getTriggerObjects<Muon_ROI>")(tn, True)
                 c_mf  = self.tool_tmt.__getattribute__("getTriggerObjects<MuonFeature>")(tn, True)
                 c_cmf = self.tool_tmt.__getattribute__("getTriggerObjects<CombinedMuonFeature>")(tn, True)
                 c_tmei= self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEFInfo>")(tn, True)
 
-                te, tp, tme, mf, cmf, tmei = map(list, (c_te, c_tp, c_tme, c_mf, c_cmf, c_tmei))
+                te, tp, tme, mroi, mf, cmf, tmei = map(list, (c_te, c_tp, c_tme, c_mroi, c_mf, c_cmf, c_tmei))
 
                 tmeit = sum((list(efi.TrackContainer()) for efi in tmei), [])
                 tmeit_ms = [tr.SpectrometerTrack() for tr in tmeit if tr.MuonType() == 1 and tr.hasSpectrometerTrack()]
@@ -536,31 +533,30 @@ class AOD2A4(AOD2A4Base):
                 tmeit_cb = [tr.CombinedTrack() for tr in tmeit if tr.MuonType() == 1 and tr.hasCombinedTrack()]
                 tmeit_mg = [tr.CombinedTrack() for tr in tmeit if tr.MuonType() == 2 and tr.hasCombinedTrack()]
 
-                def make_tf(feature):
-                    ff = TriggerFeature()
-                    ff.eta = feature.eta()
-                    ff.phi = feature.phi()
-                    ff.pt = feature.pt()
-                    return ff
+                def make_tf(pb, feature):
+                    if feature:
+                        ff = pb.add()
+                        ff.eta = feature.eta()
+                        ff.phi = feature.phi()
+                        ff.pt = feature.pt()
 
-                t.features_trig_electron.extend(make_tf(f) for f in te)
-                t.features_trig_photon.extend(make_tf(f) for f in tp)
-                t.features_trig_muon_ef.extend(make_tf(f) for f in tme)
-                t.features_trig_muon_efi_ms.extend(make_tf(f) for f in tmeit_ms)
-                t.features_trig_muon_efi_ex.extend(make_tf(f) for f in tmeit_ex)
-                t.features_trig_muon_efi_cb.extend(make_tf(f) for f in tmeit_cb)
-                t.features_trig_muon_efi_mg.extend(make_tf(f) for f in tmeit_mg)
-                t.features_muon.extend(make_tf(f) for f in mf)
-                t.features_muon_combined.extend(make_tf(f) for f in cmf)
- 
-                triggers.append(t)
+                [make_tf(t.features_trig_electron, f) for f in te]
+                [make_tf(t.features_trig_photon, f) for f in tp]
+                [make_tf(t.features_trig_muon_ef, f) for f in tme]
+                [make_tf(t.features_trig_muon_efi_ms, f) for f in tmeit_ms]
+                [make_tf(t.features_trig_muon_efi_ex, f) for f in tmeit_ex]
+                [make_tf(t.features_trig_muon_efi_cb, f) for f in tmeit_cb]
+                [make_tf(t.features_trig_muon_efi_mg, f) for f in tmeit_mg]
+                [make_tf(t.features_muon_roi, f) for f in mroi]
+                [make_tf(t.features_muon, f) for f in mf]
+                [make_tf(t.features_muon_combined, f) for f in cmf]
+
                 for vec in (c_te, c_tp, c_tme, c_mf, c_cmf, c_tmei):
                     vec.clear()
-        return triggers
 
     def vertices(self):
         vxs = []
-        for i, vx in enumerate(self.sg["VxPrimaryCandidate"]):
+        for i, vx in enumerate(self.PV):
             v = Vertex()
             v.index = i
             pos = vx.recVertex().position()
@@ -569,17 +565,40 @@ class AOD2A4(AOD2A4Base):
             vxs.append(v)
         return vxs
 
-    def perigee_z0_d0(self, trk):
-        if trk and len(self.sg["VxPrimaryCandidate"]) > 0:
-            p = Perigee()
-            vxp = self.sg["VxPrimaryCandidate"][0].recVertex().position()
+    def new_perigee_z0_d0(self, p, trk):
+        if trk and len(self.PV) > 0:
+            trackparPerigee = trk.measuredPerigee()
+            res = None
+            if trackparPerigee:
+                if trackparPerigee.associatedSurface() == self.persf:
+                    res = trackparPerigee
+                else:
+                    vxp = self.PV_rec[0].position()
+                    res = self.tool_ttv.perigeeAtVertex(trk, vxp)
+            if res:
+                p.d0 = res.parameters()[0]
+                p.d0err = res.localErrorMatrix().error(0)
+                p.z0 = res.parameters()[1]
+                p.z0err = res.localErrorMatrix().error(0)
+
+    def perigee_z0_d0(self, p, trk):
+        res = trk.measuredPerigee()
+        if res:
+            p.d0 = res.parameters()[0]
+            p.d0err = res.localErrorMatrix().error(0)
+            p.z0 = res.parameters()[1]
+            p.z0err = res.localErrorMatrix().error(0)
+
+    def correct_perigee_z0_d0(self, p, trk):
+        if trk and len(self.PV) > 0:
+            vxp = self.PV_rec[0].position()
             pavV0 = self.tool_ttv.perigeeAtVertex(trk, vxp)
             p.d0 = pavV0.parameters()[0]
             p.d0err = pavV0.localErrorMatrix().error(0)
             p.z0 = pavV0.parameters()[1]
             p.z0err = pavV0.localErrorMatrix().error(0)
-            return p
-        return None
+            del pavV0
+            
 
     def met_reffinal45(self):
         met = MissingEnergy()
@@ -676,10 +695,12 @@ class AOD2A4(AOD2A4Base):
             return self.met_reffinal()
 
     def execute(self):
-        gc.collect(2)
         event = Event()
         self.load_event_info(event) # sets run_number, event_number, lumi_block and mc_event_weight
-        event.triggers.extend(self.triggers())
+        self.PV = list(self.sg["VxPrimaryCandidate"])
+        self.PV_rec = [pv.recVertex() for pv in self.PV]
+
+        self.triggers(event.triggers)
         event.vertices.extend(self.vertices())
 
         event.met_LocHadTopo_modified.CopyFrom(self.met_lochadtopo())
@@ -719,7 +740,7 @@ class AOD2A4(AOD2A4Base):
         event.muons_muid.extend(self.muons("Muid"))
         event.electrons.extend(self.electrons())
         #event.photons.extend(self.photons())
-        event.tracks.extend(self.tracks())
+        self.tracks(event.tracks)
 
         if self.is_mc:
             if self.try_hfor:
@@ -732,34 +753,6 @@ class AOD2A4(AOD2A4Base):
                     self.try_hfor = False
                 
             # extract truth info
-
-            def make_list(begin, end):
-                result = []
-                while begin.__cpp_ne__(end):
-                    result.append(begin.__deref__())
-                    begin.__preinc__()
-                return result
-
-            def get_all_particles(ev):
-                return make_list(ev.particles_begin(), ev.particles_end())
-
-            def get_particles_in(v):
-                begin = v.particles_in_const_begin()
-                end = v.particles_in_const_end()
-                return make_list(begin, end)
-
-            def get_particles_out(v):
-                begin = v.particles_out_const_begin()
-                end = v.particles_out_const_end()
-                return make_list(begin, end)
-
-            def is_coloured(p):
-                pdgid = p.pdg_id()
-                return abs(pdgid) < 10 or pdgid == 21 or (abs(pdgid) < 9999 and (abs(pdgid)/10)%10 == 0)
-
-            def is_final(p):
-                return not bool(p.end_vertex())
-          
             #hard_event = [x for x in get_all_particles(truth[0]) if is_final(x) and not is_coloured(x)]
             #pileup = sum(([x for x in get_all_particles(t) if is_final(x) and not is_coloured(x)] for t in truth[1:]), [])
             tmx, tmy, tms = 0, 0, 0
@@ -769,13 +762,14 @@ class AOD2A4(AOD2A4Base):
             hard = True
             for t in truth:
                 for p in get_all_particles(t):
-                    if is_final(p) and not is_coloured(p) and p.momentum().perp() > 500.0:
-                        if p.pdg_id() == 11:
-                            event.truth_electrons.add().CopyFrom(make_truth(p.momentum(), p.pdg_id()/11))
-                        elif p.pdg_id() == 13:
-                            event.truth_muons.add().CopyFrom(make_truth(p.momentum(), p.pdg_id()/13))
-                        if p.pdg_id() in (12, 14, 16, 18):
-                            event.truth_neutrinos.add().CopyFrom(make_lv(p.momentum()))
+                    if 10 < p.pdg_id() < 19:
+                        if is_final(p) and not is_coloured(p) and p.momentum().perp() > 5000.0:
+                            if p.pdg_id() == 11:
+                                set_truth(event.truth_electrons.add(), p.momentum(), p.pdg_id()/11)
+                            elif p.pdg_id() == 13:
+                                set_truth(event.truth_muons.add(), p.momentum(), p.pdg_id()/13)
+                            if p.pdg_id() in (12, 14, 16, 18):
+                                set_lv(event.truth_neutrinos.add(), p.momentum())
                         #elif hard:
                         #    tmx -= p.momentum().px()
                         #    tmy -= p.momentum().py()
@@ -805,6 +799,32 @@ class AOD2A4(AOD2A4Base):
 
         return PyAthena.StatusCode.Success
 
+def make_list(begin, end):
+    result = []
+    while begin.__cpp_ne__(end):
+        result.append(begin.__deref__())
+        begin.__preinc__()
+    return result
+
+def get_all_particles(ev):
+    return make_list(ev.particles_begin(), ev.particles_end())
+
+def get_particles_in(v):
+    begin = v.particles_in_const_begin()
+    end = v.particles_in_const_end()
+    return make_list(begin, end)
+
+def get_particles_out(v):
+    begin = v.particles_out_const_begin()
+    end = v.particles_out_const_end()
+    return make_list(begin, end)
+
+def is_coloured(p):
+    pdgid = p.pdg_id()
+    return abs(pdgid) < 10 or pdgid == 21 or (abs(pdgid) < 9999 and (abs(pdgid)/10)%10 == 0)
+
+def is_final(p):
+    return not bool(p.end_vertex())
 
 
 if not "options" in dir():

@@ -190,10 +190,11 @@ class AOD2A4Base(PyAthena.Alg):
                 raise RuntimeError("EventInfo not found in StoreGate!") 
         self.event_info = self.sg[self.event_info_key]
 
-        event.event_number = self.event_info.event_ID().event_number()
-        event.run_number = self.event_info.event_ID().run_number()
-        event.lumi_block = self.event_info.event_ID().lumi_block()
-        event.bunch_crossing_id = self.event_info.event_ID().bunch_crossing_id()
+        eid = self.event_info.event_ID()
+        event.event_number = eid.event_number()
+        event.run_number = eid.run_number()
+        event.lumi_block = eid.lumi_block()
+        event.bunch_crossing_id = eid.bunch_crossing_id()
         event.error_state_lar = self.event_info.errorState(self.event_info.LAr)
 
         effective_run = event.run_number
@@ -207,8 +208,6 @@ class AOD2A4Base(PyAthena.Alg):
             event_weight = et.mc_event_weight()
             event.mc_event_weight = event_weight
             self.sum_mc_event_weights += event_weight
-
-                
 
         if not effective_run in self.runs_encountered:
             self.runs_encountered[effective_run] = 0

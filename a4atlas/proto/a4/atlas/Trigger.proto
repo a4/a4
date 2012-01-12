@@ -72,6 +72,7 @@ message Trigger
     repeated TriggerFeature features_trig_electron = 3;
     repeated TriggerFeature features_trig_photon = 4;
     repeated TriggerFeature features_trig_muon_ef = 5;
+    repeated TriggerFeature features_muon_roi = 12;
     repeated TriggerFeature features_muon = 6;
     repeated TriggerFeature features_muon_combined = 7;
     repeated TriggerFeature features_trig_muon_efi_ms = 8;
