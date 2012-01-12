@@ -11,8 +11,41 @@ using namespace a4::hist;
 
 const size_t GRIND_REPETITIONS = 5000000;
 
-#if 0
-#endif
+#include <atomic>
+
+const uint64_t n_per_thread = 5e7; //1000000000; // 1e9
+const uint64_t n_threads = 2; //1000000000; // 1e9
+volatile std::atomic<uint64_t> atomic_bignum(0);
+volatile uint64_t bignum = 0;
+
+void AtomicIncreaseBignum(const uint64_t n) {
+    for (uint64_t i = 0; i < n; i++)
+        atomic_bignum++;
+}
+
+void IncreaseBignum(const uint64_t n) {
+    for (uint64_t i = 0; i < n; i++)
+        bignum++;
+}
+
+#include <boost/thread.hpp>
+
+TEST(a4hist, atomicint) {
+    boost::thread_group tg;
+    for (uint64_t i = 0; i < n_threads; i++)
+        tg.add_thread(new boost::thread(AtomicIncreaseBignum, n_per_thread)); 
+    tg.join_all();
+    ASSERT_EQ(n_per_thread*n_threads, atomic_bignum);
+}
+
+TEST(a4hist, nonatomicint) {
+    boost::thread_group tg;
+    for (uint64_t i = 0; i < n_threads; i++)
+        tg.add_thread(new boost::thread(IncreaseBignum, n_per_thread)); 
+    tg.join_all();
+    ASSERT_EQ(n_per_thread*n_threads, bignum);
+}
+
 TEST(a4hist, h1) {
     H1 h1;
     h1(100,0,1);
