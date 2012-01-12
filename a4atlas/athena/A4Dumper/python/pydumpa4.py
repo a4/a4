@@ -330,7 +330,14 @@ class AOD2A4(AOD2A4Base):
  
     def tracks(self, pb):
         for i, trk in enumerate(self.sg["TrackParticleCandidate"]):
-            if abs(trk.pt()) < 10000:
+            if abs(trk.pt()) < 500 or abs(trk.eta()) > 2.5:
+                continue
+            ts = trk.trackSummary()
+            if not ts:
+                continue
+            if ts.get(SummaryType.numberOfPixelHits) < 1:
+                continue
+            if ts.get(SummaryType.numberOfSCTHits) < 4:
                 continue
             t = pb.add()
             set_lv(t.p4, trk)
@@ -488,6 +495,7 @@ class AOD2A4(AOD2A4Base):
             j.bad = self.jet_bad(jet)
             j.ugly = self.jet_ugly(jet)
             j.jet_vertex_fraction = jet.getMoment("JVF")
+            j.n_trk = jet.getMoment("nTrk")
 
             j.p4_em.CopyFrom(make_lv(jet.hlv(JETEMSCALE)))
             j.EMJES = jet.getMoment("EMJES")
