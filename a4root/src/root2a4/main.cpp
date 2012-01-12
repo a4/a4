@@ -162,7 +162,9 @@ public:
                          const MessageBuffer& buffer)
     {
         compute_info(buffer);
-        stream->metadata(_metadata);
+        if (buffer.size() >= 1) {
+            stream->metadata(_metadata);
+        }
         reset_counters();
     }
 };
@@ -386,7 +388,7 @@ int main(int argc, char ** argv) {
     std::string tree_name, tree_type, output_file, compression_type;
     std::vector<std::string> input_files;
     Long64_t event_count = -1;
-    uint32_t metadata_frequency = 10000;
+    uint32_t metadata_frequency = 100000;
     
     #ifdef HAVE_SNAPPY
     const char* default_compression = "SNAPPY";
