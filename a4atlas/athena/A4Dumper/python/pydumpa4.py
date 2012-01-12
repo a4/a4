@@ -134,8 +134,34 @@ trigger_names = {
         ],
     2011 : [
         "L1_EM14",
+
         "L1_MU10",
+        "L1_MU11",
+        "L1_MU15",
+        "L1_MU20",
+
+        # Level 2 muon triggers
+        "L2_mu15",
+        "L2_mu15_medium",
+
+        "L2_mu18",
+        "L2_mu18_medium",
+        "L2_mu18_MG",
+        "L2_mu18_MG_medium",
         
+        "L2_mu20",
+        "L2_mu20_medium",
+        "L2_mu20_MG",
+        "L2_mu20_MG_medium",
+
+        "L2_mu22",
+        "L2_mu22_medium",
+        "L2_mu22_MG",
+        "L2_mu22_MG_medium",
+
+        "L2_mu40_MSonly_barrel",
+        "L2_mu40_MSonly_barrel_medium",
+
         # Single-electron Trigger
         "EF_e15_medium",
         "EF_e20_medium",

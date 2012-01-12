@@ -13,6 +13,30 @@ message Trigger
     {
         L1_EM14 = 1;
         L1_MU10 = 2;
+        L1_MU11 = 55;
+        L1_MU15 = 56;
+        L1_MU20 = 57;
+
+        L2_mu15 = 43;
+        L2_mu15_medium = 44;
+
+        L2_mu18 = 45;
+        L2_mu18_medium = 46;
+        L2_mu18_MG = 47;
+        L2_mu18_MG_medium = 48;
+        
+        L2_mu20 = 49;
+        L2_mu20_medium = 50;
+        L2_mu20_MG = 51;
+        L2_mu20_MG_medium = 52;
+
+        L2_mu22 = 49;
+        L2_mu22_medium = 50;
+        L2_mu22_MG = 51;
+        L2_mu22_MG_medium = 52;
+
+        L2_mu40_MSonly_barrel = 53;
+        L2_mu40_MSonly_barrel_medium = 54;
 
         // Single-electron Trigger
         EF_e15_medium = 3;
@@ -64,7 +88,7 @@ message Trigger
 
         // e/mu triggers
         EF_e10_medium_mu6 = 11;
-        // Next ID: 43
+        // Next ID: 58
     }
 
     required TriggerName name = 1;
