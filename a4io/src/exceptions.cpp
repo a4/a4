@@ -4,12 +4,19 @@
 #include <signal.h>
 #include <cxxabi.h>
 
+#include <boost/thread.hpp>
+#include <boost/thread/locks.hpp>
+
+typedef boost::unique_lock<boost::recursive_mutex> Lock;
+static boost::recursive_mutex segfault_mutex;
+static boost::recursive_mutex exception_mutex;
+
 namespace a4{
 
     BackTraceException::BackTraceException() {
-        // Enter an infinite loop - only one fatal should be executing.
-        // This is not excessively important, so this sync should be enough.
-        if (called) { while(true); return; } else called = true;
+        // Lock this backtrace generation
+        Lock lock(exception_mutex);
+
         //std::cerr << "A4: An error occurred - trying to attach gdb to the current process --" << std::endl;
         // Try using GDB first...
         bool gdb_worked = true;
@@ -96,15 +103,51 @@ namespace a4{
         _full_backtrace = sstr.str();
     };
 
+    void Fatal::handle_exception(std::string reason) {
+        std::stringstream sstr;
+        sstr << "A4 FATAL ERROR: " << reason << std::endl;
+        sstr << "Backtrace:\n--------------------------------" << std::endl;
+        sstr << _backtrace;
+        sstr << "--------------------------------" << std::endl;
+        sstr << "A4 FATAL ERROR: " << reason << std::endl;
+        // Write to $XDG_CACHE_HOME/a4/last-error or $(HOME)/.cache/a4/last-error
+        try {
+            using boost::filesystem::path; using boost::filesystem::create_directories;
+            path dirname;
+            // http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+            if (getenv("XDG_CACHE_HOME")) {
+                dirname = getenv("XDG_CACHE_HOME");
+            } else {
+                dirname = path(getenv("HOME")) / ".cache" / "a4";
+            }
+            create_directories(dirname);
+            dirname /= "last-fatal-error";
+            std::ofstream out(dirname.string().c_str());
+            out << sstr.str() << std::endl << "FULL BACKTRACE:" << std::endl << _full_backtrace << std::endl;
+            sstr << "\nNotice: Error has been written to " << dirname.string() << std::endl;
+        } catch (...) {};
+        sstr << "If this is a bug in A4, please submit an issue at https://github.com/JohannesEbke/a4/issues" << std::endl;
+        _what = sstr.str();
+    }
+
     bool Fatal::enable_throw_on_segfault() {
         struct sigaction act;
         act.sa_handler = &segfault_handler;
         sigemptyset(&act.sa_mask);
-        act.sa_flags = 0;
+        act.sa_flags = SA_RESETHAND;
         return sigaction(SIGSEGV, &act, NULL) == 0;
     };
 
-    volatile bool BackTraceException::called = false;
+    void Fatal::segfault_handler(int i) {
+        Lock lock(segfault_mutex);
+        if (segfault_handled) {
+            std::cerr << "double segfault or segfault in exception handler - sorry!" << std::endl;
+            std::terminate();
+        }
+        segfault_handled = true;
+        throw Fatal("Segmentation Fault!");
+    }
 
+    volatile bool Fatal::segfault_handled = false;
 };
 

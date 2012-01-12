@@ -29,45 +29,20 @@ namespace a4{
         public:
             template<typename ...Args>
             Fatal(const Args&... args) {
-                std::stringstream sstr;
-                sstr << "A4 FATAL ERROR: " << str_cat(args...) << std::endl;
-                sstr << "Backtrace:\n--------------------------------" << std::endl;
-                sstr << _backtrace;
-                sstr << "--------------------------------" << std::endl;
-                sstr << "A4 FATAL ERROR: " << str_cat(args...) << std::endl;
-                // Write to $XDG_CACHE_HOME/a4/last-error or $(HOME)/.cache/a4/last-error
-                try {
-                    using boost::filesystem::path; using boost::filesystem::create_directories;
-                    path dirname;
-                    // http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
-                    if (getenv("XDG_CACHE_HOME")) {
-                        dirname = getenv("XDG_CACHE_HOME");
-                    } else {
-                        dirname = path(getenv("HOME")) / ".cache" / "a4";
-                    }
-                    create_directories(dirname);
-                    dirname /= "last-fatal-error";
-                    std::ofstream out(dirname.string().c_str());
-                    out << sstr.str() << std::endl << "FULL BACKTRACE:" << std::endl << _full_backtrace << std::endl;
-                    sstr << "\nNotice: Error has been written to " << dirname.string() << std::endl;
-                } catch (...) {};
-                sstr << "If this is a bug in A4, please submit an issue at https://github.com/JohannesEbke/a4/issues" << std::endl;
-                _what = sstr.str();
-            }
-
+                handle_exception(str_cat(args...));
+            };
             virtual ~Fatal() throw() {};
+
+            void handle_exception(std::string);
 
             virtual const char* what() const throw() {
                 return _what.c_str();
             }
-
             static bool enable_throw_on_segfault();
-
-            static void segfault_handler(int i) {
-                throw Fatal("Segmentation Fault!");
-            };
+            static void segfault_handler(int i);
 
         protected:
+            static volatile bool segfault_handled;
             std::string _what;
     };
 
