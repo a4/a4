@@ -58,7 +58,7 @@ void A4Output::report_finished(A4Output * output, OutputStream* s) {
 /// Create a new output stream. For each call we create an independent output
 /// stream pointing to a different file, unless the destination is a fifo, in
 /// which case we only allow one call to `get_stream()`.
-shared<OutputStream> A4Output::get_stream(std::string postfix) {
+shared<OutputStream> A4Output::get_stream(std::string postfix, bool forward_metadata) {
     Lock lock(_mutex);
     int count = _filenames[postfix].size() + 1;
     
@@ -81,7 +81,10 @@ shared<OutputStream> A4Output::get_stream(std::string postfix) {
     }
     
     shared<OutputStream> os(new OutputStream(filename, _description));
-
+    
+    if (forward_metadata)
+        os->set_forward_metadata();
+    
     _out_streams[postfix].push_back(os);
     _filenames[postfix].push_back(filename);
 

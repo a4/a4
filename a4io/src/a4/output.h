@@ -26,7 +26,7 @@ namespace a4{ namespace io{
             /// Make sure all output is written and merge files
             bool close();
             /// Get a stream to write to (threadsafe).
-            shared<OutputStream> get_stream(std::string postfix="");
+            shared<OutputStream> get_stream(std::string postfix="", bool forward_metadata=false);
         private:
             static void report_finished(A4Output *, OutputStream* _s);
             bool concatenate(const std::vector<std::string> & filenames, const std::string target);
