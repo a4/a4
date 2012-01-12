@@ -10,6 +10,8 @@ namespace a4{ namespace process{ namespace internal{
         }
     };
     shared<Storable> message_to_storable(a4::io::A4Message msg) {
-        return internal::as_storable(msg.descriptor())(*msg.message);
+        auto func = internal::as_storable(msg.descriptor());
+        assert(func);
+        return func(*msg.message);
     }
 };};
