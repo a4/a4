@@ -322,6 +322,9 @@ class AOD2A4(AOD2A4Base):
         self.tool_tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
         self.tool_tmt = PyAthena.py_tool("TrigMatchTool/TrigMatchTool")
         self.tool_hfor= PyAthena.py_tool("HforTool",iface="IHforTool")
+        #self.tool_extrap = PyAthena.py_tool("Trk::Extrapolator/AtlasExtrapolator",iface="Trk::IExtrapolator")
+        #import ROOT
+        #self.PerigeeSurface = ROOT.__getattr__("Trk::PerigeeSurface")
 
         #self.tight_same_count = 0
         #self.only_othertight_count = 0
@@ -599,39 +602,32 @@ class AOD2A4(AOD2A4Base):
             vxs.append(v)
         return vxs
 
-    def new_perigee_z0_d0(self, p, trk):
-        if trk and len(self.PV) > 0:
-            trackparPerigee = trk.measuredPerigee()
-            res = None
-            if trackparPerigee:
-                if trackparPerigee.associatedSurface() == self.persf:
-                    res = trackparPerigee
-                else:
-                    vxp = self.PV_rec[0].position()
-                    res = self.tool_ttv.perigeeAtVertex(trk, vxp)
-            if res:
-                p.d0 = res.parameters()[0]
-                p.d0err = res.localErrorMatrix().error(0)
-                p.z0 = res.parameters()[1]
-                p.z0err = res.localErrorMatrix().error(0)
-
     def perigee_z0_d0(self, p, trk):
-        res = trk.measuredPerigee()
-        if res:
-            p.d0 = res.parameters()[0]
-            p.d0err = res.localErrorMatrix().error(0)
-            p.z0 = res.parameters()[1]
-            p.z0err = res.localErrorMatrix().error(0)
-
-    def correct_perigee_z0_d0(self, p, trk):
         if trk and len(self.PV) > 0:
-            vxp = self.PV_rec[0].position()
-            pavV0 = self.tool_ttv.perigeeAtVertex(trk, vxp)
-            p.d0 = pavV0.parameters()[0]
-            p.d0err = pavV0.localErrorMatrix().error(0)
-            p.z0 = pavV0.parameters()[1]
-            p.z0err = pavV0.localErrorMatrix().error(0)
-            del pavV0
+            res = self.tool_ttv.d0z0AtVertex(trk, self.PV_rec[0].position())
+            p.d0, p.d0err = res.first.first, res.first.second
+            p.z0, p.z0err = res.second.first, res.second.second
+            
+#    def extrap_perigee_z0_d0(self, p, trk):
+#        mp = trk.measuredPerigee()
+#        vxp = self.PV_rec[0].position()
+#        ps = self.PerigeeSurface(vxp)
+#        if mp and vxp and ps:
+#            pavV0 = self.tool_extrap.extrapolateDirectly(mp, ps)
+#            p.d0 = pavV0.parameters()[0]
+#            p.d0err = pavV0.localErrorMatrix().error(0)
+#            p.z0 = pavV0.parameters()[1]
+#            p.z0err = pavV0.localErrorMatrix().error(1)
+#
+#    def ttv_perigee_z0_d0(self, p, trk):
+#        if trk and len(self.PV) > 0:
+#            vxp = self.PV_rec[0].position()
+#            pavV0 = self.tool_ttv.perigeeAtVertex(trk, vxp)
+#            p.d0 = pavV0.parameters()[0]
+#            p.d0err = pavV0.localErrorMatrix().error(0)
+#            p.z0 = pavV0.parameters()[1]
+#            p.z0err = pavV0.localErrorMatrix().error(0)
+#            del pavV0
             
 
     def met_reffinal45(self):
