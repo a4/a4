@@ -284,4 +284,8 @@ void add_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, Dynami
 void multiply_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged);
 void append_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged, bool make_unique);
 
+void inplace_add_fields(DynamicField& merged, const DynamicField & f2);
+void inplace_multiply_fields(DynamicField& merged, const DynamicField & f2);
+void inplace_append_fields(DynamicField& merged, const DynamicField & f2, bool make_unique);
+
 #endif

@@ -133,6 +133,64 @@ namespace a4{ namespace io{
         }
         return res;
     }
+
+    A4Message& A4Message::operator+=(const A4Message& m2_) {
+        // Find out which descriptor to use. Prefer dynamic descriptors
+        // since they are probably contain all fields.
+        version_check(m2_);
+
+        const Descriptor* d;
+        const Descriptor* dd;
+        if (m2_._dynamic_descriptor) {
+            dd = d = m2_._dynamic_descriptor;
+        } else if (m2_._pool) {
+            dd = d = m2_._pool->FindMessageTypeByName(m2_.descriptor()->full_name());
+        } else {
+            d = m2_._descriptor;
+            dd = NULL;
+        }
+
+        A4Message m2;
+
+        if (m2_._descriptor == d) {
+            m2 = m2_;
+        } else {
+            m2.message.reset(message->New());
+            m2.message->ParseFromString(m2_.message->SerializeAsString());
+        }
+
+        for (int i = 0; i < d->field_count(); i++) {
+            MetadataMergeOptions merge_opts = d->field(i)->options().GetExtension(merge);
+
+            DynamicField f1(*message, d->field(i));
+            DynamicField f2(*m2.message, d->field(i));
+
+            switch(merge_opts) {
+                case MERGE_BLOCK_IF_DIFFERENT:
+                    if(!(f1 == f2)) throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name());
+                    // NOOP!
+                    //f1.set(f1.value());
+                    break;
+                case MERGE_ADD:
+                    inplace_add_fields(f1, f2);
+                    break;
+                case MERGE_MULTIPLY:
+                    inplace_multiply_fields(f1, f2);
+                    break;
+                case MERGE_UNION:
+                    inplace_append_fields(f1, f2, true);
+                    break;
+                case MERGE_APPEND:
+                    inplace_append_fields(f1, f2, false);
+                    break;
+                case MERGE_DROP:
+                    break;
+                default:
+                    throw a4::Fatal("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
+            }
+        }
+        return *this;
+    }
     
     std::string A4Message::field_as_string(const std::string& field_name) {
         assert(descriptor() == message()->GetDescriptor());

@@ -57,3 +57,46 @@ void append_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, Dyn
     }
 }
 
+void inplace_add_fields(DynamicField& merged, const DynamicField& f2) {
+    if (merged.repeated()) {
+        throw a4::Fatal("Not implemented: inplace_add_fields with repeated field");
+    } else {
+        merged.set(merged.value() + f2.value());
+    }
+}
+
+void inplace_multiply_fields(DynamicField& merged, const DynamicField& f2) {
+    if (merged.repeated()) {
+        throw a4::Fatal("Not implemented: inplace_multiply_fields with repeated field");
+    } else {
+        merged.set(merged.value() * f2.value());
+    }
+}
+
+void inplace_append_fields(DynamicField& merged, const DynamicField& f2, bool make_unique) {
+    if (!merged.repeated())
+        throw a4::Fatal("MERGE_UNION/APPEND is not applicable to non-repeated field ", merged.name());
+        
+    // In order to implement make_unique, we need to build a set of existing
+    // elements to check against. Repeated calls to inplace_append_fields
+    // then has quadratic behaviour. I'm not sure of a good solution to this
+    // at the moment. Maybe the `merged` DynamicField could maintain the items
+    // set, rather than building it for every inplace_append_fields call.
+    
+    // std::unordered_set<FieldContent> items;
+    
+    if (make_unique)
+        throw a4::Fatal("Not implemented: inplace_append_fields make_unique=true");
+        
+    
+    for (int i = 0; i < f2.size(); i++) {
+        FieldContent fc = f2.value(i);
+        //if (make_unique) {
+            //if (items.find(fc)  == items.end())
+                //merged.add(fc);
+            //items.insert(fc);
+        //} else
+        merged.add(fc);
+    }
+}
+

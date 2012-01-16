@@ -118,7 +118,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
             if (merge) {
                 //std::cerr << "Merging\n" << old_metadata.message()->ShortDebugString()
                 //          << "\n...and...\n" << new_metadata.message()->ShortDebugString() << std::endl;
-                current_metadata = old_metadata + new_metadata;
+                current_metadata += new_metadata;
                 //std::cerr << "...to...\n" << current_metadata.message()->ShortDebugString() << std::endl;
             } else { // Normal action in case of new metadata
                 // If we are in charge of metadata, start a new block now...
