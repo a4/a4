@@ -41,7 +41,7 @@ namespace a4{ namespace process{
             template <class C, typename ...Args> C * find(const Args & ...args);
             /// Get a checked, shared pointer to a C object identified by the concatenated args.
             /// If the object does not exist, a NULL shared pointer is returned.
-            template <class C> shared<C> get_slow(const std::string & s);
+            template <class C> shared<C> get_slow(const std::string & s) const;
             void set_slow(const std::string & name, shared<Storable> obj);
 
             /// Version of T that works with dynamic strings (warning: very slow)
@@ -49,11 +49,14 @@ namespace a4{ namespace process{
             /// Version of find that works with dynamic strings (warning: very slow)
             template <class C, typename ...Args> C * find_slow(const Args & ...args);
             /// Get an ObjectStore with a "prefix" which can be handed to functions
-            template <typename ...Args> ObjectStore operator()(const Args & ...args);
+            template <typename ...Args> ObjectStore operator()(const Args & ...args) const;
             /// set weight
             void set_weight(const double & w) { current_weight = w; }
             void mul_weight(const double & w) { current_weight *= w; }
-            double weight() { return current_weight; }
+            double weight() const { return current_weight; }
+
+            // Return the 
+            const std::string & prefix() const { return hl->get_path(); };
         protected:
             ObjectBackStore * backstore;
             hash_lookup * hl;

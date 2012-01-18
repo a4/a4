@@ -30,7 +30,7 @@ namespace a4{ namespace process{
         return res;
     };
 
-    template <class C> shared<C> ObjectStore::get_slow(const std::string & name) {
+    template <class C> shared<C> ObjectStore::get_slow(const std::string & name) const {
         auto res = backstore->get<C>(hl->get_path() + name);
         if (res) static_cast<Storable*>(res.get())->weight(current_weight);
         return res;
@@ -40,7 +40,7 @@ namespace a4{ namespace process{
         backstore->set(hl->get_path() + name, obj);
     };
 
-    template <typename ...Args> ObjectStore ObjectStore::operator()(const Args & ...args) {
+    template <typename ...Args> ObjectStore ObjectStore::operator()(const Args & ...args) const {
         return ObjectStore(hl->subhash(args...), backstore, current_weight);
     }
 
