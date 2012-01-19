@@ -67,7 +67,7 @@ for hn in histos_1d:
     for h in data+sg+bg:
         for label in map(str,h.GetXaxis().GetLabels()):
             if not label in labels:
-                labels.append(labe)
+                labels.append(label)
 
     def get_cf_data(h):
         datad = {}
