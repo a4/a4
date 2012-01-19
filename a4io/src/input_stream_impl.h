@@ -25,6 +25,12 @@ namespace a4{ namespace io{
             A4Message next_with_metadata() { return next(false);} ;
             /// Return the current metadata message.
             const A4Message current_metadata() {return _current_metadata; };
+            /// Seek to the given header/metadata combination.
+            /// If carry==false, specifying a metadata index not in that header section
+            /// causes an exception, otherwise the next header is used, or false is returned on EOF.
+            bool seek_to(uint32_t header, uint32_t metadata, bool carry=false);
+            /// Skip to the start of the next metadata block. Return false if EOF, true if not.
+            bool skip_to_next_metadata() { return seek_to(_current_header_index, _current_metadata_index+1, true); };
             /// True if new metadata has appeared since the last call to this function.
             bool new_metadata() { if (_new_metadata) { _new_metadata = false; return true; } else return false;};
             /// True if the stream has not ended or encountered an error.
@@ -72,7 +78,9 @@ namespace a4{ namespace io{
             // metadata-related status
             bool _new_metadata, _current_metadata_refers_forward;
             A4Message _current_metadata;
+            std::vector<std::vector<uint64_t>> _metadata_offset_per_header;
             std::vector<std::vector<A4Message>> _metadata_per_header;
+            std::vector<bool> _headers_forward;
     
             // internal functions
             void startup(bool discovery_requested=false);
@@ -89,6 +97,7 @@ namespace a4{ namespace io{
             bool handle_compressed_section(A4Message & msg);
             bool handle_stream_command(A4Message & msg);
             bool handle_metadata(A4Message & msg);
+            bool carry_metadata(uint32_t& header, uint32_t& metadata);
 
             // set error/end status and return A4Message
             A4Message set_error();

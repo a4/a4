@@ -43,6 +43,9 @@ namespace a4{ namespace io{
             /// Return the currently applicable metadata message.
             const A4Message current_metadata();
 
+            /// Skip the current block until the next metadata
+            bool skip_to_next_metadata();
+
             /// True if new metadata has appeared since the last call to this function.
             bool new_metadata();
 

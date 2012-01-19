@@ -124,6 +124,9 @@ namespace a4{
                 template<class T>
                 const T* my() { return dynamic_cast<const T*>(my_configuration); }
 
+                /// Set this flag to skip to the next metadata block
+                bool skip_to_next_metadata;
+
             protected:
                 /// In this store you can put named objects.
                 /// It will be written and cleared at every metadata block boundary.

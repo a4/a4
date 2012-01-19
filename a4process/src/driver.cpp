@@ -230,6 +230,12 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             self->set_store(p, output_adaptor->backstore->store());
             process_rerun_systematics(p, msg);
 
+            // Skip if the user wants us to.
+            if (p->skip_to_next_metadata) {
+                instream->skip_to_next_metadata();
+                p->skip_to_next_metadata = false;
+            }
+
             // Check if we reached limit
             if (++cnt == limit) run = false;
         }

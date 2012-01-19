@@ -28,6 +28,7 @@ namespace a4{ namespace io{
     bool InputStream::error() { return _impl->error(); }
     bool InputStream::end() { return _impl->end(); }
     void InputStream::close() { return _impl->close(); }
+    bool InputStream::skip_to_next_metadata() { return _impl->skip_to_next_metadata(); }
     size_t InputStream::ByteCount() { return _impl->ByteCount(); }
     std::string InputStream::str() { return _impl->str(); }
 

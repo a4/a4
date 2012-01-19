@@ -161,7 +161,11 @@ bool InputStreamImpl::read_header(bool discovery_requested)
                 _new_metadata = true;
             }
         } else {
-            if (discovery_requested) discover_all_metadata();
+            _current_metadata_index = -1;
+            if (discovery_requested and not discover_all_metadata()) {
+                std::cerr << "ERROR - a4::io:InputStreamImpl - Failed to discover metadata - file corrupted?" << std::endl;
+                return set_error();
+            }
         }
     }
     return true;
@@ -176,7 +180,9 @@ bool InputStreamImpl::discover_all_metadata() {
 
     int64_t size = 0;
     std::deque<uint64_t> headers;
+    std::deque<bool> _temp_headers_forward;
     std::deque<std::vector<A4Message>> _temp_metadata_per_header;
+    std::deque<std::vector<uint64_t>>  _temp_metadata_offset_per_header;
 
     while (true) {
         if (seek_back(-size - END_MAGIC_len) == -1) return false;
@@ -215,18 +221,32 @@ bool InputStreamImpl::discover_all_metadata() {
         }
 
         std::vector<A4Message> _this_headers_metadata;
+        std::vector<uint64_t> _this_headers_metadata_offsets;
         foreach(uint64_t offset, footer->metadata_offsets()) {
             uint64_t metadata_start = footer_abs_start - footer->size() + offset;
+            _this_headers_metadata_offsets.push_back(metadata_start);
             if (seek(metadata_start) == -1) return false;
             A4Message msg = next_message();
             drop_compression();
             _this_headers_metadata.push_back(msg);
         }
         _temp_metadata_per_header.push_front(_this_headers_metadata);
+        _temp_metadata_offset_per_header.push_front(_this_headers_metadata_offsets);
 
         int64_t tell = seek_back(-size);
         headers.push_front(tell);
-        if (tell == -1) return false;
+        if (tell == -1) return false;      
+
+        seek(tell + START_MAGIC_len);
+        A4Message hmsg = next_message();
+        drop_compression();
+        if (!hmsg.is<StreamHeader>()) {
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Unknown header class!" << std::endl;
+            return false;
+        }
+        shared<StreamHeader> header = hmsg.as<StreamHeader>();
+        _temp_headers_forward.push_back(header->metadata_refers_forward());
+
         if (tell == 0) break;
     }
     // Seek back to original header
@@ -234,7 +254,11 @@ bool InputStreamImpl::discover_all_metadata() {
     next_message(); // read the header again
     _discovery_complete = true;
     _metadata_per_header.insert(_metadata_per_header.end(), _temp_metadata_per_header.begin(), _temp_metadata_per_header.end());
+    _metadata_offset_per_header.insert(_metadata_offset_per_header.end(),
+        _temp_metadata_offset_per_header.begin(),
+        _temp_metadata_offset_per_header.end());
     _current_header_index = _temp_header_index;
+    _headers_forward.insert(_headers_forward.end(), _temp_headers_forward.begin(), _temp_headers_forward.end());
     return true;
 }
 
@@ -257,6 +281,66 @@ int64_t InputStreamImpl::seek(int64_t position) {
     _coded_in->SetTotalBytesLimit(pow(1024,3), pow(1024,3));
     return pos;
 };
+
+bool InputStreamImpl::carry_metadata(uint32_t& header, uint32_t& metadata) {
+    if ((0 < header) or not (header < _metadata_offset_per_header.size())) return false;
+    while (metadata < 0 and header > 0) {
+        header -= 1;
+        metadata += _metadata_offset_per_header[header].size();
+    }
+    while (header < _metadata_offset_per_header.size() 
+        and metadata > _metadata_offset_per_header[header].size()) {
+        metadata -= _metadata_offset_per_header[header].size();
+        header += 1;
+    }
+    if ((0 < header) or not (header < _metadata_offset_per_header.size())) return false;
+    return true;
+}
+
+bool InputStreamImpl::seek_to(uint32_t header, uint32_t metadata, bool carry) {
+    drop_compression();
+    if (!_discovery_complete) {
+        if (seek(0) == -1) {
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Cannot skip in this unseekable stream!" << std::endl;    
+            set_error();
+            return false;
+        }
+        if (not discover_all_metadata()) {
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Failed to discover metadata - file corrupted?" << std::endl;
+            set_error();
+            return false;
+        }
+    }
+    if (carry and not carry_metadata(header, metadata)) { // modifies header and metadata
+        if (not carry) {
+            std::cerr << "ERROR - a4::io:InputStreamImpl - Attempt to seek to nonexistent metadata!" << std::endl;
+        }
+        return false;
+    }
+
+    if (_headers_forward[header]) {
+        // If the metadata refers forward, just seek to it
+        _current_header_index = header;
+        _current_metadata_index = metadata - 1; // will be incremented when next metadata is read
+        seek(_metadata_offset_per_header[header][metadata]);
+    } else {
+        // More complicated - find previous metadata, seek to that, and skip it
+        if (metadata == 0 && header == 0) {
+            // Easy case
+            _current_header_index = 0;
+            _current_metadata_index = 0;
+            seek(0);
+        } else {
+            metadata -= 1;
+            carry_metadata(header, metadata); // modifies header and metadata
+            _current_header_index = header;
+            _current_metadata_index = metadata;
+            seek(_metadata_offset_per_header[header][metadata]);
+            next(false); // read only the next metadata    
+        }
+    }
+    return true;
+}
 
 bool InputStreamImpl::start_compression(const StartCompressedSection& cs) {
     assert(!_compressed_in);
@@ -391,6 +475,8 @@ bool InputStreamImpl::handle_stream_command(A4Message & msg) {
             _current_metadata_index = 0;
             if (_metadata_per_header[_current_header_index].size() > 0)
                 _current_metadata = _metadata_per_header[_current_header_index][0];
+        } else {
+            _current_metadata_index = -1;
         }
         return true;
     } else if (msg.is<StreamHeader>()) {
@@ -409,10 +495,10 @@ bool InputStreamImpl::handle_metadata(A4Message & msg) {
     //    }
     //}
     if (msg.metadata()) {
+        _current_metadata_index++;
         if (_current_metadata_refers_forward) {
             _current_metadata = msg;
         } else {
-            _current_metadata_index++;
             _current_metadata = A4Message();
             if (_metadata_per_header[_current_header_index].size() > _current_metadata_index)
                 _current_metadata = _metadata_per_header[_current_header_index][_current_metadata_index];
