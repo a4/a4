@@ -45,6 +45,7 @@ using google::protobuf::compiler::SourceTreeDescriptorDatabase;
 #include <a4/input.h>
 
 #include "common.h"
+#include "period_mapping.h"
 
 #include "a4/root/atlas/ntup_photon/Event.pb.h"
 #include "a4/root/atlas/ntup_smwz/Event.pb.h"
@@ -60,6 +61,8 @@ using a4::atlas::InputFile;
 typedef std::vector<shared<Message> > MessageBuffer;
 typedef boost::function<void (shared<a4::io::OutputStream>, const MessageBuffer&)> MetadataCallback;
 typedef boost::function<void ()> FlushCallback;
+
+
 
 class MetadataFactory
 {
@@ -151,8 +154,20 @@ public:
         _metadata.set_event_count(buffer.size());
         
         if (buffer.size() >= 1) {
-            if (_field_run) 
-                _metadata.add_run(_refl->GetUInt32(*buffer[0], _field_run));
+            if (_field_run) {
+                auto run_number = _refl->GetUInt32(*buffer[0], _field_run);
+                _metadata.add_run(run_number);
+                
+                auto* full_period = get_period(run_number);
+                std::string period = full_period;
+                
+                if (period != "UNK") {
+                    period = period[0];
+                }
+                
+                _metadata.add_period(period);
+                _metadata.add_subperiod(full_period);
+            }
             if (_field_mc_channel && _refl->HasField(*buffer[0], _field_mc_channel)) 
                 _metadata.add_mc_channel(_refl->GetUInt32(*buffer[0], _field_mc_channel));
         }
