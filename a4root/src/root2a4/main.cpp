@@ -261,7 +261,7 @@ class BufferingStreamWriter
 public:
     BufferingStreamWriter(shared<a4::io::OutputStream> stream, 
                           MetadataCallback callback,
-                          uint32_t buffer_size=10000) 
+                          uint32_t buffer_size) 
         : _stream(stream), _callback(callback), _buffer_size(buffer_size)
     {
     }
@@ -298,7 +298,7 @@ private:
 /// Event class.
 void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream, 
     MessageFactory* dynamic_factory, const Descriptor* message_descriptor, 
-    Long64_t entries = -1, uint32_t metadata_frequency=10000)
+    Long64_t entries = -1, uint32_t metadata_frequency)
 {
     Long64_t tree_entries = tree.GetEntries();
     if (entries > tree_entries)
