@@ -248,7 +248,7 @@ public:
 
 void dump_message(const Message& message, 
                   const std::vector<std::string>& vars, 
-                  const std::vector<std::string>& types) {
+                  const std::vector<std::string>& types, bool shortform=true) {
                   
     if (vars.size()) {
         // specialized code
@@ -259,9 +259,13 @@ void dump_message(const Message& message,
             // Not a selected type
             return;
         }
-        std::cout << "message of type '" << type << "':" <<std::endl;
-        google::protobuf::TextFormat::PrintToString(message, &str);
-        std::cout << str << std::endl;
+        if (shortform) {
+            std::cout << message.ShortDebugString() << std::endl;
+        } else {
+            std::cout << "message of type '" << type << "':" <<std::endl;
+            google::protobuf::TextFormat::PrintToString(message, &str);
+            std::cout << str << std::endl;
+        }
     }    
 }
 
@@ -274,6 +278,7 @@ int main(int argc, char ** argv) {
     size_t event_count = -1, event_index = -1;
     bool collect_stats = false;
     bool stream_msg, dump_all;
+    bool short_form = false;
     
     po::positional_options_description p;
     p.add("input", -1);
@@ -289,6 +294,7 @@ int main(int argc, char ** argv) {
         ("type,t", po::value(&types), "variables to dump (defaults to all)")
         ("stream,s", po::bool_switch(&stream_msg)->default_value(false), "also dump stream internal messages")
         ("collect-stats,S", po::value(&collect_stats), "should collect statistics for all numeric variables")
+        ("short-form", po::value(&short_form)->default_value(short_form), "print in a compact form, one event per line")
     ;
     
     po::variables_map arguments;
@@ -322,7 +328,7 @@ int main(int argc, char ** argv) {
         a4::io::A4Message m = stream_msg ? stream->next_bare_message() : stream->next();
         if (!m) break;
         if (!collect_stats)
-            dump_message(*m.message, variables, types);
+            dump_message(*m.message, variables, types, short_form);
         else
             sc.collect(*m.message);
     }
