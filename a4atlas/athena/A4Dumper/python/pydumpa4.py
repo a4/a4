@@ -763,7 +763,7 @@ class AOD2A4(AOD2A4Base):
             event.met_Truth.CopyFrom(self.met_detail("MET_Truth"))
             event.met_Truth_PileUp.CopyFrom(self.met_detail("MET_Truth_PileUp"))
 
-        #event.jets_antikt4lctopo.extend(self.jets("AntiKt4LCTopoJets"))
+        event.jets_antikt4lctopo.extend(self.jets("AntiKt4LCTopoJets"))
         event.jets_antikt4h1topoem.extend(self.jets("AntiKt4TopoEMJets"))
 
         event.muons_staco.extend(self.muons("Staco"))

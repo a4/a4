@@ -145,6 +145,7 @@ message Event
 
     repeated Jet jets_antikt4h1topo = 40;
     repeated Jet jets_antikt4h1topoem = 41;
+    repeated Jet jets_antikt4lctopo = 42;
 
     optional int32 error_state_lar = 50;
 
