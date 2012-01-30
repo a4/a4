@@ -53,4 +53,6 @@ message Electron
     optional double eta_s2 = 40;
     optional double eta_s3 = 44;
     optional double eta_pointing = 41;
+
+    optional METContribution met_contribution = 50;
 }

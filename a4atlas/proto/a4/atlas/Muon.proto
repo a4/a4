@@ -38,4 +38,6 @@ message Muon
     repeated Trigger.TriggerName matched_trigger_efi_cb = 46;
     repeated Trigger.TriggerName matched_trigger_efi_mg = 47;
     repeated Trigger.TriggerName matched_trigger_efi_mgt = 48; // A17
+
+    optional METContribution met_contribution = 50;
 }

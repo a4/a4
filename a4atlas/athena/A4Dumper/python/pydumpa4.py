@@ -273,6 +273,14 @@ def set_truth(p, p4, charge, pdg_id=None):
         p.pdg_id = pdg_id
     return p
 
+def set_met_contrib(mc, weight):
+    if weight:
+        mc.wet = weight.wet()
+        mc.wpx = weight.wpx()
+        mc.wpy = weight.wpy()
+        mc.status_word = weight.statusWord()
+        print mc.status_word, mc.wet, mc.wpx, mc.wpy
+
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
 
 class AOD2A4(AOD2A4Base):
@@ -333,6 +341,8 @@ class AOD2A4(AOD2A4Base):
  
     def tracks(self, pb):
         for i, trk in enumerate(self.sg["TrackParticleCandidate"]):
+            if abs(trk.pt()) < 15000:
+                continue
             if abs(trk.pt()) < 500 or abs(trk.eta()) > 2.5:
                 continue
             ts = trk.trackSummary()
@@ -422,6 +432,9 @@ class AOD2A4(AOD2A4Base):
             #            e.matched_trigger.append(getattr(Trigger,chain))
             #    chns.clear()
 
+            if self.metref_composition.contains(el):
+                set_met_contrib(e.met_contribution, self.metref_composition.getParameter(el))
+
             els.append(e)
         return els
 
@@ -483,6 +496,8 @@ class AOD2A4(AOD2A4Base):
             #    if chain in trigger_names[self.year]:
             #        m.matched_trigger_mf.append(getattr(Trigger,chain))
             #chns.clear()
+            if self.metref_composition.contains(mu):
+                set_met_contrib(m.met_contribution, self.metref_composition.getParameter(mu))
             mus.append(m)
         return mus
 
@@ -524,16 +539,19 @@ class AOD2A4(AOD2A4Base):
                     j.truth_flavor = j.B
                 if tl == "T":
                     j.truth_flavor = j.T
-            if jet.pt() > 20*GeV:
-                j.lar_quality = jet.getMoment("LArQuality")
-                j.hec_quality = jet.getMoment("HECQuality")
-                j.negative_e = jet.getMoment("NegativeE")
-                j.emf = self.jet_emf(jet)
-                j.hecf = self.jet_hecF(jet)
-                j.timing = jet.getMoment("Timing")
-                j.fmax = self.jet_fmax(jet)
-                j.sum_pt_trk = jet.getMoment("sumPtTrk")
-                j.avg_lar_qf = jet.getMoment("AverageLArQF")
+
+            j.lar_quality = jet.getMoment("LArQuality")
+            j.hec_quality = jet.getMoment("HECQuality")
+            j.negative_e = jet.getMoment("NegativeE")
+            j.emf = self.jet_emf(jet)
+            j.hecf = self.jet_hecF(jet)
+            j.timing = jet.getMoment("Timing")
+            j.fmax = self.jet_fmax(jet)
+            j.sum_pt_trk = jet.getMoment("sumPtTrk")
+            j.avg_lar_qf = jet.getMoment("AverageLArQF")
+
+            if self.metref_composition.contains(jet):
+                set_met_contrib(j.met_contribution, self.metref_composition.getParameter(jet))
 
             jets.append(j)
         return jets
@@ -554,6 +572,7 @@ class AOD2A4(AOD2A4Base):
                 t = pb.add()
                 t.name = getattr(t, tn)
                 t.fired = True
+                c_eg  = self.tool_tmt.__getattribute__("getTriggerObjects<egamma>")(tn, True)
                 c_te  = self.tool_tmt.__getattribute__("getTriggerObjects<TrigElectron>")(tn, True)
                 c_tp  = self.tool_tmt.__getattribute__("getTriggerObjects<TrigPhoton>")(tn, True)
                 c_tme = self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEF>")(tn, True)
@@ -562,7 +581,7 @@ class AOD2A4(AOD2A4Base):
                 c_cmf = self.tool_tmt.__getattribute__("getTriggerObjects<CombinedMuonFeature>")(tn, True)
                 c_tmei= self.tool_tmt.__getattribute__("getTriggerObjects<TrigMuonEFInfo>")(tn, True)
 
-                te, tp, tme, mroi, mf, cmf, tmei = map(list, (c_te, c_tp, c_tme, c_mroi, c_mf, c_cmf, c_tmei))
+                eg, te, tp, tme, mroi, mf, cmf, tmei = map(list, (c_eg, c_te, c_tp, c_tme, c_mroi, c_mf, c_cmf, c_tmei))
 
                 tmeit = sum((list(efi.TrackContainer()) for efi in tmei), [])
                 tmeit_ms = [tr.SpectrometerTrack() for tr in tmeit if tr.MuonType() == 1 and tr.hasSpectrometerTrack()]
@@ -577,6 +596,7 @@ class AOD2A4(AOD2A4Base):
                         ff.phi = feature.phi()
                         ff.pt = feature.pt()
 
+                [make_tf(t.features_egamma, f) for f in eg]
                 [make_tf(t.features_trig_electron, f) for f in te]
                 [make_tf(t.features_trig_photon, f) for f in tp]
                 [make_tf(t.features_trig_muon_ef, f) for f in tme]
@@ -729,6 +749,7 @@ class AOD2A4(AOD2A4Base):
         self.load_event_info(event) # sets run_number, event_number, lumi_block and mc_event_weight
         self.PV = list(self.sg["VxPrimaryCandidate"])
         self.PV_rec = [pv.recVertex() for pv in self.PV]
+        self.metref_composition = self.sg["MET_RefComposition"]
 
         self.triggers(event.triggers)
         event.vertices.extend(self.vertices())
@@ -867,7 +888,7 @@ if os.path.exists(a_local_directory):
         input = glob(options["input"]) 
     else:
         input = glob("/data/etp/ebke/data/*109074*/*")
-    athena_setup(input, 300)
+    athena_setup(input, -1)
 else:
     athena_setup(None, -1)
 

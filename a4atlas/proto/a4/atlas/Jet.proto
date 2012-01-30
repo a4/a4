@@ -41,4 +41,6 @@ message Jet
     }
     optional TruthFlavor truth_flavor = 103;
 
+    optional METContribution met_contribution = 125;
+
 }

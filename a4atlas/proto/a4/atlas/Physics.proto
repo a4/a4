@@ -28,6 +28,14 @@ message MissingEnergy
 
 }
 
+message METContribution
+{
+    optional float wet = 1;
+    optional float wpx = 2;
+    optional float wpy = 3;
+    optional int32 status_word = 4;
+}
+
 
 message Perigee
 {

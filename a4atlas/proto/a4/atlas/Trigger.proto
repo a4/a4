@@ -93,6 +93,7 @@ message Trigger
 
     required TriggerName name = 1;
     required bool fired = 2;
+    repeated TriggerFeature features_egamma = 13;
     repeated TriggerFeature features_trig_electron = 3;
     repeated TriggerFeature features_trig_photon = 4;
     repeated TriggerFeature features_trig_muon_ef = 5;
