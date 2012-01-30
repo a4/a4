@@ -72,6 +72,7 @@ struct ALorentzVector
     inline double e()  const {return E;}
     double eta() const {return 0.5*log((p() + pz)/(p() - pz));}
     double phi() const {return atan2(py, px); };
+    double theta() const {return px == 0.0 and py == 0.0 and pz == 0.0 ? 0.0 : atan2(pt(), py); };
 
     double delta_phi(const double & p_phi) const
     {
