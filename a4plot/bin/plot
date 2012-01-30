@@ -86,7 +86,7 @@ for hn in histos_1d:
     for h, orig_fn in zip(data+bg+sg, data_fns+bg_fns+sg_fns):
         h.SetDirectory(0)
         if not h.GetTitle():
-            h.SetTitle(orig_fn.rstrip(".root"))
+            h.SetTitle(orig_fn.rstrip(".root").split("/")[-1])
         if xrebin.get(hn,1) != 1:
             h.Rebin(int(xrebin[hn]))
 

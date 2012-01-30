@@ -255,11 +255,12 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
                 cmc2.GetYaxis().SetTitle("Data / SM")
         cmc2.GetXaxis().SetTitle("")
 
-        mx = max(cd.GetBinContent(cd.GetMaximumBin())+cd.GetBinError(cd.GetMaximumBin()) for cd in cdata)
-        mn = min(cd.GetBinContent(cd.GetMinimumBin())-cd.GetBinError(cd.GetMinimumBin()) for cd in cdata)
-        for h in cdata + [cmc, cmc2]:
-            h.SetMaximum(mx)
-            h.SetMinimum(mn)
+        if cdata:
+            mx = max(cd.GetBinContent(cd.GetMaximumBin())+cd.GetBinError(cd.GetMaximumBin()) for cd in cdata)
+            mn = min(cd.GetBinContent(cd.GetMinimumBin())-cd.GetBinError(cd.GetMinimumBin()) for cd in cdata)
+            for h in cdata + [cmc, cmc2]:
+                h.SetMaximum(mx)
+                h.SetMinimum(mn)
 
         cmc2.Draw("hist")
         cmc.Draw("e2 same")

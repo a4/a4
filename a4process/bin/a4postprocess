@@ -54,6 +54,8 @@ def read_mc_set(fn):
             current_ids.append([ls[0], ls[7], ls[5], ls[6]])
         elif len(ls) == 8:
             current_ids.append(ls[:4])
+        elif len(ls) == 7:
+            current_ids.append([ls[0], ls[4], ls[2], ls[3]])
         else:
             print "UNKNOWN ",l
     push_back()

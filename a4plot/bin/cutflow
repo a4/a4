@@ -9,6 +9,7 @@ parser.add_option("-s", "--signal", action="append", default=[], help="signal ro
 parser.add_option("-l", "--latex", action="store_true", help="print as full latex document")
 parser.add_option("-o", "--output", default="", help="output directory for text files")
 parser.add_option("-p", "--histogram", action="append", default=[], help="histograms to print (specify multiple times)")
+parser.add_option("-m", "--no-mcsum", action="store_true", help="Do not show MC sum")
 (options, args) = parser.parse_args()
 
 if not options.data and len(args) == 0:
@@ -44,6 +45,9 @@ if not options.all:
 prefix = options.output
 histograms = []
 
+if options.latex:
+    print("\\documentclass{article}\\usepackage{lscape}\\begin{document}\\begin{landscape}\n")
+
 from ROOT import TCanvas, kRed, TH1D
 for hn in histos_1d:
     data_fns = [f.fn for f in data_files if hn in f.dir]
@@ -74,7 +78,8 @@ for hn in histos_1d:
         for label in labels:
             oi = h.GetXaxis().FindBin(label)
             datad[label] = CertainNumber(h.GetBinContent(oi)) if oi != -1 else CertainNumber(0)
-        return "Observed", datad
+        #return "Observed", datad
+        return h.GetTitle(), datad
 
     def get_cf_sg(h):
         datad = {}
@@ -100,7 +105,7 @@ for hn in histos_1d:
     table.append([""] + ["$%s$"%l.replace("#","\\") for l in labels])
 
     content = bg[:]
-    if bg:
+    if bg and not options.no_mcsum:
         content += [("Total SM",sumbg)]
     content += data
     content += sg
@@ -132,8 +137,8 @@ for hn in histos_1d:
     # horizontal
     t = []
     if options.latex:
-        t.append("\\documentclass{article}\\usepackage{lscape}\\begin{document}\\begin{landscape}\\begin{table}\\begin{tiny}\n")
-    t.append("\\begin{tabular}{c|%s%s%s}" % (("c"*(len(bg)+1)),("|c" if data else ""), ("|c"*len(sg))))
+        t.append("\\begin{table}\\begin{tiny}\n")
+    t.append("\\begin{tabular}{c|%s%s%s}" % (("c"*(len(bg)+1)),("|c"*len(data)), ("|c"*len(sg))))
     t.append("\hline\hline")
     for i in range(len(table[0])):
         ln = []
@@ -145,9 +150,12 @@ for hn in histos_1d:
     t.append("\hline\hline")
     t.append("\end{tabular}")
     if options.latex:
-        t.append("\n\\end{tiny}\\end{table}\\end{landscape}\\end{document}")
+        t.append("\caption{%s}\n" % hn.replace("_"," "))
+        t.append("\n\\end{tiny}\\end{table}\n")
     print "\n".join(t)
 
+if options.latex:
+    print("\n\\end{landscape}\\end{document}")
 
 
     
