@@ -34,6 +34,7 @@ class Driver {
         }
 
         static void process_rerun_systematics(Processor* p, A4Message msg) {
+            p->skim_written = false;
             ObjectStore S = p->S;
             process_rerun_channels(p, msg);
             foreach (const char * c, p->rerun_systematics) {

@@ -90,24 +90,34 @@ namespace a4{
                 /// Write a message to the output stream
                 void write(shared<const google::protobuf::Message> m) { _output_adaptor->write(m); }
                 void write(const google::protobuf::Message & m) { _output_adaptor->write(m); }
+                
+                /// Write a message to the output stream at most once per event
+                void skim(const google::protobuf::Message & m) {
+                    if (not skim_written) _output_adaptor->write(m);
+                    skim_written = true;
+                }
 
                 /// Call channel in process_message to rerun with the prefix "channel/<name>/".
                 /// In that run this function always returns true.
                 bool channel(const char * name) {
                     rerun_channels.insert(name);
-                    return rerun_channels_current == name;
+                    if (rerun_channels_current == NULL) return false;
+                    return strcmp(rerun_channels_current, name) == 0;
                 }
                 bool in_channel(const char * name) const {
-                    return rerun_channels_current == name;
+                    if (rerun_channels_current == NULL) return false;
+                    return strcmp(rerun_channels_current, name) == 0;
                 }
                 /// Call systematic in process_message to rerun with the prefix "syst/<name>/".
                 /// In that run this function always returns true.
                 bool systematic(const char * name) {
                     rerun_systematics.insert(name);
-                    return rerun_systematics_current == name;
+                    if (rerun_systematics_current == NULL) return false;
+                    return strcmp(rerun_systematics_current, name) == 0;
                 }
                 bool in_systematic(const char * name) const {
-                    return rerun_systematics_current == name;
+                    if (rerun_systematics_current == NULL) return false;
+                    return strcmp(rerun_systematics_current, name) == 0;
                 }
 
                 /// (unimplemented) From now all histograms are also saved with the prefix "channel/<name>/"
@@ -148,6 +158,7 @@ namespace a4{
                 OutputAdaptor* _output_adaptor;
 
                 void lock_and_load() { locked = true; };
+                bool skim_written;
                 friend class a4::process::Driver;
             private:
                 bool locked;
