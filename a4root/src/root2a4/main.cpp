@@ -162,6 +162,8 @@ public:
                          const MessageBuffer& buffer)
     {
         compute_info(buffer);
+        // Only write metadata if there is at least one message to be written
+        // (A4 doesn't deal well with the case of metadata for 0 events yet)
         if (buffer.size() >= 1) {
             stream->metadata(_metadata);
         }
@@ -298,7 +300,7 @@ private:
 /// Event class.
 void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream, 
     MessageFactory* dynamic_factory, const Descriptor* message_descriptor, 
-    Long64_t entries = -1, uint32_t metadata_frequency)
+    Long64_t entries = -1, uint32_t metadata_frequency = 100000)
 {
     Long64_t tree_entries = tree.GetEntries();
     if (entries > tree_entries)
