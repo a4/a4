@@ -109,7 +109,7 @@ def PMBSMainLoop():
              jobid += 1
             
          cmd = str(j.cmd)
-         cmd = cmd.replace("{JOBID}", str(j.id))
+         cmd = cmd.replace("{JOBID}", "%04i"%j.id)
          cmd = cmd.replace("{HOST}", str(host))
          cmd = add_env(cmd)
          if j.debug:
