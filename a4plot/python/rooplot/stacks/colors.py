@@ -2,7 +2,7 @@ from ROOT import kAzure, kBlue, kWhite, kRed, kBlack, kGray, kGreen, kYellow, kT
 
 clrs = (kWhite, kRed, kBlack, kGray, kGreen, kYellow, kTeal, kCyan, kSpring, kBlue)
 clrs = (kWhite, kGray, kBlack, kBlue, kGreen, kTeal, kTeal, kRed, kSpring, kMagenta)
-clrs = (kGray, kBlack, kBlue, kGreen, kTeal, kRed, kSpring, kMagenta, kYellow, kCyan)
+clrs = (kGray, kBlack, kBlue, kGreen, kTeal, kRed, kMagenta, kYellow, kCyan)
 
 #Suggested plot colours:
 def set_color_1D(h, name, cnum):

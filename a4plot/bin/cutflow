@@ -28,9 +28,7 @@ if options.output:
     except OSError:
         pass
 
-
-
-disp = "1.02 fb^{-1}"
+disp = "4.7 fb^{-1}"
 
 from atfile import ATFile
 
@@ -38,9 +36,9 @@ bg_files = [ATFile(fn) for fn in args]
 sg_files = [ATFile(fn) for fn in options.signal]
 data_files = [ATFile(d) for d in options.data]
 
-histos_1d = sorted(set(sum((f.find_type("TH1D") for f in data_files+bg_files+sg_files), [])))
+histos_1d = sorted(set(sum((f.find_type("TH1D") for f in data_files+bg_files+sg_files), []) + sum((f.find_type("TH1F") for f in data_files+bg_files+sg_files), [])))
 if not options.all:
-    histos_1d = [h for h in histos_1d if h in options.histogram]
+    histos_1d = sorted(h for h in histos_1d if h in options.histogram)
 
 prefix = options.output
 histograms = []

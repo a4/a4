@@ -88,7 +88,7 @@ def set_styles(data, mcs, signals):
 
 from ROOT import gPad, kOrange, kRed
 
-def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, range=None, compare=False, sigma=False, log=False):
+def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, range=None, compare=False, sigma=False, log=False, prelim=False):
     all_histos = list_mc + signals + data
 
     h = all_histos[0]
@@ -187,7 +187,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
             d.Draw("pe same")
     legend = get_legend(data,sum_mc,list(reversed(list_mc)),signals)
     legend.Draw()
-    save = [draw_preliminary(True)]
+    save = [draw_preliminary(not prelim)]
 
     # Try to fix the limits...
     axis.SetMaximum(ymax)
@@ -217,7 +217,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
         save.append(cmc2)
 
         Nbins = int(mcstack.GetXaxis().GetNbins())
-        if sigma:
+        if sigma and cdata:
             for i in xrange(Nbins + 2):
                 mc, mcerr = cmc.GetBinContent(i), cmc.GetBinError(i)
                 for cd in cdata:
@@ -258,6 +258,9 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
         if cdata:
             mx = max(cd.GetBinContent(cd.GetMaximumBin())+cd.GetBinError(cd.GetMaximumBin()) for cd in cdata)
             mn = min(cd.GetBinContent(cd.GetMinimumBin())-cd.GetBinError(cd.GetMinimumBin()) for cd in cdata)
+            if compare:
+                mx = 1.3
+                mn = 0.7
             for h in cdata + [cmc, cmc2]:
                 h.SetMaximum(mx)
                 h.SetMinimum(mn)
@@ -277,9 +280,9 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
 
     return legend, mcstack, sum_mc, hsave, save
     
-def plot_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, range=None, compare=False, sigma=False, log=False):
+def plot_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, range=None, compare=False, sigma=False, log=False, prelim=False):
     set_styles(data, list_mc, signals)
-    return stack_1D(name, data, list_mc, signals, lumi, rebin, rebin_to, range, compare, sigma, log)
+    return stack_1D(name, data, list_mc, signals, lumi, rebin, rebin_to, range, compare, sigma, log, prelim)
 
 #All MC stacked in this order:
 #- ttbar 1st 

@@ -15,6 +15,9 @@ parser.add_option("-r", "--range", action="append", default=[], help="range of x
 parser.add_option("-u", "--unit", action="append", default=[], help="units of the x axis of the plot")
 parser.add_option("-c", "--compare", action="store_true", help="generate comparison plot of data/mc")
 parser.add_option("-g", "--sigma", action="store_true", help="show significance plot (exclusive with compare)")
+parser.add_option("-t", "--outtype", default="png", help="output file type")
+parser.add_option("-l", "--lumi", default="4.7", help="luminosity in fb^-1")
+parser.add_option("--preliminary", action="store_true", help="print preliminary instead of Work in Progress")
 
 parser.add_option("--roostats", default=False, help="write out roostats file of all inputs ddand quit")
 (options, args) = parser.parse_args()
@@ -26,8 +29,9 @@ from rooplot import make_page
 from rooplot import atlas_style, get_legend, get_lumi_label, set_styles, stack_1D, plot_1D, draw_preliminary
 from os.path import join as pjoin, basename, extsep
 from os import makedirs
+from fnmatch import filter
 
-disp = "1.02 fb^{-1}"
+disp = "%s fb^{-1}" % options.lumi
 
 xtitles = dict(zip(options.histogram, options.xtitle))
 xunits  = dict(zip(options.histogram, options.unit))
@@ -54,8 +58,8 @@ all_files = data_files + bg_files + sg_files
 histos_1d = sorted(set(sum((f.find_type("TH1D") for f in all_files), [])))
 histos_2d = sorted(set(sum((f.find_type("TH2D") for f in all_files), [])))
 if not options.all:
-    histos_1d = [h for h in histos_1d if h in options.histogram]
-    histos_2d = [h for h in histos_2d if h in options.histogram]
+    histos_1d = sorted(set(sum((filter(histos_1d, pat) for pat in options.histogram), [])))
+    histos_2d = sorted(set(sum((filter(histos_2d, pat) for pat in options.histogram), [])))
 
 prefix = options.output
 histograms = []
@@ -72,6 +76,7 @@ if options.roostats:
 
 
 for hn in histos_1d:
+    print hn
     data_fns = [f.fn for f in data_files if hn in f.dir]
     bg_fns = [f.fn for f in bg_files if hn in f.dir]
     sg_fns = [f.fn for f in sg_files if hn in f.dir]
@@ -148,7 +153,7 @@ for hn in histos_1d:
 
     def get_draw(log,cmp,sgm):
         def draw():
-            legend, stack, summc, hsave, save = plot_1D(hn,data,bg,sg,lumi=disp,rebin_to=rebin_to,range=range,compare=cmp,sigma=sgm,log=log)
+            legend, stack, summc, hsave, save = plot_1D(hn,data,bg,sg,lumi=disp,rebin_to=rebin_to,range=range,compare=cmp,sigma=sgm,log=log,prelim=options.preliminary)
             if stack:
                 if xtitle:
                     stack.GetXaxis().SetTitle(xtitle)
@@ -183,13 +188,13 @@ for hn in histos_1d:
             c = TCanvas(name,title,width,height)
             histograms.extend(get_draw(False, options.compare, False)())
             c.cd()
-            c.SaveAs("%s.%s" % (name,"png"))
+            c.SaveAs("%s.%s" % (name,options.outtype))
             histograms.append(c)
 
             c = TCanvas(name+'_log',title+'_log',width,height)
             histograms.extend(get_draw(True, False, options.sigma)())
             c.cd()
-            c.SaveAs("%s_log.%s" % (name,"png"))
+            c.SaveAs("%s_log.%s" % (name,options.outtype))
             histograms.append(c)
         write()
 
