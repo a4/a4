@@ -258,8 +258,8 @@ public:
     Bool_t Notify() 
     { 
         assert(_descriptor);
+        std::cout << "Processing new file: " << _tree.GetCurrentFile()->GetName() << std::endl;
         if (!_brand_new) {
-            std::cout << "Notify flush" << std::endl;
             _flush_callback();
         }
         _brand_new = false;

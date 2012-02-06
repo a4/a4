@@ -212,6 +212,18 @@ void submessage_setter(Message** messages, size_t count, TBranchElement* br,
     vector<SOURCE_TYPE>* values = 
         reinterpret_cast<vector<SOURCE_TYPE>* >(br->GetObject());
         
+    if (values->size() != count)
+    {
+        static std::set<std::string> have_warned;
+        if (!have_warned.count(br->GetName())) {
+            std::cerr << "Warning, unexpected branch size for " << br->GetName() 
+                     << "(expected: " << count << " got: " << values->size() << ")"
+                     << std::endl;
+            have_warned.insert(br->GetName());
+        }
+        return;
+    }
+        
     for (size_t i = 0; i < count; i++)
         setter(messages[i], static_cast<PROTOBUF_TYPE>(values->at(i)));
 }
