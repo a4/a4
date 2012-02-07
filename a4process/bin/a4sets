@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+
+import os, sys, optparse
+parser = optparse.OptionParser()
+parser.add_option("-s", "--set", default="", help="MC Set file")
+
+(options, args) = parser.parse_args()
+assert options.set
+
+def read_mc_set(fn):
+    current_name, current_title = None, None
+    current_ids = []
+    current_info = []
+    result_set = {}
+    result_titles = {}
+    result_info = {}
+    result_xs = {}
+    def push_back():
+        if current_name is None:
+            return
+        result_titles[current_name] = current_title
+        result_set[current_name] = set(int(run) for (run, xsec, kfac, filt) in current_ids)
+        result_info[current_name] = dict((int(run), ifo) for (run, ifo) in current_info)
+        result_xs[current_name] = dict((int(run), (xsec, kfac, filt)) for (run, xsec, kfac, filt) in current_ids)
+        for x in xrange(len(current_ids)):
+            current_ids.pop()
+
+    for l in file(fn).readlines():
+        l = l.strip()
+        if not l:
+            continue
+        if l.startswith("#"):
+            continue
+        if l.startswith(":"):
+            push_back()
+            dummy, current_name, current_title = map(str.strip, l.split(":"))
+            continue
+        ls = l.split()
+        if len(ls) == 9:
+            current_ids.append([ls[0], ls[7], ls[5], ls[6]])
+            current_info.append([ls[0], (ls[1], ls[2])])
+        elif len(ls) == 8:
+            current_ids.append(ls[:4])
+            current_info.append([ls[0], (ls[6], ls[7])])
+        elif len(ls) == 7:
+            current_ids.append([ls[0], ls[4], ls[2], ls[3]])
+            current_info.append([ls[0], ("", ls[1].split(".")[2])])
+        else:
+            print "UNKNOWN ",l
+    push_back()
+    return result_titles, result_set, result_xs, result_info
+
+stitles, ssets, sxs, sinfo = read_mc_set(options.set)
+
+if len(args) == 0:
+    print " ".join(name for name, runs in sorted(ssets.iteritems()))
+else:
+    runs = []
+    for name in args:
+        assert name in ssets
+        runs.extend(ssets[name])
+    print " ".join(str(i) for i in runs)
