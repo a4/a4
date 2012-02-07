@@ -517,8 +517,8 @@ A4Message InputStreamImpl::next_message() {
 
 A4Message InputStreamImpl::next(bool skip_metadata) {
     A4Message msg = next_message();
-    if (handle_stream_command(msg)) return next();
-    if (handle_metadata(msg) && skip_metadata) return next();
+    if (handle_stream_command(msg)) return next(skip_metadata);
+    if (handle_metadata(msg) && skip_metadata) return next(skip_metadata);
     return msg;
 }
 

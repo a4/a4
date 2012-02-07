@@ -32,7 +32,10 @@ namespace a4{ namespace io{
             /// Skip to the start of the next metadata block. Return false if EOF, true if not.
             bool skip_to_next_metadata() { return seek_to(_current_header_index, _current_metadata_index+1, true); };
             /// True if new metadata has appeared since the last call to this function.
-            bool new_metadata() { if (_new_metadata) { _new_metadata = false; return true; } else return false;};
+            bool new_metadata() { 
+                if (!_started) startup();
+                if (_new_metadata) { _new_metadata = false; return true; } else return false;
+            };
             /// True if the stream has not ended or encountered an error.
             bool good() { return _good; };
             /// True if the stream has encountered an error.
