@@ -55,8 +55,9 @@ namespace a4{
                 enum MetadataBehavior { AUTO, MANUAL_FORWARD, MANUAL_BACKWARD, DROP };
                 MetadataBehavior get_metadata_behavior() { return metadata_behavior; }
 
-                Processor() : my_configuration(NULL), metadata_behavior(AUTO), locked(false) {};
-                virtual ~Processor() {};
+                Processor() : my_configuration(NULL), metadata_behavior(AUTO),
+                              locked(false), skip_to_next_metadata(false) {}
+                virtual ~Processor() {}
 
                 /// This function is called at the start of a new metadata block
                 /// In here you can modify the metadata_message that is written if auto_metadata is true.
