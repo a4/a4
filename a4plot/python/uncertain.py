@@ -27,7 +27,7 @@ class UncertainNumber:
         e = round(e, prec)
         n = round(n, max(prec, -1-decade_n+1)) # do not round n to 0
 
-        if n > 1e6:
+        if False: #n > 1e6:
             exponent = 6+((log10(n)-6)//3)*3
             prec += exponent
             n /= 10**exponent

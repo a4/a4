@@ -31,6 +31,7 @@ if options.output:
 disp = "4.7 fb^{-1}"
 
 from atfile import ATFile
+from fnmatch import filter
 
 bg_files = [ATFile(fn) for fn in args]
 sg_files = [ATFile(fn) for fn in options.signal]
@@ -38,7 +39,7 @@ data_files = [ATFile(d) for d in options.data]
 
 histos_1d = sorted(set(sum((f.find_type("TH1D") for f in data_files+bg_files+sg_files), []) + sum((f.find_type("TH1F") for f in data_files+bg_files+sg_files), [])))
 if not options.all:
-    histos_1d = sorted(h for h in histos_1d if h in options.histogram)
+    histos_1d = sorted(set(sum((filter(histos_1d, pat) for pat in options.histogram), [])))
 
 prefix = options.output
 histograms = []
@@ -47,7 +48,10 @@ if options.latex:
     print("\\documentclass{article}\\usepackage{lscape}\\begin{document}\\begin{landscape}\n")
 
 from ROOT import TCanvas, kRed, TH1D
-for hn in histos_1d:
+
+n = 0
+for hn in sorted(histos_1d):
+    n+=1
     data_fns = [f.fn for f in data_files if hn in f.dir]
     bg_fns = [f.fn for f in bg_files if hn in f.dir]
     sg_fns = [f.fn for f in sg_files if hn in f.dir]
@@ -150,6 +154,8 @@ for hn in histos_1d:
     if options.latex:
         t.append("\caption{%s}\n" % hn.replace("_"," "))
         t.append("\n\\end{tiny}\\end{table}\n")
+        if n%5==0:
+            t.append("\n\\clearpage\n")
     print "\n".join(t)
 
 if options.latex:
