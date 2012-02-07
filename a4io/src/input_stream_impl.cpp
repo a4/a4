@@ -478,6 +478,7 @@ bool InputStreamImpl::handle_stream_command(A4Message & msg) {
         } else {
             _current_metadata_index = -1;
         }
+        _new_metadata = true;
         return true;
     } else if (msg.is<StreamHeader>()) {
         throw a4::Fatal("a4::io:InputStreamImpl - Unexpected header!");
