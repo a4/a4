@@ -117,7 +117,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
             A4Message old_metadata = current_metadata;
 
             // Determine if merging is necessary
-            if (old_metadata && merge_key != "") {
+            if (new_metadata && old_metadata && merge_key != "") {
                 std::string s1 = old_metadata.assert_field_is_single_value(merge_key);
                 std::string s2 = new_metadata.assert_field_is_single_value(merge_key);
                 if (s1 == s2) merge = true;
@@ -130,7 +130,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
             } else { // Normal action in case of new metadata
                 // If we are in charge of metadata, start a new block now...
                 std::string postfix = "";
-                if (split_key != "") postfix = new_metadata.assert_field_is_single_value(split_key);
+                if (new_metadata && split_key != "") postfix = new_metadata.assert_field_is_single_value(split_key);
                 end_block();
                 current_metadata = new_metadata;
                 start_block(postfix);
@@ -207,6 +207,22 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     bool run = true;
     while (shared<InputStream> instream = self->in->get_stream()) {
         if (!run) break;
+        if (instream->new_metadata()) { // Start of new metadata block
+
+            A4Message new_metadata = instream->current_metadata();
+            // Process end of old metadata block, if any.
+            if (output_adaptor->current_metadata) p->process_end_metadata();
+
+            // Process start of new incoming metadata block (this may modify new_metadata)
+            // In Manual Mode, this may also trigger a callback in the output_adaptor.
+            // Note that set_metadata is only called here, since the processor should only
+            // ever see incoming metadata (by contract).
+            self->set_metadata(p, new_metadata);
+            if (new_metadata) p->process_new_metadata();
+
+            if (auto_metadata) output_adaptor->new_outgoing_metadata(new_metadata);
+        }
+
         while (A4Message msg = instream->next_with_metadata()) {
             if (!run) break;
             if (instream->new_metadata()) { // Start of new metadata block
@@ -220,7 +236,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                 // Note that set_metadata is only called here, since the processor should only
                 // ever see incoming metadata (by contract).
                 self->set_metadata(p, new_metadata);
-                p->process_new_metadata();
+                if (new_metadata) p->process_new_metadata();
 
                 if (auto_metadata) output_adaptor->new_outgoing_metadata(new_metadata);
             }
