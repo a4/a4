@@ -131,9 +131,15 @@ Cutflow & Cutflow::__add__(const Cutflow & source) {
                     _weights_squared->push_back(count);
                 }
             }
-
         } else {
             _bin[index] += count;
+            if (_weights_squared) {
+                if (source._weights_squared) {
+                    (*_weights_squared)[index] += source._weights_squared->operator[](i);
+                } else {
+                    (*_weights_squared)[index] += count;
+                }
+            }
         }
     }
     return *this;
