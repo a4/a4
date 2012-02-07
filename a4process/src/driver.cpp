@@ -14,6 +14,7 @@ typedef chrono::duration<double> duration;
 #include <a4/application.h>
 #include <a4/input.h>
 #include <a4/output.h>
+#include <a4/cpu_info.h>
 
 using std::string;
 using std::cout; using std::cerr; using std::endl;
@@ -24,23 +25,6 @@ using a4::io::InputStream;
 using a4::io::OutputStream;
 
 typedef std::vector<string> FileList;
-
-// Write the function ourselves since gcc stl just returns 0 every time
-int hardware_concurrency() {
-    int num_cores = boost::thread::hardware_concurrency();
-    if (num_cores >= 1) return num_cores;
-    // Yeah, thought so. Let's get it from cpuinfo since i'm on the train and have no net.
-    num_cores = 0;
-
-    // just count the lines starting with "processor "
-    std::ifstream cpuinfo("/proc/cpuinfo");
-    std::string line;
-    while(getline(cpuinfo,line)) {
-        std::string subst(line, 0, std::min((size_t)10, line.size()));
-        if (subst == "processor " || subst == "processor\t") num_cores++;
-    }
-    return num_cores;
-};
 
 namespace a4{ namespace process{
 
@@ -296,7 +280,7 @@ try
     chrono::steady_clock::time_point start = chrono::steady_clock::now();
     
     int n_threads, number;
-    int hw_threads = hardware_concurrency();
+    int hw_threads = get_cpuinfo().physical_cores;
     FileList inputs;
     po::options_description commandline_options;
     po::options_description config_file_options;

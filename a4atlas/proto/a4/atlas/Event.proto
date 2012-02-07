@@ -71,6 +71,7 @@ message EventMetaData
     
     repeated Stream stream = 2 [(a4.io.merge)=MERGE_UNION];
     repeated string period = 3 [(a4.io.merge)=MERGE_UNION];
+    repeated string subperiod = 10 [(a4.io.merge)=MERGE_UNION];
     repeated int32 run = 4 [(a4.io.merge)=MERGE_UNION];
     repeated RunLB lumiblock = 5 [(a4.io.merge)=MERGE_UNION];
 

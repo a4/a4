@@ -8,8 +8,8 @@
     { \
         typedef decltype(container) container##_type; \
         typedef container##_type::value_type value_type; \
-        auto key_function = [](const value_type& itemname) \
-                              { return key; }; \
+        auto key_function = [&](const value_type& itemname) \
+                               { return key; }; \
         auto key_predicate = [&](const value_type& lhs, const value_type& rhs) \
                                 { return key_function(lhs) < key_function(rhs); }; \
         std::sort(container.begin(), container.end(), key_predicate); \
@@ -39,8 +39,8 @@ bool all(const Container& container, const Predicate& pred) {
         typedef container##_type::value_type value_type; \
         auto container##_eraseto = \
             std::remove_if(container.begin(), container.end(), \
-                           [](const value_type& itemname) \
-                             { return condition; }); \
+                           [&](const value_type& itemname) \
+                              { return condition; }); \
         container.erase(container##_eraseto, container.end()); \
     }
 

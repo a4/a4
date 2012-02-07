@@ -20,11 +20,13 @@ using std::numeric_limits;
 using google::protobuf::DescriptorPool;
 using google::protobuf::FileDescriptor;
 using google::protobuf::FieldDescriptor;
+using google::protobuf::Descriptor;
 using google::protobuf::Message;
 using google::protobuf::Reflection;
 
 #include <a4/input.h>
 #include <a4/message.h>
+#include <dynamic_message.h>
 
 
 template<typename T> struct ItemOrdering {
@@ -248,7 +250,7 @@ public:
 
 void dump_message(const Message& message, 
                   const std::vector<std::string>& vars, 
-                  const std::vector<std::string>& types) {
+                  const std::vector<std::string>& types, bool shortform=true) {
                   
     if (vars.size()) {
         // specialized code
@@ -259,21 +261,61 @@ void dump_message(const Message& message,
             // Not a selected type
             return;
         }
-        std::cout << "message of type '" << type << "':" <<std::endl;
-        google::protobuf::TextFormat::PrintToString(message, &str);
-        std::cout << str << std::endl;
+        if (shortform) {
+            std::cout << message.ShortDebugString() << std::endl;
+        } else {
+            std::cout << "message of type '" << type << "':" <<std::endl;
+            google::protobuf::TextFormat::PrintToString(message, &str);
+            std::cout << str << std::endl;
+        }
     }    
 }
+
+template<class Container, class Predicate>
+bool any(const Container& container, const Predicate& pred) {
+    foreach (const auto& item, container)
+        if (pred(item))
+            return true;
+    return false;
+}
+
+class Selection
+{
+public:
+    Selection(const std::string& sel) : _desc(NULL), _field_desc(NULL) {
+        auto pos = sel.find(":");
+        _name = sel.substr(0, pos);
+        _value = sel.substr(pos+1);
+    }
+    
+    bool check(const Message& m) const {
+        if (_desc != m.GetDescriptor()) {
+            // Optimisation so we don't do the lookup every time
+            _desc = m.GetDescriptor();
+            _field_desc = _desc->FindFieldByName(_name);
+            if (!_field_desc)
+                throw a4::Fatal("Unknown field name: ", _name);
+        }
+        // HACK: Inefficient string comparison because it's the quickest implementation
+        return FieldContent(m, _field_desc).str() == _value;
+    }
+    
+    std::string _name, _value;
+    
+    mutable const Descriptor* _desc;
+    mutable const FieldDescriptor* _field_desc;
+};
 
 int main(int argc, char ** argv) {
     a4::Fatal::enable_throw_on_segfault();
 
     namespace po = boost::program_options;
 
-    std::vector<std::string> input_files, variables, types;
+    std::vector<std::string> input_files, variables, types, selection_strings;
     size_t event_count = -1, event_index = -1;
     bool collect_stats = false;
     bool stream_msg, dump_all;
+    bool short_form = false;
     
     po::positional_options_description p;
     p.add("input", -1);
@@ -289,6 +331,8 @@ int main(int argc, char ** argv) {
         ("type,t", po::value(&types), "variables to dump (defaults to all)")
         ("stream,s", po::bool_switch(&stream_msg)->default_value(false), "also dump stream internal messages")
         ("collect-stats,S", po::value(&collect_stats), "should collect statistics for all numeric variables")
+        ("short-form", po::value(&short_form)->default_value(short_form), "print in a compact form, one event per line")
+        ("select", po::value(&selection_strings), "Select messages by string equality (e.g. --select event_number:1234)")
     ;
     
     po::variables_map arguments;
@@ -316,13 +360,23 @@ int main(int argc, char ** argv) {
     for (; i < event_index; i++)
         if (stream_msg ? !stream->next_bare_message() : !stream->next())
             throw a4::Fatal("Ran out of events! There are only ", i, " on the file!");
-            
+        
+    std::vector<Selection> selections;
+    foreach (auto& selection_string, selection_strings)
+        selections.push_back(Selection(selection_string));
+    
     const size_t total = event_index + event_count;
     for (; dump_all || i < total; i++) {
         a4::io::A4Message m = stream_msg ? stream->next_bare_message() : stream->next();
         if (!m) break;
+        
+        // Skip messages which don't satisfy the selection
+        auto bad_selection = [&](const Selection& s){ return !s.check(*m.message); };
+        if (any(selections, bad_selection))
+            continue;
+        
         if (!collect_stats)
-            dump_message(*m.message, variables, types);
+            dump_message(*m.message, variables, types, short_form);
         else
             sc.collect(*m.message);
     }

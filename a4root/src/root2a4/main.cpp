@@ -45,6 +45,7 @@ using google::protobuf::compiler::SourceTreeDescriptorDatabase;
 #include <a4/input.h>
 
 #include "common.h"
+#include "period_mapping.h"
 
 #include "a4/root/atlas/ntup_photon/Event.pb.h"
 #include "a4/root/atlas/ntup_smwz/Event.pb.h"
@@ -60,6 +61,8 @@ using a4::atlas::InputFile;
 typedef std::vector<shared<Message> > MessageBuffer;
 typedef boost::function<void (shared<a4::io::OutputStream>, const MessageBuffer&)> MetadataCallback;
 typedef boost::function<void ()> FlushCallback;
+
+
 
 class MetadataFactory
 {
@@ -151,8 +154,20 @@ public:
         _metadata.set_event_count(buffer.size());
         
         if (buffer.size() >= 1) {
-            if (_field_run) 
-                _metadata.add_run(_refl->GetUInt32(*buffer[0], _field_run));
+            if (_field_run) {
+                auto run_number = _refl->GetUInt32(*buffer[0], _field_run);
+                _metadata.add_run(run_number);
+                
+                auto* full_period = get_period(run_number);
+                std::string period = full_period;
+                
+                if (period != "UNK") {
+                    period = period[0];
+                }
+                
+                _metadata.add_period(period);
+                _metadata.add_subperiod(full_period);
+            }
             if (_field_mc_channel && _refl->HasField(*buffer[0], _field_mc_channel)) 
                 _metadata.add_mc_channel(_refl->GetUInt32(*buffer[0], _field_mc_channel));
         }
@@ -162,6 +177,8 @@ public:
                          const MessageBuffer& buffer)
     {
         compute_info(buffer);
+        // Only write metadata if there is at least one message to be written
+        // (A4 doesn't deal well with the case of metadata for 0 events yet)
         if (buffer.size() >= 1) {
             stream->metadata(_metadata);
         }
@@ -241,8 +258,8 @@ public:
     Bool_t Notify() 
     { 
         assert(_descriptor);
+        std::cout << "Processing new file: " << _tree.GetCurrentFile()->GetName() << std::endl;
         if (!_brand_new) {
-            std::cout << "Notify flush" << std::endl;
             _flush_callback();
         }
         _brand_new = false;
@@ -261,7 +278,7 @@ class BufferingStreamWriter
 public:
     BufferingStreamWriter(shared<a4::io::OutputStream> stream, 
                           MetadataCallback callback,
-                          uint32_t buffer_size=10000) 
+                          uint32_t buffer_size) 
         : _stream(stream), _callback(callback), _buffer_size(buffer_size)
     {
     }
@@ -298,7 +315,7 @@ private:
 /// Event class.
 void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream, 
     MessageFactory* dynamic_factory, const Descriptor* message_descriptor, 
-    Long64_t entries = -1, uint32_t metadata_frequency=10000)
+    Long64_t entries = -1, uint32_t metadata_frequency = 100000)
 {
     Long64_t tree_entries = tree.GetEntries();
     if (entries > tree_entries)
