@@ -185,6 +185,12 @@ public:
     }
 
     void clear() {
+        foreach (auto& child_iter, _children)
+            child_iter.second->clear();
+            
+        if (not _field)
+            return;
+    
         #define CLEAR(proto_type, type) \
             case FieldDescriptor::CPPTYPE_##proto_type: \
                 if (_depth == 0) \
@@ -203,7 +209,9 @@ public:
             CLEAR(DOUBLE, Double)
             CLEAR(FLOAT, Float)
             CLEAR(BOOL, Bool)
-            default: assert(false);
+            default:
+                // Nothing to clear.
+                return;
         }
         
         #undef CLEAR
@@ -349,23 +357,8 @@ public:
         }
     }
     
-    ~TreeFiller() {
-        
-        DEBUG("TreeFiller destructor");
-        
-        TFile* output = new TFile("output.destr.1.root", "recreate");
-        
-        _root_tree->Write();
-        
-        output->Write();
-        output->Close();
-        delete _root_tree;
-        delete output;
-        
-        //delete _root_tree;
-    }
-    
     void fill(const a4::io::A4Message& m) {
+        top_node->clear();
         top_node->fill(*m.message);      
         _root_tree->Fill();
     }
