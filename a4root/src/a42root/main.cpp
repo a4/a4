@@ -46,7 +46,6 @@ public:
     #undef VALUE_TYPE
     
     void set(const FieldContent& content) {
-        
     
         #define SET_TYPE(proto_type, type) \
             case FieldDescriptor::CPPTYPE_##proto_type: \
@@ -59,8 +58,6 @@ public:
                     type##_value_2.back().push_back(content);\
                 } \
                 break;
-                    //DEBUG("Field: ", _field->full_name()); \
-                    //DEBUG("I am here?", content.str()); 
         switch (_field->cpp_type())  {
             SET_TYPE(INT32, Int)
             SET_TYPE(INT64, Long64)
@@ -222,7 +219,9 @@ public:
     
     }
         
-    MessageTreeNode(const FieldDescriptor* field, uint32_t parent_depth, const std::string& prefix) : _field(field), _prefix(prefix) {
+    MessageTreeNode(const FieldDescriptor* field, uint32_t parent_depth, 
+                    const std::string& prefix) : _field(field), _prefix(prefix) 
+    {
         _repeated = field->is_repeated();
         _depth = parent_depth + (_repeated ? 1 : 0);
         assert(_depth < 3);
@@ -312,7 +311,6 @@ public:
                                descriptor->full_name().c_str());
         
         _root_tree->SetAutoFlush();
-        //_root_tree->BranchRef();
         
         make_tree(top_node, _root_tree, descriptor);
         
@@ -371,8 +369,9 @@ public:
     TFile* f;
     
     ~a42rootProcessor() {
-        //f->Write(); //AutoSave();
-        //f->Close();
+        class_map.clear();
+        f->Write();
+        f->Close();
     }
 
     void process_message(const a4::io::A4Message m) {
@@ -385,9 +384,11 @@ public:
         auto& tree_filler = *class_map[class_name];
         
         tree_filler.fill(m);
+        
         static int i = 0;
+        if (i % 1000 == 0)
+            INFO("Event ", i);
         i++;
-        DEBUG("Event ", i);
     }
 };
 
@@ -399,9 +400,6 @@ class A2RConfig : public a4::process::ConfigurationOf<a42rootProcessor> {
         
         A2RConfig() : processor_count(0) {};
 
-        virtual ~A2RConfig() {
-            DEBUG("A2RConfig destructor");
-        }
 
         void add_options(po::options_description_easy_init opt) {
             opt("root-file,R", po::value(&filename)->default_value("output.root"), "ROOT output file");
@@ -409,8 +407,7 @@ class A2RConfig : public a4::process::ConfigurationOf<a42rootProcessor> {
 
         virtual void setup_processor(a42rootProcessor& g) {
             assert(processor_count++ == 0);
-            //g.f = new TFile(filename.c_str(), "RECREATE");
-            //g.f->SetCompressionLevel(0);
+            g.f = new TFile(filename.c_str(), "RECREATE");
         }
 };
 
