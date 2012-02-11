@@ -16,10 +16,12 @@ nodist_liba4root_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
 liba4root_la_SOURCES=
 liba4root_la_LIBADD=$(PROTOBUF_LIBS)
 
-bin_PROGRAMS=a4results2root root2a4
+bin_PROGRAMS=a4results2root root2a4 a42root
 a4results2root_SOURCES = src/a4results2root.cpp
 root2a4_SOURCES = src/root2a4/main.cpp src/root2a4/message_factory.cpp
 root2a4_LDADD = liba4root.la $(LDADD)
+a42root_SOURCES = src/a42root/main.cpp
+a42root_LDADD = liba4root.la $(LDADD)
 
 EXTRA_DIST += src/convertable_types.cc
 

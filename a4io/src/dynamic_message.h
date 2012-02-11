@@ -5,6 +5,7 @@
 #include <string>
 
 #include <boost/variant.hpp>
+#include <boost/variant/get.hpp>
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
@@ -151,7 +152,7 @@ class FieldContent {
         template<typename T>
         operator T() const {
             assert (!_message);
-            return T(content);
+            return boost::get<T>(content);
         };
         
         bool operator==(const FieldContent& rhs) const {
@@ -215,6 +216,16 @@ class DynamicField {
             assert(repeated());
             return FieldContent(m, f, i);
         }
+        
+        const Message& submessage() const {
+            assert(not repeated());
+            return r->GetMessage(m, f);
+        }
+        
+        const Message& submessage(int i) const {
+            assert(repeated());
+            return r->GetRepeatedMessage(m, f, i);
+        }
 
         int size() const {
             assert(repeated());
@@ -251,6 +262,60 @@ class DynamicField {
         Message & m;
         const FieldDescriptor * f;
         const Reflection * r;
+};
+
+class ConstDynamicField {
+    public:
+        ConstDynamicField(const Message& m, const FieldDescriptor* f) : m(m), f(f), r(m.GetReflection()) {};
+
+        bool repeated() const { return f->is_repeated(); };
+
+        bool message() const { return f->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE; };
+
+        const std::string & name() const { return f->full_name(); }
+
+        FieldContent value() const {
+            assert(!repeated());
+            return FieldContent(m, f);
+        }
+
+        FieldContent value(int i) const {
+            assert(repeated());
+            return FieldContent(m, f, i);
+        }
+        
+        
+        const Message& submessage() const {
+            assert(not repeated());
+            return r->GetMessage(m, f);
+        }
+        
+        const Message& submessage(int i) const {
+            assert(repeated());
+            return r->GetRepeatedMessage(m, f, i);
+        }
+
+        int size() const {
+            assert(repeated());
+            return r->FieldSize(m, f);
+        }
+
+        bool operator==(const DynamicField & rhs) {
+            if (repeated()) {
+                if(size() != rhs.size()) return false;
+                for (int i = 0; i < size(); i++) {
+                    if (!(value(i) == rhs.value(i))) return false;
+                }
+                return true;
+            } else {
+                return value() == rhs.value();
+            }
+        }
+
+    private:
+        const Message& m;
+        const FieldDescriptor* f;
+        const Reflection* r;
 };
 
 void add_fields(const DynamicField & f1, const DynamicField & f2, DynamicField & merged);
