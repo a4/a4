@@ -19,7 +19,7 @@ int main(int argc, char ** argv) {
     int cnt = 0;
     while (A4Message rr = r.next()) {
         if (rr.is<TestEvent>()) {
-            shared<TestEvent> te = rr.as<TestEvent>();
+            const TestEvent* te = rr.as<TestEvent>();
             A4Message md = r.current_metadata();
             assert(!md.null());
             assert(te->event_number() / 1000 == md.as<TestMetaData>()->meta_data());

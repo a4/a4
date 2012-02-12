@@ -234,9 +234,9 @@ namespace a4{
                 shared<Storable> _next_storable(const A4Message msg);
 
                 ProtoMetaData& metadata() {
-                    const A4Message msg = metadata_message;
+                    A4Message msg = metadata_message;
                     if (!msg) FATAL("No metadata at this time!"); // TODO: Should not be fatal
-                    ProtoMetaData* meta = msg.as<ProtoMetaData>().get();
+                    ProtoMetaData* meta = msg.as_mutable<ProtoMetaData>();
                     if (!meta) FATAL("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
                 };

@@ -222,7 +222,7 @@ bool InputStreamImpl::discover_all_metadata() {
             return false;
         }
         
-        shared<StreamFooter> footer = msg.as<StreamFooter>();
+        const StreamFooter* footer = msg.as<StreamFooter>();
         size += footer->size() + footer_msgsize;
         
         // Read all ProtoClasses associated with this footer
@@ -235,7 +235,7 @@ bool InputStreamImpl::discover_all_metadata() {
             A4Message msg = next_message();
             drop_compression();
             
-            shared<ProtoClass> proto = msg.as<ProtoClass>();
+            const ProtoClass* proto = msg.as<ProtoClass>();
             assert(proto);
             _current_class_pool->add_protoclass(*proto);
         }
@@ -269,7 +269,7 @@ bool InputStreamImpl::discover_all_metadata() {
             std::cerr << "ERROR - a4::io:InputStreamImpl - Unknown header class!" << std::endl;
             return false;
         }
-        shared<StreamHeader> header = hmsg.as<StreamHeader>();
+        const StreamHeader* header = hmsg.as<StreamHeader>();
         _temp_headers_forward.push_back(header->metadata_refers_forward());
 
         if (tell == 0)
@@ -486,7 +486,6 @@ bool InputStreamImpl::handle_stream_command(A4Message& msg) {
         return false;
     
     if (msg.is<StreamFooter>()) {
-        shared<StreamFooter> foot = msg.as<StreamFooter>();
         uint32_t size;
         if (!_coded_in->ReadLittleEndian32(&size))
             FATAL("Unexpected end of file [3]!");

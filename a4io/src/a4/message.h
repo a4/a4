@@ -106,11 +106,17 @@ namespace io {
             /// Returns null if the cast fails.
             /// example: auto event = result.as<MyEvent>()
             template <class T>
-            shared<T> as() const {
-                if (not is<T>()) return shared<T>();
-                if (!_message)
+            const T* as() const {
+                if (not is<T>())  return NULL;
+                return static_cast<const T*>(message());
+            }
+            
+            template <class T>
+            T* as_mutable() {
+                if (not is<T>())  return NULL;
+                if (not _message)
                     message();
-                return static_pointer_cast<T>(_message);
+                return static_cast<T*>(_message.get());
             }
 
             /// Merge two messages that support it via the "merge" field extension
