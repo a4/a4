@@ -4,14 +4,16 @@
 #include <unordered_set>
 #include <string>
 
+#include <a4/types.h>
+#include <a4/string.h>
+
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
 
-#include <a4/types.h>
-#include <a4/string.h>
+
 
 using google::protobuf::Message;
 using google::protobuf::FieldDescriptor;
