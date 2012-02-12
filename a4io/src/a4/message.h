@@ -18,11 +18,12 @@ namespace protobuf {
 namespace a4 {
 namespace io {
     /// Wrapped message returned from the InputStream
+    static const uint32_t NO_CLASS_ID = ((1L<<32) - 2);
+    static const uint32_t NO_CLASS_ID_METADATA = ((1L<<32) - 1);
+    
     class A4Message {
         public:
             /// Class-IDs for newly constructed messages
-            static const uint32_t NO_CLASS_ID = ((1L<<32) - 2);
-            static const uint32_t NO_CLASS_ID_METADATA = ((1L<<32) - 1);
 
             /// Construct A4Message that signifies end of stream or stream error
             A4Message() : _class_id(0), _descriptor(NULL), 
