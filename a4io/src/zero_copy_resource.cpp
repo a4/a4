@@ -189,7 +189,7 @@ namespace a4{ namespace io{
         }
         *data = (uint8_t*)_mmap + _position - _mmap_offset;
         *size = _mmap_blocksize - (_position - _mmap_offset);
-        if ((_size - _position) < *size) {
+        if (ssize_t(ssize_t(_size) - _position) < *size) {
             *size = _size - _position;
         }
         _position += *size;
