@@ -40,8 +40,8 @@ namespace io {
                 _class_id(m._class_id),
                 _descriptor(m._descriptor),
                 _dynamic_descriptor(m._dynamic_descriptor),
-                _factory(m._factory),
-                _pool(m._pool) {}
+                _pool(m._pool),
+                _factory(m._factory) {}
                 
             explicit A4Message(shared<google::protobuf::Message> msg, 
                                bool metadata=true) 
@@ -129,10 +129,11 @@ namespace io {
             const google::protobuf::Descriptor* _descriptor;
             /// Pointer to the dynamically loaded descriptor, used for merging
             const google::protobuf::Descriptor* _dynamic_descriptor;
-            /// Shared pointer to the factory that created this message
-            shared<google::protobuf::DynamicMessageFactory> _factory;
             /// Shared pointer to the descriptor pool of that message, so that it does not disappear on us.
             shared<google::protobuf::DescriptorPool> _pool;
+            /// Shared pointer to the factory that created this message
+            shared<google::protobuf::DynamicMessageFactory> _factory;
+
     };
 };};
 

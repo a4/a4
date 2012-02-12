@@ -256,7 +256,7 @@ class ConstDynamicField {
 class DynamicField : public ConstDynamicField {
     public:
         DynamicField(Message& m, const FieldDescriptor* f) 
-            : _m_mutable(m), ConstDynamicField(m, f) {}
+            : ConstDynamicField(m, f), _m_mutable(m) {}
         
         
         
