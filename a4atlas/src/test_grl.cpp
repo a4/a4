@@ -10,7 +10,7 @@ int main(int argc, char ** argv) {
         cout << "Usage: test_grl <test.grl file>" << endl;
         return 0;
     }
-    GRL test(argv[1]);
+    FileGRL test(argv[1]);
     cout << test.pass(8888880, 699) << endl;
     cout << test.pass(180710, 699) << endl;
     cout << test.pass(180710, 700) << endl;

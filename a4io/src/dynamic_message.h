@@ -197,129 +197,89 @@ namespace std {
     };
 }
 
-class DynamicField {
+class ConstDynamicField {
     public:
-        DynamicField(Message & m, const FieldDescriptor * f) : m(m), f(f), r(m.GetReflection()) {};
+        ConstDynamicField(const Message& m, const FieldDescriptor* f) : _m(m), _f(f), _r(m.GetReflection()) {}
 
-        bool repeated() const { return f->is_repeated(); };
+        bool repeated() const { return _f->is_repeated(); }
 
-        bool message() const { return f->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE; };
+        bool message() const { return _f->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE; }
 
-        const std::string & name() const { return f->full_name(); }
+        const std::string& name() const { return _f->full_name(); }
 
         FieldContent value() const {
             assert(!repeated());
-            return FieldContent(m, f);
+            return FieldContent(_m, _f);
         }
 
         FieldContent value(int i) const {
             assert(repeated());
-            return FieldContent(m, f, i);
+            return FieldContent(_m, _f, i);
         }
+        
         
         const Message& submessage() const {
             assert(not repeated());
-            return r->GetMessage(m, f);
+            return _r->GetMessage(_m, _f);
         }
         
         const Message& submessage(int i) const {
             assert(repeated());
-            return r->GetRepeatedMessage(m, f, i);
+            return _r->GetRepeatedMessage(_m, _f, i);
         }
 
         int size() const {
             assert(repeated());
-            return r->FieldSize(m, f);
+            return _r->FieldSize(_m, _f);
         }
 
+        bool operator==(const ConstDynamicField& rhs) const {
+            if (repeated()) {
+                if(size() != rhs.size()) 
+                    return false;
+                for (int i = 0; i < size(); i++) {
+                    if (!(value(i) == rhs.value(i))) 
+                        return false;
+                }
+                return true;
+            } else {
+                return value() == rhs.value();
+            }
+        }
+
+    protected:
+        const Message& _m;
+        const FieldDescriptor* _f;
+        const Reflection* _r;
+};
+
+class DynamicField : public ConstDynamicField {
+    public:
+        DynamicField(Message& m, const FieldDescriptor* f) 
+            : _m_mutable(m), ConstDynamicField(m, f) {}
+        
+        
+        
         void set(const FieldContent& c) {
             assert(!repeated());
-            boost::apply_visitor( visit_setter(&m, f), c.content );
-        };
+            boost::apply_visitor(visit_setter(&_m_mutable, _f), c.content);
+        }
 
         void add(const FieldContent& c) {
             assert(repeated());
             if (c._message) {
-                r->AddMessage(&m, f)->CopyFrom(*(c.content_msg));
+                _r->AddMessage(&_m_mutable, _f)->CopyFrom(*(c.content_msg));
             } else {
-                boost::apply_visitor( visit_adder(&m, f), c.content );
-            }
-        }
-
-        bool operator==(const DynamicField & rhs) {
-            if (repeated()) {
-                if(size() != rhs.size()) return false;
-                for (int i = 0; i < size(); i++) {
-                    if (!(value(i) == rhs.value(i))) return false;
-                }
-                return true;
-            } else {
-                return value() == rhs.value();
+                boost::apply_visitor(visit_adder(&_m_mutable, _f), c.content);
             }
         }
 
     private:
-        Message & m;
-        const FieldDescriptor * f;
-        const Reflection * r;
+        Message& _m_mutable;
 };
 
-class ConstDynamicField {
-    public:
-        ConstDynamicField(const Message& m, const FieldDescriptor* f) : m(m), f(f), r(m.GetReflection()) {};
-
-        bool repeated() const { return f->is_repeated(); };
-
-        bool message() const { return f->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE; };
-
-        const std::string & name() const { return f->full_name(); }
-
-        FieldContent value() const {
-            assert(!repeated());
-            return FieldContent(m, f);
-        }
-
-        FieldContent value(int i) const {
-            assert(repeated());
-            return FieldContent(m, f, i);
-        }
-        
-        
-        const Message& submessage() const {
-            assert(not repeated());
-            return r->GetMessage(m, f);
-        }
-        
-        const Message& submessage(int i) const {
-            assert(repeated());
-            return r->GetRepeatedMessage(m, f, i);
-        }
-
-        int size() const {
-            assert(repeated());
-            return r->FieldSize(m, f);
-        }
-
-        bool operator==(const DynamicField & rhs) {
-            if (repeated()) {
-                if(size() != rhs.size()) return false;
-                for (int i = 0; i < size(); i++) {
-                    if (!(value(i) == rhs.value(i))) return false;
-                }
-                return true;
-            } else {
-                return value() == rhs.value();
-            }
-        }
-
-    private:
-        const Message& m;
-        const FieldDescriptor* f;
-        const Reflection* r;
-};
-
-void add_fields(const DynamicField & f1, const DynamicField & f2, DynamicField & merged);
-void multiply_fields(const DynamicField & f1, const DynamicField & f2, DynamicField & merged);
-void append_fields(const DynamicField & f1, const DynamicField & f2, DynamicField & merged, bool make_unique);
+void add_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged);
+void multiply_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged);
+void append_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged, bool make_unique);
 
 #endif

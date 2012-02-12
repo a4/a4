@@ -357,7 +357,7 @@ public:
     
     void fill(const a4::io::A4Message& m) {
         top_node->clear();
-        top_node->fill(*m.message);      
+        top_node->fill(*m.message());
         _root_tree->Fill();
     }
 };
@@ -376,7 +376,7 @@ public:
 
     void process_message(const a4::io::A4Message m) {
         
-        auto class_name = m.message->GetDescriptor()->full_name();
+        auto class_name = m.message()->GetDescriptor()->full_name();
         if (class_map.find(class_name) == class_map.end()) {
             class_map[class_name].reset(new TreeFiller(m.descriptor()));
         }

@@ -97,8 +97,8 @@ int main(int argc, char ** argv) {
         foreach (const auto& header, all_metadata) {
             std::cout << "Header " << i++ << std::endl;
             foreach (const a4::io::A4Message& metadata, header) {
-                if (outs) outs->metadata(*metadata.message);
-                else dump_message(*metadata.message, variables);
+                if (outs) outs->metadata(*metadata.message());
+                else dump_message(*metadata.message(), variables);
             }
         }
         stream->close();

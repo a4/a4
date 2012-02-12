@@ -17,7 +17,8 @@ class ToyHist : public StorableAs<ToyHist, TestHisto> {
         }
         void to_pb(bool blank_pb) { pb->set_data(j); };
         void from_pb() { j = pb->data(); };
-        ToyHist & operator+=(const ToyHist &other) { j += other.j; return *this; };
+        ToyHist& operator+=(const ToyHist& other) { j += other.j; return *this; };
+        ToyHist& operator*=(const double&) { return *this; };
         void add(float s) { j += s; };
         float j;
 };

@@ -16,8 +16,8 @@ shared<Storable> ResultsProcessor<This, ProtoMetaData, Args...>::_next_storable(
         return shared<Storable>();
     }
     shared<Storable> pmsg = message_to_storable(msg);
-    if (!pmsg) throw a4::Fatal("Could not convert to Storable: ", typeid(*msg.message.get()));
-    if (!have_name) throw a4::Fatal("Storable without name: ", typeid(*msg.message.get()));
+    if (!pmsg) throw a4::Fatal("Could not convert to Storable: ", typeid(*msg.message()));
+    if (!have_name) throw a4::Fatal("Storable without name: ", typeid(*msg.message()));
     have_name = false;
     return pmsg;
 }

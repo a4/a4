@@ -11,6 +11,8 @@ using namespace a4::hist;
 
 const size_t GRIND_REPETITIONS = 5000000;
 
+#if 0
+#endif
 TEST(a4hist, h1) {
     H1 h1;
     h1(100,0,1);

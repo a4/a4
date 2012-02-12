@@ -12,13 +12,16 @@ std::vector<std::string> items;
 
 class myhist : public Storable {
     public:
-        virtual shared<const google::protobuf::Message> as_message() {return shared<google::protobuf::Message>();};
-        virtual void set_message(const google::protobuf::Message&) {};
-        virtual void set_message(shared<google::protobuf::Message>) {};
-        void construct_from(const google::protobuf::Message&) {};
-        void construct_from(std::shared_ptr<google::protobuf::Message>) {};
-        Storable&  operator+=(const a4::process::Storable&) { return *this; };
-        Storable&& clone_storable() { return myhist(*this);};
+        virtual shared<const google::protobuf::Message> as_message() {
+            return shared<google::protobuf::Message>();
+        }
+        virtual void set_message(const google::protobuf::Message&) {}
+        virtual void set_message(shared<google::protobuf::Message>) {}
+        void construct_from(const google::protobuf::Message&) {}
+        void construct_from(std::shared_ptr<google::protobuf::Message>) {}
+        Storable&  operator+=(const a4::process::Storable&) { return *this; }
+        Storable&  operator*=(const double&) { return *this; }
+        Storable&& clone_storable() { return myhist(*this); }
 };
 
 template <typename... Args>

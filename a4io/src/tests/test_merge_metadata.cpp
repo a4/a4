@@ -58,14 +58,14 @@ TEST(a4io, metadata_merge) {
             if (r.new_metadata()) {
                 A4Message new_md = r.current_metadata();
                 if (current_md) {
-                    std::cout << "CURRENT:\n" << current_md.message->ShortDebugString() << std::endl;
-                    std::cout << "NEXT   :\n" << new_md.message->ShortDebugString() << std::endl;
+                    std::cout << "CURRENT:\n" << current_md.message()->ShortDebugString() << std::endl;
+                    std::cout << "NEXT   :\n" << new_md.message()->ShortDebugString() << std::endl;
                     if (mcnt == 1) {
-                        EXPECT_THROW(std::cout << "ERRONEOUS: " << (current_md + new_md).message->ShortDebugString() << std::endl;, a4::Fatal);
+                        EXPECT_THROW(std::cout << "ERRONEOUS: " << (current_md + new_md).message()->ShortDebugString() << std::endl;, a4::Fatal);
 
                     } else {
                         current_md = current_md + new_md;
-                        std::cout << "MERGED :\n" << current_md.message->ShortDebugString() << std::endl;
+                        std::cout << "MERGED :\n" << current_md.message()->ShortDebugString() << std::endl;
                     }
                 } else current_md = new_md;
                 mcnt++;

@@ -31,6 +31,12 @@ void H1::constructor(const uint32_t &bins, const double &min, const double &max,
     bin_init();
 }
 
+void H1::constructor(const std::vector<double>& bins, const char* label) {
+    _axis.reset(new VariableAxis(bins));
+    _axis->label = label;
+    bin_init();
+}
+
 H1::H1(const H1 & h):
     title(h.title),
     _entries(h._entries)

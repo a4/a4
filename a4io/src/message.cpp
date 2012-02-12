@@ -16,7 +16,7 @@ using google::protobuf::Message;
 namespace a4{ namespace io{
 
     A4Message::~A4Message() {
-        message.reset();
+        _message.reset();
         _factory.reset();
         _pool.reset();
     }
@@ -81,31 +81,31 @@ namespace a4{ namespace io{
         m1 = m2 = res;
 
         if (m2._factory) {
-            res.message.reset(m2._factory->GetPrototype(d)->New());
+            res._message.reset(m2._factory->GetPrototype(d)->New());
         } else {
-            res.message.reset(m2.message->New());
+            res._message.reset(m2.message()->New());
         }
 
         if (_descriptor == d) {
             m1 = *this;
         } else {
-            m1.message.reset(res.message->New());
-            m1.message->ParseFromString(message->SerializeAsString());
+            m1._message.reset(res.message()->New());
+            m1._message->ParseFromString(_message->SerializeAsString());
         }
 
         if (m2_._descriptor == d) {
             m2 = m2_;
         } else {
-            m2.message.reset(res.message->New());
-            m2.message->ParseFromString(m2_.message->SerializeAsString());
+            m2._message.reset(res.message()->New());
+            m2._message->ParseFromString(m2_.message()->SerializeAsString());
         }
 
         for (int i = 0; i < d->field_count(); i++) {
             MetadataMergeOptions merge_opts = d->field(i)->options().GetExtension(merge);
 
-            DynamicField f1(*m1.message, d->field(i));
-            DynamicField f2(*m2.message, d->field(i));
-            DynamicField fm(*res.message, d->field(i));
+            ConstDynamicField f1(*m1.message(), d->field(i));
+            ConstDynamicField f2(*m2.message(), d->field(i));
+            DynamicField fm(*res._message, d->field(i));
 
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
@@ -134,12 +134,13 @@ namespace a4{ namespace io{
     }
     
     std::string A4Message::field_as_string(const std::string & field_name) {
-        assert(descriptor() == message->GetDescriptor());
+        assert(descriptor() == message()->GetDescriptor());
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
-        DynamicField f(*message, fd);
+        ConstDynamicField f(*message(), fd);
         if (f.repeated()) {
             std::stringstream ss;
-            for (int i = 0; i < f.size(); i++) ss << f.value(i).str();
+            for (int i = 0; i < f.size(); i++)
+                ss << f.value(i).str();
             return ss.str();
         } else {
             return f.value().str();
@@ -147,13 +148,13 @@ namespace a4{ namespace io{
     }
 
     std::string A4Message::assert_field_is_single_value(const std::string & field_name) {
-        assert(descriptor() == message->GetDescriptor());
+        assert(descriptor() == message()->GetDescriptor());
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         if (!fd) {
-            const std::string & classname = message->GetDescriptor()->full_name();
+            const std::string & classname = message()->GetDescriptor()->full_name();
             throw a4::Fatal(classname, " has no member ", field_name, " necessary for metadata merging or splitting!");
         }
-        if (fd->is_repeated() && (message->GetReflection()->FieldSize(*message, fd)) > 1) {
+        if (fd->is_repeated() && (message()->GetReflection()->FieldSize(*message(), fd)) > 1) {
             throw a4::Fatal(fd->full_name(), " has already multiple ", field_name, " entries - cannot achieve desired granularity!");
         }
         return field_as_string(field_name);

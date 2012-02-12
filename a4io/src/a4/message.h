@@ -23,19 +23,32 @@ namespace a4{ namespace io{
             static const uint32_t NO_CLASS_ID_METADATA = ((1L<<32) - 1);
 
             /// Construct A4Message that signifies end of stream or stream error
-            A4Message() :  _class_id(0), _descriptor(NULL), _dynamic_descriptor(NULL) { message.reset(); _pool.reset(); _factory.reset(); };
+            A4Message() : _class_id(0), _descriptor(NULL), 
+                          _dynamic_descriptor(NULL) 
+            { 
+                _message.reset();
+                _pool.reset();
+                _factory.reset();
+            }
+            
+            /// This copy constructor is assumed to be cheap
             A4Message(const A4Message &m) : 
-                message(m.message),
+                _message(m._message),
                 _class_id(m._class_id),
                 _descriptor(m._descriptor),
                 _dynamic_descriptor(m._dynamic_descriptor),
                 _factory(m._factory),
-                _pool(m._pool) {};
-            explicit A4Message(shared<google::protobuf::Message> msg, bool metadata=true) : 
-                message(msg),
-                _class_id(NO_CLASS_ID_METADATA),
-                _descriptor(msg->GetDescriptor()),
-                _dynamic_descriptor(NULL) { _pool.reset(); _factory.reset(); };
+                _pool(m._pool) {}
+                
+            explicit A4Message(shared<google::protobuf::Message> msg, 
+                                bool metadata=true) 
+                : _message(msg),
+                  _class_id(NO_CLASS_ID_METADATA),
+                  _descriptor(msg->GetDescriptor()),
+                  _dynamic_descriptor(NULL) 
+            { 
+                _pool.reset(); _factory.reset(); 
+            }
             ~A4Message();
 
             /// Construct normal A4Message with message, (static) descriptor, 
@@ -46,13 +59,17 @@ namespace a4{ namespace io{
                       const google::protobuf::Descriptor* dd,
                       shared<google::protobuf::DescriptorPool> pool,
                       shared<google::protobuf::DynamicMessageFactory> factory) 
-                : message(msg), _class_id(class_id), _descriptor(d), _dynamic_descriptor(dd), _pool(pool), _factory(factory) 
+                : _message(msg), _class_id(class_id), _descriptor(d), 
+                  _dynamic_descriptor(dd), _pool(pool), _factory(factory) 
             {
                 assert(_descriptor == msg->GetDescriptor());
-            };
+            }
 
             /// Shared protobuf message 
-            shared<google::protobuf::Message> message;
+            shared<google::protobuf::Message> _message;
+            
+            const google::protobuf::Message* message() const { return _message.get(); }
+            
             /// Pointer to the descriptor of that message, used for quick type checks.
             const google::protobuf::Descriptor* descriptor() const { return _descriptor; };
             /// Class ID on the wire
@@ -61,7 +78,7 @@ namespace a4{ namespace io{
             bool metadata() const { return class_id() % 2 == 1; }
 
             /// true if the message pointer is None (end, unknown or no metadata)
-            bool null() const { return message.get() == NULL; }
+            bool null() const { return _message.get() == NULL; }
 
             /// this object can be used in if() expressions, it will be true if it contains a message
             operator bool() const { return !null(); }
@@ -78,15 +95,18 @@ namespace a4{ namespace io{
             template <class T>
             shared<T> as() const {
                 if (not is<T>()) return shared<T>();
-                return static_pointer_cast<T>(message);
+                if (!_message)
+                    message();
+                return static_pointer_cast<T>(_message);
             }
 
             /// Merge two messages that support it via the "merge" field extension
             A4Message operator+(const A4Message & rhs) const;
 
             /// Return a field of this message in string representation
-            std::string field_as_string(const std::string & field_name);
-            std::string assert_field_is_single_value(const std::string & field_name);
+            std::string field_as_string(const std::string& field_name);
+            std::string assert_field_is_single_value(const std::string& field_name);
+            
         private:
             void version_check(const A4Message &m2) const;
 

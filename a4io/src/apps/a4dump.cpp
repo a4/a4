@@ -371,14 +371,14 @@ int main(int argc, char ** argv) {
         if (!m) break;
         
         // Skip messages which don't satisfy the selection
-        auto bad_selection = [&](const Selection& s){ return !s.check(*m.message); };
+        auto bad_selection = [&](const Selection& s){ return !s.check(*m.message()); };
         if (any(selections, bad_selection))
             continue;
         
         if (!collect_stats)
-            dump_message(*m.message, variables, types, short_form);
+            dump_message(*m.message(), variables, types, short_form);
         else
-            sc.collect(*m.message);
+            sc.collect(*m.message());
     }
     
     if (collect_stats)

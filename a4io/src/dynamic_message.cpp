@@ -4,9 +4,10 @@ using google::protobuf::Message;
 using google::protobuf::FieldDescriptor;
 using google::protobuf::Reflection;
 
-void add_fields(const DynamicField & f1, const DynamicField & f2, DynamicField & merged) {
+void add_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged) {
     if (f1.repeated()) {
-        if(f1.size() != f2.size()) throw a4::Fatal("Trying to add arrays of different sizes in ", f1.name());
+        if (f1.size() != f2.size()) 
+            throw a4::Fatal("Trying to add arrays of different sizes in ", f1.name());
         for (int i = 0; i < f1.size(); i++) {
             merged.add(f1.value(i) + f2.value(i));
         }
@@ -15,9 +16,10 @@ void add_fields(const DynamicField & f1, const DynamicField & f2, DynamicField &
     }
 }
 
-void multiply_fields(const DynamicField & f1, const DynamicField & f2, DynamicField & merged) {
+void multiply_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged) {
     if (f1.repeated()) {
-        if(f1.size() != f2.size()) throw a4::Fatal("Trying to add arrays of different sizes in ", f1.name());
+        if (f1.size() != f2.size()) 
+            throw a4::Fatal("Trying to add arrays of different sizes in ", f1.name());
         for (int i = 0; i < f1.size(); i++) {
             merged.add(f1.value(i) * f2.value(i));
         }
@@ -26,8 +28,9 @@ void multiply_fields(const DynamicField & f1, const DynamicField & f2, DynamicFi
     }
 }
 
-void append_fields(const DynamicField & f1, const DynamicField & f2, DynamicField & merged, bool make_unique) {
-    if (!f1.repeated()) throw a4::Fatal("MERGE_UNION/APPEND is not applicable to non-repeated field ", f1.name());
+void append_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged, bool make_unique) {
+    if (!f1.repeated()) 
+        throw a4::Fatal("MERGE_UNION/APPEND is not applicable to non-repeated field ", f1.name());
     std::unordered_set<FieldContent> items;
     for (int i = 0; i < f1.size(); i++) {
         FieldContent fc = f1.value(i);

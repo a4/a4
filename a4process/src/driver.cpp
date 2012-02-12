@@ -55,7 +55,10 @@ class BaseOutputAdaptor : public OutputAdaptor {
         A4Output * res;
         shared<ObjectBackStore> backstore;
 
-        BaseOutputAdaptor(Driver * d, Processor * p, bool forward_metadata, A4Output* out, A4Output* res) : out(out), res(res), forward_metadata(forward_metadata), in_block(false), driver(d), p(p), last_postfix("") {
+        BaseOutputAdaptor(Driver * d, Processor * p, bool forward_metadata, A4Output* out, A4Output* res) 
+            : out(out), res(res), forward_metadata(forward_metadata), 
+              in_block(false), driver(d), p(p), last_postfix("") 
+        {
             merge_key = split_key = "";
             outstream.reset();
             resstream.reset();
@@ -63,11 +66,12 @@ class BaseOutputAdaptor : public OutputAdaptor {
             start_block(); // This writes no metadata
         }
 
-        void start_block(std::string postfix = "") {
+        void start_block(std::string postfix="") {
             if (out and (!outstream or postfix != last_postfix)) {
                 outstream = out->get_stream(postfix);
                 outstream->set_compression("ZLIB", 1);
-                if (forward_metadata) outstream->set_forward_metadata();
+                if (forward_metadata) 
+                    outstream->set_forward_metadata();
             }
             if (res and (!resstream or postfix != last_postfix)) {
                 resstream = res->get_stream(postfix);
@@ -76,20 +80,21 @@ class BaseOutputAdaptor : public OutputAdaptor {
             }
             backstore.reset(new ObjectBackStore());
             driver->set_store(p, backstore->store());
-            if (outstream and forward_metadata and current_metadata) outstream->metadata(*current_metadata.message);
+            if (outstream and forward_metadata and current_metadata) 
+                outstream->metadata(*current_metadata.message());
             in_block = true;
         }
 
         void end_block() {
             if (resstream && current_metadata) {
-                resstream->metadata(*current_metadata.message);
+                resstream->metadata(*current_metadata.message());
             }
             if (backstore && resstream) {
                 backstore->to_stream(*resstream);
             }
             backstore.reset();
             if (outstream and !forward_metadata and current_metadata) {
-                outstream->metadata(*current_metadata.message);
+                outstream->metadata(*current_metadata.message());
             }
             in_block = false;
         }
@@ -108,15 +113,16 @@ class BaseOutputAdaptor : public OutputAdaptor {
             }
 
             if (merge) {
-                //std::cerr<< "Merging\n" << old_metadata.message->ShortDebugString() << "\n...and...\n" << new_metadata.message->ShortDebugString() << std::endl;
+                //std::cerr<< "Merging\n" << old_metadata.message()->ShortDebugString() << "\n...and...\n" << new_metadata.message()->ShortDebugString() << std::endl;
                 current_metadata = old_metadata + new_metadata;
-                //std::cerr << "...to...\n" << current_metadata.message->ShortDebugString() << std::endl;
+                //std::cerr << "...to...\n" << current_metadata.message()->ShortDebugString() << std::endl;
             } else { // Normal action in case of new metadata
                 // If we are in charge of metadata, start a new block now...
                 end_block();
 
                 std::string postfix = "";
-                if (new_metadata && split_key != "") postfix = new_metadata.assert_field_is_single_value(split_key);
+                if (new_metadata && split_key != "") 
+                    postfix = new_metadata.assert_field_is_single_value(split_key);
                 current_metadata = new_metadata;
 
                 start_block(postfix);
@@ -138,14 +144,16 @@ class BaseOutputAdaptor : public OutputAdaptor {
         shared<OutputStream> outstream, resstream;
 
         bool in_block;
-        Driver * driver;
-        Processor * p;
+        Driver* driver;
+        Processor* p;
         std::string last_postfix;
 };
 
 class ManualOutputAdaptor : public BaseOutputAdaptor {
     public:
-        ManualOutputAdaptor(Driver * d, Processor * p, bool forward_metadata, A4Output* out, A4Output* res) : BaseOutputAdaptor(d, p, forward_metadata, out, res) {}
+        ManualOutputAdaptor(Driver* d, Processor* p, bool forward_metadata, A4Output* out, A4Output* res) 
+            : BaseOutputAdaptor(d, p, forward_metadata, out, res) {}
+        
         void metadata(shared<google::protobuf::Message> m) {
             new_outgoing_metadata(A4Message(m));
         }

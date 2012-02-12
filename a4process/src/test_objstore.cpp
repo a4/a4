@@ -20,24 +20,25 @@ class Results {};
 
 class TestStringThing : public Storable {
     public:
-        TestStringThing() : _initialized(false) {};
-        virtual shared<const google::protobuf::Message> as_message() {return shared<google::protobuf::Message>();};
-        virtual void construct_from(const google::protobuf::Message&) {};
-        virtual void construct_from(shared<google::protobuf::Message>) {};
-        void construct_from(const google::protobuf::Message&) {};
-        void construct_from(std::shared_ptr<google::protobuf::Message>) {};
-        Storable&  operator+=(const a4::process::Storable&) { return *this; };
-        Storable&  operator*=(const a4::process::Storable&) { return *this; };
-        Storable&& clone_storable() { return TestStringThing(*this);};
+        TestStringThing() : _initialized(false) {}
+        virtual shared<const google::protobuf::Message> as_message() { 
+            return shared<google::protobuf::Message>(); 
+        }
+        virtual void construct_from(const google::protobuf::Message&) {}
+        virtual void construct_from(shared<google::protobuf::Message>) {}
+        Storable&  operator+=(const a4::process::Storable&) { return *this; }
+        Storable&  operator*=(const a4::process::Storable&) { return *this; }
+        Storable&  operator*=(const double&) { return *this; }
+        Storable&& clone_storable() { return TestStringThing(*this); }
 
         TestStringThing & operator()(const int &nr) {
             if (_initialized) return *this;
             _initialized = true;
             n = nr;
             return *this;
-        };
+        }
         bool _initialized;
-        void foo() { n++; };
+        void foo() { n++; }
         string s;
         int n;
 };

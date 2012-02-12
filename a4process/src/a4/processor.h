@@ -19,7 +19,9 @@ namespace a4{
     namespace process{
         //INTERNAL
         template <class This, typename... TArgs> struct _test_process_as;
-        template <class This, class T, class... TArgs> struct _test_process_as<This, T, TArgs...> { 
+        
+        template <class This, class T, class... TArgs> 
+        struct _test_process_as<This, T, TArgs...> { 
             static bool process(This* that, const std::string &n, shared<Storable> s) { 
                 shared<T> t = dynamic_pointer_cast<T>(s);
                 if (t) {
@@ -28,7 +30,11 @@ namespace a4{
                 } else return _test_process_as<This, TArgs...>::process(that, n, s);
             }
         };
-        template <class This> struct _test_process_as<This> { static bool process(This* that, const std::string &n, shared<Storable> s) { return false; }; };
+        
+        template <class This> 
+        struct _test_process_as<This> { 
+            static bool process(This* that, const std::string& n, shared<Storable> s) { return false; }
+        };
 
         using a4::io::A4Message;
 
@@ -38,16 +44,16 @@ namespace a4{
             public:
                 virtual void write(shared<const google::protobuf::Message> m) = 0;
                 virtual void metadata(shared<google::protobuf::Message> m) = 0;
-                void write(const google::protobuf::Message & m) {
+                void write(const google::protobuf::Message& m) {
                     shared<google::protobuf::Message> msg(m.New());
                     msg->CopyFrom(m);
                     write(msg);
-                };
-                void metadata(const google::protobuf::Message & m) {
+                }
+                void metadata(const google::protobuf::Message& m) {
                     shared<google::protobuf::Message> msg(m.New());
                     msg->CopyFrom(m);
                     metadata(msg);
-                };
+                }
         };
 
         class Processor {
@@ -76,7 +82,7 @@ namespace a4{
                 void metadata_start_block(shared<const google::protobuf::Message> m) {
                     metadata_start_block(*m);
                 }
-                void metadata_start_block(const google::protobuf::Message & m) {
+                void metadata_start_block(const google::protobuf::Message& m) {
                     assert(metadata_behavior == MANUAL_FORWARD); 
                     _output_adaptor->metadata(m); 
                 }
@@ -90,28 +96,28 @@ namespace a4{
 
                 /// Write a message to the output stream
                 void write(shared<const google::protobuf::Message> m) { _output_adaptor->write(m); }
-                void write(const google::protobuf::Message & m) { _output_adaptor->write(m); }
+                void write(const google::protobuf::Message& m) { _output_adaptor->write(m); }
                 
                 /// Write a message to the output stream at most once per event
-                void skim(const google::protobuf::Message & m) {
+                void skim(const google::protobuf::Message& m) {
                     if (not skim_written) _output_adaptor->write(m);
                     skim_written = true;
                 }
 
                 /// Call channel in process_message to rerun with the prefix "channel/<name>/".
                 /// In that run this function always returns true.
-                bool channel(const char * name) {
+                bool channel(const char* name) {
                     rerun_channels.insert(name);
                     if (rerun_channels_current == NULL) return false;
                     return strcmp(rerun_channels_current, name) == 0;
                 }
-                bool in_channel(const char * name) const {
+                bool in_channel(const char* name) const {
                     if (rerun_channels_current == NULL) return false;
                     return strcmp(rerun_channels_current, name) == 0;
                 }
                 /// Call systematic in process_message to rerun with the prefix "syst/<name>/".
                 /// In that run this function always returns true.
-                bool systematic(const char * name) {
+                bool systematic(const char* name) {
                     rerun_systematics.insert(name);
                     if (rerun_systematics_current == NULL) return false;
                     return strcmp(rerun_systematics_current, name) == 0;
@@ -183,25 +189,25 @@ namespace a4{
                 ProcessorOf() {
                     a4::io::RegisterClass<ProtoMessage> _e;
                     a4::io::RegisterClass<ProtoMetaData> _m;
-                };
+                }
 
                 /// Override this to proces only your requested messages
-                virtual void process(const ProtoMessage &) = 0;
+                virtual void process(const ProtoMessage&) = 0;
 
                 void process_message(const A4Message msg) {
                     if (!msg) throw a4::Fatal("No message!"); // TODO: Should not be fatal
-                    ProtoMessage * pmsg = msg.as<ProtoMessage>().get();
-                    if (!pmsg) throw a4::Fatal("Unexpected Message type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMessage), ")");
+                    ProtoMessage* pmsg = msg.as<ProtoMessage>().get();
+                    if (!pmsg) throw a4::Fatal("Unexpected Message type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMessage), ")");
                     process(*pmsg);
-                };
+                }
 
-                ProtoMetaData & metadata() {
+                ProtoMetaData& metadata() {
                     const A4Message msg = metadata_message;
                     if (!msg) throw a4::Fatal("No metadata at this time!"); // TODO: Should not be fatal
-                    ProtoMetaData * meta = msg.as<ProtoMetaData>().get();
-                    if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    ProtoMetaData* meta = msg.as<ProtoMetaData>().get();
+                    if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
-                };
+                }
 
             protected:
                 friend class a4::process::Driver;
@@ -210,7 +216,10 @@ namespace a4{
         template<class This, class ProtoMetaData = a4::io::NoProtoClass, class... Args>
         class ResultsProcessor : public Processor {
             public:
-                ResultsProcessor() { a4::io::RegisterClass<ProtoMetaData> _m; have_name = false; };
+                ResultsProcessor() { 
+                    a4::io::RegisterClass<ProtoMetaData> _m;
+                    have_name = false; 
+                }
 
                 // Generic storable processing
                 virtual void process(const std::string &, Storable &) {};
@@ -230,7 +239,7 @@ namespace a4{
                     const A4Message msg = metadata_message;
                     if (!msg) throw a4::Fatal("No metadata at this time!"); // TODO: Should not be fatal
                     ProtoMetaData * meta = msg.as<ProtoMetaData>().get();
-                    if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message.get()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
                 };
             protected:
