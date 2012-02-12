@@ -96,7 +96,7 @@ const int N = 100*1000;
 
 int main(int argv, char ** argc) {
 
-    Results * r = new Results();
+    Results* r = new Results();
 
     assert(!is_writeable_pointer("test"));
     string a = "50";

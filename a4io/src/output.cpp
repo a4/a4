@@ -51,8 +51,9 @@ A4Output::~A4Output() {
     if (!_closed) close();
 }
 
-void A4Output::report_finished(A4Output * output, OutputStream* s) {
-    if (s->opened()) s->close();
+void A4Output::report_finished(A4Output* output, OutputStream* s) {
+    if (s->opened()) 
+        s->close();
 }
 
 /// Create a new output stream. For each call we create an independent output
@@ -129,8 +130,8 @@ bool A4Output::close() {
 bool A4Output::concatenate(const std::vector<std::string>& filenames, 
                            const std::string target) {
     if (filenames.size() == 1) {
-        const char * from = filenames[0].c_str();
-        const char * to = target.c_str();
+        const char* from = filenames[0].c_str();
+        const char* to = target.c_str();
         unlink(to);
         if (rename(from, to) == -1) {
             ERROR("Cannot rename ", from, " to ", to, "!");

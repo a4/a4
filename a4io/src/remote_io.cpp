@@ -62,7 +62,7 @@ dcap_filesystem_calls::dcap_filesystem_calls() {
 int dcap_filesystem_calls::last_errno() {
     int nr = errno;
     if (nr != 0) {
-        const char * err = _internal_strerror(nr);
+        const char* err = _internal_strerror(nr);
         if (err) 
             FATAL("Internal DCAP error: ", err);
     }
@@ -123,7 +123,7 @@ int    hdfs_filesystem_calls::open(const char* name, int type, mode_t opts) {
     hdfsFile f = _hdfsOpenFile(fs, name, type, opts, 0, 0);
     if(f == NULL) return _errno = -1;
 
-    hdfsFileInfo * fi = _hdfsGetPathInfo(fs, name);
+    hdfsFileInfo* fi = _hdfsGetPathInfo(fs, name);
     if (fi == NULL)  return _errno = -1;
 
     _files.push_back(f);

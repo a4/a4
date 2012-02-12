@@ -111,8 +111,8 @@ namespace a4{ namespace io{
             uint32_t _next_class_id;
             uint32_t _next_metadata_class_id;
             
-            void write_protoclass(uint32_t class_id, const google::protobuf::Descriptor * d);
-            uint32_t find_class_id(const google::protobuf::Descriptor * d, bool metadata);
+            void write_protoclass(uint32_t class_id, const google::protobuf::Descriptor* d);
+            uint32_t find_class_id(const google::protobuf::Descriptor* d, bool metadata);
             
             std::map<const std::string, uint32_t> _class_id;
             std::vector<int> _class_id_counts;

@@ -12,7 +12,7 @@ class Driver {
         void set_metadata(Processor* p, A4Message md) { p->metadata_message = md; }
 
 
-        void set_output_adaptor(Processor* p, OutputAdaptor * oa) { p->_output_adaptor = oa; };
+        void set_output_adaptor(Processor* p, OutputAdaptor* oa) { p->_output_adaptor = oa; };
 
         static void process_rerun_channels(Processor* p, A4Message msg) {
             ObjectStore S = p->S;
@@ -20,7 +20,7 @@ class Driver {
             std::set<const char *> finished_channels;
             do {
                 std::set<const char *> channels = p->rerun_channels;
-                foreach (const char * c, channels) {
+                foreach (const char* c, channels) {
                     if (finished_channels.find(c) != finished_channels.end()) continue;
                     p->rerun_channels_current = c;
                     p->S = S("channel/", c, "/");
@@ -37,7 +37,7 @@ class Driver {
             p->skim_written = false;
             ObjectStore S = p->S;
             process_rerun_channels(p, msg);
-            foreach (const char * c, p->rerun_systematics) {
+            foreach (const char* c, p->rerun_systematics) {
                 p->rerun_systematics_current = c;
                 p->S = S("systematic/", c, "/");
                 process_rerun_channels(p, msg);

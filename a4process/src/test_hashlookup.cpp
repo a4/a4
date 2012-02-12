@@ -17,14 +17,14 @@ using namespace std;
 std::vector<std::string> items;
 
 template <typename... Args>
-void test_set(hash_lookup * h, const Args& ...args) {
+void test_set(hash_lookup* h, const Args& ...args) {
     string*& res = (string*&)h->lookup(args...);
     assert(res == NULL);
     res = new string(str_cat(args...));
 }
 
 template <typename... Args>
-void check_set(hash_lookup * h, const Args& ...args) {
+void check_set(hash_lookup* h, const Args& ...args) {
     string*& res = (string*&)h->lookup(args...);
     assert(res != NULL);
     assert(*res == str_cat(args...));
@@ -33,7 +33,7 @@ void check_set(hash_lookup * h, const Args& ...args) {
 }
 
 template <typename... Args>
-void test_check_set(hash_lookup * h, const Args& ...args) {
+void test_check_set(hash_lookup* h, const Args& ...args) {
     test_set(h, args...);
     check_set(h, args...);
 }

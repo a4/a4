@@ -44,7 +44,7 @@ class ToyTest : public StorableAs<ToyTest, TestHisto> {
 
 template <typename... Args>
 void lookup1000(ObjectStore S) {
-    const char * dirs[] = {"alpha/", "beta/", "gamma/", "delta/", "epsilon/", "phi/", "chi/", "xi/", "tau/", "omikron/"};
+    const char* dirs[] = {"alpha/", "beta/", "gamma/", "delta/", "epsilon/", "phi/", "chi/", "xi/", "tau/", "omikron/"};
     for (int i = 0; i < 10; i++) {
         S.T<ToyHist>(dirs[i], "A00")(0.1*i,4,i).add(4.2);
         S.T<ToyHist>(dirs[i], "A01")(0.1*i,4,i).add(4.2);
@@ -150,14 +150,14 @@ void lookup1000(ObjectStore S) {
 }
 
 template <typename... Args>
-void check_set(hash_lookup * h, const Args& ...args) {
+void check_set(hash_lookup* h, const Args& ...args) {
     string*& res = (string*&)h->lookup(args...);
     assert(res != NULL);
     assert(*res == str_cat(args...));
 }
 
 template <typename... Args>
-void test_check_set(hash_lookup * h, const Args& ...args) {
+void test_check_set(hash_lookup* h, const Args& ...args) {
     test_set(h, args...);
     check_set(h, args...);
 }

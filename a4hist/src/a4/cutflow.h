@@ -29,7 +29,7 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
 
         // Implements StorableAs
         virtual void constructor();
-        virtual void constructor(const char * _title) { title = _title; constructor();};
+        virtual void constructor(const char* _title) { title = _title; constructor();};
 
         virtual void to_pb(bool blank_pb);
         virtual void from_pb();

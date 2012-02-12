@@ -38,7 +38,7 @@ namespace a4{ namespace process{
             /// Get a checked pointer to a C object identified by the concatenated args.
             /// If the object does not exist, it is created. If it exists but is
             /// of a non-dynamic-casteable type, find returns NULL.
-            template <class C, typename ...Args> C * find(const Args& ...args);
+            template <class C, typename ...Args> C* find(const Args& ...args);
             /// Get a checked, shared pointer to a C object identified by the concatenated args.
             /// If the object does not exist, a NULL shared pointer is returned.
             template <class C> shared<C> get_slow(const std::string& s) const;
@@ -47,7 +47,7 @@ namespace a4{ namespace process{
             /// Version of T that works with dynamic strings (warning: very slow)
             template <class C, typename ...Args> C& T_slow(const Args& ...args);
             /// Version of find that works with dynamic strings (warning: very slow)
-            template <class C, typename ...Args> C * find_slow(const Args& ...args);
+            template <class C, typename ...Args> C* find_slow(const Args& ...args);
             /// Get an ObjectStore with a "prefix" which can be handed to functions
             template <typename ...Args> ObjectStore operator()(const Args& ...args) const;
             /// set weight
@@ -58,11 +58,11 @@ namespace a4{ namespace process{
             // Return the 
             const std::string& prefix() const { return hl->get_path(); };
         protected:
-            ObjectBackStore * backstore;
-            hash_lookup * hl;
+            ObjectBackStore* backstore;
+            hash_lookup* hl;
             double current_weight;
             /// Always create ObjectStores from ObjectBackStore.store() and ObjectStore("prefix/")
-            ObjectStore(hash_lookup * hl, ObjectBackStore* bs, const double& weight) : backstore(bs), hl(hl), current_weight(weight) {};
+            ObjectStore(hash_lookup* hl, ObjectBackStore* bs, const double& weight) : backstore(bs), hl(hl), current_weight(weight) {};
             // Let ObjectBackStore use the protected constructor
             friend class ObjectBackStore;
     };
@@ -99,7 +99,7 @@ namespace a4{ namespace process{
             // The actual store where the objects are kept
             unique<std::map<std::string, shared<Storable>>> _store;
             // Get a pointer to the given C object, creating it if it is not found.
-            template <class C, typename ...Args> C * find(const Args& ...args);
+            template <class C, typename ...Args> C* find(const Args& ...args);
             // Give ObjectStore access to find()
             friend class ObjectStore;
     };

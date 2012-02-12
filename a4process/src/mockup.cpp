@@ -71,12 +71,12 @@ double trigger_event_sf(double eff1, double eff2, double sf1, double sf2) {
 // Analysis helper classes
 class AElectron {
     public:
-        AElectron(a4::ebke::Electron * j) : pb(j), 
+        AElectron(a4::ebke::Electron* j) : pb(j), 
                                   lv(alv(j->p4())), 
                                   cluster(alv(j->p4_cluster())),
                                   track(alv(j->p4_track()))
                                 {};
-        Electron * pb;
+        Electron* pb;
         ALorentzVector lv;
         ALorentzVector cluster;
         ALorentzVector track;
@@ -102,12 +102,12 @@ typedef boost::shared_ptr<AElectron> AElectronPtr;
 
 class AMuon {
     public:
-        AMuon(Muon * j) : pb(j), 
+        AMuon(Muon* j) : pb(j), 
                                   lv(alv(j->p4())), 
                                   ms(alv(j->p4_ms())),
                                   track(alv(j->p4_track()))
                                 {};
-        Muon * pb;
+        Muon* pb;
         ALorentzVector lv;
         ALorentzVector ms;
         ALorentzVector track;
@@ -131,8 +131,8 @@ class ALepton {
 
 class AJet {
     public:
-        AJet(Jet * j) : pb(j), lv(alv(j->p4())), lv_em(alv(j->p4_em())) {};
-        Jet * pb;
+        AJet(Jet* j) : pb(j), lv(alv(j->p4())), lv_em(alv(j->p4_em())) {};
+        Jet* pb;
         ALorentzVector lv;
         ALorentzVector lv_em;
         bool is_bad() {
@@ -146,7 +146,7 @@ class HWWAnalysis : public ProcessorOf<AtlasEvent, AtlasMetaData> {
     public: 
         virtual void process(const AtlasEvent &event);
 
-        void plot_kinematics(const char * tag, ALorentzVector l0, ALorentzVector l1) {
+        void plot_kinematics(const char* tag, ALorentzVector l0, ALorentzVector l1) {
             plot_kinematics_1p(tag "/l0_", l0);
             plot_kinematics_1p(tag "/l1_", l1);
             plot_kinematics_2p(tag "/ll_", l0, l1);
@@ -162,7 +162,7 @@ class HWWAnalysis : public ProcessorOf<AtlasEvent, AtlasMetaData> {
             S<H1>(prefix, "m_1gev").resolution(1*GeV).fill(v.m())
         };
 
-        void plot_kinematics_2p(const char * prefix, const ALorentzVector &v0, const ALorentzVector &v1) {
+        void plot_kinematics_2p(const char* prefix, const ALorentzVector &v0, const ALorentzVector &v1) {
             ALorentzVector vv = v1 + v2;
             S<H1>(prefix, "mm")(4000, 0, 4000).fill(vv.m()/GeV);
             S<H1>(prefix, "pt")(500, 0, 500).fill(vv.pt()/GeV);
@@ -175,14 +175,14 @@ class HWWAnalysis : public ProcessorOf<AtlasEvent, AtlasMetaData> {
 
        // All these pointers don't get cleaned up at the moment. Since they live until
        // the end of the program anyway... They should be Boost shared pointers... 
-        Root::TPileupReweighting * prw;
-        EnergyRescaler * e_rsc;
-        SmearingClass * m_scl;
-        egammaOQ * m_checkOQ;
-        Analysis::StacoCBScaleEffFactors * m_staco_cb_sf; 
-        Analysis::StacoTightScaleEffFactors * m_staco_tight_sf; 
-        egammaSFclass * e_sf; 
-        MuonTriggerSF * m_tsf;
+        Root::TPileupReweighting* prw;
+        EnergyRescaler* e_rsc;
+        SmearingClass* m_scl;
+        egammaOQ* m_checkOQ;
+        Analysis::StacoCBScaleEffFactors* m_staco_cb_sf; 
+        Analysis::StacoTightScaleEffFactors* m_staco_tight_sf; 
+        egammaSFclass* e_sf; 
+        MuonTriggerSF* m_tsf;
 };
 
 class AEvent : public SerializeTo<a4::atlas::Event> {};

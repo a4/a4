@@ -50,7 +50,7 @@ namespace a4{
         //std::cerr << "A4: GDB failed to attach to the current process. Trying to extract backtrace manually... " << std::endl;
 
         // If GDB did not work...
-        void * stack_funcs[50];
+        void* stack_funcs[50];
         int stack_size = backtrace(stack_funcs, 50);
         char ** symbols = backtrace_symbols(stack_funcs, stack_size);
         std::stringstream sstr;
@@ -79,7 +79,7 @@ namespace a4{
                 *offset_end++ = '\0';
 
                 int status;
-                char * real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
+                char* real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
 
                 // if demangling is successful, output the demangled function name
                 if (status == 0) {    

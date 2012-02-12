@@ -10,7 +10,7 @@
 class Cloneable {
     public:
         virtual ~Cloneable() {};
-        virtual Cloneable * clone() const = 0;
+        virtual Cloneable* clone() const = 0;
 };
 
 class Addable {

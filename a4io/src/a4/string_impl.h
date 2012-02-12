@@ -8,12 +8,12 @@
 namespace _string_internal {
     std::ostream& operator<<(std::ostream &sstr, const std::type_info& ti);
 
-    static inline std::string str_printf(const char * s) {
+    static inline std::string str_printf(const char* s) {
         return std::string (s);
     };
 
     template<typename T, typename... Args>
-    std::string str_printf(const char * s, const T& value, const Args&... args) {
+    std::string str_printf(const char* s, const T& value, const Args&... args) {
         std::string res;
         while (*s) {
             if (*s == '%' && *++s != '%') {
@@ -44,7 +44,7 @@ namespace _string_internal {
 };
 
 template<typename... Args>
-static inline std::string str_printf(const char * s, const Args&... args) {
+static inline std::string str_printf(const char* s, const Args&... args) {
     return _string_internal::str_printf(s, args...);
 }
 

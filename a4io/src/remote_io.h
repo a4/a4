@@ -21,7 +21,7 @@ protected:
     int    (*_close)(int);
     int    (*_get_errno)();
     void (*_set_debug_level)(int);
-    const char * (*_internal_strerror)(int);
+    const char* (*_internal_strerror)(int);
     int* eerrno;
     filesystem_calls() : loaded(false), _open(NULL), _read(NULL), _lseek(NULL), _write(NULL),
                               _close(NULL), _get_errno(NULL), eerrno(NULL) {};
@@ -108,7 +108,7 @@ private:
     int32_t (*_hdfsWrite)(hdfsFS, hdfsFile, const void*, int32_t);
     hdfsFS (*_hdfsConnect)(const char*, uint16_t);
     int (*_hdfsDisconnect)(void *);
-    hdfsFileInfo * (*_hdfsGetPathInfo)(hdfsFS, const char*);
+    hdfsFileInfo* (*_hdfsGetPathInfo)(hdfsFS, const char*);
     void (*_hdfsFreeFileInfo)(hdfsFileInfo *, int);
     hdfs_filesystem_calls(const hdfs_filesystem_calls&) {}
     hdfsFS fs;

@@ -126,7 +126,7 @@ uint64_t OutputStream::get_bytes_written() {
 }
 
 /// Get a class ID. Even for data, Odd for Metadata.
-uint32_t OutputStream::find_class_id(const google::protobuf::Descriptor * d, bool metadata) {
+uint32_t OutputStream::find_class_id(const google::protobuf::Descriptor* d, bool metadata) {
     auto i = _class_id.find(d->full_name());
     if (i != _class_id.end()) {
         if (metadata != (i->second % 2 == 1)) {
@@ -256,7 +256,7 @@ bool OutputStream::write_footer() {
         footer.add_protoclass_offsets(protoclass_positions[i]);
     for (uint32_t i = 0; i < _class_id_counts.size(); i++) {
         if (_class_id_counts[i] > 0) {
-            ClassCount * cc = footer.add_class_count();
+            ClassCount* cc = footer.add_class_count();
             cc->set_class_id(i);
             cc->set_count(_class_id_counts[i]);
         }
@@ -282,7 +282,7 @@ void get_descriptors_recursively(
     file_descriptors.push_back(file_descriptor);
 }
 
-void OutputStream::write_protoclass(uint32_t class_id, const google::protobuf::Descriptor * d)
+void OutputStream::write_protoclass(uint32_t class_id, const google::protobuf::Descriptor* d)
 {
     ProtoClass a4proto;
     a4proto.set_class_id(class_id);

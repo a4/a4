@@ -23,6 +23,6 @@ class A4MergeProcessor : public ResultsProcessor<A4MergeProcessor, a4::io::NoPro
     }
 };
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char* argv[]) {
     return a4_main_process<A4MergeProcessor>(argc, argv);
 };

@@ -4,7 +4,7 @@
 #include <sstream>
 
 template<typename... Args>
-static inline std::string str_printf(const char * s, const Args&... args);
+static inline std::string str_printf(const char* s, const Args&... args);
 
 template<typename... Args>
 static inline std::string str_cat(const Args&... args);

@@ -62,7 +62,7 @@ void A4Input::report_finished(A4Input* input, InputStream* _s) {
 /// Get a stream for processing, returns NULL if none are left (threadsafe).
 shared<InputStream> A4Input::get_stream() {
     Lock lock(_mutex);
-    InputStream * s = NULL;
+    InputStream* s = NULL;
     if (!_ready.empty()) {
         s = _ready.back();
         

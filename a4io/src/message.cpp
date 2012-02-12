@@ -63,8 +63,8 @@ namespace a4{ namespace io{
         // since they are probably contain all fields.
         version_check(m2_);
 
-        const Descriptor * d;
-        const Descriptor * dd;
+        const Descriptor* d;
+        const Descriptor* dd;
         if (m2_._dynamic_descriptor) {
             dd = d = m2_._dynamic_descriptor;
         } else if (m2_._pool) {

@@ -39,7 +39,7 @@ namespace a4{ namespace io{
     };
 
     struct OpenFile {
-        OpenFile(const char * name, int oflag, bool mmap=true);
+        OpenFile(const char* name, int oflag, bool mmap=true);
         ~OpenFile();
 
         int no;

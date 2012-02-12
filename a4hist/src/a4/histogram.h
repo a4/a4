@@ -23,7 +23,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         virtual H1& operator+=(const H1 &other);
         virtual H1& operator*=(const double& v) { return __mul__(v); };
 
-        void constructor(const char * _title) {
+        void constructor(const char* _title) {
             _initializations_remaining++;
             title = _title;
         }
@@ -112,11 +112,11 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         virtual H2& operator+=(const H2 &other);
         virtual H2& operator*=(const double& v) { return __mul__(v); };
 
-        void constructor(const char * _title) {
+        void constructor(const char* _title) {
             _initializations_remaining++;
             title = _title;
         }
-        void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label="");
+        void constructor(const uint32_t& bins, const double& min, const double& max, const char* _label="");
         void constructor(const std::vector<double>& bins, const char* label="");
         void constructor(const std::initializer_list<double>& bins, const char* label="") {
             constructor(std::vector<double>(bins), label);
@@ -203,11 +203,11 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
         virtual H3& operator+=(const H3 &other);
         virtual H3& operator*=(const double& v) { return __mul__(v); };
 
-        void constructor(const char * _title) {
+        void constructor(const char* _title) {
             _initializations_remaining++;
             title = _title;
         };
-        void constructor(const uint32_t &bins, const double &min, const double &max, const char * _label="");
+        void constructor(const uint32_t& bins, const double& min, const double& max, const char* _label="");
         void constructor(const std::vector<double>& bins, const char* label="");
         void constructor(const std::initializer_list<double>& bins, const char* label="") {
             constructor(std::vector<double>(bins), label);

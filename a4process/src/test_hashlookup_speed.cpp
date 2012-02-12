@@ -15,8 +15,8 @@ using namespace std;
 std::vector<std::string> items;
 
 template <typename... Args>
-void lookup1000(hash_lookup * hl) {
-    const char * dirs[] = {"alpha/", "beta/", "gamma/", "delta/", "epsilon/", "phi/", "chi/", "xi/", "tau/", "omikron/"};
+void lookup1000(hash_lookup* hl) {
+    const char* dirs[] = {"alpha/", "beta/", "gamma/", "delta/", "epsilon/", "phi/", "chi/", "xi/", "tau/", "omikron/"};
     for (int i = 0; i < 10; i++) {
         hl->lookup(dirs[i], "A00");
         hl->lookup(dirs[i], "A01");
@@ -122,14 +122,14 @@ void lookup1000(hash_lookup * hl) {
 }
 
 template <typename... Args>
-void check_set(hash_lookup * h, const Args& ...args) {
+void check_set(hash_lookup* h, const Args& ...args) {
     string*& res = (string*&)h->lookup(args...);
     assert(res != NULL);
     assert(*res == str_cat(args...));
 }
 
 template <typename... Args>
-void test_check_set(hash_lookup * h, const Args& ...args) {
+void test_check_set(hash_lookup* h, const Args& ...args) {
     test_set(h, args...);
     check_set(h, args...);
 }
@@ -137,7 +137,7 @@ void test_check_set(hash_lookup * h, const Args& ...args) {
 int main(int argv, char ** argc) {
     const int N = 1000;
     const int M = 100;
-    hash_lookup * h = new hash_lookup();
+    hash_lookup* h = new hash_lookup();
     for (int i = 0; i < N; i++) for(int j = 0; j < M; j++) lookup1000(h->subhash("test/", i%2, "/", j%5, "/"));
     std::cout << 1000*N*M << std::endl;
     h->dump_stats();

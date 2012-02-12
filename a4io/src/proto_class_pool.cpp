@@ -74,7 +74,7 @@ namespace a4{ namespace io{
 
         // First, find the generated descriptor
         //std::cout << "Looking for " << protoclass.full_name() << std::endl;
-        const Descriptor * gd = _descriptor_pool->FindMessageTypeByName(protoclass.full_name());
+        const Descriptor* gd = _descriptor_pool->FindMessageTypeByName(protoclass.full_name());
         assert(gd);
 
         // Now try to find an compiled-in function for the class

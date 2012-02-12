@@ -122,14 +122,14 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
         path rpath(name);
 
         std::vector<Cutflow::CutNameCount> content = h->content();
-        TH1D * cf = new TH1D(rpath.leaf().c_str(), h->title.c_str(), content.size(), 0, content.size());
+        TH1D* cf = new TH1D(rpath.leaf().c_str(), h->title.c_str(), content.size(), 0, content.size());
         cf->Sumw2();
         int i = 0;
         for (vector<Cutflow::CutNameCount>::const_iterator it = content.begin(); it != content.end(); it++) {
             i++;
             cf->SetBinContent(i, it->count);
             cf->SetBinError(i, sqrt(it->weights_squared));
-            string * n = new string(it->name);
+            string* n = new string(it->name);
             cf->GetXaxis()->SetBinLabel(i, n->c_str());
         }
         cf->SetDirectory((TDirectory*)f->Get(rpath.parent_path().string().c_str()));
@@ -172,6 +172,6 @@ class A2RConfig : public ConfigurationOf<A2RProcessor> {
         double weight;
 };
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char* argv[]) {
     return a4_main_configuration<A2RConfig>(argc, argv);
 };

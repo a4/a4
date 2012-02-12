@@ -84,8 +84,8 @@ Results& Results::__mul__(const double& weight) {
     return *this;
 }
 
-Results * Results::clone() const {
-    Results * results = new Results();
+Results* Results::clone() const {
+    Results* results = new Results();
     auto l = list<Cloneable>();
     for (auto it = l.begin(), end = l.end(); it != end; it++) {
         results->set(*it, reinterpret_cast<Printable*>(get_checked<Cloneable>(*it)->clone()));

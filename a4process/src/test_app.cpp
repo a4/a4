@@ -39,6 +39,6 @@ void MyProcessor::process(const TestEvent& event) {
     S.T<ToyHist>("hugo")(4.2, 0, 1).add(event.event_number());
 }
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char* argv[]) {
     return a4_main_process<MyProcessor>(argc, argv);
 }

@@ -36,7 +36,7 @@ class Results : public Printable, public Addable, public Scalable, public Object
     public:
         virtual Results& __add__(const Addable &);
         virtual Results& __mul__(const double &);
-        virtual Results * clone() const;
+        virtual Results* clone() const;
         std::string __repr__();
         std::string __str__();
         boost::shared_ptr<MetaData> metadata;

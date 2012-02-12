@@ -63,7 +63,7 @@ class Instructor
         mutable boost::mutex _mutex;
         mutable boost::condition_variable _waiting;
 
-        WorkerAgency * _worker_agency;
+        WorkerAgency* _worker_agency;
 };
 
 void WorkerAgency::process_work_units(const Worker::WorkUnits &work_units, const int &threads) {
@@ -77,7 +77,7 @@ typedef boost::unique_lock<boost::mutex> Lock;
 
 using namespace std;
 
-Instructor::Instructor(WorkerAgency * a, const uint32_t &max_threads):
+Instructor::Instructor(WorkerAgency* a, const uint32_t &max_threads):
     _max_threads(max_threads ? max_threads : boost::thread::hardware_concurrency()),
     _max_thread_id(0),
     _worker_agency(a)

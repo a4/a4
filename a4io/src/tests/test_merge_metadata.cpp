@@ -12,7 +12,7 @@ using namespace a4::io;
 TestMergeMetaData meta(int d, int run, int lb, int period, bool simulation=false, bool error=false) {
     TestMergeMetaData m;
     m.set_meta_data(d);
-    TestRunLB * rlb = m.add_lumiblock();
+    TestRunLB* rlb = m.add_lumiblock();
     rlb->set_run(run); rlb->set_lumiblock(lb);
     m.add_period(period);
     m.set_simulation(simulation);

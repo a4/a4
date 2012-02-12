@@ -35,7 +35,7 @@ void H3::add_axis(unique<Axis> axis) {
     }
 }
 
-void H3::constructor(const uint32_t &bins, const double &min, const double &max, const char * label) {
+void H3::constructor(const uint32_t& bins, const double& min, const double& max, const char* label) {
     unique<Axis> axis(new SimpleAxis(bins, min, max));
     axis->label = label;
     add_axis(std::move(axis));

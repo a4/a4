@@ -14,7 +14,7 @@
 /// as occur often in analysis. It consists of a sequence of hash tables
 /// where each string and number is looked up.
 /// The implemtation uses "variadic templates", a very useful C++11 feature
-/// On insertion, it asserts that the const char * used is in a read-only
+/// On insertion, it asserts that the const char* used is in a read-only
 /// section of memory to make sure no accidental overwriting takes place.
 ///
 /// This class currently heavily trades memory against speed, so there may be
@@ -32,7 +32,7 @@ class hash_lookup {
 
         /// Lookup a directory
         template <typename... Args>
-        hash_lookup * subhash(const Args& ...args);
+        hash_lookup* subhash(const Args& ...args);
 
         const std::string& get_path() const { return _path; }
 
@@ -41,10 +41,10 @@ class hash_lookup {
         typedef struct hash_lookup_data_s {
             hash_lookup_data_s() : huid(0), value(NULL) {};
             uint64_t huid; // hopefully unique ID
-            void * value;  // stored value
+            void* value;  // stored value
         } hash_lookup_data;
 
-        hash_lookup(uint64_t huid, std::string path, hash_lookup * parent) :
+        hash_lookup(uint64_t huid, std::string path, hash_lookup* parent) :
             _depth(parent->_depth + 1),
             _huid(huid),
             _path(path)
@@ -53,7 +53,7 @@ class hash_lookup {
             _check_huid = 0;
         };
 
-        void update_from(hash_lookup * master) {
+        void update_from(hash_lookup* master) {
             _files_size = master->_files_size;
             _directories_size = master->_directories_size;
             _files = master->_files;
@@ -62,7 +62,7 @@ class hash_lookup {
         };
 
         void tear_down();
-        hash_lookup * subhash() { return this; }
+        hash_lookup* subhash() { return this; }
         uintptr_t idx_from_huid(uint64_t huid, int size);
 
         bool bump_up_files();
@@ -72,16 +72,16 @@ class hash_lookup {
         uint64_t _huid;
         std::string _path;
         uintptr_t _files_size, _directories_size;
-        hash_lookup_data * _files;
-        hash_lookup_data * _directories;
-        hash_lookup * _master;
+        hash_lookup_data* _files;
+        hash_lookup_data* _directories;
+        hash_lookup* _master;
         int _entries, _collisions;
         int _dir_entries, _dir_collisions;
-        std::map<uint64_t, std::string> * _huid_check;
+        std::map<uint64_t, std::string>* _huid_check;
         int _check_huid;
 };
 
-bool is_writeable_pointer(const char * _p);
+bool is_writeable_pointer(const char* _p);
 
 #include <a4/hash_lookup_impl.h>
 

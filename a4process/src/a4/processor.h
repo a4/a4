@@ -121,13 +121,13 @@ namespace a4{
                     if (rerun_systematics_current == NULL) return false;
                     return strcmp(rerun_systematics_current, name) == 0;
                 }
-                bool in_systematic(const char * name) const {
+                bool in_systematic(const char* name) const {
                     if (rerun_systematics_current == NULL) return false;
                     return strcmp(rerun_systematics_current, name) == 0;
                 }
 
                 /// (Idea, unimplemented:) From now on, all histos are saved under prefix "syst/<name>/" and scale <scale>
-                // void scale_systematic(const char * c, double scale) { FATAL("Not Implemented"); return false; };
+                // void scale_systematic(const char* c, double scale) { FATAL("Not Implemented"); return false; };
 
                 /// Access your own Configuration.
                 /// WARNING: there is only one configuration per process, and it is shared by thread!
@@ -155,9 +155,9 @@ namespace a4{
 
                 // Here follows internal stuff.
                 std::set<const char *> rerun_channels;
-                const char * rerun_channels_current;
+                const char* rerun_channels_current;
                 std::set<const char *> rerun_systematics;
-                const char * rerun_systematics_current;
+                const char* rerun_systematics_current;
 
                 OutputAdaptor* _output_adaptor;
 
@@ -177,7 +177,7 @@ namespace a4{
                 /// Override this to do further processing of the options from the command line or config file
                 virtual void read_arguments(po::variables_map &arguments) {};
                 virtual void setup_processor(Processor &g) {};
-                virtual Processor * new_processor() = 0;
+                virtual Processor* new_processor() = 0;
         };
 
         template<class ProtoMessage, class ProtoMetaData = a4::io::NoProtoClass>
@@ -235,7 +235,7 @@ namespace a4{
                 ProtoMetaData& metadata() {
                     const A4Message msg = metadata_message;
                     if (!msg) FATAL("No metadata at this time!"); // TODO: Should not be fatal
-                    ProtoMetaData * meta = msg.as<ProtoMetaData>().get();
+                    ProtoMetaData* meta = msg.as<ProtoMetaData>().get();
                     if (!meta) FATAL("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
                 };
@@ -253,7 +253,7 @@ namespace a4{
                 virtual void setup_processor(MyProcessor &g) {};
 
                 virtual void setup_processor(Processor &g) { setup_processor(dynamic_cast<MyProcessor&>(g)); };
-                virtual Processor * new_processor() { Processor * p = new MyProcessor(); p->my_configuration = this; return p;};
+                virtual Processor* new_processor() { Processor* p = new MyProcessor(); p->my_configuration = this; return p;};
         };
     };
 };

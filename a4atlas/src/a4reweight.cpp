@@ -99,6 +99,6 @@ void A4ReweightProcessor::process_new_metadata() {
     metadata().set_reweight_lumi(config->lumi);
 }
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char* argv[]) {
     return a4_main_configuration<A4ReweightConfiguration>(argc, argv);
 };

@@ -53,8 +53,8 @@ struct variant_hash : public boost::static_visitor<size_t> {
 };
 
 struct visit_setter : public boost::static_visitor<void> {
-    visit_setter(Message * m, const FieldDescriptor * f) : m(m), f(f), r(m->GetReflection()) {};
-    Message * m; const FieldDescriptor * f; const Reflection * r;
+    visit_setter(Message* m, const FieldDescriptor* f) : m(m), f(f), r(m->GetReflection()) {};
+    Message* m; const FieldDescriptor* f; const Reflection* r;
     void operator()(int32_t i) const { r->SetInt32(m, f, i); };
     void operator()(int64_t i) const { r->SetInt64(m, f, i); };
     void operator()(uint32_t i) const { r->SetUInt32(m, f, i); };
@@ -67,13 +67,13 @@ struct visit_setter : public boost::static_visitor<void> {
 
 
 struct visit_adder : public boost::static_visitor<void> { 
-    visit_adder(Message * m, const FieldDescriptor * f) : m(m), f(f), r(m->GetReflection()) {};
-    Message * m; const FieldDescriptor * f; const Reflection * r;
+    visit_adder(Message* m, const FieldDescriptor* f) : m(m), f(f), r(m->GetReflection()) {};
+    Message* m; const FieldDescriptor* f; const Reflection* r;
     void operator()(int32_t i) const { r->AddInt32(m, f, i); };
     void operator()(int64_t i) const { r->AddInt64(m, f, i); };
     void operator()(uint32_t i) const {
         if (f->cpp_type() == FieldDescriptor::CPPTYPE_ENUM) {
-            const EnumValueDescriptor * evd = f->default_value_enum()->type()->FindValueByNumber(i);
+            const EnumValueDescriptor* evd = f->default_value_enum()->type()->FindValueByNumber(i);
             r->AddEnum(m, f, evd);
         } else {
             r->AddUInt32(m, f, i); 
@@ -89,9 +89,9 @@ struct visit_adder : public boost::static_visitor<void> {
 // TODO: Find better way to hash/compare Messages than the DebugString
 class FieldContent {
     public:
-        FieldContent(const Message& m, const FieldDescriptor * f, int i) {
+        FieldContent(const Message& m, const FieldDescriptor* f, int i) {
             _message = false;
-            const Reflection * r = m.GetReflection();
+            const Reflection* r = m.GetReflection();
             switch (f->cpp_type()) {
                 case FieldDescriptor::CPPTYPE_INT32: content = r->GetRepeatedInt32(m, f, i); break;
                 case FieldDescriptor::CPPTYPE_INT64: content = r->GetRepeatedInt64(m, f, i); break;
@@ -111,8 +111,8 @@ class FieldContent {
                     FATAL("Unknown type ", f->cpp_type());
             };
         }
-        FieldContent(const Message& m, const FieldDescriptor * f) {
-            const Reflection * r = m.GetReflection();
+        FieldContent(const Message& m, const FieldDescriptor* f) {
+            const Reflection* r = m.GetReflection();
             _message = false;
             switch (f->cpp_type()) {
                 case FieldDescriptor::CPPTYPE_INT32: content = r->GetInt32(m, f); break;
@@ -182,7 +182,7 @@ class FieldContent {
     private:
         bool _message;
         FieldContentVariant content;
-        const Message * content_msg;
+        const Message* content_msg;
         std::string content_debug_str;
         friend class DynamicField;
 

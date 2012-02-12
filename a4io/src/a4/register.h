@@ -25,7 +25,7 @@ namespace a4{ namespace io{
         classreg map_class(std::string name, uint32_t class_id=0, classreg=classreg(), bool warn=false);
 
         template <typename ProtoClass>
-        shared<Message> from_stream(google::protobuf::io::CodedInputStream * instr) {
+        shared<Message> from_stream(google::protobuf::io::CodedInputStream* instr) {
             shared<ProtoClass> msg(new ProtoClass());
             msg->ParseFromCodedStream(instr);
             return msg;
@@ -66,7 +66,7 @@ namespace a4{ namespace io{
             virtual google::protobuf::Metadata GetMetadata() const { return google::protobuf::Metadata(); };
             static const int kCLASSIDFieldNumber = 0;
             void ParseFromCodedStream(google::protobuf::io::CodedInputStream *) {};
-            static const google::protobuf::Descriptor * descriptor() {return NULL;}
+            static const google::protobuf::Descriptor* descriptor() {return NULL;}
     };
 
 };};

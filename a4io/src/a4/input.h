@@ -37,7 +37,7 @@ namespace a4{ namespace io{
             shared<InputStream> get_stream();
         private:
             static void report_finished(A4Input *, InputStream* _s);
-            InputStream * pop_file();
+            InputStream* pop_file();
             std::deque<std::string> _filenames;
             std::vector<shared<InputStream>> _streams;
             std::deque<InputStream*> _ready;

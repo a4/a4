@@ -98,7 +98,7 @@ bool hash_lookup::bump_up_files() {
     if (_collisions < 0.05*_entries) return false; // only if more than 5% collisions
     //std::cerr << "BUMP: " << _files_size << "/" << _entries << "/" << _collisions << std::endl;
 
-    hash_lookup_data * old_files = _files;
+    hash_lookup_data* old_files = _files;
     int old_files_size = _files_size;
     
     _files_size *= 2;
@@ -143,7 +143,7 @@ bool hash_lookup::bump_up_dirs() {
     if (_dir_collisions < 0.05*_dir_entries) return false; // only if more than 5% collisions
     
     //std::cerr << "BUMP DIR: " << _directories_size << "/" << _dir_entries << "/" << _dir_collisions << std::endl;
-    hash_lookup_data * old_directories = _directories;
+    hash_lookup_data* old_directories = _directories;
     int old_dir_size = _directories_size;
     
     _directories_size *= 2;

@@ -50,11 +50,11 @@ class BaseOutputAdaptor : public OutputAdaptor {
     public:
         A4Message current_metadata;
         std::string merge_key, split_key; 
-        A4Output * out;
-        A4Output * res;
+        A4Output* out;
+        A4Output* res;
         shared<ObjectBackStore> backstore;
 
-        BaseOutputAdaptor(Driver * d, Processor * p, bool forward_metadata, A4Output* out, A4Output* res) 
+        BaseOutputAdaptor(Driver* d, Processor* p, bool forward_metadata, A4Output* out, A4Output* res) 
             : out(out), res(res), forward_metadata(forward_metadata), 
               in_block(false), driver(d), p(p), last_postfix("") 
         {
@@ -272,13 +272,13 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     stats.events = cnt;
 }
 
-Processor * SimpleCommandLineDriver::new_initialized_processor() {
-    Processor * p = configuration->new_processor();
+Processor* SimpleCommandLineDriver::new_initialized_processor() {
+    Processor* p = configuration->new_processor();
     configuration->setup_processor(*p);
     return p;
 }
 
-int SimpleCommandLineDriver::main(int argc, const char * argv[]) 
+int SimpleCommandLineDriver::main(int argc, const char* argv[]) 
 try
 {
     // Verify that the version of the library that we linked against is
@@ -389,13 +389,13 @@ try
     if (n_threads > 1) {
         std::vector<boost::thread> threads;
         for (int i = 0; i < n_threads; i++) {
-            Processor * p = new_initialized_processor();
+            Processor* p = new_initialized_processor();
             //threads.push_back(boost::thread(std::bind(&simple_thread, this, processors[i])));
             threads.push_back(boost::thread(std::bind(&simple_thread, this, p, -1, boost::ref(stats[i]))));
         };
         foreach(boost::thread& t, threads) t.join();
     } else {
-        Processor * p = new_initialized_processor();
+        Processor* p = new_initialized_processor();
         simple_thread(this, p, number, stats[0]);
     }
     

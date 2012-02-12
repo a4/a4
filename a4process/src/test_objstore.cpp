@@ -43,7 +43,7 @@ class TestStringThing : public Storable {
         int n;
 };
 
-void process(ObjectStore S, const char * pf) {
+void process(ObjectStore S, const char* pf) {
     S.T<TestStringThing>(1,pf)(0).foo();
     S.T<TestStringThing>(2,pf)(0).foo();
     S.T<TestStringThing>(3,pf)(0).foo();

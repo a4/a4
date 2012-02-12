@@ -19,6 +19,6 @@ class CopyProcessor : public a4::process::Processor {
     }
 };
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char* argv[]) {
     return a4::process::a4_main_process<CopyProcessor>(argc, argv);
 }

@@ -14,7 +14,7 @@ namespace a4{ namespace io{
 
     const uint32_t default_network_block_size = 32*1024;
 
-    OpenFile::OpenFile(const char * name, int oflag, bool do_mmap) {
+    OpenFile::OpenFile(const char* name, int oflag, bool do_mmap) {
         error = true;
         no = size = 0;
         mmap = NULL;
