@@ -130,13 +130,13 @@ class BaseOutputAdaptor : public OutputAdaptor {
 
         }
 
-        virtual void metadata(shared<google::protobuf::Message> m) {
+        virtual void metadata(A4Message m) {
             throw a4::Fatal("To write metadata manually, you have to change the metadata_behavior of the Processor!");
         }
     
-        void write(shared<const google::protobuf::Message> m) {
+        void write(A4Message m) {
             if (!in_block) throw a4::Fatal("Whoa?? Writing outside of a metadata block? How did you do this?");
-            if (outstream) outstream->write(*m);
+            if (outstream) outstream->write(*m.message());
         }
 
     protected:
@@ -154,8 +154,8 @@ class ManualOutputAdaptor : public BaseOutputAdaptor {
         ManualOutputAdaptor(Driver* d, Processor* p, bool forward_metadata, A4Output* out, A4Output* res) 
             : BaseOutputAdaptor(d, p, forward_metadata, out, res) {}
         
-        void metadata(shared<google::protobuf::Message> m) {
-            new_outgoing_metadata(A4Message(m));
+        void metadata(A4Message m) {
+            new_outgoing_metadata(m);
         }
 };
 

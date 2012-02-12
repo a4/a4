@@ -42,18 +42,10 @@ namespace a4{
         class Configuration;
         class OutputAdaptor {
             public:
-                virtual void write(shared<const google::protobuf::Message> m) = 0;
-                virtual void metadata(shared<google::protobuf::Message> m) = 0;
-                void write(const google::protobuf::Message& m) {
-                    shared<google::protobuf::Message> msg(m.New());
-                    msg->CopyFrom(m);
-                    write(msg);
-                }
-                void metadata(const google::protobuf::Message& m) {
-                    shared<google::protobuf::Message> msg(m.New());
-                    msg->CopyFrom(m);
-                    metadata(msg);
-                }
+                virtual void write(A4Message m) = 0;
+                virtual void metadata(A4Message m) = 0;
+                void write(const google::protobuf::Message & m) { write(A4Message(m)); }
+                void metadata(const google::protobuf::Message & m) { metadata(A4Message(m)); }
         };
 
         class Processor {
@@ -69,7 +61,7 @@ namespace a4{
                 /// In here you can modify the metadata_message that is written if auto_metadata is true.
                 virtual void process_new_metadata() {};
 
-                /// Override this to process raw A4 Messages without type checking
+                /// Override this to process raw A4 Messages
                 virtual void process_message(const A4Message) = 0;
 
                 /// This function is called at the end of a metadata block
@@ -79,15 +71,17 @@ namespace a4{
                 /// To use this method you have to disable automatic metadata writing.
                 /// You also need to think about if you want to write your metadata before (manual_metadata_forward = true)
                 /// or after (manual_metadata_forward = false) the events it refers to.
-                void metadata_start_block(shared<const google::protobuf::Message> m) {
-                    metadata_start_block(*m);
+                void metadata_start_block(A4Message m) {
+                    assert(metadata_behavior == MANUAL_FORWARD); 
+                    _output_adaptor->metadata(m);
                 }
                 void metadata_start_block(const google::protobuf::Message& m) {
                     assert(metadata_behavior == MANUAL_FORWARD); 
                     _output_adaptor->metadata(m); 
                 }
-                void metadata_end_block(shared<const google::protobuf::Message> m) { 
-                    metadata_end_block(*m);
+                void metadata_end_block(A4Message m) { 
+                    assert(metadata_behavior == MANUAL_BACKWARD); 
+                    _output_adaptor->metadata(m); 
                 }
                 void metadata_end_block(const google::protobuf::Message & m) {
                     assert(metadata_behavior == MANUAL_BACKWARD); 
@@ -95,12 +89,16 @@ namespace a4{
                 }
 
                 /// Write a message to the output stream
-                void write(shared<const google::protobuf::Message> m) { _output_adaptor->write(m); }
-                void write(const google::protobuf::Message& m) { _output_adaptor->write(m); }
+                void write(A4Message m) { _output_adaptor->write(m); }
+                void write(const google::protobuf::Message & m) { _output_adaptor->write(m); }
                 
                 /// Write a message to the output stream at most once per event
-                void skim(const google::protobuf::Message& m) {
-                    if (not skim_written) _output_adaptor->write(m);
+                void skim(A4Message m) {
+                    if (not skim_written) write(m);
+                    skim_written = true;
+                }
+                void skim(const google::protobuf::Message & m) {
+                    if (not skim_written) write(m);
                     skim_written = true;
                 }
 
@@ -115,6 +113,7 @@ namespace a4{
                     if (rerun_channels_current == NULL) return false;
                     return strcmp(rerun_channels_current, name) == 0;
                 }
+
                 /// Call systematic in process_message to rerun with the prefix "syst/<name>/".
                 /// In that run this function always returns true.
                 bool systematic(const char* name) {
@@ -127,15 +126,13 @@ namespace a4{
                     return strcmp(rerun_systematics_current, name) == 0;
                 }
 
-                /// (unimplemented) From now all histograms are also saved with the prefix "channel/<name>/"
-                // void now_channel(const char * name);
-                /// (unimplemented) From now on, all histos are saved under prefix "syst/<name>/" and scale <scale>
+                /// (Idea, unimplemented:) From now on, all histos are saved under prefix "syst/<name>/" and scale <scale>
                 // void scale_systematic(const char * c, double scale) { throw a4::Fatal("Not Implemented"); return false; };
 
                 /// Access your own Configuration.
                 /// WARNING: there is only one configuration per process, and it is shared by thread!
                 /// Therefore, it is const. This may not prevent you from doing non-smart things with it.
-                /// suggestion: Do a dynamic_cast to a "MyConfig* config" ONCE in your MyProcessor constructor.
+                /// suggestion: Do a config = my<MyConfig>()," in your Processor.
                 const Configuration* my_configuration;
 
                 template<class T>
@@ -149,8 +146,8 @@ namespace a4{
                 /// It will be written and cleared at every metadata block boundary.
                 ObjectStore S;
 
-                /// This is the currently valid metadata message. If you manipulate it in AUTO mode,
-                /// the changes are written out.
+                /// This is the currently valid metadata message. If you manipulate it in AUTO mode
+                /// in process_new_metadata the changes are written out.
                 A4Message metadata_message;
 
                 /// Set the behaviour of metadata

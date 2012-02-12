@@ -43,11 +43,21 @@ namespace a4{ namespace io{
             explicit A4Message(shared<google::protobuf::Message> msg, 
                                 bool metadata=true) 
                 : _message(msg),
-                  _class_id(NO_CLASS_ID_METADATA),
+                  _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
                   _descriptor(msg->GetDescriptor()),
                   _dynamic_descriptor(NULL) 
             { 
                 _pool.reset(); _factory.reset(); 
+            }
+
+            explicit A4Message(const google::protobuf::Message& msg,
+                                bool metadata=true) 
+                : _message(msg.New()),
+                  _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
+                  _descriptor(_message->GetDescriptor()),
+                  _dynamic_descriptor(NULL) 
+            {
+                _message->CopyFrom(msg);
             }
             ~A4Message();
 
