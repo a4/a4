@@ -306,6 +306,15 @@ public:
     mutable const FieldDescriptor* _field_desc;
 };
 
+class CheckSelection {
+    const Message& _m;
+public:    
+    CheckSelection(const Message& m) : _m(m) {}
+    bool operator()(const Selection& s) const {
+        return !s.check(_m);
+    }
+};
+
 int main(int argc, char ** argv) {
     a4::Fatal::enable_throw_on_segfault();
 
@@ -371,8 +380,7 @@ int main(int argc, char ** argv) {
         if (!m) break;
         
         // Skip messages which don't satisfy the selection
-        auto bad_selection = [&](const Selection& s){ return !s.check(*m.message()); };
-        if (any(selections, bad_selection))
+        if (any(selections, CheckSelection(*m.message())))
             continue;
         
         if (!collect_stats)
