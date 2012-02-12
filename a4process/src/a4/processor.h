@@ -53,8 +53,8 @@ namespace a4{
                 enum MetadataBehavior { AUTO, MANUAL_FORWARD, MANUAL_BACKWARD, DROP };
                 MetadataBehavior get_metadata_behavior() { return metadata_behavior; }
 
-                Processor() : my_configuration(NULL), metadata_behavior(AUTO),
-                              locked(false), skip_to_next_metadata(false) {}
+                Processor() : my_configuration(NULL), skip_to_next_metadata(false), 
+                              locked(false), metadata_behavior(AUTO) {}
                 virtual ~Processor() {}
 
                 /// This function is called at the start of a new metadata block
@@ -164,6 +164,7 @@ namespace a4{
                 void lock_and_load() { locked = true; };
                 bool skim_written;
                 friend class a4::process::Driver;
+                
             private:
                 bool locked;
                 MetadataBehavior metadata_behavior;

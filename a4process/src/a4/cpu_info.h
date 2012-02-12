@@ -27,15 +27,13 @@ void cpuid(unsigned i, unsigned regs[4]) {
 
 struct cpuinfo_t get_cpuinfo() {
     struct cpuinfo_t cpuinfo;
-
-    unsigned regs[4];
     
     // Take content in registers and interpret them as a string
-    char vendor[12];
+    union {
+        char vendor[12];
+        unsigned regs[4];
+    };
     cpuid(0, regs);
-    ((unsigned*)vendor)[0] = regs[1]; // EBX
-    ((unsigned*)vendor)[1] = regs[3]; // EDX
-    ((unsigned*)vendor)[2] = regs[2]; // ECX
     cpuinfo.vendor = std::string(vendor, 12);
 
     // Get CPU features

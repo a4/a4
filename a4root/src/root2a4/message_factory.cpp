@@ -153,7 +153,6 @@ Copier make_copier_from_leaf(TBranch* branch, TLeaf* leaf,
             "or fix it yourself at " __FILE__ ":", __LINE__, "."))
             
     const std::string leaf_type = leaf->GetTypeName();
-    void* pointer = leaf->GetValuePointer();
     
     switch (field->cpp_type())
     {

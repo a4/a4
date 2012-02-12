@@ -215,12 +215,12 @@ public:
     }      
     
     // Root node (Whole event)
-    MessageTreeNode() : _field(NULL), _depth(0), _prefix() {
+    MessageTreeNode() : _prefix(), _field(NULL), _depth(0) {
     
     }
         
     MessageTreeNode(const FieldDescriptor* field, uint32_t parent_depth, 
-                    const std::string& prefix) : _field(field), _prefix(prefix) 
+                    const std::string& prefix) : _prefix(prefix), _field(field)
     {
         _repeated = field->is_repeated();
         _depth = parent_depth + (_repeated ? 1 : 0);
@@ -259,15 +259,16 @@ public:
     }
     
     void fill(const Message& m) {
-        if (_field && _repeated)
+        if (_field && _repeated) {
             foreach (auto child_iter, _children)
                 child_iter.second->push_back(_depth);
+        }
                 
         if (is_simple_type()) {
             // Simple types (numeric, etc)
             ConstDynamicField fieldcontent(m, _field);
             if (_repeated) {
-                for (uint32_t i = 0; i < fieldcontent.size(); i++)
+                for (int i = 0; i < fieldcontent.size(); i++)
                     set(fieldcontent.value(i));
             } else {
                 set(fieldcontent.value());
@@ -280,7 +281,7 @@ public:
                 if (not child->is_simple_type()) {
                     if (child->_repeated) {
                         // Repeated complex sub-message (e.g. 'repeated Electron electrons')
-                        for (uint32_t i = 0; i < fieldcontent.size(); i++) {
+                        for (int i = 0; i < fieldcontent.size(); i++) {
                             child->fill(fieldcontent.submessage(i));
                         }
                     } else {
@@ -318,7 +319,7 @@ public:
     
     void make_tree(shared<MessageTreeNode> node, TTree* root_tree, 
                    const Descriptor* descriptor) {
-        for (uint32_t i = 0; i < descriptor->field_count(); i++) {
+        for (int i = 0; i < descriptor->field_count(); i++) {
             auto* field = descriptor->field(i);
             
             auto subnode = node->add_child(field);

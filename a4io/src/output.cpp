@@ -4,6 +4,8 @@
 
 #include <sys/stat.h>
 
+#include <a4/types.h>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/locks.hpp>
@@ -116,7 +118,7 @@ bool A4Output::close() {
     bool success = true;
     foreach(auto postfix, _out_streams) {
         std::vector<std::string> used_streams;
-        for(int i = 0; i < postfix.second.size(); i++) {
+        for(uint32_t i = 0; i < postfix.second.size(); i++) {
             if (postfix.second[i]->opened()) 
                 used_streams.push_back(_filenames[postfix.first][i]);
         }

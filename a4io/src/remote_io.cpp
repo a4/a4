@@ -8,10 +8,12 @@
 
 #define LOAD(what, name) \
 { \
-    *reinterpret_cast<void**>(what) = dlsym(_library, name); \
+    what = reinterpret_cast<decltype(what)>(dlsym(_library, name)); \
     assert(!dlerror()); \
     assert(what); \
 }
+
+// *reinterpret_cast<void**>(what) = dlsym(_library, name); 
 
 rfio_filesystem_calls::rfio_filesystem_calls() 
 {
@@ -20,14 +22,14 @@ rfio_filesystem_calls::rfio_filesystem_calls()
     if (dlerror()) return;
     if (!_library) return;
     
-    LOAD(&_open, "rfio_open");
-    LOAD(&_read, "rfio_read");
-    LOAD(&_lseek, "rfio_lseek");
-    LOAD(&_write, "rfio_write");
-    LOAD(&_close, "rfio_close");
+    LOAD(_open, "rfio_open");
+    LOAD(_read, "rfio_read");
+    LOAD(_lseek, "rfio_lseek");
+    LOAD(_write, "rfio_write");
+    LOAD(_close, "rfio_close");
     
     // This function call is probably invalid
-    LOAD(&_get_errno, "C__rfio_errno");
+    LOAD(_get_errno, "C__rfio_errno");
     
     eerrno = reinterpret_cast<int*>(dlsym(_library, "rfio_errno"));
     assert(eerrno);
@@ -48,13 +50,13 @@ dcap_filesystem_calls::dcap_filesystem_calls() {
     if (dlerror()) return;
     if (!_library) return;
     
-    LOAD(&_open, "dc_open");
-    LOAD(&_read, "dc_read");
-    LOAD(&_lseek, "dc_lseek");
-    LOAD(&_write, "dc_write");
-    LOAD(&_close, "dc_close");
-    LOAD(&_set_debug_level, "dc_setDebugLevel");
-    LOAD(&_internal_strerror, "dc_strerror");
+    LOAD(_open, "dc_open");
+    LOAD(_read, "dc_read");
+    LOAD(_lseek, "dc_lseek");
+    LOAD(_write, "dc_write");
+    LOAD(_close, "dc_close");
+    LOAD(_set_debug_level, "dc_setDebugLevel");
+    LOAD(_internal_strerror, "dc_strerror");
     //FATAL("Initialized DCAP filesystem calls");
     //set_debug_level(32);
     loaded = true;    
@@ -88,16 +90,16 @@ hdfs_filesystem_calls::hdfs_filesystem_calls() {
         return; 
     }
     
-    LOAD(&_hdfsConnect, "hdfsConnect");
-    LOAD(&_hdfsOpenFile, "hdfsOpenFile");
-    LOAD(&_hdfsCloseFile, "hdfsCloseFile");
-    LOAD(&_hdfsSeek, "hdfsSeek");
-    LOAD(&_hdfsTell, "hdfsTell");
-    LOAD(&_hdfsRead, "hdfsRead");
-    LOAD(&_hdfsWrite, "hdfsWrite");
-    LOAD(&_hdfsGetPathInfo, "hdfsGetPathInfo"); 
-    LOAD(&_hdfsFreeFileInfo,"hdfsFreeFileInfo");
-    LOAD(&_hdfsDisconnect, "hdfsDisconnect");
+    LOAD(_hdfsConnect, "hdfsConnect");
+    LOAD(_hdfsOpenFile, "hdfsOpenFile");
+    LOAD(_hdfsCloseFile, "hdfsCloseFile");
+    LOAD(_hdfsSeek, "hdfsSeek");
+    LOAD(_hdfsTell, "hdfsTell");
+    LOAD(_hdfsRead, "hdfsRead");
+    LOAD(_hdfsWrite, "hdfsWrite");
+    LOAD(_hdfsGetPathInfo, "hdfsGetPathInfo"); 
+    LOAD(_hdfsFreeFileInfo,"hdfsFreeFileInfo");
+    LOAD(_hdfsDisconnect, "hdfsDisconnect");
 
     fs = _hdfsConnect("default", 0);
     if(!fs) {
