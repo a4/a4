@@ -8,7 +8,7 @@ include protobuf.am
 # Files to distribute
 dist_bin_SCRIPTS = python/a4dump.py python/a4info.py
 dist_pkgdata_SCRIPTS=python/test_pyrw
-pkgdata_PROGRAMS=test_read test_read test_read_nomd test_write_fw test_write_bw test_bigwrite test_write_nomd_fw test_write_nomd_bw
+bin_PROGRAMS = test_read test_read test_read_nomd test_write_fw test_write_bw test_bigwrite test_write_nomd_fw test_write_nomd_bw
 a4include_HEADERS = src/a4/a4io.h src/a4/exceptions.h src/a4/types.h src/a4/debug.h \
     src/a4/string.h src/a4/string_impl.h src/a4/register.h src/a4/message.h \
     src/a4/input_stream.h src/a4/output_stream.h src/a4/input.h src/a4/output.h
@@ -38,7 +38,7 @@ nodist_liba4io_la_SOURCES=$(PROTOBUF_CC) $(PROTOBUF_H)
 dist_liba4io_la_SOURCES=$(LIBRARY_SOURCES)
 liba4io_la_LIBADD=-ldl $(PROTOBUF_LIBS) $(SNAPPY_LDFLAGS) $(BOOST_LIBS)
 
-bin_PROGRAMS = a4dump a4info
+bin_PROGRAMS += a4dump a4info
 a4dump_SOURCES = src/apps/a4dump.cpp
 a4info_SOURCES = src/apps/a4info.cpp
 
