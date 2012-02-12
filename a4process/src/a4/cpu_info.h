@@ -55,6 +55,11 @@ struct cpuinfo_t get_cpuinfo() {
         // Get NC: Number of CPU cores - 1
         cpuid(0x80000008, regs);
         cpuinfo.physical_cores = ((unsigned)(regs[2] & 0xff)) + 1; // ECX[7:0] + 1
+    } else {
+        cpuinfo.physical_cores = 1;
+        cpuinfo.logical_cores = 1;
+        cpuinfo.hyperthreading = 0;
+        return cpuinfo; // unknown processor
     }
 
     // Detect hyper-threads  
