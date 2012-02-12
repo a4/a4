@@ -25,7 +25,8 @@ using a4::io::OutputStream;
 
 typedef std::vector<string> FileList;
 
-namespace a4{ namespace process{
+namespace a4 { 
+namespace process {
 
 class ProcessStats {
 public:
@@ -42,7 +43,9 @@ public:
     }
 };
         
-SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) : configuration(cfg) {
+SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) 
+    : configuration(cfg) 
+{
     assert(configuration);
 }
 
@@ -54,7 +57,8 @@ class BaseOutputAdaptor : public OutputAdaptor {
         A4Output* res;
         shared<ObjectBackStore> backstore;
 
-        BaseOutputAdaptor(Driver* d, Processor* p, bool forward_metadata, A4Output* out, A4Output* res) 
+        BaseOutputAdaptor(Driver* d, Processor* p, bool forward_metadata, 
+                          A4Output* out, A4Output* res) 
             : out(out), res(res), forward_metadata(forward_metadata), 
               in_block(false), driver(d), p(p), last_postfix("") 
         {
@@ -200,14 +204,17 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     int cnt = 0;
     bool run = true;
     while (shared<InputStream> instream = self->in->get_stream()) {
-        if (!run) break;
+        if (!run)
+            break;
+        
         if (instream->new_metadata()) { // Start of new metadata block
             A4Message new_metadata = instream->current_metadata();
 
             // WARNING: "no metadata" events are subsumed into previous/next metadata here!
             if (new_metadata) {
                 // Process end of old metadata block, if any.
-                if (output_adaptor->current_metadata) p->process_end_metadata();
+                if (output_adaptor->current_metadata)
+                    p->process_end_metadata();
 
                 // Process start of new incoming metadata block (this may modify new_metadata)
                 // In Manual Mode, this may also trigger a callback in the output_adaptor.
@@ -216,19 +223,23 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                 self->set_metadata(p, new_metadata);
                 p->process_new_metadata();
 
-                if (auto_metadata) output_adaptor->new_outgoing_metadata(new_metadata);
+                if (auto_metadata)
+                    output_adaptor->new_outgoing_metadata(new_metadata);
             }
         }
 
         while (A4Message msg = instream->next_with_metadata()) {
-            if (!run) break;
+            if (!run)
+                break;
+            
             if (instream->new_metadata()) { // Start of new metadata block
                 A4Message new_metadata = instream->current_metadata();
 
                 // WARNING: "no metadata" events are subsumed into previous/next metadata here!
                 if (new_metadata) {
                     // Process end of old metadata block, if any.
-                    if (output_adaptor->current_metadata) p->process_end_metadata();
+                    if (output_adaptor->current_metadata)
+                        p->process_end_metadata();
 
                     // Process start of new incoming metadata block (this may modify new_metadata)
                     // In Manual Mode, this may also trigger a callback in the output_adaptor.
@@ -238,11 +249,13 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                     p->process_new_metadata();
 
                     // WARNING: "no metadata" events are subsumed into previous/next metadata here!
-                    if (auto_metadata) output_adaptor->new_outgoing_metadata(new_metadata);
+                    if (auto_metadata)
+                        output_adaptor->new_outgoing_metadata(new_metadata);
                 }
             }
             // Do not send metadata messages to process()
-            if (msg.metadata()) continue;
+            if (msg.metadata())
+                continue;
 
             self->set_store(p, output_adaptor->backstore->store());
             process_rerun_systematics(p, msg);
@@ -254,7 +267,8 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             }
 
             // Check if we reached limit
-            if (++cnt == limit) run = false;
+            if (++cnt == limit)
+                run = false;
         }
         
         // We're about to get a new stream, record how many this one had
@@ -372,9 +386,11 @@ try
 
     // Set up I/O
     in.reset(new A4Input("A4 Input Files"));
-    foreach(string& i, inputs) in->add_file(i);
+    foreach(string& i, inputs) 
+        in->add_file(i);
 
-    if (output.size()) out.reset(new A4Output(output, "A4 Output File"));
+    if (output.size()) 
+        out.reset(new A4Output(output, "A4 Output File"));
 
     shared<A4Output> a4results;
     if (results.size()) {

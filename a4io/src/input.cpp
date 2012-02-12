@@ -30,8 +30,9 @@ A4Input& A4Input::add_file(const std::string& filename) {
     return *this;
 }
 
-InputStream * A4Input::pop_file() {
-    if (_filenames.empty()) return NULL;
+InputStream* A4Input::pop_file() {
+    if (_filenames.empty())
+        return NULL;
     std::string filename = _filenames.front();
     _filenames.pop_front();
     shared<InputStream> s(new InputStream(filename));
@@ -72,7 +73,8 @@ shared<InputStream> A4Input::get_stream() {
         _ready.pop_back();
     } else if (!_filenames.empty()) {
         s = pop_file();
-    } else return shared<InputStream>();
+    } else
+        return shared<InputStream>();
 
     _processing.insert(s);
 

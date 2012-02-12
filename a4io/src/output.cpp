@@ -123,7 +123,8 @@ bool A4Output::close() {
                 used_streams.push_back(_filenames[postfix.first][i]);
         }
         std::string out = _output_file;
-        if (postfix.first != "") out += "." + postfix.first;
+        if (postfix.first != "")
+            out += "." + postfix.first;
         success = success && concatenate(used_streams, out);
     }
     return success;
