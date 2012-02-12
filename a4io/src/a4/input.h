@@ -1,6 +1,7 @@
 #ifndef _A4_INPUT_H_
 #define _A4_INPUT_H_
 
+#include <unordered_set>
 #include <set>
 #include <map>
 #include <deque>
@@ -39,6 +40,7 @@ namespace a4{ namespace io{
             static void report_finished(A4Input *, InputStream* _s);
             InputStream* pop_file();
             std::deque<std::string> _filenames;
+            std::unordered_set<std::string> _filenames_set;
             std::vector<shared<InputStream>> _streams;
             std::deque<InputStream*> _ready;
             std::set<InputStream*> _processing;

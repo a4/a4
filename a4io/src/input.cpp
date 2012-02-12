@@ -23,6 +23,9 @@ A4Input& A4Input::add_stream(shared<InputStream> s) {
 
 /// Add a file to be processed, Returns this object again.
 A4Input& A4Input::add_file(const std::string& filename) {
+    if (_filenames_set.count(filename))
+        FATAL("Duplicate input! '", filename, "' has already been add_file'd");
+    _filenames_set.insert(filename);
     _filenames.push_back(filename);
     return *this;
 }
