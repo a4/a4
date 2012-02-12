@@ -31,20 +31,29 @@ void multiply_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, D
 void append_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged, bool make_unique) {
     if (!f1.repeated()) 
         throw a4::Fatal("MERGE_UNION/APPEND is not applicable to non-repeated field ", f1.name());
+        
     std::unordered_set<FieldContent> items;
     for (int i = 0; i < f1.size(); i++) {
         FieldContent fc = f1.value(i);
         if (make_unique) {
-            if (items.find(fc)  == items.end()) merged.add(fc);
+            if (items.find(fc) == items.end()) 
+                merged.add(fc);
+                
             items.insert(fc);
-        } else merged.add(fc);
+        } else {
+            merged.add(fc);
+        }
     }
     for (int i = 0; i < f2.size(); i++) {
         FieldContent fc = f2.value(i);
         if (make_unique) {
-            if (items.find(fc)  == items.end()) merged.add(fc);
+            if (items.find(fc) == items.end()) 
+                merged.add(fc);
+                
             items.insert(fc);
-        } else merged.add(fc);
+        } else {
+            merged.add(fc);
+        }
     }
 }
 

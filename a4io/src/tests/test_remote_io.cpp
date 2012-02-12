@@ -28,7 +28,6 @@ TEST(a4io_netio, try_dynamic_rfio) {
     ASSERT_FALSE(errno);
     
     string tempfile(string(tempdir) + "/tempfile");
-    std::cerr << tempfile << std::endl;
     int fd = calls.open(const_cast<char*>(tempfile.c_str()), O_CREAT, S_IRUSR | S_IWUSR);
     ASSERT_EQ(0, calls.last_errno());
     ASSERT_NE(-1, fd);

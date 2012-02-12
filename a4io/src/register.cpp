@@ -28,8 +28,10 @@ namespace a4{ namespace io{
                     }
                 }
             }
-            if (warn) std::cerr << "Warning, trying to get a compiled-in reader for classid " << lookup_class_id
-                                << " when there is none." << std::endl;
+            if (warn) {
+                WARNING("Trying to get a compiled-in reader for classid ",
+                        lookup_class_id, " when there is none.");
+            }
         } else if (name.size() != 0) {
             std::map<std::string, internal::classreg>::const_iterator res = all_classes.find(name);
             if (res == all_classes.end()) {
@@ -38,14 +40,18 @@ namespace a4{ namespace io{
                     foreach(auto item, all_classes) {
                         size_t pos = item.first.find_last_of('.');
                         if (pos != std::string::npos && item.first.substr(pos+1) == name) {
-                            if (warn) std::cerr << "Warning: Substituting " <<  item.first << " for not fully qualified " << name << "!" << std::endl;
+                            if (warn) {
+                                WARNING("Substituting ", item.first, " for not fully qualified ",
+                                        name, "!");
+                            }
                             return item.second;
                         }
                     }
                 }
-                if (warn)
-                    std::cerr << "Warning, trying to get a compiled-in reader for class " << name
-                              << " when there is none." << std::endl;
+                if (warn) {
+                    WARNING("Trying to get a compiled-in reader for class ",
+                            name, " when there is none.");
+                }
                 return reg;
             }
             reg = all_classes.find(name)->second;

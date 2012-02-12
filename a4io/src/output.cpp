@@ -102,11 +102,10 @@ bool A4Output::close() {
     Lock lock(_mutex);
     _closed = true;
     
-    foreach(auto postfix, _out_streams) {
-        foreach(auto s, postfix.second) {
-            if (s->opened()) s->close();
-        }
-    }
+    foreach(auto postfix, _out_streams)
+        foreach(auto s, postfix.second)
+            if (s->opened()) 
+                s->close();
     
     if (!_regular_file) {
         // We're writing to exactly one output, no filename fixup to do.
@@ -117,7 +116,8 @@ bool A4Output::close() {
     foreach(auto postfix, _out_streams) {
         std::vector<std::string> used_streams;
         for(int i = 0; i < postfix.second.size(); i++) {
-            if (postfix.second[i]->opened()) used_streams.push_back(_filenames[postfix.first][i]);
+            if (postfix.second[i]->opened()) 
+                used_streams.push_back(_filenames[postfix.first][i]);
         }
         std::string out = _output_file;
         if (postfix.first != "") out += "." + postfix.first;
@@ -126,27 +126,28 @@ bool A4Output::close() {
     return success;
 }
 
-bool A4Output::concatenate(const std::vector<std::string> & filenames, const std::string target) {
+bool A4Output::concatenate(const std::vector<std::string>& filenames, 
+                           const std::string target) {
     if (filenames.size() == 1) {
         const char * from = filenames[0].c_str();
         const char * to = target.c_str();
         unlink(to);
         if (rename(from, to) == -1) {
-            std::cerr << "ERROR - a4::io:A4Output - Can not rename " << from << " to " << to << "!" << std::endl;
+            ERROR("Cannot rename ", from, " to ", to, "!");
             return false;
-        };
+        }
     } else if (filenames.size() > 1) {
         // concatenate all output files
         std::fstream out(target.c_str(), ios::out | ios::trunc | ios::binary);
         if (!out) {
-            std::cerr << "ERROR - a4::io:A4Output - Could not open " << target << " for writing!" << std::endl;
+            ERROR("Could not open ", target, " for writing!");
             return false;
         }
         for (uint32_t i = 0; i < filenames.size(); i++) {
             std::string fn = filenames[i];
             std::fstream in(fn.c_str(), ios::in | ios::binary);
             if (!in) {
-                std::cerr << "ERROR - a4::io:A4Output - Could not open " << fn << "! Maybe some threads failed?" << std::endl;
+                ERROR("Could not open ", fn, "! Maybe some threads failed?");
                 return false;
             }
             out << in.rdbuf();

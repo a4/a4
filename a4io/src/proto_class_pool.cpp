@@ -88,14 +88,14 @@ namespace a4{ namespace io{
                 throw a4::Fatal("Major versions of compiled-in and read messages do not agree:",
                                 "Compiled in: '", cmajor, "', Read: '", dmajor, "'");
             } else if (cminor != dminor) {
-                std::cerr << "Warning: Minor versions of compiled-in and read messages do not agree:" <<
-                             "Compiled in: '" << cminor << "' << Read: '" << dminor << "'" << std::endl;
+                WARNING("Minor versions of compiled-in and read messages do not agree: "
+                        "Compiled in: '", cminor, "' << Read: '", dminor, "'");
             }
             _class_id_reader[class_id] = reg.from_stream;
             _class_id_descriptor[class_id] = reg.descriptor;
             _dynamic_descriptor[class_id] = gd;
         } else { // Use dynamic reading
-            //std::cerr << "Warning: No compiled version of " << protoclass.full_name() << " found!" << std::endl;
+            // WARNING("No compiled version of ", protoclass.full_name(), " found!");
             const Message* prototype = _message_factory->GetPrototype(gd);
             _class_id_reader[class_id] = bind(&ProtoClassPool::message_factory, this, prototype, _1);
             _class_id_descriptor[class_id] = gd;

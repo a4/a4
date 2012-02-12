@@ -141,7 +141,7 @@ void H3::print(std::ostream &out) const
 {
     if (!_data)
     {
-        cerr << "Histogram is not initialized" << endl;
+        ERROR("Histogram is not initialized");
         return;
     }
 

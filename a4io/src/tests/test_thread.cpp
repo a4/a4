@@ -37,7 +37,8 @@ void my_read(A4Input &in) {
             assert((cnt++%N) == te->event_number());
         }
     }
-    if (stream->error()) std::cerr << "stream error in thread " << boost::this_thread::get_id() << std::endl;
+    if (stream->error())
+        ERROR("stream problem in thread ", boost::this_thread::get_id());
     assert(cnt == 5*N);
 }
 
@@ -46,7 +47,7 @@ void no_read(A4Input &in) {
     if (!stream) return;
     assert(stream->good());
     if (stream->error()) {
-        std::cerr << "stream error in no_read thread " << boost::this_thread::get_id() << std::endl;
+        ERROR("stream problem in no_read thread ", boost::this_thread::get_id());
     }
 }
 

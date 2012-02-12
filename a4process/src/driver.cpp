@@ -17,7 +17,6 @@ typedef chrono::duration<double> duration;
 #include <a4/cpu_info.h>
 
 using std::string;
-using std::cout; using std::cerr; using std::endl;
 using std::ifstream;
 using a4::io::A4Input;
 using a4::io::A4Output;
@@ -113,7 +112,8 @@ class BaseOutputAdaptor : public OutputAdaptor {
             }
 
             if (merge) {
-                //std::cerr<< "Merging\n" << old_metadata.message()->ShortDebugString() << "\n...and...\n" << new_metadata.message()->ShortDebugString() << std::endl;
+                //std::cerr << "Merging\n" << old_metadata.message()->ShortDebugString()
+                //          << "\n...and...\n" << new_metadata.message()->ShortDebugString() << std::endl;
                 current_metadata = old_metadata + new_metadata;
                 //std::cerr << "...to...\n" << current_metadata.message()->ShortDebugString() << std::endl;
             } else { // Normal action in case of new metadata
@@ -261,7 +261,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
         stats.bytes += instream->ByteCount();
         
         if (instream->error()) {
-            std::cerr << "stream error in thread " << boost::this_thread::get_id() << std::endl;
+            ERROR("stream error in thread ", boost::this_thread::get_id());
             return;
         }
     }
@@ -326,15 +326,18 @@ try
 
     // Parse command line first
     std::vector<string> _argvs;
-    for (int i = 1; i < argc; i++) _argvs.push_back(string(argv[i]));
+    for (int i = 1; i < argc; i++)
+        _argvs.push_back(string(argv[i]));
 
     po::variables_map arguments;
-    po::store(po::command_line_parser(_argvs).options(commandline_options).positional(positional_options).run(), arguments);
+    po::store(po::command_line_parser(_argvs)
+        .options(commandline_options)
+        .positional(positional_options).run(), arguments);
 
     if (2 > argc || arguments.count("help") || !arguments.count("input"))
     {
-        cout << "Usage: " << argv[0] << " [Options] input file(s)" << endl;
-        cout << commandline_options << endl;
+        std::cout << "Usage: " << argv[0] << " [Options] input file(s)" << std::endl;
+        std::cout << commandline_options << std::endl;
         return 1;
     }
 
@@ -343,12 +346,14 @@ try
     if (arguments.count("config")) {
         config_filename = arguments["config"].as<string>();
         explicit_config_file = true;        
-    };
+    }
+    
     std::ifstream config_file(config_filename.c_str());
     if (!config_file && explicit_config_file) {
         throw std::runtime_error("Configuration file '" + config_filename + "' not found!");
     } else if (config_file && !explicit_config_file) {
-        cout << "Using implicit config file '" + config_filename + "'. Override this with -c 'other_configfile.ini'." << endl;
+        std::cout << "Using implicit config file '" << config_filename 
+                  << "'. Override this with -c 'other_configfile.ini'." << std::endl;
     }
     po::store(po::parse_config_file(config_file, config_file_options), arguments);
 
@@ -359,7 +364,7 @@ try
     if (number != -1) n_threads = 1;
 
     // DEBUG
-    //foreach(string & i, inputs) { cout << "inputs += " << i << endl; } 
+    //foreach (string& i, inputs) { cout << "inputs += " << i << endl; } 
     //cout << "output = " << output << endl;
     //cout << "results = " << results << endl;
     //cout << "config_filename = " << config_filename << endl;
@@ -367,7 +372,7 @@ try
 
     // Set up I/O
     in.reset(new A4Input("A4 Input Files"));
-    foreach(string & i, inputs) in->add_file(i);
+    foreach(string& i, inputs) in->add_file(i);
 
     if (output.size()) out.reset(new A4Output(output, "A4 Output File"));
 
@@ -388,7 +393,7 @@ try
             //threads.push_back(boost::thread(std::bind(&simple_thread, this, processors[i])));
             threads.push_back(boost::thread(std::bind(&simple_thread, this, p, -1, boost::ref(stats[i]))));
         };
-        foreach(boost::thread & t, threads) t.join();
+        foreach(boost::thread& t, threads) t.join();
     } else {
         Processor * p = new_initialized_processor();
         simple_thread(this, p, number, stats[0]);
@@ -400,24 +405,24 @@ try
     
     chrono::duration<double> walltime = chrono::steady_clock::now() - start;
     
-    std::cout << "A4 processed " << total.events << " objects "
-              << "in " << walltime.count() << " seconds. (" << (total.events / walltime.count()) << "Hz)" << std::endl;
+    VERBOSE("A4 processed ", total.events, " objects in ", walltime.count(),
+            " seconds. (", total.events / walltime.count(), "Hz)");
 
-    std::cout << "CPU time: " << total.cputime << " (" << (total.events / total.cputime.count()) << "Hz)" << std::endl;
+    VERBOSE("CPU time: ", total.cputime, " (", total.events / total.cputime.count(), "Hz)");
     
     const double megabytes = total.bytes / (1024.*1024.);
-    std::cout << "Total data read  " << megabytes << " (MB) Rate: " << megabytes / walltime.count() << " (MB/s)" << std::endl;
+    VERBOSE("Total data read ", megabytes, " (MB) Rate: ", megabytes / walltime.count(), " (MB/s)");
     
     // Clean Up any memory allocated by libprotobuf
     //google::protobuf::ShutdownProtobufLibrary();
     return 0;
 }
-catch(std::exception &x)
+catch(std::exception& x)
 {
     // Clean Up any memory allocated by libprotobuf
     //google::protobuf::ShutdownProtobufLibrary();
 
-    cerr << "Exception: " << x.what() << endl;
+    std::cerr << "Exception: " << x.what() << std::endl;
     return 1;
 }
 

@@ -15,13 +15,13 @@ namespace a4{
         /// WARNING: This class cannot be used for reading standard XML GRLS!
         class GRL {
             public:
-                virtual bool pass(const uint32_t &run, const uint32_t &lb) const = 0;
+                virtual bool pass(const uint32_t& run, const uint32_t& lb) const = 0;
         };
 
         class FileGRL : public GRL {
             public:
-                FileGRL(const std::string & fn);
-                virtual bool pass(const uint32_t &run, const uint32_t &lb) const;
+                FileGRL(const std::string& fn);
+                virtual bool pass(const uint32_t& run, const uint32_t& lb) const;
 
             private:
                 typedef std::pair<uint32_t,uint32_t> LBRange; // <end lb, start lb>
@@ -31,8 +31,8 @@ namespace a4{
 
         class NoGRL : public GRL {
             public:
-                NoGRL() {};
-                bool pass(const uint32_t &, const uint32_t &) const { return true; };
+                NoGRL() {}
+                bool pass(const uint32_t&, const uint32_t&) const { return true; }
         };
     };
 };

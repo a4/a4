@@ -53,7 +53,8 @@ namespace a4{ namespace io{
         if (mymajor != dmajor) {
             throw a4::Fatal("Major versions of objects to merge do not agree:", mymajor, " != ", dmajor);
         } else if (myminor != dminor) {
-            std::cerr << "Warning: Minor versions of merged messages do not agree:" << myminor << " != " << dminor << std::endl;
+            WARNING("Minor versions of merged messages do not agree:",
+                    myminor, " != ", dminor);
         }
     }
 

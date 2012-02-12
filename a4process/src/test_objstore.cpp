@@ -128,7 +128,7 @@ int main(int argv, char ** argc) {
     foreach(string name, backstore.list<TestStringThing>()) {
         int npro = S.find_slow<TestStringThing>(name)->n;
         if (npro != N) {
-            std::cerr << "Uh oh: " << name << " has " << npro << " != " << N << std::endl;
+            ERROR("Uh oh: ", name, " has ", npro, " != ", N);
             assert(npro == N);
         }
     }

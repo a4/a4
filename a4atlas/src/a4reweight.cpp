@@ -58,7 +58,7 @@ class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
             ln >> std::skipws;
             ln >> run >> w;
             if (ln.fail()) {
-                std::cerr << "Failed to read line: " << ln.str() << std::endl;
+                WARNING("Failed to read line: ", ln.str());
                 continue;
             }
             ln >> k >> filt;
@@ -90,7 +90,7 @@ void A4ReweightProcessor::process_new_metadata() {
     double sum_mcw = metadata().sum_mc_weights();
     double xs = 0;
     if (config->xs.find(run) ==  config->xs.end()) {
-        std::cerr << "ERROR: run " << run << " not found in XS file - reweighting with 0!" << std::endl;
+        ERROR("run ", run, " not found in XS file - reweighting with 0!");
     } else {
         xs = config->xs.find(run)->second;
     }

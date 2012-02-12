@@ -20,8 +20,7 @@ namespace a4{ namespace io{
         mmap = NULL;
         no = ::open(name, oflag);
         if (no < 0) {
-            std::cerr << "ERROR - Could not open '" << name \
-                      << "' - error: " << strerror(errno) << std::endl;
+            ERROR("Could not open '", name, "' - reason: ", strerror(errno));
             return;
         }
         if (!do_mmap) {
@@ -39,7 +38,7 @@ namespace a4{ namespace io{
         size = buffer.st_size;
         mmap = ::mmap(NULL, size, PROT_READ, MAP_PRIVATE, no, 0);
         if (mmap == MAP_FAILED) {
-            std::cerr << "ERROR - Could not mmap '" << name << "': " << strerror(errno) << std::endl;
+            ERROR("Could not mmap '", name, "': ", strerror(errno));
             close(no);
             return;
         }
@@ -65,8 +64,7 @@ namespace a4{ namespace io{
 
         _file.reset(new OpenFile(_name.c_str(), O_RDONLY, true));
         if (_file->error) {
-            std::cerr << "ERROR - Could not open '" << _name \
-                      << "' - error: " << strerror(errno) << std::endl;
+            ERROR("Could not open '", _name, "' - reason: ", strerror(errno));
             _error = true;
             return false;
         }
@@ -148,8 +146,7 @@ namespace a4{ namespace io{
 
         _file.reset(new OpenFile(_name.c_str(), O_RDONLY, false));
         if (_file->error) {
-            std::cerr << "ERROR - Could not open '" << _name \
-                      << "' - error: " << strerror(errno) << std::endl;
+            ERROR("Could not open '", _name, "' - reason: ", strerror(errno));
             _error = true;
             return false;
         }
@@ -158,7 +155,7 @@ namespace a4{ namespace io{
 // See https://github.com/JohannesEbke/a4/issues/34
 //        static_assert(sizeof(size_t) >= sizeof(uint64_t), "size_t is 32 bit!");
         if (fstat(_file->no, &buffer) == -1) {
-            std::cerr << "ERROR - Could not stat '" << _name << "' - error: " << strerror(errno) << std::endl;
+            ERROR("Could not stat '", _name, "' - reason: ", strerror(errno));
             return false;
         }
         _size = buffer.st_size;

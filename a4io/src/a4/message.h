@@ -9,12 +9,14 @@
 #include <a4/types.h>
 
 // used internally
-namespace google{ namespace protobuf{
+namespace google {
+namespace protobuf {
     class Descriptor;
     class DescriptorPool;
 };};
 
-namespace a4{ namespace io{
+namespace a4 {
+namespace io {
     /// Wrapped message returned from the InputStream
     class A4Message {
         public:
@@ -41,7 +43,7 @@ namespace a4{ namespace io{
                 _pool(m._pool) {}
                 
             explicit A4Message(shared<google::protobuf::Message> msg, 
-                                bool metadata=true) 
+                               bool metadata=true) 
                 : _message(msg),
                   _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
                   _descriptor(msg->GetDescriptor()),
@@ -81,7 +83,7 @@ namespace a4{ namespace io{
             const google::protobuf::Message* message() const { return _message.get(); }
             
             /// Pointer to the descriptor of that message, used for quick type checks.
-            const google::protobuf::Descriptor* descriptor() const { return _descriptor; };
+            const google::protobuf::Descriptor* descriptor() const { return _descriptor; }
             /// Class ID on the wire
             uint32_t class_id() const { return _class_id; }
             /// Returns true if this is a metadata message
@@ -111,7 +113,7 @@ namespace a4{ namespace io{
             }
 
             /// Merge two messages that support it via the "merge" field extension
-            A4Message operator+(const A4Message & rhs) const;
+            A4Message operator+(const A4Message& rhs) const;
 
             /// Return a field of this message in string representation
             std::string field_as_string(const std::string& field_name);
@@ -130,8 +132,6 @@ namespace a4{ namespace io{
             shared<google::protobuf::DynamicMessageFactory> _factory;
             /// Shared pointer to the descriptor pool of that message, so that it does not disappear on us.
             shared<google::protobuf::DescriptorPool> _pool;
-
-
     };
 };};
 

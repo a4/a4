@@ -1,5 +1,7 @@
 #include "remote_io.h"
 
+#include <a4/types.h>
+
 #include <dlfcn.h>
 #include <iostream>
 #include <assert.h>
@@ -53,7 +55,7 @@ dcap_filesystem_calls::dcap_filesystem_calls() {
     LOAD(&_close, "dc_close");
     LOAD(&_set_debug_level, "dc_setDebugLevel");
     LOAD(&_internal_strerror, "dc_strerror");
-    //std::cerr << "Initialized DCAP filesystem calls" << std::endl;
+    //FATAL("Initialized DCAP filesystem calls");
     //set_debug_level(32);
     loaded = true;    
 }
@@ -61,7 +63,8 @@ int dcap_filesystem_calls::last_errno() {
     int nr = errno;
     if (nr != 0) {
         const char * err = _internal_strerror(nr);
-        if (err) std::cerr << "Internal DCAP error: " << err << std::endl;
+        if (err) 
+            FATAL("Internal DCAP error: ", err);
     }
     return nr;
 }
@@ -73,15 +76,15 @@ dcap_filesystem_calls::~dcap_filesystem_calls() {
 hdfs_filesystem_calls::hdfs_filesystem_calls() {
     _errno = 0;
     if(!dlopen("libjvm.so", RTLD_LAZY) or dlerror()) {
-        if (dlerror()) std::cerr << "libjvm.so dlopen failed: " << dlerror() << std::endl;
-        else std::cerr << "libjvm.so is not available or loading failed!" << std::endl;
+        if (dlerror()) FATAL("libjvm.so dlopen failed: ", dlerror());
+        else FATAL("libjvm.so is not available or loading failed!");
         return;
     };
 
     _library = dlopen("libhdfs.so", RTLD_LAZY);
     if(!_library or dlerror()) {
-        if (dlerror()) std::cerr << "libhdfs.so dlopen failed: " << dlerror() << std::endl;
-        else std::cerr << "libhdfs.so is not available or loading failed!" << std::endl;
+        if (dlerror()) FATAL("libhdfs.so dlopen failed: ", dlerror());
+        else FATAL("libhdfs.so is not available or loading failed!");
         return; 
     }
     
@@ -98,7 +101,7 @@ hdfs_filesystem_calls::hdfs_filesystem_calls() {
 
     fs = _hdfsConnect("default", 0);
     if(!fs) {
-        std::cerr << "Failed to connect to hdfs!" << std::endl;
+        FATAL("Failed to connect to hdfs!");
         return;
     }
     loaded = true;    

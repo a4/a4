@@ -68,7 +68,7 @@ try
     if (arguments.count("threads"))
         threads = arguments["threads"].as<int>();
 
-    std::cout << "Threads = " << threads << std::endl;
+    VERBOSE("Threads = ", threads);
 /*
     if (arguments.count("output"))
         job.set_output(arguments["output"].as<string>());

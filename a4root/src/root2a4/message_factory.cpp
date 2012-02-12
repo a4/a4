@@ -73,21 +73,21 @@ typename Setter<T>::ProtobufSetter reflection_setter(
     const Reflection* reflection, const FieldDescriptor* field) { 
     throw a4::Fatal("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
                 __FILE__); 
-};
+}
 
 template<typename T> 
 typename Setter<T>::ProtobufGetter reflection_getter(
     const Reflection* reflection, const FieldDescriptor* field) { 
     throw a4::Fatal("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
                 __FILE__); 
-};
+}
 
 template<typename T> 
 typename Setter<T>::ProtobufAdder reflection_adder(
     const Reflection* reflection, const FieldDescriptor* field) { 
     throw a4::Fatal("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
                 __FILE__); 
-};
+}
 
 #define DEFINE_SETTERS(T, ProtobufTypename) \
     template<> Setter<T>::ProtobufSetter reflection_setter<T>( \
