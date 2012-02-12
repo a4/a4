@@ -484,7 +484,7 @@ int main(int argc, char ** argv) {
     
     class ErrorCollector : public MultiFileErrorCollector {
         void AddError(const std::string& filename, int line, int column, const std::string& message) {
-            throw a4::Fatal("Proto import error in ", filename, ":", line, ":", column, " ", message);
+            FATAL("Proto import error in ", filename, ":", line, ":", column, " ", message);
         }
     };
     
@@ -519,7 +519,7 @@ int main(int argc, char ** argv) {
         descriptor = file_descriptor->FindMessageTypeByName("Event");
         
         if (!descriptor)
-            throw a4::Fatal("Couldn't find an \"Event\" class in ", tree_type);
+            FATAL("Couldn't find an \"Event\" class in ", tree_type);
     }
     
     {

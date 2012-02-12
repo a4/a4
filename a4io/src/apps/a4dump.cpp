@@ -254,7 +254,7 @@ void dump_message(const Message& message,
                   
     if (vars.size()) {
         // specialized code
-        throw a4::Fatal("Not implemented yet");
+        FATAL("Not implemented yet");
     } else {
         std::string str, type(message.GetDescriptor()->name());
         if (types.size() && find(types.begin(), types.end(), type) == types.end()) {
@@ -294,7 +294,7 @@ public:
             _desc = m.GetDescriptor();
             _field_desc = _desc->FindFieldByName(_name);
             if (!_field_desc)
-                throw a4::Fatal("Unknown field name: ", _name);
+                FATAL("Unknown field name: ", _name);
         }
         // HACK: Inefficient string comparison because it's the quickest implementation
         return FieldContent(m, _field_desc).str() == _value;
@@ -368,7 +368,7 @@ int main(int argc, char ** argv) {
     size_t i = 0;
     for (; i < event_index; i++)
         if (stream_msg ? !stream->next_bare_message() : !stream->next())
-            throw a4::Fatal("Ran out of events! There are only ", i, " on the file!");
+            FATAL("Ran out of events! There are only ", i, " on the file!");
         
     std::vector<Selection> selections;
     foreach (auto& selection_string, selection_strings)

@@ -444,9 +444,9 @@ A4Message InputStreamImpl::bare_message() {
     uint32_t size = 0;
     if (!_coded_in->ReadLittleEndian32(&size)) {
         if (_compressed_in && _compressed_in->ByteCount() == 0) {
-            throw a4::Fatal("Reading from compressed section failed!");
+            FATAL("Reading from compressed section failed!");
         } else {
-            throw a4::Fatal("Unexpected end of file or corruption [0]!");
+            FATAL("Unexpected end of file or corruption [0]!");
         }
     }
 

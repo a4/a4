@@ -108,7 +108,7 @@ class FieldContent {
                     _message = true;
                     break;
                 default:
-                    throw a4::Fatal("Unknown type ", f->cpp_type());
+                    FATAL("Unknown type ", f->cpp_type());
             };
         }
         FieldContent(const Message & m, const FieldDescriptor * f) {
@@ -130,7 +130,7 @@ class FieldContent {
                     _message = true;
                     break;
                 default:
-                    throw a4::Fatal("Unknown type ", f->cpp_type());
+                    FATAL("Unknown type ", f->cpp_type());
             };
         }
 

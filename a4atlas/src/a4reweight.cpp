@@ -21,7 +21,7 @@ class A4ReweightProcessor : public ResultsProcessor<A4ReweightProcessor, EventMe
   public:
     void process(std::string name, shared<Storable> s) {
         if (S.get_slow<Storable>(name)) {
-            throw a4::Fatal("Encountered the same histogram twice! Merge files before reweighting them!");
+            FATAL("Encountered the same histogram twice! Merge files before reweighting them!");
         } else {
             *s *= weight;
             S.set_slow(name, s); 
@@ -42,10 +42,10 @@ class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
     }
     void read_arguments(po::variables_map &arguments) {
         if (arguments.count("lumi") == 0) {
-            throw a4::Fatal("No Luminosity specified!");
+            FATAL("No Luminosity specified!");
         }
         if (arguments.count("xs") == 0) {
-            throw a4::Fatal("No cross-section file specified!");
+            FATAL("No cross-section file specified!");
         }
         std::ifstream xsf(xs_file);
         while(!xsf.eof()) {
@@ -78,14 +78,14 @@ void A4ReweightProcessor::process_new_metadata() {
         return;
     }
     if (metadata().run_size() != 1) {
-        throw a4::Fatal("Cannot reweight if runs have been merged!");
+        FATAL("Cannot reweight if runs have been merged!");
     }
     int run = metadata().run(0);
     if (!metadata().has_sum_mc_weights()) {
-        throw a4::Fatal("Cannot reweight without sum of MC weights!");
+        FATAL("Cannot reweight without sum of MC weights!");
     }
     if (metadata().reweight_lumi() != 0) {
-        throw a4::Fatal("This set of histograms has already been reweighted!");
+        FATAL("This set of histograms has already been reweighted!");
     }
     double sum_mcw = metadata().sum_mc_weights();
     double xs = 0;

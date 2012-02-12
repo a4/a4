@@ -131,11 +131,11 @@ class BaseOutputAdaptor : public OutputAdaptor {
         }
 
         virtual void metadata(A4Message m) {
-            throw a4::Fatal("To write metadata manually, you have to change the metadata_behavior of the Processor!");
+            FATAL("To write metadata manually, you have to change the metadata_behavior of the Processor!");
         }
     
         void write(A4Message m) {
-            if (!in_block) throw a4::Fatal("Whoa?? Writing outside of a metadata block? How did you do this?");
+            if (!in_block) FATAL("Whoa?? Writing outside of a metadata block? How did you do this?");
             if (outstream) outstream->write(*m.message());
         }
 
@@ -176,7 +176,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             output_adaptor.reset(new BaseOutputAdaptor(self, p, metadata_forward, self->out.get(), self->res.get()));
             break;
         case Processor::MANUAL_FORWARD:
-            if (self->metakey != "") throw a4::Fatal("This program is not compatible with metadata merging!"); // forward if no merging
+            if (self->metakey != "") FATAL("This program is not compatible with metadata merging!"); // forward if no merging
             // fall through to ...
         case Processor::DROP:
             metadata_forward = true;
@@ -187,7 +187,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             output_adaptor.reset(new ManualOutputAdaptor(self, p, metadata_forward, self->out.get(), self->res.get()));
             break;
         default:
-            throw a4::Fatal("Unknown metadata behaviour specified: ", p->get_metadata_behavior());
+            FATAL("Unknown metadata behaviour specified: ", p->get_metadata_behavior());
     }
     output_adaptor->merge_key = self->metakey;
     output_adaptor->split_key = self->split_metakey;

@@ -168,7 +168,7 @@ namespace a4{ namespace io{
         if (_mmap) munmap(_mmap, _mmap_blocksize);
         _mmap = ::mmap(NULL, _mmap_blocksize, PROT_READ, MAP_PRIVATE, _file->no, _mmap_offset);
         if (mmap == MAP_FAILED) {
-            throw a4::Fatal("ERROR - Could not mmap '", _name, "': ", strerror(errno));
+            FATAL("ERROR - Could not mmap '", _name, "': ", strerror(errno));
         }
     }
 
@@ -237,7 +237,7 @@ namespace a4{ namespace io{
                 _position = seek(-position, SEEK_END);
                 //off_t cur = seek(0, SEEK_CUR);
                 //if (cur != _position) {
-                //    throw a4::Fatal("Seek failed: Expected position: ", _position, " actual position: ", cur);
+                //    FATAL("Seek failed: Expected position: ", _position, " actual position: ", cur);
                 //};
                 return _position >= 0;
             }
@@ -270,12 +270,12 @@ namespace a4{ namespace io{
             fscalls.reset(new hdfs_filesystem_calls());
             filename = filename.substr(8);
         } else {
-            throw a4::Fatal("Unknown remote file type: ", filename);
+            FATAL("Unknown remote file type: ", filename);
         }
-        if (!fscalls->loaded) throw a4::Fatal("Failure to load remote access library!");
+        if (!fscalls->loaded) FATAL("Failure to load remote access library!");
         _fileno = fscalls->open(const_cast<char*>(filename.c_str()), O_RDONLY, 0);
         _errno = fscalls->last_errno();
-        if (_errno != 0 or _fileno == -1) throw a4::Fatal("Could not open ", filename, " - Error ", _errno);
+        if (_errno != 0 or _fileno == -1) FATAL("Could not open ", filename, " - Error ", _errno);
     }
 
     RemoteCopyingFile::~RemoteCopyingFile() {
@@ -385,7 +385,7 @@ namespace a4{ namespace io{
         }
 
         struct stat buffer;
-        if (stat(url.c_str(), &buffer) == -1) throw a4::Fatal("Could not open ", url);
+        if (stat(url.c_str(), &buffer) == -1) FATAL("Could not open ", url);
 
         // If it's a FIFO, use a non-seeking buffer
         if (S_ISFIFO(buffer.st_mode) || !try_mmap) return unique<UnixFile>(new UnixFile(url));

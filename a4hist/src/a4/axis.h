@@ -40,7 +40,7 @@ class SimpleAxis : public Axis {
         bool variable() const { return false; }
         double bin_edge(const int& i) const {
             if (i < 0 || uint32_t(i) > bins())
-                throw a4::Fatal("Tried to request bin ", i, " of a ", 
+                FATAL("Tried to request bin ", i, " of a ", 
                                  bins(), "-bin axis");
             return _min + i*_delta;
         }
@@ -73,7 +73,7 @@ class VariableAxis : public SimpleAxis {
         bool variable() const { return true; }
         double bin_edge(const int& i) const {
             if (i < 0 || uint32_t(i) > bins())
-                throw a4::Fatal("Tried to request bin ", i, " of a ", 
+                FATAL("Tried to request bin ", i, " of a ", 
                                  bins(), "-bin axis");
             return _bin_bounds[i+1];
         }

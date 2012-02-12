@@ -32,7 +32,7 @@ using google::protobuf::Reflection;
 void dump_message(const Message& message, const std::vector<std::string>& vars) {
     if (vars.size()) {
         // specialized code
-        throw a4::Fatal("Not implemented yet");
+        FATAL("Not implemented yet");
     } else {
         std::string str;
         google::protobuf::TextFormat::PrintToString(message, &str);

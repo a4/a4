@@ -87,7 +87,7 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
             case 1: a4_axis_to_root(h.axis(0), root_hist->GetXaxis()); total_bins *= h.axis(0).bins() + 2;
                 break;
             default:
-                throw a4::Fatal("Unexpect histogram dimension! "
+                FATAL("Unexpect histogram dimension! "
                     "(expect 1-3, got ", root_hist->GetDimension(), "!)");
         }
         

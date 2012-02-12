@@ -71,21 +71,21 @@ void call_adder(Message* message, TBranchElement* br,
 template<typename T> 
 typename Setter<T>::ProtobufSetter reflection_setter(
     const Reflection* reflection, const FieldDescriptor* field) { 
-    throw a4::Fatal("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
+    FATAL("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
                 __FILE__); 
 }
 
 template<typename T> 
 typename Setter<T>::ProtobufGetter reflection_getter(
     const Reflection* reflection, const FieldDescriptor* field) { 
-    throw a4::Fatal("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
+    FATAL("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
                 __FILE__); 
 }
 
 template<typename T> 
 typename Setter<T>::ProtobufAdder reflection_adder(
     const Reflection* reflection, const FieldDescriptor* field) { 
-    throw a4::Fatal("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
+    FATAL("Unknown type: ", typeid(T), ", add a DEFINE_SETTERS line in ", 
                 __FILE__); 
 }
 
@@ -144,7 +144,7 @@ Copier make_copier_from_leaf(TBranch* branch, TLeaf* leaf,
             return make_field_setter<root_source_type, dest_type>(branch, leaf, field, refl); 
     
     #define FAILURE(protobuf_typename) \
-        throw a4::Fatal(str_cat("a4root doesn't know how to convert the branch ", \
+        FATAL(str_cat("a4root doesn't know how to convert the branch ", \
             leaf->GetName(), " to the protobuf field ", \
             field->full_name(), " with types ROOT=", leaf_type, " and " \
             "protobuf=", protobuf_typename, ". The .proto is probably wrong. " \
@@ -160,7 +160,7 @@ Copier make_copier_from_leaf(TBranch* branch, TLeaf* leaf,
         #include "root2a4/convertable_types.cc"
         
         default:
-            throw a4::Fatal("Unknown field type in make_copier_from_branch ", field->cpp_type());
+            FATAL("Unknown field type in make_copier_from_branch ", field->cpp_type());
     }
      
     #undef FAILURE
@@ -276,7 +276,7 @@ function<size_t ()> make_count_getter(TBranchElement* branch_element)
     TRY_MATCH(double);
     TRY_MATCH(std::string);
     
-    throw a4::Fatal("a4root doesn't know how to count the ", 
+    FATAL("a4root doesn't know how to count the ", 
         "number of elements in a \"", branch_typename, "\" from a ROOT TTree. "
         "If this should be possible please contact the A4 developers, " 
         "or fix it yourself at " __FILE__ ":", __LINE__, ".");
@@ -318,7 +318,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
     // This happens when we don't know how to deal with the combination of 
     // {field->cpp_type(), root branch type}
     #define FAILURE(protobuf_typename) \
-        throw a4::Fatal(str_cat("a4root doesn't know how to convert the branch ", \
+        FATAL(str_cat("a4root doesn't know how to convert the branch ", \
             branch_element->GetName(), " to the protobuf field ", \
             field->full_name(), " with types ROOT=", branch_typename, " and " \
             "protobuf=", protobuf_typename, ". The .proto is probably wrong. " \
@@ -343,7 +343,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
 
 /// Used to indicate that that it is not possible to copy this message.
 /// Gives an assertion failure if called.
-void null_copier(Message*) { }; //throw a4::Fatal("null_coper called. This should never happen."); }
+void null_copier(Message*) { }; //FATAL("null_coper called. This should never happen."); }
 
 
 const vector<const FieldDescriptor*> get_fields(const Descriptor* d) {
@@ -373,7 +373,7 @@ Copier make_repeated_submessage_factory(TTree* tree,
                 field->name(), "\")];.");
             std::cerr << warning << std::endl;
             continue;
-            //throw a4::Fatal(warning);
+            //FATAL(warning);
         }
         
         const std::string leafname = prefix + field->options().GetExtension(root_branch);
@@ -522,7 +522,7 @@ RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc,
                 field->name(), "\")];.");
             std::cerr << warning << std::endl;
             continue;
-            //throw a4::Fatal(warning);
+            //FATAL(warning);
         }
     }
     

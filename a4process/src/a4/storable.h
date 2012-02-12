@@ -103,14 +103,14 @@ namespace a4{ namespace process{
             };
 
             virtual void construct_from(const google::protobuf::Message& msg) {
-                if(_initialized()) throw a4::Fatal("Object already constructed!");
+                if(_initialized()) FATAL("Object already constructed!");
                 pb.reset(new ProtoClass()); 
                 pb->CopyFrom(msg);
                 from_pb();
             };
 
             virtual void construct_from(shared<google::protobuf::Message> msg) {
-                if(_initialized()) throw a4::Fatal("Object already constructed!");
+                if(_initialized()) FATAL("Object already constructed!");
                 pb = dynamic_pointer_cast<ProtoClass>(msg);
                 from_pb();
             };

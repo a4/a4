@@ -30,12 +30,12 @@ A4Output::A4Output(std::string output_file, std::string description) :
     } else if (stat(output_file.c_str(), &buffer) != -1) {
         // File already exists
         if (S_ISDIR(buffer.st_mode))
-            throw a4::Fatal("output_file exists and is a directory!");
+            FATAL("output_file exists and is a directory!");
         
         if (S_ISLNK(buffer.st_mode)) {
             // We can call lstat() here to determine the properties of the linkee
             // But I'm not sure exactly what the right thing to do is.
-            throw a4::Fatal("Destination is a link. Not yet implemented, see "
+            FATAL("Destination is a link. Not yet implemented, see "
                              "https://github.com/JohannesEbke/a4/issues/39");
         }
         
@@ -67,9 +67,9 @@ shared<OutputStream> A4Output::get_stream(std::string postfix, bool forward_meta
     if (!_regular_file) {
         // Destination is non-regular so we should write to it directly.
         if (count != 1)
-            throw a4::Fatal("Can only create one output stream on a fifo output");
+            FATAL("Can only create one output stream on a fifo output");
         if (postfix != "")
-            throw a4::Fatal("Cannot split output stream on a fifo output");
+            FATAL("Cannot split output stream on a fifo output");
         filename = _output_file;
     } else {
         std::string number = boost::lexical_cast<std::string>(count);

@@ -23,9 +23,9 @@ namespace a4{ namespace io{
 
     void A4Message::version_check(const A4Message &m2) const {
         if (descriptor()->full_name() != m2.descriptor()->full_name()) {
-            throw a4::Fatal("Typenames of objects to merge do not agree: ", descriptor()->full_name(), " != ", m2.descriptor()->full_name());
+            FATAL("Typenames of objects to merge do not agree: ", descriptor()->full_name(), " != ", m2.descriptor()->full_name());
         }
-        const Descriptor * d1;
+        const Descriptor* d1;
         if (_dynamic_descriptor) {
             d1 = _dynamic_descriptor;
         } else if (_pool) {
@@ -34,7 +34,7 @@ namespace a4{ namespace io{
             d1 = _descriptor;
         }
         
-        const Descriptor * d2;
+        const Descriptor* d2;
         if (_dynamic_descriptor) {
             d2 = m2._dynamic_descriptor;
         } else if (m2._pool) {
@@ -51,7 +51,7 @@ namespace a4{ namespace io{
         std::string dminor = d2->options().GetExtension(minor_version);
 
         if (mymajor != dmajor) {
-            throw a4::Fatal("Major versions of objects to merge do not agree:", mymajor, " != ", dmajor);
+            FATAL("Major versions of objects to merge do not agree:", mymajor, " != ", dmajor);
         } else if (myminor != dminor) {
             WARNING("Minor versions of merged messages do not agree:",
                     myminor, " != ", dminor);
@@ -110,7 +110,7 @@ namespace a4{ namespace io{
 
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
-                    if(!(f1 == f2)) throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name());
+                    if(!(f1 == f2)) FATAL("Trying to merge metadata objects with different entries in ", f1.name());
                     fm.set(f1.value());
                     break;
                 case MERGE_ADD:
@@ -128,7 +128,7 @@ namespace a4{ namespace io{
                 case MERGE_DROP:
                     break;
                 default:
-                    throw a4::Fatal("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
+                    FATAL("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
             }
         }
         return res;
@@ -152,11 +152,11 @@ namespace a4{ namespace io{
         assert(descriptor() == message()->GetDescriptor());
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         if (!fd) {
-            const std::string & classname = message()->GetDescriptor()->full_name();
-            throw a4::Fatal(classname, " has no member ", field_name, " necessary for metadata merging or splitting!");
+            const std::string& classname = message()->GetDescriptor()->full_name();
+            FATAL(classname, " has no member ", field_name, " necessary for metadata merging or splitting!");
         }
         if (fd->is_repeated() && (message()->GetReflection()->FieldSize(*message(), fd)) > 1) {
-            throw a4::Fatal(fd->full_name(), " has already multiple ", field_name, " entries - cannot achieve desired granularity!");
+            FATAL(fd->full_name(), " has already multiple ", field_name, " entries - cannot achieve desired granularity!");
         }
         return field_as_string(field_name);
     }

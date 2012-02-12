@@ -56,7 +56,7 @@ namespace a4{ namespace io{
             
             const std::vector<std::vector<A4Message>>& all_metadata() {
                 if (_metadata_per_header.size() == 0) {
-                    if(_started) throw a4::Fatal("Coding Bug: all_metadata first called after reading started!");
+                    if(_started) FATAL("Coding Bug: all_metadata first called after reading started!");
                     startup(true);
                 }
                 return _metadata_per_header;

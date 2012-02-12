@@ -27,7 +27,7 @@ namespace a4{ namespace io{
 
             /// Seek to the given position from the end of file. Existing Next() buffers are invalidated.
             virtual bool SeekBack(size_t position) {
-                throw a4::Fatal("BUG! Tried to seek backwards in a stream. This doesn't make sense.");
+                FATAL("BUG! Tried to seek backwards in a stream. This doesn't make sense.");
             };
             
             virtual size_t Tell() const { return 0; };

@@ -39,7 +39,7 @@ namespace a4{ namespace io{
         }
         // Look for fixed class_id message
         internal::classreg reg = internal::map_class("", class_id);
-        if (!reg.descriptor) throw a4::Fatal("Unregistered class_id: ", class_id);
+        if (!reg.descriptor) FATAL("Unregistered class_id: ", class_id);
         if (class_id >= _class_id_reader.size()) {
             _class_id_reader.resize(class_id+1);
             _class_id_descriptor.resize(class_id+1);
@@ -85,7 +85,7 @@ namespace a4{ namespace io{
             std::string dmajor = gd->options().GetExtension(major_version);
             std::string dminor = gd->options().GetExtension(minor_version);
             if (cmajor != dmajor) {
-                throw a4::Fatal("Major versions of compiled-in and read messages do not agree:",
+                FATAL("Major versions of compiled-in and read messages do not agree:",
                                 "Compiled in: '", cmajor, "', Read: '", dmajor, "'");
             } else if (cminor != dminor) {
                 WARNING("Minor versions of compiled-in and read messages do not agree: "

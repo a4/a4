@@ -127,7 +127,7 @@ namespace a4{
                 }
 
                 /// (Idea, unimplemented:) From now on, all histos are saved under prefix "syst/<name>/" and scale <scale>
-                // void scale_systematic(const char * c, double scale) { throw a4::Fatal("Not Implemented"); return false; };
+                // void scale_systematic(const char * c, double scale) { FATAL("Not Implemented"); return false; };
 
                 /// Access your own Configuration.
                 /// WARNING: there is only one configuration per process, and it is shared by thread!
@@ -192,17 +192,17 @@ namespace a4{
                 virtual void process(const ProtoMessage&) = 0;
 
                 void process_message(const A4Message msg) {
-                    if (!msg) throw a4::Fatal("No message!"); // TODO: Should not be fatal
+                    if (!msg) FATAL("No message!"); // TODO: Should not be fatal
                     ProtoMessage* pmsg = msg.as<ProtoMessage>().get();
-                    if (!pmsg) throw a4::Fatal("Unexpected Message type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMessage), ")");
+                    if (!pmsg) FATAL("Unexpected Message type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMessage), ")");
                     process(*pmsg);
                 }
 
                 ProtoMetaData& metadata() {
                     const A4Message msg = metadata_message;
-                    if (!msg) throw a4::Fatal("No metadata at this time!"); // TODO: Should not be fatal
+                    if (!msg) FATAL("No metadata at this time!"); // TODO: Should not be fatal
                     ProtoMetaData* meta = msg.as<ProtoMetaData>().get();
-                    if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    if (!meta) FATAL("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
                 }
 
@@ -234,9 +234,9 @@ namespace a4{
 
                 ProtoMetaData & metadata() {
                     const A4Message msg = metadata_message;
-                    if (!msg) throw a4::Fatal("No metadata at this time!"); // TODO: Should not be fatal
+                    if (!msg) FATAL("No metadata at this time!"); // TODO: Should not be fatal
                     ProtoMetaData * meta = msg.as<ProtoMetaData>().get();
-                    if (!meta) throw a4::Fatal("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    if (!meta) FATAL("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
                 };
             protected:

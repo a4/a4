@@ -61,7 +61,7 @@ namespace a4{ namespace io{
                 if(s == "UNCOMPRESSED") return UNCOMPRESSED;
                 if(s == "ZLIB") return ZLIB;
                 if(s == "SNAPPY") return SNAPPY;
-                throw a4::Fatal("Unknown Compression Type: ", s);
+                FATAL("Unknown Compression Type: ", s);
             }
             /// Set compression type and level
             OutputStream & set_compression(CompressionType t, int level = 5);

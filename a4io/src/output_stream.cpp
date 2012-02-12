@@ -130,7 +130,7 @@ uint32_t OutputStream::find_class_id(const google::protobuf::Descriptor * d, boo
     auto i = _class_id.find(d->full_name());
     if (i != _class_id.end()) {
         if (metadata != (i->second % 2 == 1)) {
-            throw a4::Fatal("Sorry, you can use the same Message class (", d->full_name() ,") either for metadata or for content, but not both.");
+            FATAL("Sorry, you can use the same Message class (", d->full_name() ,") either for metadata or for content, but not both.");
         }
         return i->second;
     }
@@ -198,7 +198,7 @@ bool OutputStream::start_compression() {
     else if (_compression_type == ZLIB) cs_header.set_compression(StartCompressedSection_Compression_ZLIB);
     
     if (!write(_fixed_class_id<StartCompressedSection>(), cs_header))
-        throw a4::Fatal("Failed to start compression");
+        FATAL("Failed to start compression");
     _coded_out.reset();
 
     switch (_compression_type) {
@@ -206,7 +206,7 @@ bool OutputStream::start_compression() {
 #ifdef HAVE_SNAPPY
         _compressed_out.reset(new SnappyOutputStream(_raw_out.get()));
 #else
-        throw a4::Fatal("Snappy compression not compiled in!");
+        FATAL("Snappy compression not compiled in!");
 #endif
         break;
     case ZLIB:
@@ -218,7 +218,7 @@ bool OutputStream::start_compression() {
         break;
     }
     default:
-        throw a4::Fatal("Control should not reach here.");
+        FATAL("Control should not reach here.");
     }
     _coded_out.reset(new CodedOutputStream(_compressed_out.get()));
     return true;
@@ -228,7 +228,7 @@ bool OutputStream::stop_compression() {
     if (!_compressed_out) return false;
     EndCompressedSection cs_footer;
     if (!write(_fixed_class_id<EndCompressedSection>(), cs_footer))
-        throw a4::Fatal("Failed to stop compression");
+        FATAL("Failed to stop compression");
     _coded_out.reset();
     _compressed_out->Flush();
     _compressed_out->Close();
