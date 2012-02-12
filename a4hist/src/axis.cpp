@@ -12,7 +12,7 @@ unique<Axis> Axis::clone() const {
     return from_proto(*pb);
 };
 
-unique<Axis> Axis::from_proto(const pb::Axis & msg) {
+unique<Axis> Axis::from_proto(const pb::Axis& msg) {
     if (msg.has_bins())
         return unique<Axis>(new SimpleAxis(msg));
     else
@@ -29,7 +29,7 @@ SimpleAxis::SimpleAxis(const uint32_t &bins, const double &min, const double &ma
 {   
 };
 
-SimpleAxis::SimpleAxis(const SimpleAxis & a):
+SimpleAxis::SimpleAxis(const SimpleAxis& a):
     _min(a._min),
     _max(a._max),
     _bins(a._bins),
@@ -42,7 +42,7 @@ SimpleAxis::~SimpleAxis()
 {
 };
 
-SimpleAxis::SimpleAxis(const pb::Axis & msg) {
+SimpleAxis::SimpleAxis(const pb::Axis& msg) {
     label = msg.label();
     _min = msg.min();
     _max = msg.max();
@@ -103,7 +103,7 @@ VariableAxis::VariableAxis(const std::vector<double>& bins)
     assert(sane());
 }
 
-VariableAxis::VariableAxis(const VariableAxis & a)
+VariableAxis::VariableAxis(const VariableAxis& a)
 {
     label = a.label;
 }
@@ -125,7 +125,7 @@ VariableAxis::~VariableAxis()
 {
 }
 
-VariableAxis::VariableAxis(const pb::Axis & msg) {
+VariableAxis::VariableAxis(const pb::Axis& msg) {
     label = msg.label();
     
     _init_bins(msg.variable_bins_size());

@@ -7,7 +7,7 @@ using namespace a4::process;
 
 class MyProcessor : public ProcessorOf<Event, EventStreamInfo> {
   public:
-    virtual void process(const Event & event) {
+    virtual void process(const Event& event) {
         cout << event.event_number() << endl;
         write(event);
     }

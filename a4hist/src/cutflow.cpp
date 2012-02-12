@@ -22,7 +22,7 @@ Cutflow::Cutflow() {
 
 void Cutflow::constructor() {};
 
-Cutflow::Cutflow(const Cutflow & h):
+Cutflow::Cutflow(const Cutflow& h):
     _bin(h._bin),
     _cut_names(h._cut_names)
 {
@@ -35,7 +35,7 @@ Cutflow::Cutflow(const Cutflow & h):
 
 Cutflow::~Cutflow() {}
 
-Cutflow & Cutflow::__mul__(const double & w) {
+Cutflow& Cutflow::__mul__(const double& w) {
     for(uint32_t bin = 0, bins = _bin.size(); bins > bin; ++bin)
         _bin[bin] *= w;
     if (!_weights_squared) {
@@ -48,8 +48,8 @@ Cutflow & Cutflow::__mul__(const double & w) {
 }
 
 
-void Cutflow::fill_internal(const uintptr_t & id, const double & w) {
-    double & current_value = _bin[id];
+void Cutflow::fill_internal(const uintptr_t& id, const double& w) {
+    double& current_value = _bin[id];
     if (_weights_squared)
         (*_weights_squared)[id] += w*w;
     else if (w != 1.0) {
@@ -104,7 +104,7 @@ void Cutflow::print(std::ostream &out) const
     }
 }
 
-Cutflow & Cutflow::__add__(const Cutflow & source) {
+Cutflow& Cutflow::__add__(const Cutflow& source) {
     map<std::string, int> cut_name_index;
 
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
@@ -170,7 +170,7 @@ void Cutflow::from_pb() {
     title = pb->title();
 }
 
-Cutflow & Cutflow::operator+=(const Cutflow &other) {
+Cutflow& Cutflow::operator+=(const Cutflow &other) {
     return this->__add__(other);
 }
 

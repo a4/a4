@@ -179,7 +179,7 @@ void OutputStream::reset_coded_stream() {
         _coded_out.reset(new CodedOutputStream(_raw_out.get()));
 }
 
-OutputStream & OutputStream::set_compression(CompressionType t, int level) {
+OutputStream& OutputStream::set_compression(CompressionType t, int level) {
     _compression = (t != UNCOMPRESSED);
     _compression_type = t;
     if (level < 1 || level > 9) a4::Fatal("Only compression levels between 1 and 9 are meaningful.");

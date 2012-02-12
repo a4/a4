@@ -9,7 +9,7 @@ using namespace std;
 
 namespace a4{ namespace atlas{
 
-FileGRL::FileGRL(const string & fn) {
+FileGRL::FileGRL(const string& fn) {
     ifstream in(fn.c_str(), ios::in);
     if (!in) {
         FATAL("Can not open '", fn, "'!");

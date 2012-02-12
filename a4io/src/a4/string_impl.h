@@ -26,10 +26,10 @@ namespace _string_internal {
         return res + std::string(value) + str_printf("", args...);
     };
 
-    inline static void _stream_in(std::stringstream & ss) {};
+    inline static void _stream_in(std::stringstream& ss) {};
 
     template<typename T, typename... Args>
-    void _stream_in(std::stringstream & ss, const T& s, const Args&... args) {
+    void _stream_in(std::stringstream& ss, const T& s, const Args&... args) {
         ss << s;
         _stream_in(ss, args...);
     }

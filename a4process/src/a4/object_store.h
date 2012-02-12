@@ -34,35 +34,35 @@ namespace a4{ namespace process{
             /// Get a reference to a C object identified by the concatenated args.
             /// If the object does not exist, it is created.
             /// Does not check the class type for performance reasons!
-            template <class C, typename ...Args> C & T(const Args & ...args);
+            template <class C, typename ...Args> C& T(const Args& ...args);
             /// Get a checked pointer to a C object identified by the concatenated args.
             /// If the object does not exist, it is created. If it exists but is
             /// of a non-dynamic-casteable type, find returns NULL.
-            template <class C, typename ...Args> C * find(const Args & ...args);
+            template <class C, typename ...Args> C * find(const Args& ...args);
             /// Get a checked, shared pointer to a C object identified by the concatenated args.
             /// If the object does not exist, a NULL shared pointer is returned.
-            template <class C> shared<C> get_slow(const std::string & s) const;
-            void set_slow(const std::string & name, shared<Storable> obj);
+            template <class C> shared<C> get_slow(const std::string& s) const;
+            void set_slow(const std::string& name, shared<Storable> obj);
 
             /// Version of T that works with dynamic strings (warning: very slow)
-            template <class C, typename ...Args> C & T_slow(const Args & ...args);
+            template <class C, typename ...Args> C& T_slow(const Args& ...args);
             /// Version of find that works with dynamic strings (warning: very slow)
-            template <class C, typename ...Args> C * find_slow(const Args & ...args);
+            template <class C, typename ...Args> C * find_slow(const Args& ...args);
             /// Get an ObjectStore with a "prefix" which can be handed to functions
-            template <typename ...Args> ObjectStore operator()(const Args & ...args) const;
+            template <typename ...Args> ObjectStore operator()(const Args& ...args) const;
             /// set weight
-            void set_weight(const double & w) { current_weight = w; }
-            void mul_weight(const double & w) { current_weight *= w; }
+            void set_weight(const double& w) { current_weight = w; }
+            void mul_weight(const double& w) { current_weight *= w; }
             double weight() const { return current_weight; }
 
             // Return the 
-            const std::string & prefix() const { return hl->get_path(); };
+            const std::string& prefix() const { return hl->get_path(); };
         protected:
             ObjectBackStore * backstore;
             hash_lookup * hl;
             double current_weight;
             /// Always create ObjectStores from ObjectBackStore.store() and ObjectStore("prefix/")
-            ObjectStore(hash_lookup * hl, ObjectBackStore* bs, const double & weight) : backstore(bs), hl(hl), current_weight(weight) {};
+            ObjectStore(hash_lookup * hl, ObjectBackStore* bs, const double& weight) : backstore(bs), hl(hl), current_weight(weight) {};
             // Let ObjectBackStore use the protected constructor
             friend class ObjectBackStore;
     };
@@ -78,7 +78,7 @@ namespace a4{ namespace process{
             /// Retrieve an ObjectStore "Reference" to this store.
             ObjectStore store();
             /// Directly retrieve an ObjectStore with the given prefix
-            template <typename ...Args> ObjectStore operator()(const Args & ...args) {
+            template <typename ...Args> ObjectStore operator()(const Args& ...args) {
                 return store()(args...);
             };
             /// Get a shared pointer to the given object.
@@ -92,14 +92,14 @@ namespace a4{ namespace process{
             /// Write all objects out into the given stream
             void to_stream(a4::io::OutputStream &outs) const;
             /// Read Storable Objects from input stream until new_metadata() is true
-            void from_stream(a4::io::InputStream & ins);
+            void from_stream(a4::io::InputStream& ins);
         protected:
             // The fast lookup table
             unique<hash_lookup> hl;
             // The actual store where the objects are kept
             unique<std::map<std::string, shared<Storable>>> _store;
             // Get a pointer to the given C object, creating it if it is not found.
-            template <class C, typename ...Args> C * find(const Args & ...args);
+            template <class C, typename ...Args> C * find(const Args& ...args);
             // Give ObjectStore access to find()
             friend class ObjectStore;
     };

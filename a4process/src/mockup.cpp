@@ -120,7 +120,7 @@ typedef boost::shared_ptr<AMuon> AMuonPtr;
 class ALepton {
   public:
     typedef enum { e=0, m=1, t=2 } Flavor;
-    ALepton(AElectron & l) : lv(l.lv), charge(l.pb->charge()), flavor(e) {};
+    ALepton(AElectron& l) : lv(l.lv), charge(l.pb->charge()), flavor(e) {};
     ALepton(AMuon &l) : lv(l.lv), charge(l.pb->charge()), flavor(m) {};
     ALorentzVector lv;
     int charge;
@@ -188,7 +188,7 @@ class HWWAnalysis : public ProcessorOf<AtlasEvent, AtlasMetaData> {
 class AEvent : public SerializeTo<a4::atlas::Event> {};
 
 void HWWAnalysis::process_event(const Event &event) {
-    AEvent & event = dynamic_cast<AEvent &> event;
+    AEvent& event = dynamic_cast<AEvent&> event;
 
     uint32_t event_number = event.event_number();
     uint32_t run_number = event.run_number();

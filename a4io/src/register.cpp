@@ -19,7 +19,7 @@ namespace a4{ namespace io{
             // Put the generation into the first lookup (see "static initialization order fiasco"
             // Did i mention that i miss the auto keyword?
             typedef std::pair<std::string, internal::classreg> Iter;
-            foreach(const Iter & i, all_classes) {
+            foreach(const Iter& i, all_classes) {
                 assert(fixed_class_id.number() == kFixedClassIdFieldNumber);
                 if (i.second.descriptor->options().HasExtension(a4::io::fixed_class_id)) {
                     uint32_t class_id = i.second.descriptor->options().GetExtension(a4::io::fixed_class_id);

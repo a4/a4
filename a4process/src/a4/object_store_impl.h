@@ -11,7 +11,7 @@ namespace a4{ namespace process{
     template <class C, typename ...Args> 
     C& ObjectStore::T(const Args& ...args) {
         // First, get a reference(!) to a void pointer from the fast lookup table
-        void* & resp = hl->lookup(args...);
+        void*& resp = hl->lookup(args...);
         C* res = static_cast<C*>(resp);
         // if these args... are found, return the result as a C*
         if (res) {
@@ -34,7 +34,7 @@ namespace a4{ namespace process{
     }
 
     template <class C> 
-    shared<C> ObjectStore::get_slow(const std::string & name) const {
+    shared<C> ObjectStore::get_slow(const std::string& name) const {
         auto res = backstore->get<C>(hl->get_path() + name);
         if (res) static_cast<Storable*>(res.get())->weight(current_weight);
         return res;

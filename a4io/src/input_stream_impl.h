@@ -97,9 +97,9 @@ namespace a4{ namespace io{
             int64_t seek_back(int64_t position);
             A4Message bare_message();
             A4Message next_message();
-            bool handle_compressed_section(A4Message & msg);
-            bool handle_stream_command(A4Message & msg);
-            bool handle_metadata(A4Message & msg);
+            bool handle_compressed_section(A4Message& msg);
+            bool handle_stream_command(A4Message& msg);
+            bool handle_metadata(A4Message& msg);
             bool carry_metadata(uint32_t& header, uint32_t& metadata);
 
             // set error/end status and return A4Message

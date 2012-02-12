@@ -20,8 +20,8 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         // Implements StorableAs
         virtual void to_pb(bool blank_pb);
         virtual void from_pb();
-        virtual H1 & operator+=(const H1 &other);
-        virtual H1 & operator*=(const double & v) { return __mul__(v); };
+        virtual H1& operator+=(const H1 &other);
+        virtual H1& operator*=(const double& v) { return __mul__(v); };
 
         void constructor(const char * _title) {
             _initializations_remaining++;
@@ -29,7 +29,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         }
         void constructor(const uint32_t &bins, const double &min, const double &max, const char* label="");
         void constructor(const std::vector<double>& bins, const char* label="");
-        H1 & with_axis(const Axis& axis) {
+        H1& with_axis(const Axis& axis) {
             if (_initializations_remaining == 0) return *this;
             _initializations_remaining--;
             _axis = std::move(axis.clone());
@@ -60,8 +60,8 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
             }
         }
         
-        H1 & __add__(const H1 &);
-        H1 & __mul__(const double &);
+        H1& __add__(const H1 &);
+        H1& __mul__(const double &);
 
         uint64_t entries() const { return _entries; }
         uint64_t bins() const { return _axis->bins(); }
@@ -69,7 +69,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         /// Sum of weights in _non overflow_ bins
         double integral() const;
         
-        const Axis & x() const { return *_axis; }
+        const Axis& x() const { return *_axis; }
         const Axis& axis(uint32_t i) const {
             switch (i) {
                 case 0:
@@ -109,8 +109,8 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         // Implements StorableAs
         virtual void to_pb(bool blank_pb);
         virtual void from_pb();
-        virtual H2 & operator+=(const H2 &other);
-        virtual H2 & operator*=(const double & v) { return __mul__(v); };
+        virtual H2& operator+=(const H2 &other);
+        virtual H2& operator*=(const double& v) { return __mul__(v); };
 
         void constructor(const char * _title) {
             _initializations_remaining++;
@@ -121,7 +121,7 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         void constructor(const std::initializer_list<double>& bins, const char* label="") {
             constructor(std::vector<double>(bins), label);
         }
-        H2 & with_axis(const Axis& axis) {
+        H2& with_axis(const Axis& axis) {
             if (_initializations_remaining == 0) return *this;
             _initializations_remaining--;
             add_axis(axis.clone());
@@ -149,15 +149,15 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
             }
         }
 
-        H2 & __add__(const H2 &);
-        H2 & __mul__(const double &);
+        H2& __add__(const H2 &);
+        H2& __mul__(const double &);
 
         uint64_t entries() const { return _entries; }
         /// Sum of weights in _non overflow_ bins
         double integral() const;
 
-        const Axis & x() const { return *_x_axis; }
-        const Axis & y() const { return *_y_axis; }
+        const Axis& x() const { return *_x_axis; }
+        const Axis& y() const { return *_y_axis; }
         const Axis& axis(uint32_t i) const {
             switch (i) {
                 case 1: return y();
@@ -200,8 +200,8 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
         // Implements StorableAs
         virtual void to_pb(bool blank_pb);
         virtual void from_pb();
-        virtual H3 & operator+=(const H3 &other);
-        virtual H3 & operator*=(const double & v) { return __mul__(v); };
+        virtual H3& operator+=(const H3 &other);
+        virtual H3& operator*=(const double& v) { return __mul__(v); };
 
         void constructor(const char * _title) {
             _initializations_remaining++;
@@ -213,7 +213,7 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
             constructor(std::vector<double>(bins), label);
         }
         template <class AxisClass>
-        H3 & with_axis(const AxisClass& axis) {
+        H3& with_axis(const AxisClass& axis) {
             if (_initializations_remaining == 0) return *this;
             _initializations_remaining--;
             add_axis(axis.clone());
@@ -243,16 +243,16 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
             }
         }
         
-        H3 & __add__(const H3 &);
-        H3 & __mul__(const double &);
+        H3& __add__(const H3 &);
+        H3& __mul__(const double &);
 
         uint64_t entries() const { return _entries; }
         /// Sum of weights in _non overflow_ bins
         double integral() const;
 
-        const Axis & x() const { return *_x_axis; }
-        const Axis & y() const { return *_y_axis; }
-        const Axis & z() const { return *_z_axis; }
+        const Axis& x() const { return *_x_axis; }
+        const Axis& y() const { return *_y_axis; }
+        const Axis& z() const { return *_z_axis; }
         const Axis& axis(uint32_t i) const {
             switch (i) {
                 case 2: return z();

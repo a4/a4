@@ -31,7 +31,7 @@ class TestStringThing : public Storable {
         Storable&  operator*=(const double&) { return *this; }
         Storable&& clone_storable() { return TestStringThing(*this); }
 
-        TestStringThing & operator()(const int &nr) {
+        TestStringThing& operator()(const int &nr) {
             if (_initialized) return *this;
             _initialized = true;
             n = nr;

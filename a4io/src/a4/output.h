@@ -29,7 +29,7 @@ namespace a4{ namespace io{
             shared<OutputStream> get_stream(std::string postfix="", bool forward_metadata=false);
         private:
             static void report_finished(A4Output *, OutputStream* _s);
-            bool concatenate(const std::vector<std::string> & filenames, const std::string target);
+            bool concatenate(const std::vector<std::string>& filenames, const std::string target);
             bool _closed;
             bool _regular_file;
             std::string _output_file;

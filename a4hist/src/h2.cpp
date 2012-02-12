@@ -45,7 +45,7 @@ void H2::constructor(const std::vector<double>& bins, const char* label) {
     add_axis(std::move(axis));
 }
 
-H2::H2(const H2 & h): 
+H2::H2(const H2& h): 
     title(h.title),
     _entries(h._entries)
 {
@@ -65,7 +65,7 @@ H2::~H2()
 {
 };
 
-H2 & H2::__mul__(const double & w) {
+H2& H2::__mul__(const double& w) {
     const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2);
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) *= w;
@@ -106,7 +106,7 @@ void H2::from_pb() {
     title = pb->title();
 };
 
-H2 & H2::operator+=(const H2 &other) {
+H2& H2::operator+=(const H2 &other) {
     return this->__add__(other);
 };
 
@@ -146,7 +146,7 @@ void H2::print(std::ostream &out) const
             out << "[" << setw(3) << bin << ", " << ybin << "]: " << setiosflags(ios::fixed) << setprecision(3) << *(_data.get() + ybin*skip + bin) << endl;
 }
 
-H2 & H2::__add__(const H2 & source)
+H2& H2::__add__(const H2& source)
 {
     const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2);
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)

@@ -28,13 +28,13 @@ class hash_lookup {
 
         /// Lookup a file (leaf)
         template <typename... Args>
-        void * & lookup(const Args& ...args);
+        void *& lookup(const Args& ...args);
 
         /// Lookup a directory
         template <typename... Args>
         hash_lookup * subhash(const Args& ...args);
 
-        const std::string & get_path() const { return _path; }
+        const std::string& get_path() const { return _path; }
 
         void dump_stats();
     private:

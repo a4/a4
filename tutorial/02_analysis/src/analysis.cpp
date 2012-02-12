@@ -12,9 +12,9 @@ using namespace a4::root::atlas::ntup_smwz;
 
 class MyProcessor : public ProcessorOf<Event> {
   public:
-    virtual void process(const Event & event) {
+    virtual void process(const Event& event) {
         //cout << event.event_number() << endl;
-        Cutflow & cf = S.T<Cutflow>("main_cutflow")("Main Cutflow");
+        Cutflow& cf = S.T<Cutflow>("main_cutflow")("Main Cutflow");
         cf.weight(1.2);
         cf.passed("Initial");
         S.T<H1>("test")("Test Title")(100,0,10,"Test X axis").fill(2.1);

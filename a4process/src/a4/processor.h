@@ -44,8 +44,8 @@ namespace a4{
             public:
                 virtual void write(A4Message m) = 0;
                 virtual void metadata(A4Message m) = 0;
-                void write(const google::protobuf::Message & m) { write(A4Message(m)); }
-                void metadata(const google::protobuf::Message & m) { metadata(A4Message(m)); }
+                void write(const google::protobuf::Message& m) { write(A4Message(m)); }
+                void metadata(const google::protobuf::Message& m) { metadata(A4Message(m)); }
         };
 
         class Processor {
@@ -83,21 +83,21 @@ namespace a4{
                     assert(metadata_behavior == MANUAL_BACKWARD); 
                     _output_adaptor->metadata(m); 
                 }
-                void metadata_end_block(const google::protobuf::Message & m) {
+                void metadata_end_block(const google::protobuf::Message& m) {
                     assert(metadata_behavior == MANUAL_BACKWARD); 
                     _output_adaptor->metadata(m); 
                 }
 
                 /// Write a message to the output stream
                 void write(A4Message m) { _output_adaptor->write(m); }
-                void write(const google::protobuf::Message & m) { _output_adaptor->write(m); }
+                void write(const google::protobuf::Message& m) { _output_adaptor->write(m); }
                 
                 /// Write a message to the output stream at most once per event
                 void skim(A4Message m) {
                     if (not skim_written) write(m);
                     skim_written = true;
                 }
-                void skim(const google::protobuf::Message & m) {
+                void skim(const google::protobuf::Message& m) {
                     if (not skim_written) write(m);
                     skim_written = true;
                 }
@@ -232,7 +232,7 @@ namespace a4{
 
                 shared<Storable> _next_storable(const A4Message msg);
 
-                ProtoMetaData & metadata() {
+                ProtoMetaData& metadata() {
                     const A4Message msg = metadata_message;
                     if (!msg) FATAL("No metadata at this time!"); // TODO: Should not be fatal
                     ProtoMetaData * meta = msg.as<ProtoMetaData>().get();

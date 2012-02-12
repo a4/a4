@@ -74,7 +74,7 @@ struct ALorentzVector
     double phi() const {return atan2(py, px); };
     double theta() const {return px == 0.0 and py == 0.0 and pz == 0.0 ? 0.0 : atan2(pt(), py); };
 
-    double delta_phi(const double & p_phi) const
+    double delta_phi(const double& p_phi) const
     {
         double d_phi = phi() - p_phi;
         while (d_phi >= M_PI) d_phi -= 2*M_PI;
@@ -83,7 +83,7 @@ struct ALorentzVector
     }
     double delta_phi(const ALorentzVector &p) const { return delta_phi(p.phi()); };
 
-    double delta_r(const double & p_eta, const double & p_phi) const
+    double delta_r(const double& p_eta, const double& p_phi) const
     {
         double d_eta = eta() - p_eta;
         double d_phi = delta_phi(p_phi);
@@ -96,25 +96,25 @@ struct ALorentzVector
         return hypot(d_eta, d_phi);
     }
 
-    bool operator==(const ALorentzVector & rhs) const {
+    bool operator==(const ALorentzVector& rhs) const {
         return px == rhs.px && py == rhs.py && pz == rhs.pz && E == rhs.E;
     };
 
-    ALorentzVector & operator+=(const ALorentzVector &rhs) {
+    ALorentzVector& operator+=(const ALorentzVector &rhs) {
         px += rhs.px;
         py += rhs.py;
         pz += rhs.pz;
         E += rhs.E;
         return *this;
     }
-    ALorentzVector & operator-=(const ALorentzVector &rhs) {
+    ALorentzVector& operator-=(const ALorentzVector& rhs) {
         px -= rhs.px;
         py -= rhs.py;
         pz -= rhs.pz;
         E -= rhs.E;
         return *this;
     }
-    ALorentzVector & operator*=(const double &sf) {
+    ALorentzVector& operator*=(const double& sf) {
         px *= sf;
         py *= sf;
         pz *= sf;

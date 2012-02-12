@@ -26,7 +26,7 @@ uint64_t get_huid(const T& c, const Args& ...args) {
 }
 
 // Checked str_cat
-inline static void _checked_stream_in(std::stringstream & ss) {}
+inline static void _checked_stream_in(std::stringstream& ss) {}
 
 template<typename T, typename... Args>
 void _checked_stream_in(std::stringstream& ss, const T& s, const Args&... args);
@@ -132,7 +132,7 @@ hash_lookup * hash_lookup::subhash(const Args& ...args) {
 #endif
             {
                 std::string full_name = _path + str_cat(args...);
-                std::string & other = (*_master->_huid_check)[huid];
+                std::string& other = (*_master->_huid_check)[huid];
                 if (other == "") {
                     other = full_name;
                 } else if (other != full_name) {
@@ -163,7 +163,7 @@ hash_lookup * hash_lookup::subhash(const Args& ...args) {
             return static_cast<hash_lookup*>(data.value);
         }
         
-        idx = (idx+1) & (_directories_size-1);
+        idx = (idx+1)& (_directories_size-1);
     } while (idx != idx0);
     
     FATAL("Hash table full - check your code or "

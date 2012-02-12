@@ -51,7 +51,7 @@ namespace a4{ namespace io{
         return A4Message(class_id, reg.from_stream(instream), reg.descriptor, NULL, _descriptor_pool, _message_factory);
     };
 
-    void ProtoClassPool::add_protoclass(const ProtoClass & protoclass) {
+    void ProtoClassPool::add_protoclass(const ProtoClass& protoclass) {
         uint32_t class_id = protoclass.class_id();
         if (class_id >= _class_id_reader.size()) {
             _class_id_reader.resize(class_id+1);

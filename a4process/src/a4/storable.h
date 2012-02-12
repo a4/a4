@@ -32,7 +32,7 @@ namespace a4{ namespace process{
                 return std::move(this->clone_storable() *= v);
             }
             /// Require that a current weight can be set
-            void weight(const double & weight) { _current_weight = weight; }
+            void weight(const double& weight) { _current_weight = weight; }
             /// Cloneable
             virtual Storable&& clone_storable() = 0;
             virtual ~Storable() {}
@@ -61,7 +61,7 @@ namespace a4{ namespace process{
     /// (like a histogram) that can be stored in an A4 Stream.
     /// Your derived class has to have four methods:
     ///  * "constructor" (one or more, arbitrary arguments. See operator() ).
-    ///  * MyClass & operator+=(const MyClass &other); // Merging
+    ///  * MyClass& operator+=(const MyClass &other); // Merging
     ///  * to_pb(bool blank_pb) // write data to this->pb. 
     ///  * from_pb() // Read data from this->pb or initialize this->pb as data
     ///
@@ -77,7 +77,7 @@ namespace a4{ namespace process{
             };
 
             // Override this to provide merging
-            virtual This & operator+=(const This &other) = 0;
+            virtual This& operator+=(const This &other) = 0;
  
             This && clone() {
                 This t;
@@ -87,7 +87,7 @@ namespace a4{ namespace process{
 
             Storable && clone_storable() { return clone(); };
 
-            Storable & operator+=(const Storable &other) {
+            Storable& operator+=(const Storable &other) {
                 static_cast<This&>(*this) += dynamic_cast<const This&>(other);
                 return *this;
             }

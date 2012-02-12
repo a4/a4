@@ -18,14 +18,14 @@ std::vector<std::string> items;
 
 template <typename... Args>
 void test_set(hash_lookup * h, const Args& ...args) {
-    string * & res = (string*&)h->lookup(args...);
+    string*& res = (string*&)h->lookup(args...);
     assert(res == NULL);
     res = new string(str_cat(args...));
 }
 
 template <typename... Args>
 void check_set(hash_lookup * h, const Args& ...args) {
-    string * & res = (string*&)h->lookup(args...);
+    string*& res = (string*&)h->lookup(args...);
     assert(res != NULL);
     assert(*res == str_cat(args...));
     delete res;

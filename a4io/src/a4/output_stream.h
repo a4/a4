@@ -64,8 +64,8 @@ namespace a4{ namespace io{
                 FATAL("Unknown Compression Type: ", s);
             }
             /// Set compression type and level
-            OutputStream & set_compression(CompressionType t, int level = 5);
-            OutputStream & set_compression(std::string t, int level = 5) {
+            OutputStream& set_compression(CompressionType t, int level = 5);
+            OutputStream& set_compression(std::string t, int level = 5) {
                 return set_compression(compression_type(t), level);
             };
 
@@ -74,7 +74,7 @@ namespace a4{ namespace io{
 
             /// If called, metadata will refer to the events following the metadata, instead of events before.
             /// Has to be called before writing is begun.
-            OutputStream & set_forward_metadata() { assert(!_opened); _metadata_refers_forward = true; return *this; };
+            OutputStream& set_forward_metadata() { assert(!_opened); _metadata_refers_forward = true; return *this; };
 
             /// String representation of this stream for user output
             std::string str() { return std::string("OutputStream(\"") + _output_name + "\", \"" + _description + "\")"; };

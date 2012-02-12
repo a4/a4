@@ -16,15 +16,15 @@ class Cloneable {
 class Addable {
     public:
         virtual ~Addable() {};
-        virtual Addable & __add__(const Addable &) = 0;
-        Addable & operator+=(const Addable & rhs) { return __add__(rhs); };
+        virtual Addable& __add__(const Addable &) = 0;
+        Addable& operator+=(const Addable& rhs) { return __add__(rhs); };
 };
 
 class Scalable {
     public:
         virtual ~Scalable() {};
-        virtual Scalable & __mul__(const double &) = 0;
-        Scalable & operator*=(const double & rhs) { return __mul__(rhs); };
+        virtual Scalable& __mul__(const double &) = 0;
+        Scalable& operator*=(const double& rhs) { return __mul__(rhs); };
 };
 
 class Printable {
@@ -38,8 +38,8 @@ class Printable {
         };
         virtual std::string __str__() const { return __repr__() + "\n"; };
 
-        virtual void dump(std::ostream & o) const { o << __str__() << std::endl;};
-        virtual void print(std::ostream & o) const { o << __repr__() << std::endl;};
+        virtual void dump(std::ostream& o) const { o << __str__() << std::endl;};
+        virtual void print(std::ostream& o) const { o << __repr__() << std::endl;};
 
         virtual void dump() const { dump(std::cout); };
         virtual void print() const { print(std::cout); };
@@ -98,7 +98,7 @@ class MetaData : public Printable, public Addable, virtual public Streamable {
         } MetaDataDifference;
         
         virtual ~MetaData() {};
-        virtual MetaDataDifference difference(MetaData & rhs) = 0;
+        virtual MetaDataDifference difference(MetaData& rhs) = 0;
 };
 
 #endif

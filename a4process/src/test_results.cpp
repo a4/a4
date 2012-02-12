@@ -25,7 +25,7 @@ class TestEvent : public Printable, public CallConstructible, public StreamableT
         virtual void to_pb() const { pb->set_event_data(val); };
         virtual void from_pb() { val = pb->event_data(); };
 
-        virtual TestEvent & operator()(int _a, int _b, int _c) {
+        virtual TestEvent& operator()(int _a, int _b, int _c) {
             a = _a;
             b = _b;
             c = _c;
@@ -38,7 +38,7 @@ class TestEvent : public Printable, public CallConstructible, public StreamableT
 };
 
 
-void process(Results & r, const char * pf) {
+void process(Results& r, const char* pf) {
     r.get_cat<TestEvent>(1,pf)(100,0,1).fill(0.42);
     r.get_cat<TestEvent>(2,pf)(100,0,1).fill(0.42);
     r.get_cat<TestEvent>(3,pf)(100,0,1).fill(0.42);

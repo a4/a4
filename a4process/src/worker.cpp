@@ -36,7 +36,7 @@ class Instructor
             private:
                 virtual void loop();
 
-                Instructor & _instructor;
+                Instructor& _instructor;
                 WorkerPtr _worker;
 
                 int _thread_id;

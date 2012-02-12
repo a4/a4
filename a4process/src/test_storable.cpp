@@ -16,7 +16,7 @@ std::vector<std::string> items;
 
 class ToyHist : public StorableAs<ToyHist, TestHisto> {
     public:
-        void constructor(const float & start, int A, int B) {
+        void constructor(const float& start, int A, int B) {
             j = start;
             pb.reset(new TestHisto());
         }
@@ -30,7 +30,7 @@ class ToyHist : public StorableAs<ToyHist, TestHisto> {
 
 class ToyTest : public StorableAs<ToyTest, TestHisto> {
     public:
-        void constructor(const float & start, int A, int B) {
+        void constructor(const float& start, int A, int B) {
             j = start;
             pb.reset(new TestHisto());
         }
@@ -151,7 +151,7 @@ void lookup1000(ObjectStore S) {
 
 template <typename... Args>
 void check_set(hash_lookup * h, const Args& ...args) {
-    string * & res = (string*&)h->lookup(args...);
+    string*& res = (string*&)h->lookup(args...);
     assert(res != NULL);
     assert(*res == str_cat(args...));
 }

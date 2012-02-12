@@ -37,7 +37,7 @@ void H1::constructor(const std::vector<double>& bins, const char* label) {
     bin_init();
 }
 
-H1::H1(const H1 & h):
+H1::H1(const H1& h):
     title(h.title),
     _entries(h._entries)
 {
@@ -64,7 +64,7 @@ void H1::ensure_weights() {
     }
 }
 
-H1 & H1::__mul__(const double & w) {
+H1& H1::__mul__(const double& w) {
     const uint32_t total_bins = _axis->bins() + 2;
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) *= w;
@@ -104,7 +104,7 @@ void H1::from_pb() {
     title = pb->title();
 };
 
-H1 & H1::operator+=(const H1 &other) {
+H1& H1::operator+=(const H1 &other) {
     return this->__add__(other);
 };
 
@@ -133,7 +133,7 @@ void H1::print(std::ostream &out) const
         out << "[" << setw(3) << bin << "]: " << setiosflags(ios::fixed) << setprecision(3) << *(_data.get() + bin) << endl;
 }
 
-H1 & H1::__add__(const H1 & source)
+H1& H1::__add__(const H1& source)
 {
     for(uint32_t bin = 0, bins = _axis->bins() + 2; bins > bin; ++bin)
         *(_data.get() + bin) += *(source._data.get() + bin);

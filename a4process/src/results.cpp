@@ -58,8 +58,8 @@ std::vector<unique<Results>> Results::from_file(std::string fn) {
     return resv;
 }
 
-Results & Results::__add__(const Addable & _source) {
-    const Results & source = dynamic_cast<const Results&>(_source);
+Results& Results::__add__(const Addable& _source) {
+    const Results& source = dynamic_cast<const Results&>(_source);
     auto l = list<Addable>(); 
     for (auto it = l.begin(), end = l.end(); it != end; it++) {
         string &n = *it;
@@ -76,7 +76,7 @@ Results & Results::__add__(const Addable & _source) {
     return *this;
 }
 
-Results & Results::__mul__(const double & weight) {
+Results& Results::__mul__(const double& weight) {
     auto l = list<Scalable>();
     for (auto it = l.begin(), end = l.end(); it != end; it++) {
         *get_checked<Scalable>(*it) *= weight;

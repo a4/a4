@@ -58,7 +58,7 @@ namespace a4{ namespace io{
         }
     }
 
-    A4Message A4Message::operator+(const A4Message & m2_) const {
+    A4Message A4Message::operator+(const A4Message& m2_) const {
         // Find out which descriptor to use. Prefer dynamic descriptors
         // since they are probably contain all fields.
         version_check(m2_);
@@ -134,7 +134,7 @@ namespace a4{ namespace io{
         return res;
     }
     
-    std::string A4Message::field_as_string(const std::string & field_name) {
+    std::string A4Message::field_as_string(const std::string& field_name) {
         assert(descriptor() == message()->GetDescriptor());
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         ConstDynamicField f(*message(), fd);
@@ -148,7 +148,7 @@ namespace a4{ namespace io{
         }
     }
 
-    std::string A4Message::assert_field_is_single_value(const std::string & field_name) {
+    std::string A4Message::assert_field_is_single_value(const std::string& field_name) {
         assert(descriptor() == message()->GetDescriptor());
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         if (!fd) {

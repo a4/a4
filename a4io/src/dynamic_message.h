@@ -24,7 +24,7 @@ struct variant_adder : public boost::static_visitor<FieldContentVariant> {
     template <typename T>
     FieldContentVariant operator()(const T& i, const T& j) const { return i + j; };
     template <typename T, typename U>
-    FieldContentVariant operator()( const T &, const U & ) const {return false;}
+    FieldContentVariant operator()( const T &, const U& ) const {return false;}
 };
 
 struct variant_multiplier : public boost::static_visitor<FieldContentVariant> {
@@ -33,7 +33,7 @@ struct variant_multiplier : public boost::static_visitor<FieldContentVariant> {
     template <typename T>
     FieldContentVariant operator()(const T& i, const T& j) const { return i * j; };
     template <typename T, typename U>
-    FieldContentVariant operator()( const T &, const U & ) const {return false;}
+    FieldContentVariant operator()( const T &, const U& ) const {return false;}
 };
 
 struct variant_str : public boost::static_visitor<std::string> {
@@ -89,7 +89,7 @@ struct visit_adder : public boost::static_visitor<void> {
 // TODO: Find better way to hash/compare Messages than the DebugString
 class FieldContent {
     public:
-        FieldContent(const Message & m, const FieldDescriptor * f, int i) {
+        FieldContent(const Message& m, const FieldDescriptor * f, int i) {
             _message = false;
             const Reflection * r = m.GetReflection();
             switch (f->cpp_type()) {
@@ -111,7 +111,7 @@ class FieldContent {
                     FATAL("Unknown type ", f->cpp_type());
             };
         }
-        FieldContent(const Message & m, const FieldDescriptor * f) {
+        FieldContent(const Message& m, const FieldDescriptor * f) {
             const Reflection * r = m.GetReflection();
             _message = false;
             switch (f->cpp_type()) {
@@ -134,7 +134,7 @@ class FieldContent {
             };
         }
 
-        FieldContent(const FieldContentVariant & v) {
+        FieldContent(const FieldContentVariant& v) {
             content = v;
             _message = false;
         }

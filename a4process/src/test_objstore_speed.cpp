@@ -133,7 +133,7 @@ void lookup1000(ObjectStore S) {
 
 template <typename... Args>
 void check_set(hash_lookup * h, const Args& ...args) {
-    string * & res = (string*&)h->lookup(args...);
+    string*& res = (string*&)h->lookup(args...);
     assert(res != NULL);
     assert(*res == str_cat(args...));
 }

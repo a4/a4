@@ -23,7 +23,7 @@ namespace a4{ namespace io{
             ProtoClassPool();
             ~ProtoClassPool();
             A4Message read(uint32_t class_id, google::protobuf::io::CodedInputStream* instream);
-            void add_protoclass(const ProtoClass & protoclass);
+            void add_protoclass(const ProtoClass& protoclass);
             shared<Message> message_factory(const google::protobuf::Message* prototype, google::protobuf::io::CodedInputStream* instr);
 
         private:
