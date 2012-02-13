@@ -7,7 +7,7 @@
 #include <a4/types.h>
 
 #define A4_LOG_PREFIX(severity) \
-    "[" severity "] (" 
+    "[" severity "] " 
 
 #define FATAL(...) \
     do { \
