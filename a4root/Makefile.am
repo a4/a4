@@ -23,7 +23,7 @@ root2a4_LDADD = liba4root.la $(LDADD)
 a42root_SOURCES = src/a42root/main.cpp
 a42root_LDADD = liba4root.la $(LDADD)
 
-EXTRA_DIST += src/convertable_types.cc
+EXTRA_DIST += src/root2a4/convertable_types.cc
 
 ## Test programs
 check_PROGRAMS =
