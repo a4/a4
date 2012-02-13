@@ -33,7 +33,7 @@ void my_read(A4Input &in) {
     if (!stream) return;
     int cnt = 0;
     while (A4Message msg = stream->next()) {
-        if (shared<TestEvent> te = msg.as<TestEvent>()) {
+        if (const TestEvent* te = msg.as<TestEvent>()) {
             assert((cnt++%N) == te->event_number());
         }
     }
@@ -69,11 +69,11 @@ int main(int argc, char ** argv) {
     }
     {
         A4Input in;
-        in.add_file("test_thread.a4");
-        in.add_file("test_thread.a4");
-        in.add_file("test_thread.a4");
-        in.add_file("test_thread.a4");
-        in.add_file("test_thread.a4");
+        in.add_file("test_thread.a4", false);
+        in.add_file("test_thread.a4", false);
+        in.add_file("test_thread.a4", false);
+        in.add_file("test_thread.a4", false);
+        in.add_file("test_thread.a4", false);
         boost::thread t1(no_read, boost::ref(in));
         boost::thread t2(my_read, boost::ref(in));
         boost::thread t3(my_read, boost::ref(in));

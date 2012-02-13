@@ -41,7 +41,7 @@ TEST(a4io_netio, try_dynamic_dcache_io) {
     dcap_filesystem_calls calls;
     if (!calls.loaded) return;
     
-    char tmpl[] = {"dcap_test_XXXXXXX"};
+    //char tmpl[] = {"dcap_test_XXXXXXX"};
     errno = 0;
 
     ASSERT_EQ(0, calls.last_errno());

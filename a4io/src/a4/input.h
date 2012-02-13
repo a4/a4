@@ -28,7 +28,7 @@ namespace a4{ namespace io{
             /// Add a stream to be processed, Returns this object again.
             A4Input& add_stream(shared<InputStream>); 
             /// Add a file to be processed, Returns this object again.
-            A4Input& add_file(const std::string& filename);
+            A4Input& add_file(const std::string& filename, bool check_duplicates=true);
 
             /// Get a stream resource for processing,
             /// returns NULL if none are left (threadsafe).

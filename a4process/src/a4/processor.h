@@ -194,7 +194,7 @@ namespace a4{
 
                 void process_message(const A4Message msg) {
                     if (!msg) FATAL("No message!"); // TODO: Should not be fatal
-                    ProtoMessage* pmsg = msg.as<ProtoMessage>().get();
+                    const ProtoMessage* pmsg = msg.as<ProtoMessage>();
                     if (!pmsg) FATAL("Unexpected Message type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMessage), ")");
                     process(*pmsg);
                 }
@@ -202,7 +202,7 @@ namespace a4{
                 ProtoMetaData& metadata() {
                     const A4Message msg = metadata_message;
                     if (!msg) FATAL("No metadata at this time!"); // TODO: Should not be fatal
-                    ProtoMetaData* meta = msg.as<ProtoMetaData>().get();
+                    const ProtoMetaData* meta = msg.as<ProtoMetaData>();
                     if (!meta) FATAL("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
                 }

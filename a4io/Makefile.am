@@ -82,11 +82,14 @@ installcheck-local: python/test_pyrw test_read test_write_fw test_write_bw
 	./test_read test_fw.a4 
 	./test_read test_bw.a4 
 	./test_read_nomd test_nomd_fw.a4 
-	./test_read_nomd test_nomd_bw.a4 
-	cat test_fw.a4 test_fw.a4 > test_fwfw.a4 
+	./test_read_nomd test_nomd_bw.a4
+	ln -s test_fw.a4 test_fw1.a4
+	ln -s test_bw.a4 test_bw1.a4
+	cat test_fw.a4 test_fw1.a4 > test_fwfw.a4 
+	cat test_bw.a4 test_bw1.a4 > test_bwbw.a4 
 	cat test_fw.a4 test_bw.a4 > test_fwbw.a4 
 	cat test_bw.a4 test_fw.a4 > test_bwfw.a4 
-	cat test_bw.a4 test_bw.a4 > test_bwbw.a4 
+	rm test_fw1.a4 test_bw1.a4
 	./test_read test_fwfw.a4 
 	./test_read test_fwbw.a4 
 	./test_read test_bwfw.a4 

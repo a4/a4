@@ -52,7 +52,7 @@ TEST(a4io, metadata_merge) {
         int mcnt = 0;
         while (A4Message msg = r.next()) {
 
-            if (shared<TestEvent> te = msg.as<TestEvent>()) {
+            if (const TestEvent* te = msg.as<TestEvent>()) {
                 assert(cnt++ == te->event_number());
             }
             if (r.new_metadata()) {

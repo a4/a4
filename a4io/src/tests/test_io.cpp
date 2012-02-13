@@ -25,12 +25,12 @@ int main(int argc, char ** argv) {
     }
     {
         A4Input in;
-        in.add_file("test_io.a4");
-        in.add_file("test_io.a4");
+        in.add_file("test_io.a4", false);
+        in.add_file("test_io.a4", false);
         int cnt = 0;
         while (shared<InputStream> stream = in.get_stream()) {
             while (A4Message msg = stream->next()) {
-                if (shared<TestEvent> te = msg.as<TestEvent>()) {
+                if (const TestEvent* te = msg.as<TestEvent>()) {
                     assert((cnt++%N) == te->event_number());
                 }
             }

@@ -66,7 +66,7 @@ inline uintptr_t hash_lookup::idx_from_huid(uint64_t huid, int size) {
 
 template <typename... Args>
 void*& hash_lookup::lookup(const Args& ...args) {
-    int64_t huid = _huid ^ (get_huid(args...) << _depth);
+    uint64_t huid = _huid ^ (get_huid(args...) << _depth);
     uintptr_t idx = idx_from_huid(huid, _files_size);
     uintptr_t idx0 = idx;
     
