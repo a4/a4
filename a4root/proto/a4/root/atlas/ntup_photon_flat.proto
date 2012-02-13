@@ -1833,6 +1833,18 @@ message PhotonPrimaryVertex {
 }
 
 message Photon {
+    // pwaller additions 13/02/2012
+    // optional float rhad = 1050 [(root_branch)="rhad", default=-999];
+    // optional float rhad1 = 1051 [(root_branch)="rhad1", default=-999];
+    // optional float eratio = 1052 [(root_branch)="eratio", default=-999];
+    // optional float deltae = 1053 [(root_branch)="deltae", default=-999];
+    
+    // optional float analysis_isolation = 1060 [(root_branch)="analysis_isolation", default=-999];
+    
+    // Index of photon in photon container before thinning
+    // optional int32 original_index = 50 [(root_branch)="original_index", default=-1];
+    
+    // Everything else
     // optional float E = 1 [(root_branch)="E"];
     // optional float Et = 2 [(root_branch)="Et"];
     // optional float pt = 3 [(root_branch)="pt"];
