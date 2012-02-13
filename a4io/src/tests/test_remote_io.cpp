@@ -45,7 +45,7 @@ TEST(a4io_netio, try_dynamic_dcache_io) {
     errno = 0;
 
     ASSERT_EQ(0, calls.last_errno());
-    string testfile = "dcap://lcg-lrz-dcache.grid.lrz-muenchen.de:22125//pnfs/lrz-muenchen.de/data/atlas/dq2/atlaslocalgroupdisk/mc11_7TeV/NTUP_SMWZ/e835_s1299_s1300_r2730_r2700_p716/mc11_7TeV.107650.AlpgenJimmyZeeNp0_pt20.merge.NTUP_SMWZ.e835_s1299_s1300_r2730_r2700_p716_tid525375_00/NTUP_SMWZ.525375._000302.root.1";
+    string testfile = "dcap://lcg-lrz-dcache.grid.lrz-muenchen.de:22125//pnfs/lrz-muenchen.de/data/atlas/dq2/atlaslocalgroupdisk/user/ebke/20120130180629/user.ebke.20120130180629.1352.t_50_53.5330.ANALY_RAL/user.ebke.048504.EXT0._01044.events.a4";
 
     int fd = calls.open(const_cast<char*>(testfile.c_str()), O_RDONLY, 0);
     ASSERT_EQ(0, calls.last_errno());

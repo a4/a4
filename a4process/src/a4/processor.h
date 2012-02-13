@@ -200,10 +200,9 @@ namespace a4{
                 }
 
                 ProtoMetaData& metadata() {
-                    const A4Message msg = metadata_message;
-                    if (!msg) FATAL("No metadata at this time!"); // TODO: Should not be fatal
-                    const ProtoMetaData* meta = msg.as<ProtoMetaData>();
-                    if (!meta) FATAL("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    if (!metadata_message) FATAL("No metadata at this time!"); // TODO: Should not be fatal
+                    ProtoMetaData* meta = metadata_message.as_mutable<ProtoMetaData>();
+                    if (!meta) FATAL("Unexpected Metadata type: ", typeid(*metadata_message.message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
                 }
 
