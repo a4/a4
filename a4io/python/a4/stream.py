@@ -104,7 +104,7 @@ class OutputStream(object):
             if len(matches) == 0:
                 raise RuntimeError("MISSING A4 DEPENDENCY: %s" % dep)
             else:
-                fd, = matches
+                fd = matches.pop()
                 self.get_descriptors_recursively(fd, file_descriptors, all_fds)
         return file_descriptors
 
