@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include <a4/exceptions.h>
 
 #include <execinfo.h>
@@ -134,17 +136,29 @@ namespace a4{
         struct sigaction act;
         act.sa_handler = &segfault_handler;
         sigemptyset(&act.sa_mask);
-        act.sa_flags = SA_RESETHAND;
-        return sigaction(SIGSEGV, &act, NULL) == 0;
+        act.sa_flags = SA_RESETHAND | SA_NODEFER;
+        bool success = (sigaction(SIGSEGV, &act, NULL) == 0);
+        sigaction(SIGALRM, &act, NULL);
+        return success;
     };
 
     void Fatal::segfault_handler(int i) {
-        Lock lock(segfault_mutex);
-        if (segfault_handled) {
-            std::cerr << "double segfault or segfault in exception handler - sorry!" << std::endl;
+        if (i == SIGALRM) {
+            std::cerr << "GDB backtrace timed out. Please run the debugger manually to obtain a backtrace." << std::endl;
             std::terminate();
         }
-        segfault_handled = true;
+        std::cerr << "A4 segfault handler called..." << std::endl;
+        {
+            Lock lock(segfault_mutex);
+            if (segfault_handled) {
+                std::cerr << "double segfault or segfault in exception handler - sorry!" << std::endl;
+                std::terminate();
+            }
+            segfault_handled = true;
+            // Schedule a 5-second timeout
+            alarm(5);
+        }
+
         throw Fatal("Segmentation Fault!");
     }
 
