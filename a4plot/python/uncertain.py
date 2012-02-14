@@ -1,30 +1,53 @@
 
-from math import log10, floor
+from math import log10, floor, sqrt
+
+def add_tuples(t1, t2):
+    if not t1 or not t2:
+        return t1 if t1 else t2
+    assert len(t1) == len(t2)
+    return tuple(map(sum, zip(t1, t2)))
 
 class UncertainNumber:
-    def __init__(self, n, e):
+    def __init__(self, n=0.0, e=0.0, s={}):
         self.n = n
-        self.esq = e*e
+        self.stat_sq = e*e
+        self.syst = dict(s)
 
     def __add__(self, ucn):
         self.n += ucn.n
-        self.esq += ucn.esq
+        if ucn.stat_sq == ucn.stat_sq: # do not pick up NaNs
+            self.stat_sq += ucn.stat_sq
+        for sn in set(self.syst.keys()).union(set(ucn.syst.keys())):
+            self.syst[sn] = add_tuples(self.syst.get(sn, ()), ucn.syst.get(sn, ()))
         return self
+    
+    def set_syst(self, syst_name, syst_value):
+        assert isinstance(syst_name, tuple)
+        assert isinstance(syst_value, tuple)
+        self.syst[syst_name] = syst_value
     
     @property
     def e(self):
-        if self.esq == 0:
+        if self.stat_sq <= 0 or self.stat_sq != self.stat_sq:
             return 0
-        return self.esq**0.5
+        return sqrt(self.stat_sq)
+
+    @property
+    def s(self):
+        if not self.syst:
+            return 0
+        return sqrt(sum(((sum(map(abs,sv))/len(sv))**2) for sn, sv in self.syst.iteritems() if len(sv) > 0))
 
     def get_physics_numbers(self, e_signif_digits=2, max_precision=-2, latex=False):
-        n, e = self.n, self.e
-        if e!=e or n!=n:
-            return str(n), str(e)
+        n, e, s = self.n, self.e, self.s
+        if e!=e or n!=n or s!=s:
+            return str(n), str(e), str(s)
         decade_n = int(floor(log10(abs(n)))) if n != 0 else 0
         decade_e = int(floor(log10(e))) if e != 0 else 0
-        prec = min(-1-decade_e+e_signif_digits, -max_precision)
+        decade_s = int(floor(log10(s))) if s != 0 else 0
+        prec = min( - 1 - decade_e + e_signif_digits, - max_precision)
         e = round(e, prec)
+        s = round(s, prec)
         n = round(n, max(prec, -1-decade_n+1)) # do not round n to 0
 
         if False: #n > 1e6:
@@ -39,25 +62,36 @@ class UncertainNumber:
                 s = "%%.%ife%i" % (max(prec,0), exponent)
                 sn, se = s%n, s%e
         else:
-            s = "%%.%if"%max(prec,0)
-            sn, se = s%n, s%e
-        return sn, se
+            st = "%%.%if"%max(prec,0)
+            sn, se, ss = st%n, st%e, st%s
+        return sn, se, ss
 
     def latex(self):
-        n, e = self.get_physics_numbers(latex=True)
-        return "$%s \pm %s$" % self.get_physics_numbers(latex=True)
+        n, e, s = self.get_physics_numbers(latex=True)
+        if not self.syst:
+            return "$%s \pm %s$" % (n, e)
+        else:
+            return "$%s \pm %s \pm %s$" % (n, e, s)
 
     def __str__(self):
-        return "%s +- %s" % self.get_physics_numbers()
-
+        n, e, s = self.get_physics_numbers(latex=True)
+        if not self.syst:
+            return "%s +- %s" % (n, e)
+        else:
+            return "%s +- %s +- %s" % (n, e, s)
 
 class CertainNumber:
-    def __init__(self, n):
+    def __init__(self, n=0.0):
         self.n = n
 
     def __add__(self, cn):
-        self.n += ucn.n
+        self.n += cn.n
+        return self
     
+    @property
+    def e(self):
+        return self.n**0.5
+
     def get_physics_number(self, latex=False):
         return "%i" % self.n
         """

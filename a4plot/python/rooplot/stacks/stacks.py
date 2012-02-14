@@ -1,5 +1,5 @@
 from ROOT import gROOT, TLegend, TLatex, TCanvas, THStack
-from ROOT import kYellow, kBlack, kWhite
+from ROOT import kYellow, kBlack, kWhite, kRed, kWhite, kOrange
 
 import os
 import random
@@ -25,26 +25,25 @@ def get_legend(data, sum_mc, list_mc, signals):
     for d in data:
         legend.AddEntry(d, d.GetTitle(), "p")
     if sum_mc:
-        legend.AddEntry(sum_mc,"SM (stat)","flp")  # <== NB: omit this entry for 2D histogram
+        legend.AddEntry(sum_mc,"MC (stat)","flp")  # <== NB: omit this entry for 2D histogram
     for h in list_mc: # sorted by initial XS
         legend.AddEntry(h,h.GetTitle(),"f")
     for s in signals:
        legend.AddEntry(s,s.GetTitle(),"l")
     return legend
 
-def get_lumi_label(lumi="168 pb^{-1}"):
-    x, y = 0.15, 0.75
+#NB: [ATLAS Preliminary label for when plots are approved only: 
+def get_lumi_label(lumi="168 pb^{-1}", atlas=True, draft=True):
+    x, y = 0.18, (0.75 if atlas else 0.85)
     n = TLatex()
     n.SetNDC()
     n.SetTextFont(32)
     n.SetTextColor(kBlack)
     n.DrawLatex(x, y,"#sqrt{s} = 7 TeV, #intL dt ~ %s" % (lumi))
-    return n
-
-#NB: [ATLAS Preliminary label for when plots are approved only: 
-def draw_preliminary(draft=False):
     #x, y = 0.21, 0.65
-    x, y = 0.15, 0.85
+    x, y = 0.18, 0.85
+    if not atlas:
+        return n, None
     l = TLatex()
     l.SetNDC()
     l.SetTextFont(42)
@@ -53,16 +52,40 @@ def draw_preliminary(draft=False):
         l.DrawLatex(x,y,"#bf{#it{ATLAS work in progress}}")
     else:
         l.DrawLatex(x,y,"#bf{#it{ATLAS preliminary}}")
-    return l
-    m = TLatex()
-    m.SetNDC()
-    m.SetTextFont(42)
-    m.SetTextColor(kBlack)
-    if draft:
-        m.DrawLatex(x+0.12,y,"#bf{#it{work in progress}}")
+    return n, l
+
+def create_mc_sum(mc_list, existing_mc_sum=None):
+    if not mc_list:
+        return None, None
+    if existing_mc_sum:
+        mc_sum = existing_mc_sum
     else:
-        m.DrawLatex(x+0.12,y,"#bf{#it{preliminary}}")
-    return l, m
+        mc_sum = mc_list[0].Clone("mc_sum")
+        mc_sum.SetDirectory(0)
+        for h in mc_list[1:]:
+            for b in xrange(1, h.GetXaxis().GetNbins()+1):
+                # If there is negative weight in one channel, it should not
+                # be subtracted from other channels
+                if not (0 < h.GetBinContent(b)):
+                    h.SetBinContent(b, 0.0)
+                # Sometimes negative Errors occur - they play havoc with the
+                # Display of error bands...
+                if not (0 < h.GetBinError(b)):
+                    h.SetBinError(b, 0.0)
+            mc_sum.Add(h)
+    mc_sum.SetMarkerSize(0)
+    mc_sum.SetLineColor(kRed)
+    mc_sum_line = mc_sum.Clone("mc_sum_line")
+    mc_sum_line.SetDirectory(0)
+    mc_sum_line.SetFillStyle(0)
+    mc_sum_line.SetFillColor(kWhite)
+    mc_sum_line.SetFillStyle(0)
+    mc_sum.SetFillColor(kOrange)
+    mc_sum.SetFillStyle(3003)
+    mc_sum.SetLineStyle(0)
+    mc_sum.SetTitle("SM (stat)")
+    return mc_sum_line, mc_sum
+
 #-----------------
 #Axis labels:
 #y-axis labels: Entries / x Units (x = bin width, Units = e.g. GeV)
@@ -88,7 +111,7 @@ def set_styles(data, mcs, signals):
 
 from ROOT import gPad, kOrange, kRed
 
-def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, range=None, compare=False, sigma=False, log=False, prelim=False):
+def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin_to=None, range=None, compare=False, sigma=False, log=False, prelim=False):
     all_histos = list_mc + signals + data
 
     h = all_histos[0]
@@ -122,23 +145,11 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
         cpad.SetLogy()
 
 
-    sum_mc, hsave, mcstack = None, None, None
+    hsave, mcstack = None, None
     if list_mc:
-        # Create MC sum
-        sum_mc = list_mc[0].Clone("sum_mc")
-        sum_mc.SetDirectory(0)
-        sum_mc = sum_mc.Clone("hsave")
-        for h in list_mc[1:]:
-            sum_mc.Add(h)
-        set_MCTotal_style(sum_mc)
-        hsave = sum_mc.Clone("hsave")
-        hsave.SetDirectory(0)
-        hsave.SetFillStyle(0)
-        sum_mc.SetFillColor(kOrange)
-        sum_mc.SetFillStyle(3006)
-        all_histos.append(sum_mc)
-        all_histos.append(hsave) 
-
+        mc_sum_line, mc_sum = create_mc_sum(list_mc, sum_mc)
+        all_histos.append(mc_sum)
+        all_histos.append(mc_sum_line)
         # Create MC stack
         mcstack = THStack()
         for h in list_mc:
@@ -171,8 +182,8 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
         mcstack.Draw("Hist")
         if range:
             mcstack.GetXaxis().SetRangeUser(*range)
-        sum_mc.Draw("e2same")
-        hsave.Draw("hist same")
+        mc_sum.Draw("e2same")
+        mc_sum_line.Draw("hist same")
     for signal in signals:
         if not list_mc and signal == signals[0]:
             axis = signal
@@ -185,9 +196,10 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
             d.Draw("pe")
         else:
             d.Draw("pe same")
-    legend = get_legend(data,sum_mc,list(reversed(list_mc)),signals)
+
+    legend = get_legend(data,mc_sum_line,list(reversed(list_mc)),signals)
     legend.Draw()
-    save = [draw_preliminary(not prelim)]
+    save = []
 
     # Try to fix the limits...
     axis.SetMaximum(ymax)
@@ -195,8 +207,11 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
 
     dhist = mcstack if mcstack else [signals + data][0]
     
-    lumiLabel = get_lumi_label(lumi)
+    lumiLabel, atlasLabel = get_lumi_label(lumi, atlas=prelim, draft=not prelim)
     lumiLabel.Draw()
+    if atlasLabel:
+        atlasLabel.Draw()
+    save.extend((atlasLabel, lumiLabel))
 
     if (compare or sigma) and mcstack:
         cpad.cd(2)
@@ -205,8 +220,8 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
         save.extend(cdata)
         for cd in cdata:
             cd.SetDirectory(0)
-        cmc  = sum_mc.Clone("sum_mc_zero")
-        cmc2 = sum_mc.Clone("sum_mc_zero_line")
+        cmc  = mc_sum_line.Clone("mc_sum_zero")
+        cmc2 = mc_sum_line.Clone("mc_sum_zero_line")
         cmc.SetFillColor(kOrange)
         cmc.SetFillStyle(2001)
         cmc2.SetLineColor(kRed)
@@ -236,7 +251,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
                 cmc2.SetBinContent(i, 0.0)
                 cmc2.SetBinError(i, 0.0)
                 #cmc2.GetYaxis().SetTitle("( Data - SM ) / #sigma_{stat,MC+Data} ")
-                cmc2.GetYaxis().SetTitle("( Data - SM ) / #sigma_{stat}")
+                cmc2.GetYaxis().SetTitle("( Data - MC ) / #sigma_{stat}")
         else:
             for i in xrange(Nbins + 2):
                 sf = cmc.GetBinContent(i)
@@ -252,7 +267,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
                         cd.SetBinError(i, 0)
                 cmc.SetBinContent(i, 1.0)
                 cmc2.SetBinContent(i, 1.0)
-                cmc2.GetYaxis().SetTitle("Data / SM")
+                cmc2.GetYaxis().SetTitle("Data / MC")
         cmc2.GetXaxis().SetTitle("")
 
         if cdata:
@@ -278,11 +293,11 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, ran
         cmc2.GetYaxis().SetTitleOffset(cmc2.GetYaxis().GetTitleOffset()*(pad_fraction)/(1-pad_fraction)/sf)
         cmc2.GetXaxis().SetTitleSize(cmc2.GetXaxis().GetTitleSize()*(1-pad_fraction)/pad_fraction*sf)
 
-    return legend, mcstack, sum_mc, hsave, save
-    
-def plot_1D(name, data, list_mc, signals, lumi="X", rebin=1, rebin_to=None, range=None, compare=False, sigma=False, log=False, prelim=False):
+    return legend, mcstack, mc_sum, mc_sum_line, save
+
+def plot_1D(name, data, list_mc, signals, **kwargs):
     set_styles(data, list_mc, signals)
-    return stack_1D(name, data, list_mc, signals, lumi, rebin, rebin_to, range, compare, sigma, log, prelim)
+    return stack_1D(name, data, list_mc, signals, **kwargs)
 
 #All MC stacked in this order:
 #- ttbar 1st 

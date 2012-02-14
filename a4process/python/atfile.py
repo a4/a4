@@ -20,5 +20,8 @@ class ATFile:
     def find_type(self, ttype, dir=None, path=""):
         return [k for k, v in self.dir.iteritems() if v == ttype]
 
+    def find_types(self, ttypes, dir=None, path=""):
+        return [k for k, v in self.dir.iteritems() if v in ttypes]
+
     def get(self, h):
         return self.tfile.Get(h)

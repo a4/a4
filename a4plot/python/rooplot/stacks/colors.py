@@ -4,8 +4,34 @@ clrs = (kWhite, kRed, kBlack, kGray, kGreen, kYellow, kTeal, kCyan, kSpring, kBl
 clrs = (kWhite, kGray, kBlack, kBlue, kGreen, kTeal, kTeal, kRed, kSpring, kMagenta)
 clrs = (kGray, kBlack, kBlue, kGreen, kTeal, kRed, kMagenta, kYellow, kCyan)
 
-#Suggested plot colours:
+# WW paper:
+#Wjets/dijet  kBlue
+#Diboson    kMagenta-7
+#Drell-Yan  kCyan-7
+#Top          8
+#WW         kYellow-10
+
 def set_color_1D(h, name, cnum):
+    h.SetFillStyle(1001)
+    if "W+jets" in name: 
+        h.SetFillColor(kBlue)
+    elif "Diboson" in name:
+        h.SetFillColor(kMagenta-7)
+    elif "Drell-Yan" in name:
+        h.SetFillColor(kCyan-7)
+    elif "Top" in name:
+        h.SetFillColor(8)
+    elif "WW" in name:
+        h.SetFillColor(kYellow-10)
+    elif "gamma" in name:
+        h.SetFillColor(kGray)
+    elif "QCD" in name:
+        h.SetFillColor(kBlack)
+    else:
+        h.SetFillColor(clrs[cnum % len(clrs)])
+
+#Suggested plot colours:
+def set_color_1D_old(h, name, cnum):
     h.SetFillStyle(1001)
     if name == "W+jets": 
         h.SetFillColor(kAzure+1)

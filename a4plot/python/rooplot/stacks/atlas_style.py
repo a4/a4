@@ -42,19 +42,21 @@ class AtlasStyle( ROOT.TStyle ):
         self.SetFrameFillColor( icol )
         self.SetFrameFillStyle( 0 )
         self.SetCanvasBorderMode( icol )
+        self.SetCanvasColor( icol )
         self.SetPadBorderMode( icol )
         self.SetPadColor( icol )
-        self.SetCanvasColor( icol )
         self.SetStatColor( icol )
 
         # Set the paper & margin sizes:
-        self.SetPaperSize( 17.5, 25.5 )
+        self.SetPaperSize( 20, 26 )
         self.SetPadTopMargin( 0.05 )
         self.SetPadRightMargin( 0.05 )
-        #self.SetPadRightMargin( 0.2 ) # ORIG
-        #self.SetPadBottomMargin( 0.16 ) # ORIG
-        self.SetPadBottomMargin( 0.2 )
-        self.SetPadLeftMargin( 0.12 )
+        self.SetPadBottomMargin( 0.16 )
+        self.SetPadLeftMargin( 0.16 )
+
+        # set title offsets (for axis label)
+        self.SetTitleXOffset(1.4)
+        self.SetTitleYOffset(1.4)
 
         # Use large fonts:
         font = 42
@@ -81,6 +83,8 @@ class AtlasStyle( ROOT.TStyle ):
         self.SetMarkerSize( 1.2 )
         self.SetHistLineWidth( 2 )
         self.SetLineStyleString( 2, "[12 12]" )
+
+        self.SetEndErrorSize(0.)
 
         # Do not display any of the standard histogram decorations:
         self.SetOptTitle( 0 )

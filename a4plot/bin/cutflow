@@ -1,118 +1,326 @@
 #!/usr/bin/env python
 
+from sys import argv
+do_cutflow = "cutflow" in argv[0]
+do_plot = not do_cutflow
+
 from optparse import OptionParser
 parser = OptionParser()
-parser.add_option("-a", "--all", action="store_true", help="make all histograms")
-parser.add_option("-n", "--ndigits", default=-1, help="print this many digits")
+
 parser.add_option("-d", "--data", action="append", default=[], help="data root file")
 parser.add_option("-s", "--signal", action="append", default=[], help="signal root files")
-parser.add_option("-l", "--latex", action="store_true", help="print as full latex document")
-parser.add_option("-o", "--output", default="", help="output directory for text files")
-parser.add_option("-p", "--histogram", action="append", default=[], help="histograms to print (specify multiple times)")
+parser.add_option("-a", "--all", action="store_true", help="make all histograms")
+parser.add_option("-p", "--histogram", action="append", default=[], help="histograms/cutflows to print (specify multiple times)")
+parser.add_option("-y", "--systematics", action="append", default=[], help="calculate systematics (repeat), up/down separated by comma")
 parser.add_option("-m", "--no-mcsum", action="store_true", help="Do not show MC sum")
+parser.add_option("--sum", action="store_true", help="sum up all histograms/cutflows given")
+parser.add_option("--find", action="store_true", help="just match histograms and print their names")
+parser.add_option("-v", "--verbose", action="store_true", help="be verbose for systematics")
+parser.add_option("-l", "--lumi", default="4.7", help="luminosity in fb^-1")
+parser.add_option("--titles", default=None, help="comma-separated list of sample titles (background, signal, data)")
+parser.add_option("--scale", action="append", default=[], help="scale file by given number (specify as --scale filename:1.1)")
+
+
+if do_cutflow:
+    parser.add_option("--latex", action="store_true", help="print as full latex document")
+    parser.add_option("--horizontal", action="store_true", help="invert the orientation")
+    parser.add_option("-n", "--ndigits", default=-1, help="print this many digits")
+
+if do_plot:
+    parser.add_option("-i", "--interactive", action="store_true", help="interactive plots")
+    parser.add_option("-c", "--compare", action="store_true", help="generate comparison plot of data/mc")
+    parser.add_option("-g", "--sigma", action="store_true", help="show significance plot (exclusive with compare)")
+    parser.add_option("-t", "--outtype", default="png", help="output file type")
+    parser.add_option("-o", "--outdir", default=None, help="output file type")
+    parser.add_option("--preliminary", action="store_true", help="print preliminary instead of Work in Progress")
+    parser.add_option("--roostats", default=None, help="give a rootstats filename")
+    parser.add_option("--style", default=["susy"], help="Style: susy, ww")
+    once_per_p = "(specify once for each -p option)"
+    parser.add_option("-b", "--rebin", action="append", default=[], help="rebin factor %s"%once_per_p)
+    parser.add_option("-x", "--xtitle", action="append", default=[], help="label of the x axis of the plot %s"%once_per_p)
+    parser.add_option("-r", "--range", action="append", default=[], help="range of x axis of the plot, format: <nbins>,<start>-<end> or <start>-<end> or only <nbins> %s"%once_per_p)
+    parser.add_option("-u", "--unit", action="append", default=[], help="units of the x axis of the plot %s"%once_per_p)
+
 (options, args) = parser.parse_args()
 
-if not options.data and len(args) == 0:
+if not options.data and not options.signal and len(args) == 0:
     parser.print_help()
     exit(-1)
 
-from sys import exit
-from rooplot import make_page
-from rooplot import atlas_style, get_legend, get_lumi_label, set_styles, stack_1D, plot_1D, draw_preliminary
+from sys import exit, stderr
+from os.path import join as pjoin
+from rooplot import plot_1D
 
 from os import makedirs
 from uncertain import UncertainNumber, CertainNumber
-if options.output:
-    try:
-        makedirs(options.output)
-    except OSError:
-        pass
-
-disp = "4.7 fb^{-1}"
 
 from atfile import ATFile
 from fnmatch import filter
 
+disp = "%s fb^{-1}" % options.lumi
+width, height = (800, 600)
+if do_plot:
+    xtitles = dict(zip(options.histogram, options.xtitle))
+    xunits  = dict(zip(options.histogram, options.unit))
+    xrebin  = dict(zip(options.histogram, options.rebin))
+    x_range = dict(zip(options.histogram, options.range))
+    if options.roostats:
+        from ROOT import TFile
+        roostats_file = TFile(options.roostats, "RECREATE")
+    if options.compare:
+        width, height = (680, 600)
+x_range_bin = {}
+
 bg_files = [ATFile(fn) for fn in args]
 sg_files = [ATFile(fn) for fn in options.signal]
 data_files = [ATFile(d) for d in options.data]
+file_scale = dict((s.split(":")[0], float(s.split(":")[1])) for s in options.scale)
 
-histos_1d = sorted(set(sum((f.find_type("TH1D") for f in data_files+bg_files+sg_files), []) + sum((f.find_type("TH1F") for f in data_files+bg_files+sg_files), [])))
-if not options.all:
-    histos_1d = sorted(set(sum((filter(histos_1d, pat) for pat in options.histogram), [])))
+f_titles = {}
+if options.titles:
+    titles = options.titles.split(",")
+    assert len(titles) == sum(map(len, (bg_files, sg_files, data_files)))
+    f_titles = dict(zip(bg_files + sg_files + data_files, titles))
 
-prefix = options.output
-histograms = []
+if options.all:
+    options.histogram = ["*"]
 
-if options.latex:
-    print("\\documentclass{article}\\usepackage{lscape}\\begin{document}\\begin{landscape}\n")
+def get_histos(types, patterns):
+    all_histos = set(sum((f.find_types(types) for f in data_files + bg_files + sg_files), []))
+    histos = []
+    not_found = []
+    for pat in patterns:
+        histos_pat = sorted(filter(all_histos, pat))
+        if do_plot:
+            if pat in xtitles:
+                xtitles.update(dict((h,xtitles[pat]) for h in histos_pat))
+            if pat in xunits:
+                xunits.update(dict((h,xunits[pat]) for h in histos_pat))
+            if pat in xrebin:
+                xrebin.update(dict((h,xrebin[pat]) for h in histos_pat))
+            if pat in x_range:
+                x_range.update(dict((h,x_range[pat]) for h in histos_pat))
+        if not histos_pat:
+            not_found.append(pat)
+        histos.extend(histos_pat)
+    return histos, not_found
 
-from ROOT import TCanvas, kRed, TH1D
+histos_1d, not_found_1d = get_histos(("TH1D", "TH1F", "TH1I"), options.histogram)
+histos_2d, not_found_2d = get_histos(("TH2D", "TH2F", "TH2I"), options.histogram)
 
-n = 0
-for hn in sorted(histos_1d):
-    n+=1
-    data_fns = [f.fn for f in data_files if hn in f.dir]
-    bg_fns = [f.fn for f in bg_files if hn in f.dir]
-    sg_fns = [f.fn for f in sg_files if hn in f.dir]
-    data = [f.get(hn) for f in data_files if hn in f.dir]
-    bg = [f.get(hn) for f in bg_files if hn in f.dir]
-    sg = [f.get(hn) for f in sg_files if hn in f.dir]
-    if not (data+bg+sg)[0].GetXaxis().GetBinLabel(1):
-        continue
+for pat in sorted(set(not_found_1d).intersection(not_found_2d)):
+    print >> stderr, "No match for '%s' found!" % pat
 
-    for h in data+bg+sg:
+if options.find:
+    for h in histos_1d:
+        print "1D: ", h
+    for h in histos_2d:
+        print "2D: ", h
+    exit(0)
+
+all_systematics = []
+for s in options.systematics:
+    if "," in s:
+        averaged = s.split(",")
+        all_systematics.append(tuple(averaged))
+    else:
+        all_systematics.append((s,))
+
+def prep_histo_systematics(hn, histos, is_data):
+    # Set directory, title and get systematics
+    syst_dict = {}
+    xtitle, ytitle = None, None
+    for f, h in histos:
         h.SetDirectory(0)
+        
+        if f in f_titles:
+            h.SetTitle(f_titles[f])
+        elif not h.GetTitle():
+            h.SetTitle(f.fn.rstrip(".root"))
+        if do_plot:
 
-    for h, orig_fn in zip(data+bg+sg, data_fns+bg_fns+sg_fns):
-        if not h.GetTitle():
-            h.SetTitle(orig_fn.rstrip(".root"))
+            if xtitle is None:
+                xtitle = xtitles.get(hn, "")
+                x = h.GetXaxis()
+                n, mn, mx = x.GetNbins(), x.GetBinLowEdge(x.GetFirst()), x.GetBinUpEdge(x.GetLast())
+                delta = (mx-mn)/n
+                if xunits.get(hn, ""):
+                    per_str = " / %s"%xunits[hn] if delta == 1 else " / %g %s" % (delta, xunits[hn])
+                    xtitle = "%s [%s]" % (xtitle, xunits[hn])
+                else:
+                    if delta != 1:
+                        per_str = " / %g" % delta
+                    else:
+                        per_str = ""
+                ytitle = "#Events%s" % per_str
+            if xtitle:
+                h.GetXaxis().SetTitle(xtitle)
+            if ytitle:
+                h.GetYaxis().SetTitle(ytitle)
 
-    # Deal with cutflow histograms
-    labels = map(str, (data+sg+bg)[0].GetXaxis().GetLabels())
-    for h in data+sg+bg:
-        for label in map(str,h.GetXaxis().GetLabels()):
-            if not label in labels:
-                labels.append(label)
+            rebin = xrebin.get(hn,1)
+            range = None
+            rebin_to = None
+            if x_range.get(hn, None):
+                range = x_range[hn] 
+                if "," in range:
+                    rebin_to, srange = range.split(",")
+                    rebin_to = int(rebin_to)
+                    range = map(float,srange.split("-"))
+                elif "-" in range:
+                    rebin_to = None
+                    range = map(float, x_range[hn].split("-"))
+                else:
+                    rebin_to = int(range)
+                    range = None
+                if rebin_to:
+                    xaxis = h.GetXaxis()
+                    nbins = xaxis.GetNbins()
+                    if range:
+                        x1, x2 = range
+                        nbins = xaxis.FindBin(x2) - xaxis.FindBin(x1) + 1
+                    rebin = int(round(nbins*1.0/rebin_to))
+                    if rebin < 1:
+                        rebin = 1
+                x_range_bin[hn] = range
+            if rebin != 1:
+                h.Rebin(rebin)
+        if is_data:
+            continue
+        for sgrp in all_systematics:
+            for syst in sgrp:
+                shn = "systematic/%s/%s" % (syst, hn)
+                if shn in f.dir:
+                    syst_dict[(h,syst)] = f.get(shn)
+                    syst_dict[(h,syst)].SetDirectory(0)
+                else:
+                    if options.verbose: print "Systematic %s not found in %s" % (shn, f.fn)
+                    syst_dict[(h,syst)] = None               
+    return syst_dict
 
-    def get_cf_data(h):
-        datad = {}
-        for label in labels:
-            oi = h.GetXaxis().FindBin(label)
-            datad[label] = CertainNumber(h.GetBinContent(oi)) if oi != -1 else CertainNumber(0)
-        #return "Observed", datad
-        return h.GetTitle(), datad
+def get_data(hn, files, is_data):
+    histos = [(f, f.get(hn)) for f in files if hn in f.dir]
+    if not histos or (do_cutflow and not histos[0][1].GetXaxis().GetBinLabel(1)):
+        return [], {}
 
-    def get_cf_sg(h):
-        datad = {}
-        for label in labels:
-            oi = h.GetXaxis().FindBin(label)
-            datad[label] = UncertainNumber(h.GetBinContent(oi), h.GetBinError(oi)) if oi != -1 else UncertainNumber(0.0,0.0)
-        return h.GetTitle(), datad
+    is_cutflow = bool(histos[0][1].GetXaxis().GetBinLabel(1))
 
-    sumbg = {}
-    def get_cf_bg(h):
-        datad = {}
-        for label in labels:
-            oi = h.GetXaxis().FindBin(label)
-            datad[label] = UncertainNumber(h.GetBinContent(oi), h.GetBinError(oi)) if oi != -1 else UncertainNumber(0.0,0.0)
-            sumbg[label] = sumbg.get(label, UncertainNumber(0,0)) + datad[label]
-        return h.GetTitle(), datad
+    syst_dict = prep_histo_systematics(hn, histos, is_data)
 
-    data = map(get_cf_data, data)
-    sg = map(get_cf_sg, sg)
-    bg = map(get_cf_bg, bg)
+    # Get a list of all labels
+    if is_cutflow:
+        labels = []
+        for f, h in histos:
+            for label in map(str, h.GetXaxis().GetLabels()):
+                if not label in labels:
+                    labels.append(label)
 
+    # How to get numbers from labels
+    def cf_label_getter(label):
+        return lambda h : h.GetXaxis().FindBin(label)
+
+    def bin_getter(i):
+        return lambda h : i
+    
+    def certain_bin_content(h, bin_getter, scale):
+        i = bin_getter(h)
+        return CertainNumber(h.GetBinContent(i) * scale) if i != -1 else CertainNumber(0)
+
+    def uncertain_bin_content(h, bin_getter, scale):
+        i = bin_getter(h)
+        if i == -1:
+            return UncertainNumber(0, 0)
+        c, stat = scale * h.GetBinContent(i), scale * h.GetBinError(i)
+        if not all_systematics:
+            return UncertainNumber(c, stat)
+        syst_d = {}
+        for sgrp in all_systematics:
+            grp_sys = []
+            for syst in sgrp:
+                systh = syst_dict[(h,syst)]
+                if systh:
+                    oi = bin_getter(systh)
+                    sc, sstat = scale * systh.GetBinContent(oi), scale * systh.GetBinError(oi)
+                    grp_sys.append(sc-c)
+                    if options.verbose:print "Syst %s in %s is %s" % (syst, oi, sc-c)
+            syst_d[sgrp] = tuple(grp_sys)
+        return UncertainNumber(c, stat, syst_d)
+
+    bin_content = certain_bin_content if is_data else uncertain_bin_content
+    
+    data_by_file = {} # file -> (histogram_title, {label:Number}) or (histogram, [Numbers]})
+    for f, h in histos:
+        scale = file_scale.get(f.fn.split("/")[-1].rstrip(".root"), 1.0)
+        if scale != 1.0:
+            print >> stderr, "Scaling %s by %s" % (f.fn, scale)
+        if is_cutflow:
+            data_by_file[f] = (h.GetTitle(), dict((label, bin_content(h, cf_label_getter(label), scale)) for label in labels))
+        else:
+            data_by_file[f] = (h.GetTitle(), [bin_content(h, bin_getter(i), scale) for i in xrange(0, h.GetNbinsX()*h.GetNbinsY()*h.GetNbinsZ())])
+
+    if do_cutflow:
+        return labels, data_by_file
+    elif is_cutflow:
+        return labels, data_by_file
+    else:
+        return histos[0][1], data_by_file
+
+def make_cf_histo(name, title, labels):
+    from ROOT import TH1D
+    nh = TH1D(name, title, len(labels), 0, len(labels))
+    nh.SetDirectory(0)
+    for i, label in enumerate(labels):
+        nh.GetXaxis().SetBinLabel(i+1, label)
+    return nh
+
+def sum_cfs(cfs):
+    cfs = list(cfs)
+    res = {}
+    labels = set()
+    for cf in cfs:
+        labels.update(cf.keys())
+    for label in labels:
+        to_sum = [cf[label] for cf in cfs if label in cf]
+        res[label] = to_sum[0].__class__()
+        for s in to_sum:
+            res[label] += s
+    return res
+
+def sum_histos(listings, noneg=False):
+    listings = list(listings)
+    assert all(len(l) == len(listings[0]) for l in listings)
+
+    res = []
+    for t in zip(*listings):
+        r = t[0].__class__()
+        for v in t:
+            if noneg and v.n < 0:
+                v.n = 0.0
+            r += v
+        res.append(r)
+    return res
+    #return [sum(t, t[0].__class__()) for t in zip(*listings)]
+
+def sum_labels(l1, l2):
+    labels = l1[:]
+    for l in l2:
+        if not l in labels:
+            labels.append(l)
+    return labels
+
+
+n_tables = 0
+def make_table(labels, content):
+    global n_tables
+    n_tables += 1
     table = []
     table.append([""] + ["$%s$"%l.replace("#","\\") for l in labels])
 
-    content = bg[:]
-    if bg and not options.no_mcsum:
-        content += [("Total SM",sumbg)]
-    content += data
-    content += sg
-    
-    for (title, numbers) in content:
+    separators = [True]
+    prev_type = None
+    for ctype, (title, numbers) in content:
+        separators.append(False if ctype == prev_type else True)
+        prev_type = ctype
         if "#" in title:
             title = "$%s$"%title.replace("#","\\")
         if options.ndigits != -1:
@@ -124,42 +332,229 @@ for hn in sorted(histos_1d):
     widths_h = [max(len(line[i]) for line in table) for i in range(len(table[0]))]
     widths_v = [max(len(w) for w in line) for line in table]
 
-    # vertical
-    t = ["\\begin{tabular}{c%s}" % ("|".join("r" for i in range(len(widths_h))))]
-    t.append("\hline\hline")
-    for l in table:
-        t.append(" & ".join(("%%%is"%w)%e for w, e in zip(widths_h, l)) + "\\\\")
-        if l == table[0]:
-            t.append("\hline")
-    t.append("\hline\hline")
-    t.append("\end{tabular}")
-
-    #print "\n".join(t)
-
-    # horizontal
     t = []
     if options.latex:
         t.append("\\begin{table}\\begin{tiny}\n")
-    t.append("\\begin{tabular}{c|%s%s%s}" % (("c"*(len(bg)+1)),("|c"*len(data)), ("|c"*len(sg))))
-    t.append("\hline\hline")
-    for i in range(len(table[0])):
-        ln = []
-        for w, e in zip(widths_v, (line[i] for line in table)):
-            ln.append(("%%%is"%w)%e)
-        t.append(" & ".join(ln) + "\\\\")
-        if i == 0:
-            t.append("\hline")
+
+    if options.horizontal:
+        t = ["\\begin{tabular}{c%s}" % ("|".join("r" for i in range(len(widths_h))))]
+        t.append("\hline\hline")
+        for l, sep in zip(table, separators):
+            t.append(" & ".join(("%%%is"%w)%e for w, e in zip(widths_h, l)) + "\\\\")
+            if sep:
+                t.append("\hline")
+    else:
+        columns = "".join(("c|" if s else "c")  for s in separators)
+        t.append("\\begin{tabular}{%s}" % (columns))
+        t.append("\hline\hline")
+        for i in range(len(table[0])):
+            ln = []
+            for w, e in zip(widths_v, (line[i] for line in table)):
+                ln.append(("%%%is"%w)%e)
+            t.append(" & ".join(ln) + "\\\\")
+            if i == 0:
+                t.append("\hline")
+
     t.append("\hline\hline")
     t.append("\end{tabular}")
+
     if options.latex:
         t.append("\caption{%s}\n" % hn.replace("_"," "))
         t.append("\n\\end{tiny}\\end{table}\n")
-        if n%5==0:
+        if n_tables % 6 == 0:
             t.append("\n\\clearpage\n")
-    print "\n".join(t)
+    return "\n".join(t)
 
-if options.latex:
-    print("\n\\end{landscape}\\end{document}")
+def print_cutflow(hn, bg_files, sg_files, data_files, do_sum_mc):
+    print >> stderr, "processing %s "%hn
+    labels, uncdata = get_data(hn, bg_files + sg_files, is_data=False)
+    dlabels, cdata = get_data(hn, data_files, is_data=True)
+    labels = sum_labels(labels, dlabels)
 
-
+    content = []
+    content.extend(("bg", uncdata[f]) for f in bg_files if f in uncdata)
     
+    if do_sum_mc:
+        bgsum = sum_cfs([uncdata[f][1] for f in bg_files])
+        content.append(("sumbg", ("Total SM", bgsum)))
+
+    content.extend(("sg", uncdata[f]) for f in sg_files if f in uncdata)
+    content.extend(("d", cdata[f]) for f in data_files if f in cdata)
+    print make_table(labels, content)
+
+def print_cutflow_sum(hns, bg_files, sg_files, data_files, do_sum_mc):
+    labels = []
+    sum_uncdata = {}
+    sum_cdata = {}
+    for hn in hns:
+        print >> stderr, "processing %s "%hn
+        ulabels, uncdata = get_data(hn, bg_files + sg_files, is_data=False)
+        labels = sum_labels(labels, ulabels)
+        dlabels, cdata = get_data(hn, data_files, is_data=True)
+        labels = sum_labels(labels, dlabels)
+        for f in bg_files + sg_files:
+            if f in sum_uncdata and f in uncdata:
+                sum_uncdata[f] = (sum_uncdata[f][0], sum_cfs((sum_uncdata[f][1], uncdata[f][1])))
+            elif f in uncdata:
+                sum_uncdata[f] = uncdata[f]
+        for f in data_files:
+            if f in sum_cdata and f in cdata:
+                sum_cdata[f][1] = sum_cfs(sum_cdata[f][1], cdata[f][1])
+            elif f in cdata:
+                sum_cdata[f] = cdata[f]
+
+    uncdata, cdata = sum_uncdata, sum_cdata
+    content = []
+    content.extend(("bg", uncdata[f]) for f in bg_files if f in uncdata)
+    
+    if do_sum_mc:
+        bgsum = sum_cfs(uncdata[f][1] for f in bg_files)
+        content.append(("sumbg", ("Total SM", bgsum)))
+
+    content.extend(("sg", uncdata[f]) for f in sg_files if f in uncdata)
+    content.extend(("d", cdata[f]) for f in data_files if f in cdata)
+    print make_table(labels, content)
+
+def plot_1d(hn, examplehisto, bg_files, sg_files, data_files, content, mcsum, style):
+    from ROOT import TCanvas
+    #set_styles(data, bg, sg)
+    def get_hist(content):
+        t, v = content
+        h = examplehisto.Clone(hn+"_"+t)
+        h.SetTitle(t)
+        for i, c in enumerate(v):
+            h.SetBinContent(i, c.n)
+            h.SetBinError(i, c.e)
+        return h
+    bg = [get_hist(content[f]) for f in bg_files if f in content]
+    sg = [get_hist(content[f]) for f in sg_files if f in content]
+    data = [get_hist(content[f]) for f in data_files if f in content]
+    sum_mc = get_hist(("MC Sum", mcsum))
+
+    def get_draw(log,cmp,sgm):
+        def draw():
+            legend, stack, summc, hsave, save = plot_1D(hn, data, bg, sg, sum_mc=sum_mc, lumi=disp, range=x_range_bin.get(hn,None), compare=cmp, sigma=sgm, log=log, prelim=options.preliminary)
+            if stack:
+                stack.GetXaxis().SetTitle(examplehisto.GetXaxis().GetTitle())
+                stack.GetYaxis().SetTitle(examplehisto.GetYaxis().GetTitle())
+                #stack.GetXaxis().LabelsOption("v")
+            return legend, stack, summc, hsave, save
+        return draw
+
+    global width
+    global height
+    if options.roostats:
+        hist_base = hn.replace("/","_")
+        hist_alt = xtitles.get(hn, "")
+        if not " " in hist_alt:
+            hist_base = hist_alt 
+        for n, d in zip(data_names, data) + zip(bg_names, bg) + zip(sg_names, sg):
+            roostats_file.WriteObject(d, "%s_%s" % (n, hist_base))
+    elif options.interactive:
+        histograms.append(TCanvas(hn,hn,width,height))
+        histograms.append(get_draw(False, options.compare, options.sigma)())
+    else:
+        from rooplot import batch_mode
+        pix = 1000
+
+        width, height = int(width*pix*1.0/max(width,height)), int(height*pix*1.0/max(width,height))
+
+        name = hn.replace("/","_")
+        if options.outdir:
+            name = pjoin(options.outdir, name)
+        title = name
+
+        histograms = []
+        @batch_mode
+        def write():
+            c = TCanvas(name,title,width,height)
+            histograms.extend(get_draw(False, options.compare, options.sigma)())
+            c.cd()
+            c.SaveAs("%s.%s" % (name,options.outtype))
+            histograms.append(c)
+
+            c = TCanvas(name+'_log',title+'_log',width,height)
+            histograms.extend(get_draw(True, options.compare, options.sigma)())
+            c.cd()
+            c.SaveAs("%s_log.%s" % (name,options.outtype))
+            histograms.append(c)
+        write()
+    
+
+if __name__=="__main__":
+    if do_cutflow:
+        if options.latex:
+            print("\\documentclass{article}\\usepackage{lscape}\\begin{document}\\begin{landscape}\n")
+        if not options.sum:
+            for hn in sorted(histos_1d):
+                print_cutflow(hn, bg_files, sg_files, data_files, not options.no_mcsum)
+        else:
+            print_cutflow_sum(sorted(histos_1d), bg_files, sg_files, data_files, not options.no_mcsum)
+        if options.latex:
+            print("\n\\end{landscape}\\end{document}")
+    elif do_plot:
+        if not options.sum:
+            for hn in sorted(histos_1d):
+                hb, bcontent = get_data(hn, bg_files+sg_files, is_data=False)
+                hd, dcontent = get_data(hn, data_files, is_data=True)
+
+                if isinstance(hb, list):
+                    labels = sum_labels(hb, hd)
+                    hb = make_cf_histo(hn, hn, labels)
+                    _bcontent, _dcontent = bcontent, dcontent
+                    bcontent, dcontent = {}, {}
+                    for f, (t,v) in _bcontent.iteritems():
+                        nv = [UncertainNumber()] + [v[l] for l in labels] + [UncertainNumber()]
+                        bcontent[f] = (t, nv)
+                    for f, (t,v) in _dcontent.iteritems():
+                        nv = [CertainNumber()] + [v[l] for l in labels] + [CertainNumber()]
+                        dcontent[f] = (t, nv)
+                mcsum = None if options.no_mcsum else sum_histos((bcontent[f][1] for f in bcontent), noneg=True)
+                plot_1d(hn, hb, bg_files, sg_files, data_files, dict(bcontent.items() + dcontent.items()), mcsum, options.style)
+        else:
+            exh = None
+            _bcontent, _dcontent = {}, {}
+            for hn in sorted(histos_1d):
+                hb, bcontent = get_data(hn, bg_files+sg_files, is_data=False)
+                hd, dcontent = get_data(hn, data_files, is_data=True)
+                if isinstance(hb, list):
+                    labels = sum_labels(hb, hd)
+                    exh = labels if exh is None else sum_labels(exh, labels)
+                    for f, (t,v) in bcontent.iteritems():
+                        if f in _bcontent:
+                            v = sum_cfs((_bcontent[f][1], v))
+                        _bcontent[f] = (t, v)
+                    for f, (t,v) in dcontent.iteritems():
+                        if f in _dcontent:
+                            v = sum_cfs((_dcontent[f][1], v))
+                        _dcontent[f] = (t, v)
+                else:
+                    exh = hb
+                    for f, (t,v) in bcontent.iteritems():
+                        if f in _bcontent:
+                            v = sum_histos((_bcontent[f][1], u))
+                        _bcontent[f] = (t, v)
+                    for f, (t,v) in dcontent.iteritems():
+                        if f in _dcontent:
+                            v = sum_histos((_dcontent[f][1], u))
+                        _dcontent[f] = (t, v)
+
+            hb, bcontent, dcontent = exh, _bcontent, _dcontent
+            if isinstance(hb, list):
+                labels = sum_labels(hb, hd)
+                hb = make_cf_histo(hn, hn, labels)
+                _bcontent, _dcontent = bcontent, dcontent
+                bcontent, dcontent = {}, {}
+                for f, (t,v) in _bcontent.iteritems():
+                    nv = [UncertainNumber()] + [v[l] for l in labels] + [UncertainNumber()]
+                    bcontent[f] = (t, nv)
+                for f, (t,v) in _dcontent.iteritems():
+                    nv = [CertainNumber()] + [v[l] for l in labels] + [CertainNumber()]
+                    dcontent[f] = (t, nv)
+            mcsum = None if options.no_mcsum else sum_histos(bcontent[f][1] for f in bcontent)
+            plot_1d(hn, hb, bg_files, sg_files, data_files, dict(bcontent.items() + dcontent.items()), mcsum, options.style)
+    else:
+        raise Exception("What to do?")
+
+import os
+os._exit(0)
