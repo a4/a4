@@ -413,7 +413,7 @@ int main(int argc, char ** argv) {
         ("var,v", po::value(&variables), "variables to dump (defaults to all)")
         ("type,t", po::value(&types), "variables to dump (defaults to all)")
         ("stream,s", po::bool_switch(&stream_msg)->default_value(false), "also dump stream internal messages")
-        ("collect-stats,S", po::value(&collect_stats), "should collect statistics for all numeric variables")
+        ("collect-stats,S", po::bool_switch(&collect_stats)->default_value(false), "should collect statistics for all numeric variables")
         ("message-info", po::bool_switch(&message_info)->default_value(false), "should collect statistics relating to the message")
         ("short-form", po::bool_switch(&short_form)->default_value(false), "print in a compact form, one event per line")
         ("select", po::value(&selection_strings), "Select messages by string equality (e.g. --select event_number:1234)")
