@@ -266,12 +266,13 @@ public:
         const Reflection* reflection = message.GetReflection();
         const auto* desc = message.GetDescriptor();
         
-        size_t sub_size = 0;
+        size_t sub_size = 0, sub_fields = 0;
         
         std::vector<const FieldDescriptor*> fields;
         reflection->ListFields(message, &fields);
         foreach (const FieldDescriptor* field, fields)
             if (field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE) {
+                sub_fields++;
                 if (field->is_repeated()) {
                     int count = reflection->FieldSize(message, field);
                     for (int j = 0; j < count; j++)
@@ -286,8 +287,15 @@ public:
         auto this_size = data.size();
         auto this_only_size = this_size - sub_size;
         stats[desc->full_name() + ":bytes"].collect(this_size, this_only_size);
-        stats[desc->full_name() + ":fields"].collect(fields.size(), 0);
+        stats[desc->full_name() + ":fields"].collect(fields.size() - sub_fields, 0);
         return this_size;
+    }
+    
+    size_t total_bytes() {
+        size_t sum = 0;
+        foreach (auto& i, stats)
+            sum += i.second.total_uniq;
+        return sum;
     }
         
     friend std::ostream& operator<< (std::ostream& o, MessageInfoCollector const& mic) {
@@ -475,6 +483,7 @@ int main(int argc, char ** argv) {
     
     if (message_info) {
         std::cout << mic;
+        std::cout << "Total message sizes: " << mic.total_bytes() << std::endl;
         std::cout << "Total bytes read (beware mmap, use nomm:// to avoid): " 
                   << stream->ByteCount() << std::endl;
     }
