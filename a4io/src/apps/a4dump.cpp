@@ -285,7 +285,8 @@ public:
         message.SerializeToString(&data);
         auto this_size = data.size();
         auto this_only_size = this_size - sub_size;
-        stats[desc->full_name()].collect(this_size, this_only_size);
+        stats[desc->full_name() + ":bytes"].collect(this_size, this_only_size);
+        stats[desc->full_name() + ":fields"].collect(fields.size(), 0);
         return this_size;
     }
         
@@ -472,7 +473,12 @@ int main(int argc, char ** argv) {
     if (collect_stats)
         std::cout << sc;
     
-    if (message_info)
+    if (message_info) {
         std::cout << mic;
+        std::cout << "Total bytes read (beware mmap, use nomm:// to avoid): " 
+                  << stream->ByteCount() << std::endl;
+    }
+    
+    return 0;
 }
 
