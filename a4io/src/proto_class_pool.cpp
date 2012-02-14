@@ -24,7 +24,9 @@ namespace a4{ namespace io{
         _descriptor_pool.reset();
     }
 
-    A4Message ProtoClassPool::read(uint32_t class_id, google::protobuf::io::CodedInputStream* instream) {
+    A4Message ProtoClassPool::read(uint32_t class_id, 
+                                   google::protobuf::io::CodedInputStream* instream) 
+    {
         if (class_id < _class_id_reader.size()) {
             internal::from_stream_func factory = _class_id_reader[class_id];
             if (factory) {
@@ -39,7 +41,9 @@ namespace a4{ namespace io{
         }
         // Look for fixed class_id message
         internal::classreg reg = internal::map_class("", class_id);
-        if (!reg.descriptor) FATAL("Unregistered class_id: ", class_id);
+        if (!reg.descriptor) 
+            FATAL("Unregistered class_id: ", class_id);
+        
         if (class_id >= _class_id_reader.size()) {
             _class_id_reader.resize(class_id+1);
             _class_id_descriptor.resize(class_id+1);
@@ -48,7 +52,8 @@ namespace a4{ namespace io{
             _class_id_descriptor[class_id] = reg.descriptor;
             _dynamic_descriptor[class_id] = NULL;
         }
-        return A4Message(class_id, reg.from_stream(instream), reg.descriptor, NULL, _descriptor_pool, _message_factory);
+        return A4Message(class_id, reg.from_stream(instream), reg.descriptor, 
+                          NULL, _descriptor_pool, _message_factory);
     };
 
     void ProtoClassPool::add_protoclass(const ProtoClass& protoclass) {
