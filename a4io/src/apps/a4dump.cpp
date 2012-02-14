@@ -36,116 +36,123 @@ template<typename T> struct ItemOrdering {
     }
 };
 
+/// A class to measure the largest column width and then print an aligned
+/// table. Two passes need to be made over the data, one to measure,
+/// another to print
+class ColumnSizeMeasurer {
+public:
+    ColumnSizeMeasurer() : current_index(0), measuring(true) {}
+
+    std::vector<int> lengths;
+    size_t current_index;
+    bool measuring;
+    
+    void print(std::ostream& out) {}
+    
+    template<typename T, class... Args>
+    void print(std::ostream& out, const T& value, const Args& ...args) {
+        if (measuring) {
+        
+            std::stringstream stream;
+            stream << std::fixed << value;
+            const int this_length = stream.tellp();
+            
+            if (current_index >= lengths.size())
+                lengths.push_back(this_length);
+            else {
+                if (lengths.at(current_index) < this_length)
+                    lengths.at(current_index) = this_length;
+            }
+            
+        } else
+            out << std::setw(lengths.at(current_index)) << std::fixed << value << " ";
+        
+        current_index++;
+        print(out, args...);
+    }
+    
+    void newline(std::ostream& out) {
+        current_index = 0;
+        if (!measuring)
+            out << std::endl;
+    }
+};
+
+/// Collect stats about one variable
+class Stats {
+public:
+    Stats() :
+        n(0), total(0), sum_of_squares(0),
+        min (numeric_limits<double>::max()),
+        min1(numeric_limits<double>::max()),
+        max (numeric_limits<double>::min()),
+        max1(numeric_limits<double>::min()) {}
+        
+    double n;
+    double total;
+    double total_uniq;
+    double sum_of_squares;
+    double min, min1;
+    double max, max1;
+    
+    /// Collect one value
+    /// Values aren't counted if they are the minimum or maximum. This is to
+    /// avoid pulling the distribution towards any default values.
+    void collect(const double& value) {
+    
+        if (value == -999 || value == -9999 || value == -99999)
+            // Special case.
+            return;
+    
+        // (or equal) to make sure don't follow second branch otherwise.
+        if (value <= min) min = value;
+        else if (value < min1) min1 = value;
+        
+        if (value >= max) max = value;
+        else if (value > max1) max1 = value;
+        
+        // This if statement used to prevent the min/max from being included in 
+        // the totals and counts, but no longer.
+        
+        // If min1/max1 aren't set, then we haven't seen many interesting 
+        // values. Therefore we should include this value in the count.            
+        //if ((value != min && value != max) 
+            //|| min1 == numeric_limits<double>::max() 
+            //|| max1 == numeric_limits<double>::min()) {
+        n++;
+        total += value;
+        sum_of_squares += value*value;
+        //}
+    }
+    
+    void collect(const double value, const double uniq) {
+        collect(value);
+        total_uniq += uniq;
+    }
+    
+    double mean() const {
+        return total / n;
+    }
+    
+    double stddev() const {
+        return sqrt(sum_of_squares/n - (mean()*mean()));
+    }
+    
+    void print(std::ostream& out, ColumnSizeMeasurer& csm) {
+        if (n == 0) {
+            csm.print(out, 0, 0, 0, 0, 0, 0, 0, 0);
+            return;
+        }
+        csm.print(out, n, total, mean(), stddev(), min, max, 
+                  (min1 == numeric_limits<double>::max() ? min : min1), 
+                  (max1 == numeric_limits<double>::min() ? max : max1));
+    }
+};
 
 /// Collect statistics about variables
 class StatsCollector {
-
-    /// A class to measure the largest column width and then print an aligned
-    /// table. Two passes need to be made over the data, one to measure,
-    /// another to print
-    class ColumnSizeMeasurer {
-    public:
-        ColumnSizeMeasurer() : current_index(0), measuring(true) {}
     
-        std::vector<int> lengths;
-        size_t current_index;
-        bool measuring;
-        
-        void print(std::ostream& out) {}
-        
-        template<typename T, class... Args>
-        void print(std::ostream& out, const T& value, const Args& ...args) {
-            if (measuring) {
-            
-                std::stringstream stream;
-                stream << std::fixed << value;
-                const int this_length = stream.tellp();
-                
-                if (current_index >= lengths.size())
-                    lengths.push_back(this_length);
-                else {
-                    if (lengths.at(current_index) < this_length)
-                        lengths.at(current_index) = this_length;
-                }
-                
-            } else
-                out << std::setw(lengths.at(current_index)) << std::fixed << value << " ";
-            
-            current_index++;
-            print(out, args...);
-        }
-        
-        void newline(std::ostream& out) {
-            current_index = 0;
-            if (!measuring)
-                out << std::endl;
-        }
-    };
-    
-    /// Collect stats about one variable
-    class Stats {
-    public:
-        Stats() :
-            n(0), total(0), sum_of_squares(0),
-            min (numeric_limits<double>::max()),
-            min1(numeric_limits<double>::max()),
-            max (numeric_limits<double>::min()),
-            max1(numeric_limits<double>::min()) {}
-            
-        double n;
-        double total;
-        double sum_of_squares;
-        double min, min1;
-        double max, max1;
-        
-        /// Collect one value
-        /// Values aren't counted if they are the minimum or maximum. This is to
-        /// avoid pulling the distribution towards any default values.
-        void collect(const double& value) {
-        
-            if (value == -999 || value == -9999 || value == -99999)
-                // Special case.
-                return;
-        
-            // (or equal) to make sure don't follow second branch otherwise.
-            if (value <= min) min = value;
-            else if (value < min1) min1 = value;
-            
-            if (value >= max) max = value;
-            else if (value > max1) max1 = value;
-            
-            // If min1/max1 aren't set, then we haven't seen many interesting 
-            // values. Therefore we should include this value in the count.            
-            if ((value != min && value != max) 
-                || min1 == numeric_limits<double>::max() 
-                || max1 == numeric_limits<double>::min()) {
-                n++;
-                total += value;
-                sum_of_squares += value*value;
-            }
-        }
-        
-        double mean() const {
-            return total / n;
-        }
-        
-        double stddev() const {
-            return sqrt((sum_of_squares - (mean()*mean())) / n);
-        }
-        
-        void print(std::ostream& out, ColumnSizeMeasurer& csm) {
-            if (n == 0) {
-                csm.print(out, 0, 0, 0, 0, 0, 0, 0);
-                return;
-            }
-            csm.print(out, n, mean(), stddev(), min, max, 
-                      (min1 == numeric_limits<double>::max() ? min : min1), 
-                      (max1 == numeric_limits<double>::min() ? max : max1));
-        }
-    };
-
 public:
-
     std::unordered_map<const FieldDescriptor*, Stats> stats;
     
     /// Collect values from one message
@@ -230,7 +237,7 @@ public:
         
         // Do two iterations, one to measure, other to print.
         for (int i = 0; i < 2; i++) {
-            csm.print(o, "Variable", "n", "mean", "stddev", "min", "max", "min1", "max1");
+            csm.print(o, "Variable", "n", "total", "mean", "stddev", "min", "max", "min1", "max1");
             csm.newline(o);
         
             foreach (StatsItem i, sorted_stats) {
@@ -246,6 +253,74 @@ public:
         
         return o;
     }
+};
+
+class MessageInfoCollector {
+public:
+    std::map<std::string, Stats> stats;
+    
+    MessageInfoCollector() {}
+
+    /// Collect values from one message
+    size_t collect(const Message& message) {
+        const Reflection* reflection = message.GetReflection();
+        const auto* desc = message.GetDescriptor();
+        
+        size_t sub_size = 0;
+        
+        std::vector<const FieldDescriptor*> fields;
+        reflection->ListFields(message, &fields);
+        foreach (const FieldDescriptor* field, fields)
+            if (field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE) {
+                if (field->is_repeated()) {
+                    int count = reflection->FieldSize(message, field);
+                    for (int j = 0; j < count; j++)
+                        sub_size += collect(reflection->GetRepeatedMessage(message, field, j));
+                } else { // (not repeated)
+                    sub_size += collect(reflection->GetMessage(message, field));
+                }
+            }
+        
+        std::string data;
+        message.SerializeToString(&data);
+        auto this_size = data.size();
+        auto this_only_size = this_size - sub_size;
+        stats[desc->full_name()].collect(this_size, this_only_size);
+        return this_size;
+    }
+        
+    friend std::ostream& operator<< (std::ostream& o, MessageInfoCollector const& mic) {
+        typedef std::pair<std::string, Stats> StatsItem;
+        
+        std::vector<StatsItem> sorted_stats;
+        
+        foreach (StatsItem i, mic.stats)
+            sorted_stats.push_back(i);
+        
+        std::sort(sorted_stats.begin(), sorted_stats.end(), ItemOrdering<StatsItem>());
+        
+        ColumnSizeMeasurer csm;
+        
+        // Do two iterations, one to measure, other to print.
+        for (int i = 0; i < 2; i++) {
+            csm.print(o, "Variable", "total_uniq", "n", "total", "mean", "stddev", "min", "max", "min1", "max1");
+            csm.newline(o);
+        
+            foreach (StatsItem i, sorted_stats) {
+                o << std::left; // left align first column
+                csm.print(o, i.first);
+                o << std::right;
+                csm.print(o, i.second.total_uniq);
+                i.second.print(o, csm);
+                csm.newline(o);
+            }
+        
+            csm.measuring = false;
+        }
+        
+        return o;
+    }
+    
 };
 
 void dump_message(const Message& message, 
@@ -322,9 +397,8 @@ int main(int argc, char ** argv) {
 
     std::vector<std::string> input_files, variables, types, selection_strings;
     size_t event_count = -1, event_index = -1;
-    bool collect_stats = false;
-    bool stream_msg, dump_all;
-    bool short_form = false;
+    bool collect_stats = false, short_form = false, message_info = false,
+         stream_msg = false, dump_all = false;
     
     po::positional_options_description p;
     p.add("input", -1);
@@ -340,7 +414,8 @@ int main(int argc, char ** argv) {
         ("type,t", po::value(&types), "variables to dump (defaults to all)")
         ("stream,s", po::bool_switch(&stream_msg)->default_value(false), "also dump stream internal messages")
         ("collect-stats,S", po::value(&collect_stats), "should collect statistics for all numeric variables")
-        ("short-form", po::value(&short_form)->default_value(short_form), "print in a compact form, one event per line")
+        ("message-info", po::bool_switch(&message_info)->default_value(false), "should collect statistics relating to the message")
+        ("short-form", po::bool_switch(&short_form)->default_value(false), "print in a compact form, one event per line")
         ("select", po::value(&selection_strings), "Select messages by string equality (e.g. --select event_number:1234)")
     ;
     
@@ -357,6 +432,7 @@ int main(int argc, char ** argv) {
     }
     
     StatsCollector sc;
+    MessageInfoCollector mic;
     
     a4::io::A4Input in;
     
@@ -383,13 +459,20 @@ int main(int argc, char ** argv) {
         if (any(selections, CheckSelection(*m.message())))
             continue;
         
-        if (!collect_stats)
+        if (!(collect_stats || message_info))
             dump_message(*m.message(), variables, types, short_form);
-        else
+        
+        if (collect_stats)
             sc.collect(*m.message());
+        
+        if (message_info)
+            mic.collect(*m.message());
     }
     
     if (collect_stats)
         std::cout << sc;
+    
+    if (message_info)
+        std::cout << mic;
 }
 
