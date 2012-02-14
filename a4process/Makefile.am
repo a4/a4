@@ -13,8 +13,8 @@ a4include_HEADERS = \
     src/a4/object_store.h src/a4/object_store_impl.h \
     src/a4/results_processor.h src/a4/utility.h src/a4/cpu_info.h
 
-bin_SCRIPTS += python/poorcache python/poorprocess python/pmbs bin/a4postprocess
-python_PYTHON = python/pmbs.py python/poorcache.py python/poorprocess.py
+dist_bin_SCRIPTS = python/poorcache python/poorprocess python/pmbs bin/a4postprocess
+dist_python_PYTHON = python/pmbs.py python/poorcache.py python/poorprocess.py
 
 # Compilation options
 LDADD=liba4process.la $(A4_A4IO_LIBS) $(PROTOBUF_LIBS) $(BOOST_LIBS)

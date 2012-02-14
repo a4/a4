@@ -18,7 +18,7 @@ liba4root_la_LIBADD=$(PROTOBUF_LIBS)
 
 bin_PROGRAMS=a4results2root root2a4 a42root
 a4results2root_SOURCES = src/a4results2root.cpp
-root2a4_SOURCES = src/root2a4/main.cpp src/root2a4/message_factory.cpp
+root2a4_SOURCES = src/root2a4/main.cpp src/root2a4/message_factory.cpp src/root2a4/common.h src/root2a4/period_mapping.h
 root2a4_LDADD = liba4root.la $(LDADD)
 a42root_SOURCES = src/a42root/main.cpp
 a42root_LDADD = liba4root.la $(LDADD)
