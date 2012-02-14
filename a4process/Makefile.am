@@ -37,17 +37,17 @@ a4copy_SOURCES = src/apps/a4copy.cpp
 ## Test programs
 plain_test_programs=test_hashlookup test_hashlookup_speed test_objstore test_objstore_speed test_storable test_histo
 check_PROGRAMS = $(plain_test_programs) test_app
-test_hashlookup_SOURCES = src/test_hashlookup.cpp
-test_hashlookup_speed_SOURCES = src/test_hashlookup_speed.cpp
-test_objstore_SOURCES = src/test_objstore.cpp
-test_objstore_speed_SOURCES = src/test_objstore_speed.cpp
-test_storable_SOURCES = src/test_storable.cpp
-test_app_SOURCES = src/test_app.cpp
-test_histo_SOURCES = src/test_histo.cpp
+test_hashlookup_SOURCES = src/tests/hashlookup.cpp
+test_hashlookup_speed_SOURCES = src/tests/hashlookup_speed.cpp
+test_objstore_SOURCES = src/tests/objstore.cpp
+test_objstore_speed_SOURCES = src/tests/objstore_speed.cpp
+test_storable_SOURCES = src/tests/storable.cpp
+test_app_SOURCES = src/tests/app.cpp
+test_histo_SOURCES = src/tests/histo.cpp
 
 CLEANFILES+=test_histos.a4 test_storable.a4
 
-dist_check_SCRIPTS = src/test_app.sh
+dist_check_SCRIPTS = src/tests/app.sh
 
-TESTS=$(plain_test_programs) src/test_app.sh
+TESTS=$(plain_test_programs) src/tests/app.sh
 
