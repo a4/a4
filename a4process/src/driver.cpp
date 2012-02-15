@@ -143,8 +143,11 @@ class BaseOutputAdaptor : public OutputAdaptor {
         }
     
         void write(A4Message m) {
-            if (!in_block) FATAL("Whoa?? Writing outside of a metadata block? How did you do this?");
-            if (outstream) outstream->write(*m.message());
+            if (!in_block) 
+                FATAL("Whoa?? Writing outside of a metadata block? How did you do this?");
+            
+            if (outstream) 
+                outstream->write(*m.message());
         }
 
     protected:

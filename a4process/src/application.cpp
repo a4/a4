@@ -17,7 +17,7 @@ namespace po = boost::program_options;
 
 typedef vector<string> FileList;
 
-int a4_main(int argc, char *argv[])
+int a4_main(int argc, char* argv[])
 try
 {
     // Verify that the version of the library that we linked against is
@@ -99,7 +99,7 @@ try
 
     return 0;
 }
-catch(std::exception &x)
+catch(std::exception& x)
 {
     // Clean Up any memory allocated by libprotobuf
     //google::protobuf::ShutdownProtobufLibrary();

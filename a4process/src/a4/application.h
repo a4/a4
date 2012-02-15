@@ -32,7 +32,7 @@ namespace a4{
             unique<Configuration> p(new MyConfiguration);
             unique<MyDriver> driver(new MyDriver(p.get()));
             return driver->main(argc, argv);
-        };
+        }
 
         template <class MyProcessor, class MyDriver=SimpleCommandLineDriver>
         int a4_main_process(const int& argc, const char* argv[]) {
@@ -40,7 +40,7 @@ namespace a4{
             unique<Configuration> p(new ConfigurationOf<MyProcessor>());
             unique<MyDriver> driver(new MyDriver(p.get()));
             return driver->main(argc, argv);
-        };
+        }
 
     }; // namespace a4::process
 }; // namespace a4
