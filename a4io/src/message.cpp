@@ -142,14 +142,12 @@ namespace a4{ namespace io{
         version_check(m2_);
 
         const Descriptor* d;
-        const Descriptor* dd;
-        if (m2_._dynamic_descriptor) {
-            dd = d = m2_._dynamic_descriptor;
-        } else if (m2_._pool) {
-            dd = d = m2_._pool->FindMessageTypeByName(m2_.descriptor()->full_name());
+        if (_dynamic_descriptor) {
+            d = _dynamic_descriptor;
+        } else if (_pool) {
+            d = _pool->FindMessageTypeByName(descriptor()->full_name());
         } else {
-            d = m2_._descriptor;
-            dd = NULL;
+            d = _descriptor;
         }
 
         A4Message m2;
@@ -157,6 +155,8 @@ namespace a4{ namespace io{
         if (m2_._descriptor == d) {
             m2 = m2_;
         } else {
+            // This is unfortunate but necessary - we need both messages
+            // to have the same descriptor to add them.
             m2._message.reset(message()->New());
             m2._message->ParseFromString(m2_.message()->SerializeAsString());
         }
