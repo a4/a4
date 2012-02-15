@@ -29,11 +29,19 @@ namespace io {
             UnreadMessage(size_t size, weak_shared<google::protobuf::io::CodedInputStream> coded_in)
                 : _size(size), _coded_in(coded_in), _bytes()
             {
+                _message.reset();
             }
+            UnreadMessage(shared<google::protobuf::Message> message)
+                : _size(0), _coded_in(), _bytes(), _message(message)
+            {
+            }
+            UnreadMessage(const UnreadMessage&) = delete;
             void invalidate_stream();
             size_t _size;
             weak_shared<google::protobuf::io::CodedInputStream> _coded_in;
             std::string _bytes;
+            /// If _message is set, we have parsed the message and _unread_message must be unset.
+            mutable shared<google::protobuf::Message> _message;
     };
     
     class A4Message {
@@ -68,7 +76,7 @@ namespace io {
             bool metadata() const { return class_id() % 2 == 1; }
 
             /// true if the message pointer is None (end, unknown or no metadata)
-            bool null() const { return (not _message) and (not _unread_message); }
+            bool null() const { return (not _unread_message); }
 
             /// this object can be used in if() expressions, it will be true if it contains a message
             operator bool() const { return !null(); }
@@ -90,10 +98,11 @@ namespace io {
             
             template <class T>
             T* as_mutable() {
-                if (not is<T>())  return NULL;
-                if (not _message)
+                if (not is<T>()) return NULL;
+                if (not _unread_message) return NULL;
+                if (not _unread_message->_message)
                     message();
-                return static_cast<T*>(_message.get());
+                return static_cast<T*>(_unread_message->_message.get());
             }
 
             /// Merge two messages that support it via the "merge" field extension
@@ -112,8 +121,6 @@ namespace io {
 
             /// If _unread_message is set, the message has not yet been parsed.
             mutable shared<UnreadMessage> _unread_message;
-            /// If _message is set, we have parsed the message and _unread_message must be unset.
-            mutable shared<google::protobuf::Message> _message;
 
             /// Class ID on the wire (can be different for different headers)
             uint32_t _class_id;

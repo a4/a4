@@ -35,7 +35,6 @@ namespace a4{ namespace io{
     A4Message::A4Message() : _class_id(0), _descriptor(NULL) 
     { 
         _unread_message.reset();
-        _message.reset();
         _pool.reset();
     }
 
@@ -46,46 +45,41 @@ namespace a4{ namespace io{
         _descriptor(pool->descriptor(class_id)),
         _pool(pool)
     {
-        _message.reset();
     }
 
     /// Constructs an read A4Message connected to a ProtoClassPool
     A4Message::A4Message(uint32_t class_id, shared<Message> msg, shared<ProtoClassPool> pool) :
-        _message(msg),
+        _unread_message(new UnreadMessage(msg)),
         _class_id(class_id),
         _descriptor(pool->descriptor(class_id)),
         _pool(pool)
     { 
-        _unread_message.reset();
     }
 
     /// Construct an A4Message from a compiled-in protobuf Message
     A4Message::A4Message(shared<google::protobuf::Message> msg,
                        bool metadata) 
-        : _message(msg),
+        : _unread_message(new UnreadMessage(msg)),
           _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
           _descriptor(msg->GetDescriptor())
     {
-        _unread_message.reset();
         _pool.reset();
     }
 
     /// Construct an A4Message from a compiled-in protobuf Message
     A4Message::A4Message(const google::protobuf::Message& msg,
                         bool metadata) 
-        : _message(msg.New()),
+        : _unread_message(new UnreadMessage(shared<google::protobuf::Message>(msg.New()))),
           _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
-          _descriptor(_message->GetDescriptor())
+          _descriptor(msg.GetDescriptor())
     {
-        _message->CopyFrom(msg);
-        _unread_message.reset();
+        _unread_message->_message->CopyFrom(msg);
         _pool.reset();
     }
 
     /// This copy constructor is assumed to be cheap
     A4Message::A4Message(const A4Message& m) : 
         _unread_message(m._unread_message),
-        _message(m._message),
         _class_id(m._class_id),
         _descriptor(m._descriptor),
         _pool(m._pool)
@@ -93,14 +87,17 @@ namespace a4{ namespace io{
     }
 
     A4Message::~A4Message() {
-        _message.reset();
+        _unread_message.reset();
         _pool.reset();
     }
 
     const google::protobuf::Message* A4Message::message() const {
         if (_unread_message) {
-            if (_unread_message->_coded_in.lock()) {
-                _message = _pool->parse_message(
+            if (_unread_message->_message) {
+                
+
+            } else if (_unread_message->_coded_in.lock()) {
+                _unread_message->_message = _pool->parse_message(
                         _class_id, 
                         _unread_message->_coded_in, 
                         _unread_message->_size);
@@ -108,26 +105,25 @@ namespace a4{ namespace io{
                 _unread_message->_size = 0;
 
             } else {
-                _message = _pool->parse_message(
+                _unread_message->_message = _pool->parse_message(
                         _class_id, 
                         _unread_message->_bytes);
+                _unread_message->_bytes = "";
             }
-            if (not _message)
+            if (not _unread_message->_message)
                 FATAL("Unable to parse message!");
-            _unread_message.reset();
+            return _unread_message->_message.get();
         }
-        return _message.get();
+        return NULL;
     }
 
     const std::string A4Message::bytes() const {
-        if (_message) {
-            return _message->SerializeAsString();
+        if (not _unread_message) FATAL("Trying to get bytes of empty message");
+        if (_unread_message->_message) {
+            return _unread_message->_message->SerializeAsString();
         }
-        if (_unread_message) {
-            _unread_message->invalidate_stream();
-            return _unread_message->_bytes;
-        }
-        FATAL("Trying to get bytes of empty message");
+        _unread_message->invalidate_stream();
+        return _unread_message->_bytes;
     }
 
     void A4Message::version_check(const A4Message &m2) const {
@@ -173,15 +169,15 @@ namespace a4{ namespace io{
         if (m2_._descriptor == d) {
             m1 = *this;
         } else {
-            m1._message.reset(res.message()->New());
-            m1._message->ParseFromString(bytes());
+            m1._unread_message->_message.reset(res.message()->New());
+            m1._unread_message->_message->ParseFromString(bytes());
         }
 
         if (m2_._descriptor == d) {
             m2 = m2_;
         } else {
-            m2._message.reset(res.message()->New());
-            m2._message->ParseFromString(m2_.bytes());
+            m2._unread_message->_message.reset(res.message()->New());
+            m2._unread_message->_message->ParseFromString(m2_.bytes());
         }
 
         for (int i = 0; i < d->field_count(); i++) {
@@ -189,7 +185,7 @@ namespace a4{ namespace io{
 
             ConstDynamicField f1(*m1.message(), d->field(i));
             ConstDynamicField f2(*m2.message(), d->field(i));
-            DynamicField fm(*res._message, d->field(i));
+            DynamicField fm(*res._unread_message->_message, d->field(i));
 
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
@@ -231,29 +227,37 @@ namespace a4{ namespace io{
 
         if (_descriptor == d) {
             m1 = *this;
+
         } else {
-            m1._message.reset(m1._message->New());
-            m1._message->ParseFromString(bytes());
+            m1._unread_message->_message.reset(m1._unread_message->_message->New());
+            m1._unread_message->_message->ParseFromString(bytes());
         }
 
         if (m2_._descriptor == d) {
             m2 = m2_;
         } else {
-            m1._message.reset(m2._message->New());
-            m2._message->ParseFromString(m2_.bytes());
+            m2._unread_message->_message.reset(m2._unread_message->_message->New());
+            m2._unread_message->_message->ParseFromString(m2_.bytes());
         }
+
         message(); // force message to be read
+        m1.message();
+        m2.message();
 
         for (int i = 0; i < d->field_count(); i++) {
             MetadataMergeOptions merge_opts = d->field(i)->options().GetExtension(merge);
 
-
-            DynamicField f1(*m1._message, d->field(i));
-            ConstDynamicField f2(*m2._message, d->field(i));
+            DynamicField f1(*m1._unread_message->_message, d->field(i));
+            ConstDynamicField f2(*m2._unread_message->_message, d->field(i));
 
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
-                    if(!(f1 == f2)) throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name());
+                    if(!(f1 == f2)) {
+                        DEBUG("this=", message()->DebugString());
+                        DEBUG("msg1=", m1._unread_message->_message->DebugString());
+                        DEBUG("msg2=", m2._unread_message->_message->DebugString());
+                        throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name(), ":", f1.value().str(), " != ", f2.value().str());
+                    }
                     // NOOP!
                     //f1.set(f1.value());
                     break;
@@ -279,8 +283,8 @@ namespace a4{ namespace io{
     }
     
     void A4Message::unionize() {
-        assert(_message);
-        Message& m = *_message;
+        assert(_unread_message->_message);
+        Message& m = *_unread_message->_message;
         const auto* refl = m.GetReflection();
         //const auto* desc = m.GetDescriptor();
         
