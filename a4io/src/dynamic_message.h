@@ -135,6 +135,10 @@ class FieldContent {
                     FATAL("Unknown type ", f->cpp_type());
             };
         }
+        
+        bool operator<(const FieldContent& rhs) const {
+            return content < rhs.content;
+        }
 
         FieldContent(const FieldContentVariant& v) {
             content = v;
@@ -201,6 +205,7 @@ namespace std {
 
 class ConstDynamicField {
     public:
+    
         ConstDynamicField(const Message& m, const FieldDescriptor* f) : _m(m), _f(f), _r(m.GetReflection()) {}
 
         bool repeated() const { return _f->is_repeated(); }
@@ -260,11 +265,13 @@ class DynamicField : public ConstDynamicField {
         DynamicField(Message& m, const FieldDescriptor* f) 
             : ConstDynamicField(m, f), _m_mutable(m) {}
         
-        
-        
         void set(const FieldContent& c) {
             assert(!repeated());
             boost::apply_visitor(visit_setter(&_m_mutable, _f), c.content);
+        }
+        
+        void clear() {
+            _r->ClearField(&_m_mutable, _f);
         }
 
         void add(const FieldContent& c) {
@@ -284,8 +291,8 @@ void add_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, Dynami
 void multiply_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged);
 void append_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged, bool make_unique);
 
-void inplace_add_fields(DynamicField& merged, const DynamicField & f2);
-void inplace_multiply_fields(DynamicField& merged, const DynamicField & f2);
-void inplace_append_fields(DynamicField& merged, const DynamicField & f2, bool make_unique);
+void inplace_add_fields(DynamicField& merged, ConstDynamicField & f2);
+void inplace_multiply_fields(DynamicField& merged, ConstDynamicField& f2);
+void inplace_append_fields(DynamicField& merged, ConstDynamicField& f2);
 
 #endif

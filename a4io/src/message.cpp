@@ -1,3 +1,5 @@
+#include <set>
+
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/dynamic_message.h>
@@ -155,15 +157,15 @@ namespace a4{ namespace io{
         if (m2_._descriptor == d) {
             m2 = m2_;
         } else {
-            m2.message.reset(message->New());
-            m2.message->ParseFromString(m2_.message->SerializeAsString());
+            m2._message.reset(message()->New());
+            m2._message->ParseFromString(m2_.message()->SerializeAsString());
         }
 
         for (int i = 0; i < d->field_count(); i++) {
             MetadataMergeOptions merge_opts = d->field(i)->options().GetExtension(merge);
 
-            DynamicField f1(*message, d->field(i));
-            DynamicField f2(*m2.message, d->field(i));
+            DynamicField f1(*_message, d->field(i));
+            ConstDynamicField f2(*m2.message(), d->field(i));
 
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
@@ -178,10 +180,10 @@ namespace a4{ namespace io{
                     inplace_multiply_fields(f1, f2);
                     break;
                 case MERGE_UNION:
-                    inplace_append_fields(f1, f2, true);
+                    inplace_append_fields(f1, f2);
                     break;
                 case MERGE_APPEND:
-                    inplace_append_fields(f1, f2, false);
+                    inplace_append_fields(f1, f2);
                     break;
                 case MERGE_DROP:
                     break;
@@ -190,6 +192,40 @@ namespace a4{ namespace io{
             }
         }
         return *this;
+    }
+    
+    void A4Message::unionize() {
+        assert(_message);
+        Message& m = *_message;
+        const auto* refl = m.GetReflection();
+        //const auto* desc = m.GetDescriptor();
+        
+        std::vector<const FieldDescriptor*> filled_fields;
+        refl->ListFields(m, &filled_fields);
+        
+        foreach (const auto* field, filled_fields) {
+            MetadataMergeOptions merge_opts = field->options().GetExtension(merge);
+            
+            DynamicField thisfield(m, field);
+            
+            switch (merge_opts) {
+                case MERGE_UNION:
+                {
+                    assert(thisfield.repeated());
+                    if (thisfield.message())
+                        FATAL("Can't merge union field with complex type");
+                    std::set<FieldContent> unioned;
+                    for (int i = 0; i < thisfield.size(); i++)
+                        unioned.insert(thisfield.value(i));
+                    thisfield.clear();
+                    foreach (auto& value, unioned)
+                        thisfield.add(value);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
     }
     
     std::string A4Message::field_as_string(const std::string& field_name) {

@@ -83,13 +83,16 @@ class BaseOutputAdaptor : public OutputAdaptor {
             }
             backstore.reset(new ObjectBackStore());
             driver->set_store(p, backstore->store());
-            if (outstream and forward_metadata and current_metadata) 
+            if (outstream and forward_metadata and current_metadata) {
+                current_metadata.unionize();                
                 outstream->metadata(*current_metadata.message());
+            }
             in_block = true;
         }
 
-        void end_block() {
+        void end_block() {            
             if (resstream && current_metadata) {
+                current_metadata.unionize();
                 resstream->metadata(*current_metadata.message());
             }
             if (backstore && resstream) {
@@ -97,6 +100,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
             }
             backstore.reset();
             if (outstream and !forward_metadata and current_metadata) {
+                current_metadata.unionize();
                 outstream->metadata(*current_metadata.message());
             }
             in_block = false;

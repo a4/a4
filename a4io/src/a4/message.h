@@ -122,6 +122,8 @@ namespace io {
             /// Merge two messages that support it via the "merge" field extension
             A4Message operator+(const A4Message& rhs) const;
             A4Message& operator+=(const A4Message& rhs);
+            
+            void unionize();
 
             /// Return a field of this message in string representation
             std::string field_as_string(const std::string& field_name);
