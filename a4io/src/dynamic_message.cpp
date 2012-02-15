@@ -58,7 +58,7 @@ void append_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, Dyn
 }
 
 void inplace_add_fields(DynamicField& merged, ConstDynamicField& f2) {
-    DEBUG("Will add two fields: ", merged.name(), " - ", f2.name());
+    merged.assert_compatible(f2);
     if (merged.repeated()) {
         FATAL("Not implemented: inplace_add_fields with repeated field");
     } else {
@@ -67,7 +67,7 @@ void inplace_add_fields(DynamicField& merged, ConstDynamicField& f2) {
 }
 
 void inplace_multiply_fields(DynamicField& merged, ConstDynamicField& f2) {
-    DEBUG("Will add two fields: ", merged.name(), " - ", f2.name());
+    merged.assert_compatible(f2);
     if (merged.repeated()) {
         FATAL("Not implemented: inplace_multiply_fields with repeated field");
     } else {
@@ -76,7 +76,7 @@ void inplace_multiply_fields(DynamicField& merged, ConstDynamicField& f2) {
 }
 
 void inplace_append_fields(DynamicField& merged, ConstDynamicField& f2) {
-    DEBUG("Will append two fields: ", merged.name(), " - ", f2.name());
+    merged.assert_compatible(f2);
     if (!merged.repeated())
         FATAL("MERGE_UNION/APPEND is not applicable to non-repeated field ", merged.name());
         

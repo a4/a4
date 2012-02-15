@@ -226,21 +226,30 @@ namespace a4{ namespace io{
         const Descriptor* d = dd;
         if (not d) d = _descriptor;
 
-        A4Message m2;
+        A4Message m1, m2;
+        m1 = m2 = A4Message(_class_id, _pool->get_new_message(d), _pool);
+
+        if (_descriptor == d) {
+            m1 = *this;
+        } else {
+            m1._message.reset(m1._message->New());
+            m1._message->ParseFromString(bytes());
+        }
 
         if (m2_._descriptor == d) {
             m2 = m2_;
         } else {
-            m2._message.reset(message()->New());
-            m2._message->ParseFromString(m2_.bytes());;
+            m1._message.reset(m2._message->New());
+            m2._message->ParseFromString(m2_.bytes());
         }
         message(); // force message to be read
 
         for (int i = 0; i < d->field_count(); i++) {
             MetadataMergeOptions merge_opts = d->field(i)->options().GetExtension(merge);
 
-            DynamicField f1(*_message, d->field(i));
-            ConstDynamicField f2(*m2.message(), d->field(i));
+
+            DynamicField f1(*m1._message, d->field(i));
+            ConstDynamicField f2(*m2._message, d->field(i));
 
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
