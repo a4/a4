@@ -27,14 +27,9 @@
    Processing is done in executable files with the following syntax:
 
    \code
-   ./my_analysis --config config_hww.ini --results my.results --output skim.a4 --input events.a4
+   ./analysis -c config_hww.ini --results my.results --output skim.a4 events.a4
    \endcode
 
-   To setup an analysis, one can use
-  \code
-   a4_init_analysis
-  \endcode
-   in an empty directory. An A4 Analysis project will be generated
 */
 
 
