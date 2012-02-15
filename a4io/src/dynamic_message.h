@@ -216,6 +216,7 @@ class ConstDynamicField {
 
         FieldContent value() const {
             assert(!repeated());
+            DEBUG("Field content: ", _f->full_name());
             return FieldContent(_m, _f);
         }
 
