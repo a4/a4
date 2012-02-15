@@ -212,8 +212,7 @@ namespace a4{ namespace io{
                 case MERGE_UNION:
                 {
                     assert(thisfield.repeated());
-                    if (thisfield.message())
-                        FATAL("Can't merge union field with complex type");
+                    //if (thisfield.message()) FATAL("Can't merge union field with complex type");
                     std::set<FieldContent> unioned;
                     for (int i = 0; i < thisfield.size(); i++)
                         unioned.insert(thisfield.value(i));
