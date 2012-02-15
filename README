@@ -1,5 +1,5 @@
-A4 - Another Attempt At Analysis
---------------------------------
+A4 - An Analysis Tool for High-Energy Physics
+---------------------------------------------
 Johannes Ebke <ebke@cern.ch>
 
 Inspired and building on Samvel Khalatyan's
@@ -17,3 +17,5 @@ If you are impatient, try:
 
 Troubleshooting tips are in INSTALL as well.
 
+A Doxygen reference page is usually available at
+http://www.ebke.org/a4
