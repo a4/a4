@@ -35,7 +35,7 @@ bin_PROGRAMS = a4copy
 a4copy_SOURCES = src/apps/a4copy.cpp
 
 ## Test programs
-plain_test_programs=test_hashlookup test_hashlookup_speed test_objstore test_objstore_speed test_storable test_histo
+plain_test_programs=test_hashlookup test_hashlookup_speed test_objstore test_objstore_speed test_storable test_histo gtests
 check_PROGRAMS = $(plain_test_programs) test_app
 test_hashlookup_SOURCES = src/tests/hashlookup.cpp
 test_hashlookup_speed_SOURCES = src/tests/hashlookup_speed.cpp
@@ -44,6 +44,11 @@ test_objstore_speed_SOURCES = src/tests/objstore_speed.cpp
 test_storable_SOURCES = src/tests/storable.cpp
 test_app_SOURCES = src/tests/app.cpp
 test_histo_SOURCES = src/tests/histo.cpp
+
+nodist_gtests_SOURCES = $(GTEST_APP)
+gtests_SOURCES = src/tests/metadata_merging.cpp
+gtests_CPPFLAGS = $(GTEST_CPPFLAGS) $(AM_CPPFLAGS)
+gtests_LDADD = $(LDADD) $(GTEST_LIBS)
 
 CLEANFILES+=test_histos.a4 test_storable.a4
 
