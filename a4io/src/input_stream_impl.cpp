@@ -80,6 +80,7 @@ InputStreamImpl::InputStreamImpl(unique<ZeroCopyStreamResource> in,
     _current_metadata_refers_forward = false;
     _current_header_index = 0;
     _current_metadata_index = 0;
+    _last_unread_message.reset();
 }
 
 InputStreamImpl::~InputStreamImpl() {};
@@ -118,6 +119,7 @@ void InputStreamImpl::startup(bool discovery_requested) {
 
 bool InputStreamImpl::read_header(bool discovery_requested)
 {
+    notify_last_unread_message();
     // Note: in the following i use that bool(set_end()) == false 
     // && bool(set_error()) == false
     string magic;
@@ -180,6 +182,7 @@ bool InputStreamImpl::read_header(bool discovery_requested)
 }
 
 bool InputStreamImpl::discover_all_metadata() {
+    notify_last_unread_message();
     assert(_metadata_per_header.size() == 0);
     // Temporary ProtoClassPool for reading static messages
     shared<ProtoClassPool> temp_pool(new ProtoClassPool());
@@ -296,6 +299,7 @@ bool InputStreamImpl::discover_all_metadata() {
 
 int64_t InputStreamImpl::seek_back(int64_t position) {
     assert(!_compressed_in);
+    notify_last_unread_message();
     _coded_in.reset();
     if (!_raw_in->SeekBack(-position))
         return -1;
@@ -307,6 +311,7 @@ int64_t InputStreamImpl::seek_back(int64_t position) {
 
 int64_t InputStreamImpl::seek(int64_t position) {
     assert(!_compressed_in);
+    notify_last_unread_message();
     _coded_in.reset();
     if (!_raw_in->Seek(position)) return -1;
     int64_t pos = _raw_in->Tell();
@@ -378,6 +383,7 @@ bool InputStreamImpl::seek_to(uint32_t header, uint32_t metadata, bool carry) {
 
 bool InputStreamImpl::start_compression(const StartCompressedSection& cs) {
     assert(!_compressed_in);
+    notify_last_unread_message();
     _coded_in.reset();
 
     if (cs.compression() == StartCompressedSection_Compression_ZLIB) {
@@ -405,6 +411,7 @@ void InputStreamImpl::drop_compression() {
     if(!_compressed_in) 
         return;
         
+    notify_last_unread_message();
     _coded_in.reset();
     _compressed_in.reset();
     _coded_in.reset(new CodedInputStream(_raw_in.get()));
@@ -412,6 +419,7 @@ void InputStreamImpl::drop_compression() {
 
 bool InputStreamImpl::stop_compression(const EndCompressedSection& cs) {
     assert(_compressed_in);
+    notify_last_unread_message();
     _coded_in.reset();
     if (!_compressed_in->ExpectAtEnd()) {
         ERROR("Compressed section did not end where it should");
@@ -423,6 +431,7 @@ bool InputStreamImpl::stop_compression(const EndCompressedSection& cs) {
 }
 
 void InputStreamImpl::reset_coded_stream() {
+    notify_last_unread_message();
     _coded_in.reset();
     if (_compressed_in) {
         _coded_in.reset(new CodedInputStream(_compressed_in.get()));
@@ -438,8 +447,11 @@ A4Message InputStreamImpl::bare_message() {
     if (!_good) 
         return A4Message();
 
-    if (_items_read++ % 100 == 0) 
+    notify_last_unread_message();
+
+    if (_items_read++ % 100 == 0) {
         reset_coded_stream();
+    }
 
     uint32_t size = 0;
     if (!_coded_in->ReadLittleEndian32(&size)) {
@@ -457,12 +469,10 @@ A4Message InputStreamImpl::bare_message() {
             FATAL("Unexpected end of file [1]!");
     }
 
-    CodedInputStream::Limit lim = _coded_in->PushLimit(size);
-    A4Message msg = _current_class_pool->read(class_id, _coded_in.get());
-    _coded_in->PopLimit(lim);
-
-    if (!msg)
-        FATAL("Failure to parse object!");
+    shared<UnreadMessage> umsg(new UnreadMessage(size, _coded_in));
+    _last_unread_message = umsg;
+    auto msg = A4Message(class_id, umsg, _current_class_pool);
+    //msg.message();
     return msg;
 }
 
@@ -486,6 +496,7 @@ bool InputStreamImpl::handle_stream_command(A4Message& msg) {
         return false;
     
     if (msg.is<StreamFooter>()) {
+        notify_last_unread_message();
         uint32_t size;
         if (!_coded_in->ReadLittleEndian32(&size))
             FATAL("Unexpected end of file [3]!");
@@ -588,5 +599,13 @@ A4Message InputStreamImpl::next_bare_message() {
         return msg;
     return msg;
 }
+
+void InputStreamImpl::notify_last_unread_message() {
+    auto msg = _last_unread_message;
+    if (msg) {
+        msg->invalidate_stream();
+    }
+    _last_unread_message.reset();
+};
 
 };}; // namespace a4::io

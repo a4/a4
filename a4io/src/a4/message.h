@@ -7,6 +7,7 @@
 #include <google/protobuf/dynamic_message.h>
 
 #include <a4/types.h>
+#include <a4/register.h>
 
 // used internally
 namespace google {
@@ -17,81 +18,57 @@ namespace protobuf {
 
 namespace a4 {
 namespace io {
+    class ProtoClassPool;
+
     /// Wrapped message returned from the InputStream
     static const uint32_t NO_CLASS_ID = ((1L<<32) - 2);
     static const uint32_t NO_CLASS_ID_METADATA = ((1L<<32) - 1);
+
+    class UnreadMessage {
+        public:
+            UnreadMessage(size_t size, weak_shared<google::protobuf::io::CodedInputStream> coded_in)
+                : _size(size), _coded_in(coded_in), _bytes()
+            {
+            }
+            void invalidate_stream();
+            size_t _size;
+            weak_shared<google::protobuf::io::CodedInputStream> _coded_in;
+            std::string _bytes;
+    };
     
     class A4Message {
         public:
-            /// Class-IDs for newly constructed messages
-
             /// Construct A4Message that signifies end of stream or stream error
-            A4Message() : _class_id(0), _descriptor(NULL), 
-                          _dynamic_descriptor(NULL) 
-            { 
-                _message.reset();
-                _pool.reset();
-                _factory.reset();
-            }
-            
+            A4Message();
+            /// Constructs an unread A4Message connected to a ProtoClassPool
+            A4Message(uint32_t class_id, shared<UnreadMessage> umsg, shared<ProtoClassPool> pool);
+            /// Constructs an read A4Message connected to a ProtoClassPool
+            A4Message(uint32_t class_id, shared<Message> msg, shared<ProtoClassPool> pool);
+            /// Construct an A4Message from a compiled-in protobuf Message
+            explicit A4Message(shared<google::protobuf::Message> msg, bool metadata=true);
+            /// Construct an A4Message from a compiled-in protobuf Message
+            explicit A4Message(const google::protobuf::Message& msg, bool metadata=true);
             /// This copy constructor is assumed to be cheap
-            A4Message(const A4Message &m) : 
-                _message(m._message),
-                _class_id(m._class_id),
-                _descriptor(m._descriptor),
-                _dynamic_descriptor(m._dynamic_descriptor),
-                _pool(m._pool),
-                _factory(m._factory) {}
-                
-            explicit A4Message(shared<google::protobuf::Message> msg, 
-                               bool metadata=true) 
-                : _message(msg),
-                  _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
-                  _descriptor(msg->GetDescriptor()),
-                  _dynamic_descriptor(NULL) 
-            { 
-                _pool.reset(); _factory.reset(); 
-            }
-
-            explicit A4Message(const google::protobuf::Message& msg,
-                                bool metadata=true) 
-                : _message(msg.New()),
-                  _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
-                  _descriptor(_message->GetDescriptor()),
-                  _dynamic_descriptor(NULL) 
-            {
-                _message->CopyFrom(msg);
-            }
+            A4Message(const A4Message& m); 
             ~A4Message();
-
-            /// Construct normal A4Message with message, (static) descriptor, 
-            /// dynamic descriptor and  class_id and protobuf Message
-            A4Message(uint32_t class_id, 
-                      shared<google::protobuf::Message> msg,
-                      const google::protobuf::Descriptor* d,
-                      const google::protobuf::Descriptor* dd,
-                      shared<google::protobuf::DescriptorPool> pool,
-                      shared<google::protobuf::DynamicMessageFactory> factory) 
-                : _message(msg), _class_id(class_id), _descriptor(d), 
-                  _dynamic_descriptor(dd), _pool(pool), _factory(factory) 
-            {
-                assert(_descriptor == msg->GetDescriptor());
-            }
-
-            /// Shared protobuf message 
-            shared<google::protobuf::Message> _message;
             
-            const google::protobuf::Message* message() const { return _message.get(); }
+            const google::protobuf::Message* message() const;
+            const std::string bytes() const;
             
             /// Pointer to the descriptor of that message, used for quick type checks.
             const google::protobuf::Descriptor* descriptor() const { return _descriptor; }
+
+            /// Pointer to the dynamic descriptor of that message if possible
+            const google::protobuf::Descriptor* dynamic_descriptor() const;
+
             /// Class ID on the wire
             uint32_t class_id() const { return _class_id; }
+
             /// Returns true if this is a metadata message
             bool metadata() const { return class_id() % 2 == 1; }
 
             /// true if the message pointer is None (end, unknown or no metadata)
-            bool null() const { return _message.get() == NULL; }
+            bool null() const { return (not _message) and (not _unread_message); }
 
             /// this object can be used in if() expressions, it will be true if it contains a message
             operator bool() const { return !null(); }
@@ -122,7 +99,8 @@ namespace io {
             /// Merge two messages that support it via the "merge" field extension
             A4Message operator+(const A4Message& rhs) const;
             A4Message& operator+=(const A4Message& rhs);
-            
+           
+            /// Enforce the UNION merge option - removes duplicates 
             void unionize();
 
             /// Return a field of this message in string representation
@@ -132,17 +110,17 @@ namespace io {
         private:
             void version_check(const A4Message &m2) const;
 
-            /// Class ID on the wire
+            /// If _unread_message is set, the message has not yet been parsed.
+            mutable shared<UnreadMessage> _unread_message;
+            /// If _message is set, we have parsed the message and _unread_message must be unset.
+            mutable shared<google::protobuf::Message> _message;
+
+            /// Class ID on the wire (can be different for different headers)
             uint32_t _class_id;
             /// Pointer to the descriptor of that message, used for quick type checks.
             const google::protobuf::Descriptor* _descriptor;
-            /// Pointer to the dynamically loaded descriptor, used for merging
-            const google::protobuf::Descriptor* _dynamic_descriptor;
-            /// Shared pointer to the descriptor pool of that message, so that it does not disappear on us.
-            shared<google::protobuf::DescriptorPool> _pool;
-            /// Shared pointer to the factory that created this message
-            shared<google::protobuf::DynamicMessageFactory> _factory;
-
+            /// Shared pointer to the pool of that message, so that it does not disappear on us.
+            shared<ProtoClassPool> _pool;
     };
 };};
 

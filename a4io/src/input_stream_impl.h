@@ -3,6 +3,8 @@
 
 #include <tuple>
 
+#include <a4/types.h>
+
 #include "base_compressed_streams.h"
 #include "proto_class_pool.h"
 #include "zero_copy_resource.h"
@@ -65,7 +67,7 @@ namespace a4{ namespace io{
         private:
             unique<ZeroCopyStreamResource> _raw_in;
             unique<BaseCompressedInputStream> _compressed_in;
-            unique<google::protobuf::io::CodedInputStream> _coded_in;
+            shared<google::protobuf::io::CodedInputStream> _coded_in;
             shared<ProtoClassPool> _current_class_pool;
 
             // variables set at construction time
@@ -101,6 +103,9 @@ namespace a4{ namespace io{
             bool handle_stream_command(A4Message& msg);
             bool handle_metadata(A4Message& msg);
             bool carry_metadata(uint32_t& header, uint32_t& metadata);
+
+            void notify_last_unread_message();
+            shared<UnreadMessage> _last_unread_message;
 
             // set error/end status and return A4Message
             A4Message set_error();

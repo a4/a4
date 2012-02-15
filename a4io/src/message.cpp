@@ -9,6 +9,7 @@
 #include <A4.pb.h>
 
 #include "dynamic_message.h"
+#include "proto_class_pool.h"
 
 using google::protobuf::DynamicMessageFactory;
 using google::protobuf::Descriptor;
@@ -17,33 +18,128 @@ using google::protobuf::Message;
 
 namespace a4{ namespace io{
 
+    void UnreadMessage::invalidate_stream() {
+        auto coded_in = _coded_in.lock();
+        if (coded_in) {
+            //std::cerr << "Invalidating stream by reading " << _size << std::endl;
+            if (not coded_in->ReadString(&_bytes, _size)) {
+                std::cerr << "Invalidating stream failed!" << std::endl;
+                coded_in->PushLimit(0);                
+            }
+            _coded_in.reset();
+            _size = 0;
+        }
+    }
+
+    /// Construct A4Message that signifies end of stream or stream error
+    A4Message::A4Message() : _class_id(0), _descriptor(NULL) 
+    { 
+        _unread_message.reset();
+        _message.reset();
+        _pool.reset();
+    }
+
+    /// Constructs an unread A4Message connected to a ProtoClassPool
+    A4Message::A4Message(uint32_t class_id, shared<UnreadMessage> umsg, shared<ProtoClassPool> pool) :
+        _unread_message(umsg),
+        _class_id(class_id),
+        _descriptor(pool->descriptor(class_id)),
+        _pool(pool)
+    {
+        _message.reset();
+    }
+
+    /// Constructs an read A4Message connected to a ProtoClassPool
+    A4Message::A4Message(uint32_t class_id, shared<Message> msg, shared<ProtoClassPool> pool) :
+        _message(msg),
+        _class_id(class_id),
+        _descriptor(pool->descriptor(class_id)),
+        _pool(pool)
+    { 
+        _unread_message.reset();
+    }
+
+    /// Construct an A4Message from a compiled-in protobuf Message
+    A4Message::A4Message(shared<google::protobuf::Message> msg,
+                       bool metadata) 
+        : _message(msg),
+          _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
+          _descriptor(msg->GetDescriptor())
+    {
+        _unread_message.reset();
+        _pool.reset();
+    }
+
+    /// Construct an A4Message from a compiled-in protobuf Message
+    A4Message::A4Message(const google::protobuf::Message& msg,
+                        bool metadata) 
+        : _message(msg.New()),
+          _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
+          _descriptor(_message->GetDescriptor())
+    {
+        _message->CopyFrom(msg);
+        _unread_message.reset();
+        _pool.reset();
+    }
+
+    /// This copy constructor is assumed to be cheap
+    A4Message::A4Message(const A4Message& m) : 
+        _unread_message(m._unread_message),
+        _message(m._message),
+        _class_id(m._class_id),
+        _descriptor(m._descriptor),
+        _pool(m._pool)
+    {
+    }
+
     A4Message::~A4Message() {
         _message.reset();
-        _factory.reset();
         _pool.reset();
+    }
+
+    const google::protobuf::Message* A4Message::message() const {
+        if (_unread_message) {
+            if (_unread_message->_coded_in.lock()) {
+                _message = _pool->parse_message(
+                        _class_id, 
+                        _unread_message->_coded_in, 
+                        _unread_message->_size);
+                _unread_message->_coded_in.reset();
+                _unread_message->_size = 0;
+
+            } else {
+                _message = _pool->parse_message(
+                        _class_id, 
+                        _unread_message->_bytes);
+            }
+            if (not _message)
+                FATAL("Unable to parse message!");
+            _unread_message.reset();
+        }
+        return _message.get();
+    }
+
+    const std::string A4Message::bytes() const {
+        if (_message) {
+            return _message->SerializeAsString();
+        }
+        if (_unread_message) {
+            _unread_message->invalidate_stream();
+            return _unread_message->_bytes;
+        }
+        FATAL("Trying to get bytes of empty message");
     }
 
     void A4Message::version_check(const A4Message &m2) const {
         if (descriptor()->full_name() != m2.descriptor()->full_name()) {
             FATAL("Typenames of objects to merge do not agree: ", descriptor()->full_name(), " != ", m2.descriptor()->full_name());
         }
-        const Descriptor* d1;
-        if (_dynamic_descriptor) {
-            d1 = _dynamic_descriptor;
-        } else if (_pool) {
-            d1 = _pool->FindMessageTypeByName(descriptor()->full_name());
-        } else {
-            d1 = _descriptor;
-        }
-        
-        const Descriptor* d2;
-        if (_dynamic_descriptor) {
-            d2 = m2._dynamic_descriptor;
-        } else if (m2._pool) {
-            d2 = m2._pool->FindMessageTypeByName(m2.descriptor()->full_name());
-        } else {
-            d2 = m2._descriptor;
-        }
+        const Descriptor* d1 = _pool->dynamic_descriptor(_class_id);
+        if (not d1) d1 = _descriptor;
+
+        const Descriptor* d2 = m2._pool->dynamic_descriptor(m2._class_id);
+        if (not d2) d2 = m2._descriptor;
+         
         if (d1 == d2) return;
 
         // Do version checking if the dynamic descriptors are different
@@ -65,42 +161,27 @@ namespace a4{ namespace io{
         // since they are probably contain all fields.
         version_check(m2_);
 
-        const Descriptor* d;
-        const Descriptor* dd;
-        if (m2_._dynamic_descriptor) {
-            dd = d = m2_._dynamic_descriptor;
-        } else if (m2_._pool) {
-            dd = d = m2_._pool->FindMessageTypeByName(m2_.descriptor()->full_name());
-        } else {
-            d = m2_._descriptor;
-            dd = NULL;
-        }
+        const Descriptor* dd = dynamic_descriptor();
+        const Descriptor* d = dd;
+        if (not d) d = _descriptor;
 
-        // Prepare dynamic messages
-        A4Message res, m1, m2;
-        res = m2_;
-        res._descriptor = d;
-        res._dynamic_descriptor = dd;
+        A4Message res(_class_id, _pool->get_new_message(d), _pool);
+
+        // Force every message to be constructed by the same descriptor
+        A4Message m1, m2;
         m1 = m2 = res;
-
-        if (m2._factory) {
-            res._message.reset(m2._factory->GetPrototype(d)->New());
-        } else {
-            res._message.reset(m2.message()->New());
-        }
-
-        if (_descriptor == d) {
+        if (m2_._descriptor == d) {
             m1 = *this;
         } else {
             m1._message.reset(res.message()->New());
-            m1._message->ParseFromString(_message->SerializeAsString());
+            m1._message->ParseFromString(bytes());
         }
 
         if (m2_._descriptor == d) {
             m2 = m2_;
         } else {
             m2._message.reset(res.message()->New());
-            m2._message->ParseFromString(m2_.message()->SerializeAsString());
+            m2._message->ParseFromString(m2_.bytes());
         }
 
         for (int i = 0; i < d->field_count(); i++) {
@@ -141,25 +222,19 @@ namespace a4{ namespace io{
         // since they are probably contain all fields.
         version_check(m2_);
 
-        const Descriptor* d;
-        if (_dynamic_descriptor) {
-            d = _dynamic_descriptor;
-        } else if (_pool) {
-            d = _pool->FindMessageTypeByName(descriptor()->full_name());
-        } else {
-            d = _descriptor;
-        }
+        const Descriptor* dd = dynamic_descriptor();
+        const Descriptor* d = dd;
+        if (not d) d = _descriptor;
 
         A4Message m2;
 
         if (m2_._descriptor == d) {
             m2 = m2_;
         } else {
-            // This is unfortunate but necessary - we need both messages
-            // to have the same descriptor to add them.
             m2._message.reset(message()->New());
-            m2._message->ParseFromString(m2_.message()->SerializeAsString());
+            m2._message->ParseFromString(m2_.bytes());;
         }
+        message(); // force message to be read
 
         for (int i = 0; i < d->field_count(); i++) {
             MetadataMergeOptions merge_opts = d->field(i)->options().GetExtension(merge);
@@ -253,6 +328,10 @@ namespace a4{ namespace io{
             FATAL(fd->full_name(), " has already multiple ", field_name, " entries - cannot achieve desired granularity!");
         }
         return field_as_string(field_name);
+    }
+    
+    const google::protobuf::Descriptor* A4Message::dynamic_descriptor() const {;
+        return _pool->dynamic_descriptor(_class_id);
     }
 
 };};

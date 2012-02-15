@@ -41,6 +41,7 @@ using boost::shared_array;
 
     #include <boost/shared_ptr.hpp>
     #define shared boost::shared_ptr
+    #define weak_shared boost::weak_ptr
 
     // Boost doesn't define a unique<> so we use shared instead, which can lead
     // to incorrect code being allowed.
@@ -56,6 +57,7 @@ using boost::shared_array;
     namespace std_memory_prefix = std;
     #define shared std::shared_ptr
     #define unique std::unique_ptr
+    #define weak_shared std::weak_ptr
 
 #elif HAVE_STD_TR1_SMART_PTR
 
@@ -63,6 +65,7 @@ using boost::shared_array;
     namespace std_memory_prefix = std::tr1;
     #define shared std::tr1::shared_ptr
     #define unique std::tr1::unique_ptr
+    #define weak_shared std::tr1::weak_ptr
 
 #else
     #error "No implementation of C++11 smart pointers found!"
