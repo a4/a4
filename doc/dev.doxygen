@@ -2,12 +2,12 @@
 # Project-wide settings
 
 PROJECT_NAME           = A4
-PROJECT_BRIEF          = "Another Attempt At Analysis"
+PROJECT_BRIEF          = "An Analysis Tool for High-Energy Physics"
 OUTPUT_DIRECTORY       = $(builddir)/doc/dev
-STRIP_FROM_INC_PATH    = $(srcdir)/a4io/src $(builddir)/a4io/src $(srcdir)/a4process/src $(builddir)/a4process/src
-INPUT                  = $(srcdir)/a4io $(builddir)/a4io $(srcdir)/a4process $(builddir)/a4process $(srcdir)/doc/doxygen
+STRIP_FROM_INC_PATH    = $(srcdir)/a4io/src $(builddir)/a4io/src $(srcdir)/a4process/src $(builddir)/a4process/src $(srcdir)/a4hist $(builddir)/a4hist $(srcdir)/a4atlas $(builddir)/a4atlas $(srcdir)/a4plot/src $(builddir)/a4plot/src $(srcdir)/a4root/src $(builddir)/a4root/src
+INPUT                  = $(srcdir)/a4io $(builddir)/a4io $(srcdir)/a4process $(builddir)/a4process $(srcdir)/a4hist $(builddir)/a4hist $(srcdir)/a4atlas $(builddir)/a4atlas $(srcdir)/a4plot $(builddir)/a4plot $(srcdir)/a4root $(builddir)/a4root $(srcdir)/doc/doxygen
 FILE_PATTERNS          = *.cpp *.h
-EXCLUDE_SYMBOLS        = google boost
+EXCLUDE_SYMBOLS        = google boost testing std
 JAVADOC_AUTOBRIEF      = YES
 BUILTIN_STL_SUPPORT    = YES
 SORT_BY_SCOPE_NAME     = YES
