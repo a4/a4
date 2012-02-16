@@ -1,0 +1,39 @@
+#! /usr/bin/env bash
+
+set -u -e
+
+function usage {
+    echo Usage: $0 old.a4 new.a4 [a4dump arguments]
+    exit 1;    
+}
+
+if [[ -z "${1-}" || -z "${2-}" ]]; then usage; fi
+
+F1=$1
+F2=$2
+
+if [[ ! -e "$F1" ]]; then echo "$F1 doesn't exist" && usage; fi
+if [[ ! -e "$F2" ]]; then echo "$F2 doesn't exist" && usage; fi
+
+shift 2
+ARGS=$@
+
+TEMPDIR=$(mktemp -d)
+
+function cleanup {
+    rm -Rf $TEMPDIR
+}
+trap cleanup 0
+
+a4dump $ARGS $F1 > $TEMPDIR/$F1
+a4dump $ARGS $F2 > $TEMPDIR/$F2
+
+if ! diff -u $TEMPDIR/$F1 $TEMPDIR/$F2 > $TEMPDIR/diff;
+then
+    cat $TEMPDIR/diff
+    echo
+    echo The files differ:
+    diffstat $TEMPDIR/diff    
+else
+    echo Files equal    
+fi

@@ -6,7 +6,7 @@ include m4/a4.am
 include protobuf.am
 
 # Files to distribute
-dist_bin_SCRIPTS = python/a4dump.py python/a4info.py
+dist_bin_SCRIPTS = python/a4dump.py python/a4info.py scripts/a4diff
 dist_pkgdata_SCRIPTS=python/test_pyrw
 bin_PROGRAMS = test_read test_read test_read_nomd test_write_fw test_write_bw test_bigwrite test_write_nomd_fw test_write_nomd_bw
 a4include_HEADERS = src/a4/a4io.h src/a4/exceptions.h src/a4/types.h src/a4/debug.h \
