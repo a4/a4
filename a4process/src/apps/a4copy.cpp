@@ -7,7 +7,7 @@
 
 class CopyProcessor : public a4::process::Processor {
   public:
-    virtual void process_message(const a4::io::A4Message m) {
+    virtual void process_message(shared<const a4::io::A4Message> m) {
     
         // Not a thread safe static but the worst is that we only emit too few
         // events (we only used it to emit a message every 1000 events)
@@ -15,7 +15,7 @@ class CopyProcessor : public a4::process::Processor {
         i++;
         if (i % 1000 == 0)
             std::cout << "Copied " << i << " events.." << std::endl;
-        write(*m.message());
+        write(m);
     }
 };
 

@@ -175,7 +175,7 @@ namespace a4{ namespace process{
     template <class This, class ProtoClass>
     bool StorableAs<This, ProtoClass>::_registered = internal::reg_storable<This, ProtoClass>();
 
-    shared<Storable> message_to_storable(a4::io::A4Message msg);
+    shared<Storable> message_to_storable(shared<a4::io::A4Message> msg);
 
 };};
 

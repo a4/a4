@@ -38,12 +38,6 @@ namespace a4{
 
         using google::protobuf::Message;
         
-        inline void dump_message(const google::protobuf::Message* message)
-        {
-            std::string str;
-            google::protobuf::TextFormat::PrintToString(*message, &str);
-            std::cout << str << std::endl;
-        }
     }
 }
 

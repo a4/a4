@@ -22,13 +22,13 @@ namespace a4{ namespace io{
         public:
             ProtoClassPool();
             ~ProtoClassPool();
-            //A4Message read(uint32_t class_id, google::protobuf::io::CodedInputStream* instream, size_t size);
+            //shared<A4Message> read(uint32_t class_id, google::protobuf::io::CodedInputStream* instream, size_t size);
             void add_protoclass(const ProtoClass& protoclass);
             void verify_class_id(uint32_t class_id);
             shared<google::protobuf::Message> get_new_message(uint32_t class_id);
             shared<google::protobuf::Message> get_new_message(const google::protobuf::Descriptor* d) const;
             shared<google::protobuf::Message> parse_message(uint32_t class_id, 
-                                   weak_shared<google::protobuf::io::CodedInputStream> coded_in_,
+                                   shared<google::protobuf::io::CodedInputStream> coded_in,
                                            size_t size);
             shared<google::protobuf::Message> parse_message(uint32_t class_id, 
                                             const std::string& bytes);

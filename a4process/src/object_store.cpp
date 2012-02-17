@@ -39,11 +39,12 @@ namespace a4{ namespace process{
 
     void ObjectBackStore::from_stream(a4::io::InputStream& ins) {
         while (!ins.new_metadata() && ins.good()) {
-            a4::io::A4Message key = ins.next();
-            if (!key.is<A4Key>()) 
+            shared<a4::io::A4Message> key = ins.next();
+            if (!key) return;
+            if (!key->is<A4Key>()) 
                 continue;
-            a4::io::A4Message val = ins.next();
-            std::string name = key.as<A4Key>()->name();
+            shared<a4::io::A4Message> val = ins.next();
+            std::string name = key->as<A4Key>()->name();
             (*_store)[name] = message_to_storable(val);
         }
     

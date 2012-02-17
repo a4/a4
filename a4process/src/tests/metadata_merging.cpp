@@ -40,10 +40,12 @@ public:
 
 class CheckMetadataProcessor : public ProcessorOf<TestEvent, TestMergeMetaData> {
 public:
-    void process_new_metadata() {
+    shared<A4Message> process_new_metadata() {
         auto& m = metadata();
         DEBUG("Can haz metadata? ", m.run_size(), " - ", m.lumiblock_size());
+        return shared<A4Message>(new A4Message(m));
     }
+
     void process(const TestEvent& e) {
     }
 };

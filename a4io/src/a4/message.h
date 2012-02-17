@@ -24,44 +24,33 @@ namespace io {
     static const uint32_t NO_CLASS_ID = ((1L<<32) - 2);
     static const uint32_t NO_CLASS_ID_METADATA = ((1L<<32) - 1);
 
-    class UnreadMessage {
-        public:
-            UnreadMessage(size_t size, weak_shared<google::protobuf::io::CodedInputStream> coded_in)
-                : _size(size), _coded_in(coded_in), _bytes()
-            {
-                _message.reset();
-            }
-            UnreadMessage(shared<google::protobuf::Message> message)
-                : _size(0), _coded_in(), _bytes(), _message(message)
-            {
-            }
-            UnreadMessage(const UnreadMessage&) = delete;
-            void invalidate_stream();
-            size_t _size;
-            weak_shared<google::protobuf::io::CodedInputStream> _coded_in;
-            std::string _bytes;
-            /// If _message is set, we have parsed the message and _unread_message must be unset.
-            mutable shared<google::protobuf::Message> _message;
-    };
-    
     class A4Message {
         public:
-            /// Construct A4Message that signifies end of stream or stream error
-            A4Message();
-            /// Constructs an unread A4Message connected to a ProtoClassPool
-            A4Message(uint32_t class_id, shared<UnreadMessage> umsg, shared<ProtoClassPool> pool);
+            /// Construct an A4Message of given size going to be read from the given stream
+            A4Message(uint32_t class_id, size_t size, weak_shared<google::protobuf::io::CodedInputStream> coded_in, shared<ProtoClassPool> pool);
+
             /// Constructs an read A4Message connected to a ProtoClassPool
             A4Message(uint32_t class_id, shared<Message> msg, shared<ProtoClassPool> pool);
+
             /// Construct an A4Message from a compiled-in protobuf Message
             explicit A4Message(shared<google::protobuf::Message> msg, bool metadata=true);
+
             /// Construct an A4Message from a compiled-in protobuf Message
             explicit A4Message(const google::protobuf::Message& msg, bool metadata=true);
-            /// This copy constructor is assumed to be cheap
-            A4Message(const A4Message& m); 
+
+            /// Only explicit copying allowed
+            explicit A4Message(const A4Message& m);
+            explicit A4Message(shared<const A4Message> m);
             ~A4Message();
             
+            /// Get to protobuf Message of the A4Message, parsing if necessary
             const google::protobuf::Message* message() const;
-            const std::string bytes() const;
+
+            /// Get the serialized bytes of the message
+            const std::string& bytes() const;
+
+            /// Get the number serialized bytes of the message
+            size_t bytesize() const;
             
             /// Pointer to the descriptor of that message, used for quick type checks.
             const google::protobuf::Descriptor* descriptor() const { return _descriptor; }
@@ -75,13 +64,6 @@ namespace io {
             /// Returns true if this is a metadata message
             bool metadata() const { return class_id() % 2 == 1; }
 
-            /// true if the message pointer is None (end, unknown or no metadata)
-            bool null() const { return (not _unread_message); }
-
-            /// this object can be used in if() expressions, it will be true if it contains a message
-            operator bool() const { return !null(); }
-            bool operator!() const { return null(); }
-
             /// Quick check if the message is of that class
             /// example: if (result.is<TestEvent>())
             template <class T>
@@ -92,42 +74,64 @@ namespace io {
             /// example: auto event = result.as<MyEvent>()
             template <class T>
             const T* as() const {
+                assert_valid();
                 if (not is<T>())  return NULL;
                 return static_cast<const T*>(message());
             }
             
             template <class T>
             T* as_mutable() {
+                assert_valid();
                 if (not is<T>()) return NULL;
-                if (not _unread_message) return NULL;
-                if (not _unread_message->_message)
-                    message();
-                return static_cast<T*>(_unread_message->_message.get());
+                message();
+                _valid_bytes = false; // invalidate bytes since message may be changed
+                return static_cast<T*>(_message.get());
             }
 
             /// Merge two messages that support it via the "merge" field extension
-            A4Message operator+(const A4Message& rhs) const;
             A4Message& operator+=(const A4Message& rhs);
            
             /// Enforce the UNION merge option - removes duplicates 
             void unionize();
 
-            /// Return a field of this message in string representation
-            std::string field_as_string(const std::string& field_name);
-            std::string assert_field_is_single_value(const std::string& field_name);
-            
-        private:
-            void version_check(const A4Message &m2) const;
+            /// Invalidate any stream that is saved internally and force bytes to be read
+            void invalidate_stream() const;
 
-            /// If _unread_message is set, the message has not yet been parsed.
-            mutable shared<UnreadMessage> _unread_message;
+            /// Return a field of this message in string representation
+            std::string field_as_string(const std::string& field_name) const;
+            std::string assert_field_is_single_value(const std::string& field_name) const;
+
+            bool assert_valid() const;
+        private:
+
+            void version_check(const A4Message &m2) const;
 
             /// Class ID on the wire (can be different for different headers)
             uint32_t _class_id;
+
             /// Pointer to the descriptor of that message, used for quick type checks.
             const google::protobuf::Descriptor* _descriptor;
+
             /// Shared pointer to the pool of that message, so that it does not disappear on us.
             shared<ProtoClassPool> _pool;
+
+            /// Size of the message in bytes
+            size_t _size;
+
+            /// True if the _bytes fields contains valid data. Necessary since the empty string
+            /// is always a valid protobuf message.
+            mutable bool _valid_bytes;
+
+            /// Coded input stream that this message can be read from
+            mutable weak_shared<google::protobuf::io::CodedInputStream> _coded_in;
+
+            /// Encoded Message
+            mutable std::string _bytes;
+
+            /// The Message itself
+            mutable shared<google::protobuf::Message> _message;
+
+            friend class OutputStream;
     };
 };};
 

@@ -20,13 +20,13 @@ namespace a4{ namespace io{
             virtual ~InputStreamImpl();
 
             /// Returns the next regular message in the stream.
-            A4Message next(bool skip_metadata=true);
+            shared<A4Message> next(bool skip_metadata=true);
             /// Returns the next bare message in the stream.
-            A4Message next_bare_message();
+            shared<A4Message> next_bare_message();
             /// Returns the next regular or metadata message in the stream.
-            A4Message next_with_metadata() { return next(false);} ;
+            shared<A4Message> next_with_metadata() { return next(false);} ;
             /// Return the current metadata message.
-            const A4Message current_metadata() {return _current_metadata; };
+            shared<const A4Message> current_metadata() {return _current_metadata; };
             /// Seek to the given header/metadata combination.
             /// If carry==false, specifying a metadata index not in that header section
             /// causes an exception, otherwise the next header is used, or false is returned on EOF.
@@ -56,7 +56,7 @@ namespace a4{ namespace io{
 
             std::string str() { return _inputname; };
             
-            const std::vector<std::vector<A4Message>>& all_metadata() {
+            const std::vector<std::vector<shared<a4::io::A4Message>>>& all_metadata() {
                 if (_metadata_per_header.size() == 0) {
                     if(_started) FATAL("Coding Bug: all_metadata first called after reading started!");
                     startup(true);
@@ -82,9 +82,9 @@ namespace a4{ namespace io{
 
             // metadata-related status
             bool _new_metadata, _current_metadata_refers_forward;
-            A4Message _current_metadata;
+            shared<A4Message> _current_metadata;
             std::vector<std::vector<uint64_t>> _metadata_offset_per_header;
-            std::vector<std::vector<A4Message>> _metadata_per_header;
+            std::vector<std::vector<shared<A4Message>>> _metadata_per_header;
             std::vector<bool> _headers_forward;
     
             // internal functions
@@ -97,19 +97,19 @@ namespace a4{ namespace io{
             bool read_header(bool discovery_requested=false);
             int64_t seek(int64_t position);
             int64_t seek_back(int64_t position);
-            A4Message bare_message();
-            A4Message next_message();
-            bool handle_compressed_section(A4Message& msg);
-            bool handle_stream_command(A4Message& msg);
-            bool handle_metadata(A4Message& msg);
+            shared<A4Message> bare_message();
+            shared<A4Message> next_message();
+            bool handle_compressed_section(shared<A4Message> msg);
+            bool handle_stream_command(shared<A4Message> msg);
+            bool handle_metadata(shared<A4Message> msg);
             bool carry_metadata(uint32_t& header, uint32_t& metadata);
 
             void notify_last_unread_message();
-            shared<UnreadMessage> _last_unread_message;
+            shared<A4Message> _last_unread_message;
 
             // set error/end status and return A4Message
-            A4Message set_error();
-            A4Message set_end();
+            shared<A4Message> set_error();
+            shared<A4Message> set_end();
     };
 
 };};

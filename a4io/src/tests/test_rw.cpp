@@ -27,8 +27,8 @@ TEST(a4io, read_write) {
     {
         InputStream r("test_rw.a4");
         int cnt = 0;
-        while (A4Message msg = r.next()) {
-            if (const TestEvent* te = msg.as<TestEvent>()) {
+        while (shared<A4Message> msg = r.next()) {
+            if (const TestEvent* te = msg->as<TestEvent>()) {
                 assert(cnt++ == te->event_number());
             }
         }

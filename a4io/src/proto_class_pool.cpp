@@ -54,10 +54,9 @@ namespace a4{ namespace io{
     }
 
     shared<google::protobuf::Message> ProtoClassPool::parse_message(uint32_t class_id, 
-                                   weak_shared<google::protobuf::io::CodedInputStream> coded_in_,
+                                   shared<google::protobuf::io::CodedInputStream> coded_in,
                                    size_t size)
     {
-        auto coded_in = coded_in_.lock();
         assert(coded_in);
         //std::cerr << "Parse from stream " << coded_in.get() << "\tSZ " << size << "\tID " << class_id << std::endl;
         auto msg = get_new_message(class_id);
@@ -95,7 +94,7 @@ namespace a4{ namespace io{
     }
 
 #if 0
-    A4Message ProtoClassPool::read(uint32_t class_id,
+    shared<A4Message> ProtoClassPool::read(uint32_t class_id,
                                    google::protobuf::io::CodedInputStream* instream,
                                    size_t size)
     {

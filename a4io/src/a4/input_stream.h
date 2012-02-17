@@ -25,7 +25,7 @@ namespace a4{ namespace io{
             virtual ~InputStream();
 
             /// Returns the next regular message in the stream.
-            A4Message next();
+            shared<A4Message> next();
 
             /// Explicitely end processing on this stream. Sets end() to true
             void close();
@@ -35,13 +35,13 @@ namespace a4{ namespace io{
             /// metadata messages immediately follow each other.
             /// ATTENTION: Metadata messages are reordered so that they 
             /// always precede the data they refer to.
-            A4Message next_with_metadata();
+            shared<A4Message> next_with_metadata();
 
             /// \internal Return the next bare message (includes stream messages)
-            A4Message next_bare_message();
+            shared<A4Message> next_bare_message();
 
             /// Return the currently applicable metadata message.
-            const A4Message current_metadata();
+            shared<const A4Message> current_metadata();
 
             /// Skip the current block until the next metadata
             bool skip_to_next_metadata();
@@ -65,7 +65,7 @@ namespace a4{ namespace io{
             std::string str();
             
             /// Return a vector containing a vector of metadata per x.
-            const std::vector<std::vector<a4::io::A4Message>>& all_metadata();
+            const std::vector<std::vector<shared<a4::io::A4Message>>>& all_metadata();
             
         private:
             bool _new_metadata;

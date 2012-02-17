@@ -17,8 +17,8 @@ int main(int argc, char ** argv) {
     InputStream r(fn);
 
     int cnt = 0;
-    while (A4Message rr = r.next()) {
-        if (rr.as<TestEvent>())
+    while (auto rr = r.next()) {
+        if (rr->as<TestEvent>())
             cnt++;
     }
     if (r.error()) throw "up";

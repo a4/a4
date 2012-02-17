@@ -89,16 +89,16 @@ int main(int argc, char ** argv) {
     }
         
     while(shared<a4::io::InputStream> stream = in.get_stream()) {
-        const std::vector<std::vector<a4::io::A4Message>>& all_metadata = stream->all_metadata();
+        const auto& all_metadata = stream->all_metadata();
         
         std::cout << "Got " << all_metadata.size() << " header(s)" << std::endl;
         
         int i = 0;
         foreach (const auto& header, all_metadata) {
             std::cout << "Header " << i++ << std::endl;
-            foreach (const a4::io::A4Message& metadata, header) {
-                if (outs) outs->metadata(*metadata.message());
-                else dump_message(*metadata.message(), variables);
+            foreach (const auto& metadata, header) {
+                if (outs) outs->metadata(*metadata->message());
+                else dump_message(*metadata->message(), variables);
             }
         }
         stream->close();

@@ -12,9 +12,9 @@ namespace a4{ namespace process{ namespace internal{
     
     /// Reads a message into an object compatible with the object store
     /// (i.e. the Storable equivalent of the `proto` object)
-    shared<Storable> message_to_storable(a4::io::A4Message msg) {
-        auto func = internal::as_storable(msg.descriptor());
+    shared<Storable> message_to_storable(shared<a4::io::A4Message> msg) {
+        auto func = internal::as_storable(msg->descriptor());
         assert(func);
-        return func(*msg.message());
+        return func(*msg->message());
     }
 };};
