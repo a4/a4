@@ -1,12 +1,12 @@
 #include <iostream>
 
-#include <iostream>
+#include <unistd.h>
 
 #include <a4/application.h>
 #include <a4/process/A4Key.pb.h>
 #include <a4/io/A4Stream.pb.h>
 
-#include "a4/output_stream.h"
+#include <a4/output_stream.h>
 
 #include <gtest/gtest.h>
 
@@ -55,9 +55,12 @@ TEST(a4process, metadata_merge_union) {
     }
     
     const char* args[] = {
-        "gtests", "test_metadata_input.a4", "--per", "simulation", "-o", "test_metadata_output.a4"
+        "gtests", "test_metadata_input.a4", 
+        "--per", "simulation", 
+        "-o", "test_metadata_output.a4"
     };
     a4_main_process<MetadataTestProcessor>(sizeof(args)/sizeof(char*), args);
     
-    
+    unlink("test_metadata_input.a4");
+    unlink("test_metadata_output.a4");
 }
