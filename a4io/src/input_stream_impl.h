@@ -108,8 +108,8 @@ namespace a4{ namespace io{
             shared<A4Message> _last_unread_message;
 
             // set error/end status and return A4Message
-            shared<A4Message> set_error();
-            shared<A4Message> set_end();
+            bool set_error();
+            bool set_end();
     };
 
 };};

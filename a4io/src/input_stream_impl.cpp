@@ -85,15 +85,15 @@ InputStreamImpl::InputStreamImpl(unique<ZeroCopyStreamResource> in,
 
 InputStreamImpl::~InputStreamImpl() {};
 
-shared<A4Message> InputStreamImpl::set_error() {
+bool InputStreamImpl::set_error() {
     _error = true;
     _good = false;
-    return shared<A4Message>();
+    return false;
 }
 
-shared<A4Message> InputStreamImpl::set_end() {
+bool InputStreamImpl::set_end() {
     _good = false;
-    return shared<A4Message>();
+    return false;
 }
 
 void InputStreamImpl::startup(bool discovery_requested) {
