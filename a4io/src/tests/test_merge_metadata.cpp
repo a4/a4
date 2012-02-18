@@ -56,7 +56,7 @@ TEST(a4io, metadata_merge) {
                 assert(cnt++ == te->event_number());
             }
             if (r.new_metadata()) {
-                shared<A4Message> new_md(new A4Message(r.current_metadata()));
+                shared<A4Message> new_md(new A4Message(*r.current_metadata()));
                 if (current_md) {
                     std::cout << "CURRENT:\n" << current_md->message()->ShortDebugString() << std::endl;
                     std::cout << "NEXT   :\n" << new_md->message()->ShortDebugString() << std::endl;

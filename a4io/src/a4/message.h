@@ -40,7 +40,6 @@ namespace io {
 
             /// Only explicit copying allowed
             explicit A4Message(const A4Message& m);
-            explicit A4Message(shared<const A4Message> m);
             ~A4Message();
             
             /// Get to protobuf Message of the A4Message, parsing if necessary

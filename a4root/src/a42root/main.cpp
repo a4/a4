@@ -375,16 +375,16 @@ public:
         f->Close();
     }
 
-    void process_message(const a4::io::A4Message m) {
+    void process_message(shared<const a4::io::A4Message> m) {
         
-        auto class_name = m.message()->GetDescriptor()->full_name();
+        auto class_name = m->message()->GetDescriptor()->full_name();
         if (class_map.find(class_name) == class_map.end()) {
-            class_map[class_name].reset(new TreeFiller(m.descriptor()));
+            class_map[class_name].reset(new TreeFiller(m->descriptor()));
         }
         
         auto& tree_filler = *class_map[class_name];
         
-        tree_filler.fill(m);
+        tree_filler.fill(*m);
         
         static int i = 0;
         if (i % 1000 == 0)

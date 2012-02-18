@@ -47,29 +47,13 @@ namespace a4{ namespace io{
         _size = m._size;
         _valid_bytes = m._valid_bytes;
         _bytes = m._bytes;
-        _message.reset(m._message->New());
-        _message->CopyFrom(*m._message);
-        assert_valid();
-    }
-    
-    /// Explicit copying is allowed
-    A4Message::A4Message(shared<const A4Message> m)
-            : _class_id(m->_class_id), _descriptor(m->_descriptor),
-            _pool(m->_pool), _size(0), _valid_bytes(), _coded_in(),
-            _bytes(), _message(), _instream_read(true)
-    {
-        m->invalidate_stream();
-        _descriptor = m->_descriptor;
-        _size = m->_size;
-        _valid_bytes = m->_valid_bytes;
-        _bytes = m->_bytes;
-        if (m->_message) {
-            _message.reset(m->_message->New());
-            _message->CopyFrom(*m->_message);
+        if (m._message) {
+            _message.reset(m._message->New());
+            _message->CopyFrom(*m._message);
         }
         assert_valid();
     }
-
+    
     /// Constructs an unread A4Message connected to a ProtoClassPool
     A4Message::A4Message(uint32_t class_id, size_t size, weak_shared<google::protobuf::io::CodedInputStream> coded_in, shared<ProtoClassPool> pool)
             : _class_id(class_id), _descriptor(pool->descriptor(class_id)),

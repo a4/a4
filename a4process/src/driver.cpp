@@ -131,7 +131,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
                 std::string postfix = "";
                 if (new_metadata && split_key != "") 
                     postfix = new_metadata->assert_field_is_single_value(split_key);
-                current_metadata.reset(new A4Message(new_metadata));
+                current_metadata.reset(new A4Message(*new_metadata));
 
                 start_block(postfix);
             } // end of normal action in case of new metadata
