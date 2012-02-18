@@ -58,10 +58,20 @@ namespace a4{ namespace io{
             
             const std::vector<std::vector<shared<a4::io::A4Message>>>& all_metadata() {
                 if (_metadata_per_header.size() == 0) {
-                    if(_started) FATAL("Coding Bug: all_metadata first called after reading started!");
+                    if (_started)
+                        FATAL("Coding Bug: all_metadata first called after reading started!");
                     startup(true);
                 }
                 return _metadata_per_header;
+            }
+            
+            const std::vector<StreamFooter>& footers() {
+                if (_footers.size() == 0) {
+                    if (_started) 
+                        FATAL("Coding Bug: footers() first called after reading started!");
+                    startup(true);
+                }
+                return _footers;
             }
 
         private:
@@ -86,6 +96,7 @@ namespace a4{ namespace io{
             std::vector<std::vector<uint64_t>> _metadata_offset_per_header;
             std::vector<std::vector<shared<A4Message>>> _metadata_per_header;
             std::vector<bool> _headers_forward;
+            std::vector<StreamFooter> _footers;
     
             // internal functions
             void startup(bool discovery_requested=false);

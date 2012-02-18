@@ -9,6 +9,7 @@
 namespace a4{ namespace io{
 
     class InputStreamImpl;
+    class StreamFooter;
     class A4Message;
 
     /// A4 Input Stream - reads protobuf messages from file
@@ -66,6 +67,8 @@ namespace a4{ namespace io{
             
             /// Return a vector containing a vector of metadata per x.
             const std::vector<std::vector<shared<a4::io::A4Message>>>& all_metadata();
+            
+            const std::vector<StreamFooter>& footers();
             
         private:
             bool _new_metadata;

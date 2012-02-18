@@ -19,6 +19,7 @@ message ClassCount
 {
     required int32 class_id = 1;
     required int32 count = 2;
+    optional string class_name = 3;
 }
 
 message StreamFooter

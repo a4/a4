@@ -28,6 +28,8 @@ using google::protobuf::Reflection;
 #include <a4/message.h>
 #include <dynamic_message.h>
 
+#include <a4/io/A4Stream.pb.h>
+
 using a4::io::A4Message;
 
 template<typename T> struct ItemOrdering {
@@ -400,7 +402,7 @@ public:
     }
 };
 
-int main(int argc, char ** argv) {
+int main(int argc, char** argv) {
     a4::Fatal::enable_throw_on_segfault();
 
     namespace po = boost::program_options;
@@ -408,7 +410,7 @@ int main(int argc, char ** argv) {
     std::vector<std::string> input_files, variables, types, selection_strings;
     size_t event_count = -1, event_index = -1;
     bool collect_stats = false, short_form = false, message_info = false,
-         stream_msg = false, dump_all = false;
+         stream_msg = false, dump_all = false, show_footer = false;
     
     po::positional_options_description p;
     p.add("input", -1);
@@ -427,6 +429,7 @@ int main(int argc, char ** argv) {
         ("message-info", po::bool_switch(&message_info)->default_value(false), "should collect statistics relating to the message")
         ("short-form", po::bool_switch(&short_form)->default_value(false), "print in a compact form, one event per line")
         ("select", po::value(&selection_strings), "Select messages by string equality (e.g. --select event_number:1234)")
+        ("footer,f", po::bool_switch(&show_footer), "Show information from the footer (e.g. object counts)")
     ;
     
     po::variables_map arguments;
@@ -450,6 +453,14 @@ int main(int argc, char ** argv) {
         in.add_file(filename);
         
     shared<a4::io::InputStream> stream = in.get_stream();
+    
+    if (show_footer) {
+        foreach (auto& footer, stream->footers()) {
+            VERBOSE("Footer: ", footer.DebugString());
+        }
+        return 0;
+    }
+    
     // Stream in events we don't care about
     size_t i = 0;
     for (; i < event_index; i++)

@@ -2,6 +2,8 @@
 #include "a4/message.h"
 #include "input_stream_impl.h"
 
+#include "a4/io/A4Stream.pb.h"
+
 namespace a4{ namespace io{
 
     // Forward everything to the implementation object.
@@ -40,5 +42,8 @@ namespace a4{ namespace io{
 
     const std::vector<std::vector<shared<a4::io::A4Message>>>& InputStream::all_metadata() {
         return _impl->all_metadata();
+    }
+    const std::vector<StreamFooter>& InputStream::footers() {
+        return _impl->footers();
     }
 };};

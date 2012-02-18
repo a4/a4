@@ -226,6 +226,8 @@ bool InputStreamImpl::discover_all_metadata() {
         }
         
         const StreamFooter* footer = msg->as<StreamFooter>();
+        _footers.push_back(*footer);
+            
         size += footer->size() + footer_msgsize;
         
         // Read all ProtoClasses associated with this footer
@@ -242,6 +244,10 @@ bool InputStreamImpl::discover_all_metadata() {
             assert(proto);
             _current_class_pool->add_protoclass(*proto);
         }
+        
+        // Populate the class_name on the ClassCount
+        foreach (auto& cc, *_footers.back().mutable_class_count())
+            cc.set_class_name(_current_class_pool->descriptor(cc.class_id())->full_name());
 
         // Read all metadata associated with this footer
         std::vector<shared<A4Message>> _this_headers_metadata;
