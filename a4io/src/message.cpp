@@ -20,7 +20,7 @@ using google::protobuf::Message;
 namespace a4{ namespace io{
 
     void A4Message::invalidate_stream() const {
-        if (not _coded_in.expired()) {
+        if (not _instream_read) {
             //std::cerr << "Invalidating stream by reading " << _size << std::endl;
             auto coded_in = _coded_in.lock();
             if (not coded_in->ReadString(&_bytes, _size)) {
@@ -29,18 +29,18 @@ namespace a4{ namespace io{
                 _valid_bytes = false;
             } else {
                 _valid_bytes = true;
+                _instream_read = true;
             }
             _coded_in.reset();
             coded_in.reset();
         }
-        assert_valid();
     }
     
     /// Explicit copying is allowed
     A4Message::A4Message(const A4Message& m)
             : _class_id(m._class_id), _descriptor(m._descriptor),
             _pool(m._pool), _size(0), _valid_bytes(), _coded_in(),
-            _bytes(), _message()
+            _bytes(), _message(), _instream_read(true)
     {
         m.invalidate_stream();
         _descriptor = m._descriptor;
@@ -56,7 +56,7 @@ namespace a4{ namespace io{
     A4Message::A4Message(shared<const A4Message> m)
             : _class_id(m->_class_id), _descriptor(m->_descriptor),
             _pool(m->_pool), _size(0), _valid_bytes(), _coded_in(),
-            _bytes(), _message()
+            _bytes(), _message(), _instream_read(true)
     {
         m->invalidate_stream();
         _descriptor = m->_descriptor;
@@ -73,7 +73,7 @@ namespace a4{ namespace io{
     /// Constructs an unread A4Message connected to a ProtoClassPool
     A4Message::A4Message(uint32_t class_id, size_t size, weak_shared<google::protobuf::io::CodedInputStream> coded_in, shared<ProtoClassPool> pool)
             : _class_id(class_id), _descriptor(pool->descriptor(class_id)),
-            _pool(pool), _size(size), _valid_bytes(false), _coded_in(coded_in), _bytes(), _message()
+            _pool(pool), _size(size), _valid_bytes(false), _coded_in(coded_in), _bytes(), _message(), _instream_read(false)
     {
         assert_valid();
     }
@@ -81,7 +81,7 @@ namespace a4{ namespace io{
     /// Constructs an read A4Message connected to a ProtoClassPool
     A4Message::A4Message(uint32_t class_id, shared<Message> msg, shared<ProtoClassPool> pool)
             : _class_id(class_id), _descriptor(msg->GetDescriptor()),
-              _pool(pool), _size(0), _valid_bytes(false), _coded_in(), _bytes(), _message(msg)
+              _pool(pool), _size(0), _valid_bytes(false), _coded_in(), _bytes(), _message(msg), _instream_read(true)
     { 
         assert_valid();
     }
@@ -91,7 +91,7 @@ namespace a4{ namespace io{
                        bool metadata)
             : _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
               _descriptor(msg->GetDescriptor()), _pool(), _size(0),
-              _valid_bytes(false), _coded_in()
+              _valid_bytes(false), _coded_in(), _instream_read(true)
     {
         assert_valid();
     }
@@ -101,7 +101,7 @@ namespace a4{ namespace io{
                         bool metadata) 
             : _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
               _descriptor(msg.GetDescriptor()), _pool(), _size(0),
-              _valid_bytes(false), _coded_in(), _bytes(), _message(msg.New())
+              _valid_bytes(false), _coded_in(), _bytes(), _message(msg.New()), _instream_read(true)
     {
         _message->CopyFrom(msg);
         assert_valid();
@@ -120,6 +120,7 @@ namespace a4{ namespace io{
             auto coded_in = _coded_in.lock();
             assert(coded_in);
             _message = _pool->parse_message(_class_id, coded_in, _size);
+            _instream_read = true;
             coded_in.reset();
             _coded_in.reset();
         } else {
@@ -258,7 +259,7 @@ namespace a4{ namespace io{
     
     void A4Message::unionize() {
         assert_valid();
-        assert(_message);
+        if (not _message) return;
         Message& m = *_message;
         _valid_bytes = false;
         const auto* refl = m.GetReflection();
@@ -328,12 +329,18 @@ namespace a4{ namespace io{
     bool A4Message::assert_valid() const {
         if (_message) {
             assert(_descriptor == _message->GetDescriptor());
+            assert(_instream_read);
             return true;
         }
-        if (_valid_bytes) return true;
-        if (not _coded_in.expired()) return true;
+        if (_valid_bytes) {
+            assert(_instream_read);
+            return true;
+        }
+        if (not _coded_in.expired()) {
+            assert(not _instream_read);
+            return true;
+        }
         assert(false);
-
     }
 
 };};

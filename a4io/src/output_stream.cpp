@@ -350,10 +350,11 @@ bool OutputStream::write(uint32_t class_id, shared<const A4Message> msg)
         _coded_out->WriteLittleEndian32(size | HIGH_BIT );
         _coded_out->WriteLittleEndian32(class_id);
     }
-    if (not msg->_coded_in.expired()) {
+    /*
+    if (not msg->_instream_read) {
         auto coded_in = msg->_coded_in.lock();
         int to_copy = msg->_size;
-        const void * this_data = NULL;
+        const void* this_data = NULL;
         int this_step = 0;
         do {
             if (not coded_in->GetDirectBufferPointer(&this_data, &this_step)) {
@@ -365,9 +366,11 @@ bool OutputStream::write(uint32_t class_id, shared<const A4Message> msg)
             to_copy -= this_step;
         } while (to_copy > 0);
         msg->_coded_in.reset(); // invalidate message
+        msg->_instream_read = true;
     } else {
         _coded_out->WriteString(msg->bytes());
-    }
+    }*/
+    _coded_out->WriteString(msg->bytes());
     return true;
 }
 

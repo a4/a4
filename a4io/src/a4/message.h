@@ -131,6 +131,9 @@ namespace io {
             /// The Message itself
             mutable shared<google::protobuf::Message> _message;
 
+            /// True if the input stream has been read
+            mutable bool _instream_read;
+
             friend class OutputStream;
     };
 };};
