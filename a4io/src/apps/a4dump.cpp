@@ -417,7 +417,7 @@ int main(int argc, char ** argv) {
     commandline_options.add_options()
         ("help,h", "produce help message")
         ("event-index,i", po::value(&event_index)->default_value(0), "event to start dumping from (starts at 0)")
-        ("count,c", po::value(&event_count)->default_value(1), "maximum number to dump")
+        ("n", po::value(&event_count)->default_value(1), "maximum number to dump")
         ("all,a", po::bool_switch(&dump_all)->default_value(false), "dump all events")
         ("input", po::value(&input_files), "input file names (runs once per specified file)")
         ("var,v", po::value(&variables), "variables to dump (defaults to all)")
