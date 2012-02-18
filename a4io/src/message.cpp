@@ -9,41 +9,147 @@
 #include <A4.pb.h>
 
 #include "dynamic_message.h"
+#include "proto_class_pool.h"
 
 using google::protobuf::DynamicMessageFactory;
 using google::protobuf::Descriptor;
 using google::protobuf::DescriptorPool;
 using google::protobuf::Message;
 
+
 namespace a4{ namespace io{
 
+    void A4Message::invalidate_stream() const {
+        if (not _instream_read) {
+            //std::cerr << "Invalidating stream by reading " << _size << std::endl;
+            auto coded_in = _coded_in.lock();
+            if (not coded_in->ReadString(&_bytes, _size)) {
+                std::cerr << "Invalidating stream failed!" << std::endl;
+                coded_in->PushLimit(0);
+                _valid_bytes = false;
+            } else {
+                _valid_bytes = true;
+                _instream_read = true;
+            }
+            _coded_in.reset();
+            coded_in.reset();
+        }
+    }
+    
+    /// Explicit copying is allowed
+    A4Message::A4Message(const A4Message& m)
+            : _class_id(m._class_id), _descriptor(m._descriptor),
+            _pool(m._pool), _size(0), _valid_bytes(), _coded_in(),
+            _bytes(), _message(), _instream_read(true)
+    {
+        m.invalidate_stream();
+        _descriptor = m._descriptor;
+        _size = m._size;
+        _valid_bytes = m._valid_bytes;
+        _bytes = m._bytes;
+        if (m._message) {
+            _message.reset(m._message->New());
+            _message->CopyFrom(*m._message);
+        }
+        assert_valid();
+    }
+    
+    /// Constructs an unread A4Message connected to a ProtoClassPool
+    A4Message::A4Message(uint32_t class_id, size_t size, weak_shared<google::protobuf::io::CodedInputStream> coded_in, shared<ProtoClassPool> pool)
+            : _class_id(class_id), _descriptor(pool->descriptor(class_id)),
+            _pool(pool), _size(size), _valid_bytes(false), _coded_in(coded_in), _bytes(), _message(), _instream_read(false)
+    {
+        assert_valid();
+    }
+
+    /// Constructs an read A4Message connected to a ProtoClassPool
+    A4Message::A4Message(uint32_t class_id, shared<Message> msg, shared<ProtoClassPool> pool)
+            : _class_id(class_id), _descriptor(msg->GetDescriptor()),
+              _pool(pool), _size(0), _valid_bytes(false), _coded_in(), _bytes(), _message(msg), _instream_read(true)
+    { 
+        assert_valid();
+    }
+
+    /// Construct an A4Message from a compiled-in protobuf Message
+    A4Message::A4Message(shared<google::protobuf::Message> msg,
+                       bool metadata)
+            : _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
+              _descriptor(msg->GetDescriptor()), _pool(), _size(0),
+              _valid_bytes(false), _coded_in(), _instream_read(true)
+    {
+        assert_valid();
+    }
+
+    /// Construct an A4Message from a compiled-in protobuf Message
+    A4Message::A4Message(const google::protobuf::Message& msg,
+                        bool metadata) 
+            : _class_id(metadata ? NO_CLASS_ID_METADATA : NO_CLASS_ID),
+              _descriptor(msg.GetDescriptor()), _pool(), _size(0),
+              _valid_bytes(false), _coded_in(), _bytes(), _message(msg.New()), _instream_read(true)
+    {
+        _message->CopyFrom(msg);
+        assert_valid();
+    }
+
     A4Message::~A4Message() {
-        _message.reset();
-        _factory.reset();
-        _pool.reset();
+    }
+
+    const google::protobuf::Message* A4Message::message() const {
+        assert_valid();
+        if (_message) return _message.get();
+
+        if (_valid_bytes) {
+            _message = _pool->parse_message(_class_id, _bytes);
+        } else if (not _coded_in.expired()) {
+            auto coded_in = _coded_in.lock();
+            assert(coded_in);
+            _message = _pool->parse_message(_class_id, coded_in, _size);
+            _instream_read = true;
+            coded_in.reset();
+            _coded_in.reset();
+        } else {
+            FATAL("Called message() on empty A4Message!");
+        }
+        
+        if (not _message)
+            FATAL("Unable to parse message!");
+
+        assert_valid();
+        return _message.get();
+    }
+
+    const std::string& A4Message::bytes() const {
+        if (not _coded_in.expired()) {
+            invalidate_stream();
+        }
+        if (not _valid_bytes) {
+            _bytes = _message->SerializeAsString();
+            _valid_bytes = true;
+        }
+        assert_valid();
+        return _bytes;
+    }
+    
+    size_t A4Message::bytesize() const {
+        if (not _coded_in.expired()) {
+            return _size;
+        } else if (_valid_bytes) {
+            return _bytes.size();
+        } else {
+            return bytes().size();
+        }
     }
 
     void A4Message::version_check(const A4Message &m2) const {
         if (descriptor()->full_name() != m2.descriptor()->full_name()) {
             FATAL("Typenames of objects to merge do not agree: ", descriptor()->full_name(), " != ", m2.descriptor()->full_name());
         }
-        const Descriptor* d1;
-        if (_dynamic_descriptor) {
-            d1 = _dynamic_descriptor;
-        } else if (_pool) {
-            d1 = _pool->FindMessageTypeByName(descriptor()->full_name());
-        } else {
-            d1 = _descriptor;
-        }
-        
-        const Descriptor* d2;
-        if (_dynamic_descriptor) {
-            d2 = m2._dynamic_descriptor;
-        } else if (m2._pool) {
-            d2 = m2._pool->FindMessageTypeByName(m2.descriptor()->full_name());
-        } else {
-            d2 = m2._descriptor;
-        }
+        const Descriptor* d1 = _pool->dynamic_descriptor(_class_id);
+        if (not d1) d1 = _descriptor;
+
+        const Descriptor* d2 = m2._pool->dynamic_descriptor(m2._class_id);
+        if (not d2) d2 = m2._descriptor;
+         
         if (d1 == d2) return;
 
         // Do version checking if the dynamic descriptors are different
@@ -58,82 +164,7 @@ namespace a4{ namespace io{
             WARNING("Minor versions of merged messages do not agree:",
                     myminor, " != ", dminor);
         }
-    }
-
-    A4Message A4Message::operator+(const A4Message& m2_) const {
-        // Find out which descriptor to use. Prefer dynamic descriptors
-        // since they are probably contain all fields.
-        version_check(m2_);
-
-        const Descriptor* d;
-        const Descriptor* dd;
-        if (m2_._dynamic_descriptor) {
-            dd = d = m2_._dynamic_descriptor;
-        } else if (m2_._pool) {
-            dd = d = m2_._pool->FindMessageTypeByName(m2_.descriptor()->full_name());
-        } else {
-            d = m2_._descriptor;
-            dd = NULL;
-        }
-
-        // Prepare dynamic messages
-        A4Message res, m1, m2;
-        res = m2_;
-        res._descriptor = d;
-        res._dynamic_descriptor = dd;
-        m1 = m2 = res;
-
-        if (m2._factory) {
-            res._message.reset(m2._factory->GetPrototype(d)->New());
-        } else {
-            res._message.reset(m2.message()->New());
-        }
-
-        if (_descriptor == d) {
-            m1 = *this;
-        } else {
-            m1._message.reset(res.message()->New());
-            m1._message->ParseFromString(_message->SerializeAsString());
-        }
-
-        if (m2_._descriptor == d) {
-            m2 = m2_;
-        } else {
-            m2._message.reset(res.message()->New());
-            m2._message->ParseFromString(m2_.message()->SerializeAsString());
-        }
-
-        for (int i = 0; i < d->field_count(); i++) {
-            MetadataMergeOptions merge_opts = d->field(i)->options().GetExtension(merge);
-
-            ConstDynamicField f1(*m1.message(), d->field(i));
-            ConstDynamicField f2(*m2.message(), d->field(i));
-            DynamicField fm(*res._message, d->field(i));
-
-            switch(merge_opts) {
-                case MERGE_BLOCK_IF_DIFFERENT:
-                    if(!(f1 == f2)) FATAL("Trying to merge metadata objects with different entries in ", f1.name());
-                    fm.set(f1.value());
-                    break;
-                case MERGE_ADD:
-                    add_fields(f1, f2, fm);
-                    break;
-                case MERGE_MULTIPLY:
-                    multiply_fields(f1, f2, fm);
-                    break;
-                case MERGE_UNION:
-                    append_fields(f1, f2, fm, true);
-                    break;
-                case MERGE_APPEND:
-                    append_fields(f1, f2, fm, false);
-                    break;
-                case MERGE_DROP:
-                    break;
-                default:
-                    FATAL("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
-            }
-        }
-        return res;
+        assert_valid();
     }
 
     A4Message& A4Message::operator+=(const A4Message& m2_) {
@@ -141,35 +172,50 @@ namespace a4{ namespace io{
         // since they are probably contain all fields.
         version_check(m2_);
 
-        const Descriptor* d;
-        if (_dynamic_descriptor) {
-            d = _dynamic_descriptor;
-        } else if (_pool) {
-            d = _pool->FindMessageTypeByName(descriptor()->full_name());
-        } else {
-            d = _descriptor;
+        const Descriptor* dd = dynamic_descriptor();
+        const Descriptor* d = dd;
+        if (not d) d = _descriptor;
+
+        //m1.reset(new A4Message(_class_id, _pool->get_new_message(d), _pool));
+        //m1.reset(new A4Message(_class_id, _pool->get_new_message(d), _pool));
+
+        if (_descriptor != d) {
+            _descriptor = d;
+            _message = _pool->get_new_message(d);
+            _message->ParseFromString(bytes());
         }
 
-        A4Message m2;
-
-        if (m2_._descriptor == d) {
-            m2 = m2_;
-        } else {
-            // This is unfortunate but necessary - we need both messages
-            // to have the same descriptor to add them.
-            m2._message.reset(message()->New());
-            m2._message->ParseFromString(m2_.message()->SerializeAsString());
+        const A4Message* m2 = &m2_;
+        shared<A4Message> m2tmp;
+        if (m2_._descriptor != d) {
+            auto new_msg = _pool->get_new_message(d);
+            assert(new_msg);
+            assert(new_msg->GetDescriptor() == d);
+            m2tmp.reset(new A4Message(_class_id, new_msg, _pool));
+            m2tmp->_message->ParseFromString(m2_.bytes());
+            m2 = m2tmp.get();
         }
+
+        // force messages to be read
+        message(); 
+        m2->message();
+
+        // invalidate the bytes since we are going to update this message
+        _valid_bytes = false;
 
         for (int i = 0; i < d->field_count(); i++) {
             MetadataMergeOptions merge_opts = d->field(i)->options().GetExtension(merge);
 
             DynamicField f1(*_message, d->field(i));
-            ConstDynamicField f2(*m2.message(), d->field(i));
+            ConstDynamicField f2(*m2->_message, d->field(i));
 
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
-                    if(!(f1 == f2)) throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name());
+                    if(!(f1 == f2)) {
+                        DEBUG("this=", message()->DebugString());
+                        DEBUG("msg2=", m2->_message->DebugString());
+                        throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name(), ":", f1.value().str(), " != ", f2.value().str());
+                    }
                     // NOOP!
                     //f1.set(f1.value());
                     break;
@@ -191,12 +237,15 @@ namespace a4{ namespace io{
                     throw a4::Fatal("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
             }
         }
+        assert_valid();
         return *this;
     }
     
     void A4Message::unionize() {
-        assert(_message);
+        assert_valid();
+        if (not _message) return;
         Message& m = *_message;
+        _valid_bytes = false;
         const auto* refl = m.GetReflection();
         //const auto* desc = m.GetDescriptor();
         
@@ -212,8 +261,7 @@ namespace a4{ namespace io{
                 case MERGE_UNION:
                 {
                     assert(thisfield.repeated());
-                    if (thisfield.message())
-                        FATAL("Can't merge union field with complex type");
+                    //if (thisfield.message()) FATAL("Can't merge union field with complex type");
                     std::set<FieldContent> unioned;
                     for (int i = 0; i < thisfield.size(); i++)
                         unioned.insert(thisfield.value(i));
@@ -226,10 +274,12 @@ namespace a4{ namespace io{
                     break;
             }
         }
+        assert_valid();
     }
     
-    std::string A4Message::field_as_string(const std::string& field_name) {
+    std::string A4Message::field_as_string(const std::string& field_name) const {
         assert(descriptor() == message()->GetDescriptor());
+        assert_valid();
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         ConstDynamicField f(*message(), fd);
         if (f.repeated()) {
@@ -242,8 +292,9 @@ namespace a4{ namespace io{
         }
     }
 
-    std::string A4Message::assert_field_is_single_value(const std::string& field_name) {
+    std::string A4Message::assert_field_is_single_value(const std::string& field_name) const {
         assert(descriptor() == message()->GetDescriptor());
+        assert_valid();
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         if (!fd) {
             const std::string& classname = message()->GetDescriptor()->full_name();
@@ -253,6 +304,27 @@ namespace a4{ namespace io{
             FATAL(fd->full_name(), " has already multiple ", field_name, " entries - cannot achieve desired granularity!");
         }
         return field_as_string(field_name);
+    }
+    
+    const google::protobuf::Descriptor* A4Message::dynamic_descriptor() const {;
+        return _pool->dynamic_descriptor(_class_id);
+    }
+    
+    bool A4Message::assert_valid() const {
+        if (_message) {
+            assert(_descriptor == _message->GetDescriptor());
+            assert(_instream_read);
+            return true;
+        }
+        if (_valid_bytes) {
+            assert(_instream_read);
+            return true;
+        }
+        if (not _coded_in.expired()) {
+            assert(not _instream_read);
+            return true;
+        }
+        assert(false);
     }
 
 };};

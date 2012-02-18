@@ -16,6 +16,7 @@
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
+#include "a4/message.h"
 #include "a4/output_stream.h"
 #ifdef HAVE_SNAPPY
 #include "snappy_stream.h"
@@ -154,6 +155,13 @@ bool OutputStream::write(const google::protobuf::Message &msg)
 {
     if (!_opened) if(!open()) { return false; };
     uint32_t class_id = find_class_id(msg.GetDescriptor(), false);
+    return write(class_id, msg);
+}
+
+bool OutputStream::write(shared<const A4Message> msg)
+{
+    if (!_opened) if(!open()) { return false; };
+    uint32_t class_id = find_class_id(msg->descriptor(), false);
     return write(class_id, msg);
 }
 
@@ -327,6 +335,42 @@ bool OutputStream::write(uint32_t class_id, const google::protobuf::Message &msg
         _coded_out->WriteLittleEndian32(class_id);
     }
     msg.SerializeWithCachedSizes(_coded_out.get());
+    return true;
+}
+
+bool OutputStream::write(uint32_t class_id, shared<const A4Message> msg)
+{
+    if (_coded_out->ByteCount() > 100000000) reset_coded_stream();
+    _class_id_counts[class_id]++;
+
+    uint32_t size = msg->bytesize();
+    if (class_id == 0) {
+        _coded_out->WriteLittleEndian32(size);
+    } else {
+        _coded_out->WriteLittleEndian32(size | HIGH_BIT );
+        _coded_out->WriteLittleEndian32(class_id);
+    }
+    /*
+    if (not msg->_instream_read) {
+        auto coded_in = msg->_coded_in.lock();
+        int to_copy = msg->_size;
+        const void* this_data = NULL;
+        int this_step = 0;
+        do {
+            if (not coded_in->GetDirectBufferPointer(&this_data, &this_step)) {
+                return false;
+            }
+            assert(this_step > 0);
+            this_step = this_step > to_copy ? to_copy : this_step;
+            _coded_out->WriteRaw(this_data, this_step);
+            to_copy -= this_step;
+        } while (to_copy > 0);
+        msg->_coded_in.reset(); // invalidate message
+        msg->_instream_read = true;
+    } else {
+        _coded_out->WriteString(msg->bytes());
+    }*/
+    _coded_out->WriteString(msg->bytes());
     return true;
 }
 

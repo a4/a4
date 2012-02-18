@@ -42,10 +42,10 @@ namespace a4{
         class Configuration;
         class OutputAdaptor {
             public:
-                virtual void write(A4Message m) = 0;
-                virtual void metadata(A4Message m) = 0;
-                void write(const google::protobuf::Message& m) { write(A4Message(m)); }
-                void metadata(const google::protobuf::Message& m) { metadata(A4Message(m)); }
+                virtual void write(shared<const A4Message> m) = 0;
+                virtual void metadata(shared<const A4Message> m) = 0;
+                void write(const google::protobuf::Message& m) { write(shared<const A4Message>(new A4Message(m))); }
+                void metadata(const google::protobuf::Message& m) { metadata(shared<const A4Message>(new A4Message(m))); }
         };
 
         class Processor {
@@ -58,11 +58,12 @@ namespace a4{
                 virtual ~Processor() {}
 
                 /// This function is called at the start of a new metadata block
-                /// In here you can modify the metadata_message that is written if auto_metadata is true.
-                virtual void process_new_metadata() {};
+                /// In here you can return an alternate metadata message if
+                /// if auto_metadata is true.
+                virtual shared<A4Message> process_new_metadata() { return shared<A4Message>(); };
 
                 /// Override this to process raw A4 Messages
-                virtual void process_message(const A4Message) = 0;
+                virtual void process_message(shared<const A4Message>) = 0;
 
                 /// This function is called at the end of a metadata block
                 virtual void process_end_metadata() {};
@@ -71,7 +72,7 @@ namespace a4{
                 /// To use this method you have to disable automatic metadata writing.
                 /// You also need to think about if you want to write your metadata before (manual_metadata_forward = true)
                 /// or after (manual_metadata_forward = false) the events it refers to.
-                void metadata_start_block(A4Message m) {
+                void metadata_start_block(shared<A4Message> m) {
                     assert(metadata_behavior == MANUAL_FORWARD); 
                     _output_adaptor->metadata(m);
                 }
@@ -79,7 +80,7 @@ namespace a4{
                     assert(metadata_behavior == MANUAL_FORWARD); 
                     _output_adaptor->metadata(m); 
                 }
-                void metadata_end_block(A4Message m) { 
+                void metadata_end_block(shared<A4Message> m) { 
                     assert(metadata_behavior == MANUAL_BACKWARD); 
                     _output_adaptor->metadata(m); 
                 }
@@ -89,11 +90,11 @@ namespace a4{
                 }
 
                 /// Write a message to the output stream
-                void write(A4Message m) { _output_adaptor->write(m); }
+                void write(shared<const A4Message> m) { _output_adaptor->write(m); }
                 void write(const google::protobuf::Message& m) { _output_adaptor->write(m); }
                 
                 /// Write a message to the output stream at most once per event
-                void skim(A4Message m) {
+                void skim(shared<const A4Message> m) {
                     if (not skim_written) write(m);
                     skim_written = true;
                 }
@@ -148,7 +149,7 @@ namespace a4{
 
                 /// This is the currently valid metadata message. If you manipulate it in AUTO mode
                 /// in process_new_metadata the changes are written out.
-                A4Message metadata_message;
+                shared<const A4Message> metadata_message;
 
                 /// Set the behaviour of metadata
                 void set_metadata_behavior(MetadataBehavior m) { assert(!locked); metadata_behavior = m; }
@@ -192,17 +193,17 @@ namespace a4{
                 /// Override this to proces only your requested messages
                 virtual void process(const ProtoMessage&) = 0;
 
-                void process_message(const A4Message msg) {
+                void process_message(shared<const A4Message> msg) {
                     if (!msg) FATAL("No message!"); // TODO: Should not be fatal
-                    const ProtoMessage* pmsg = msg.as<ProtoMessage>();
-                    if (!pmsg) FATAL("Unexpected Message type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMessage), ")");
+                    const ProtoMessage* pmsg = msg->as<ProtoMessage>();
+                    if (!pmsg) FATAL("Unexpected Message type: ", typeid(*msg->message()), " (Expected: ", typeid(ProtoMessage), ")");
                     process(*pmsg);
                 }
 
-                ProtoMetaData& metadata() {
+                const ProtoMetaData& metadata() {
                     if (!metadata_message) FATAL("No metadata at this time!"); // TODO: Should not be fatal
-                    ProtoMetaData* meta = metadata_message.as_mutable<ProtoMetaData>();
-                    if (!meta) FATAL("Unexpected Metadata type: ", typeid(*metadata_message.message()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    const ProtoMetaData* meta = metadata_message->as<ProtoMetaData>();
+                    if (!meta) FATAL("Unexpected Metadata type: ", typeid(*metadata_message->message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
                 }
 
@@ -221,7 +222,7 @@ namespace a4{
                 // Generic storable processing
                 virtual void process(const std::string &, Storable &) {};
 
-                void process_message(const A4Message msg) {
+                void process_message(shared<const A4Message> msg) {
                     shared<Storable> next = _next_storable(msg);
                     if (next) {
                         if(!_test_process_as<This, Args...>::process((This*)this, next_name, next)) {
@@ -230,13 +231,13 @@ namespace a4{
                     }
                 };
 
-                shared<Storable> _next_storable(const A4Message msg);
+                shared<Storable> _next_storable(shared<const A4Message> msg);
 
-                ProtoMetaData& metadata() {
-                    A4Message msg = metadata_message;
+                const ProtoMetaData& metadata() {
+                    shared<const A4Message> msg = metadata_message;
                     if (!msg) FATAL("No metadata at this time!"); // TODO: Should not be fatal
-                    ProtoMetaData* meta = msg.as_mutable<ProtoMetaData>();
-                    if (!meta) FATAL("Unexpected Metadata type: ", typeid(*msg.message()), " (Expected: ", typeid(ProtoMetaData), ")");
+                    const ProtoMetaData* meta = msg->as<ProtoMetaData>();
+                    if (!meta) FATAL("Unexpected Metadata type: ", typeid(*msg->message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
                 };
             protected:

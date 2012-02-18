@@ -15,16 +15,16 @@ namespace a4{ namespace io{
     
     InputStream::~InputStream() {}
     
-    A4Message InputStream::next() { return _impl->next(); }
+    shared<A4Message> InputStream::next() { return _impl->next(); }
     
-    A4Message InputStream::next_with_metadata() {
+    shared<A4Message> InputStream::next_with_metadata() {
         return _impl->next_with_metadata();
     
     }
-    A4Message InputStream::next_bare_message() {
+    shared<A4Message> InputStream::next_bare_message() {
         return _impl->next_bare_message();
     }
-    const A4Message InputStream::current_metadata() { 
+    shared<const A4Message> InputStream::current_metadata() { 
         return _impl->current_metadata(); 
     }
     
@@ -38,7 +38,7 @@ namespace a4{ namespace io{
     size_t InputStream::ByteCount() { return _impl->ByteCount(); }
     std::string InputStream::str() { return _impl->str(); }
 
-    const std::vector<std::vector<A4Message>>& InputStream::all_metadata() { 
+    const std::vector<std::vector<shared<a4::io::A4Message>>>& InputStream::all_metadata() {
         return _impl->all_metadata();
     }
 };};

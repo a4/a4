@@ -254,6 +254,12 @@ class ConstDynamicField {
             }
         }
 
+        void assert_compatible(const ConstDynamicField& rhs) {
+            if(_m.GetDescriptor() != rhs._m.GetDescriptor()) FATAL("Unequal message descriptors!");
+            if(_f != rhs._f) FATAL("Unequal field descriptors!");
+            if(_f->containing_type() != _m.GetDescriptor()) FATAL("Field is not contained by this message!");
+        }
+
     protected:
         const Message& _m;
         const FieldDescriptor* _f;

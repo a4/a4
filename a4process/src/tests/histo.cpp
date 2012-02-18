@@ -26,8 +26,8 @@ int main(int argc, char ** argv) {
     {
         InputStream r("test_histos.a4");
         int cnt = 0;
-        while (A4Message msg = r.next()) {
-            if (const TestHisto* te = msg.as<TestHisto>()) {
+        while (shared<A4Message> msg = r.next()) {
+            if (const TestHisto* te = msg->as<TestHisto>()) {
                 assert(cnt++ == te->bin_number());
             }
         }

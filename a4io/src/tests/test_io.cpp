@@ -29,8 +29,8 @@ int main(int argc, char ** argv) {
         in.add_file("test_io.a4", false);
         int cnt = 0;
         while (shared<InputStream> stream = in.get_stream()) {
-            while (A4Message msg = stream->next()) {
-                if (const TestEvent* te = msg.as<TestEvent>()) {
+            while (shared<A4Message> msg = stream->next()) {
+                if (const TestEvent* te = msg->as<TestEvent>()) {
                     assert((cnt++%N) == te->event_number());
                 }
             }

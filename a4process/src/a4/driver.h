@@ -9,12 +9,11 @@ class Driver {
     public:
         void set_store(Processor* p, ObjectStore S) { p->S = S; }
     protected:
-        void set_metadata(Processor* p, A4Message md) { p->metadata_message = md; }
-
+        void set_metadata(Processor* p, shared<const A4Message> md) { p->metadata_message = md; }
 
         void set_output_adaptor(Processor* p, OutputAdaptor* oa) { p->_output_adaptor = oa; };
 
-        static void process_rerun_channels(Processor* p, A4Message msg) {
+        static void process_rerun_channels(Processor* p, shared<A4Message> msg) {
             ObjectStore S = p->S;
             p->process_message(msg);
             std::set<const char *> finished_channels;
@@ -33,7 +32,7 @@ class Driver {
             p->rerun_channels.clear();
         }
 
-        static void process_rerun_systematics(Processor* p, A4Message msg) {
+        static void process_rerun_systematics(Processor* p, shared<A4Message> msg) {
             p->skim_written = false;
             ObjectStore S = p->S;
             process_rerun_channels(p, msg);

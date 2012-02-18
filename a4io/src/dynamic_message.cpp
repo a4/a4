@@ -58,24 +58,27 @@ void append_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, Dyn
 }
 
 void inplace_add_fields(DynamicField& merged, ConstDynamicField& f2) {
+    merged.assert_compatible(f2);
     if (merged.repeated()) {
-        throw a4::Fatal("Not implemented: inplace_add_fields with repeated field");
+        FATAL("Not implemented: inplace_add_fields with repeated field");
     } else {
         merged.set(merged.value() + f2.value());
     }
 }
 
 void inplace_multiply_fields(DynamicField& merged, ConstDynamicField& f2) {
+    merged.assert_compatible(f2);
     if (merged.repeated()) {
-        throw a4::Fatal("Not implemented: inplace_multiply_fields with repeated field");
+        FATAL("Not implemented: inplace_multiply_fields with repeated field");
     } else {
         merged.set(merged.value() * f2.value());
     }
 }
 
 void inplace_append_fields(DynamicField& merged, ConstDynamicField& f2) {
+    merged.assert_compatible(f2);
     if (!merged.repeated())
-        throw a4::Fatal("MERGE_UNION/APPEND is not applicable to non-repeated field ", merged.name());
+        FATAL("MERGE_UNION/APPEND is not applicable to non-repeated field ", merged.name());
         
     for (int i = 0; i < f2.size(); i++)
         merged.add(f2.value(i));

@@ -23,19 +23,92 @@ namespace a4{ namespace io{
         _message_factory.reset();
         _descriptor_pool.reset();
     }
-
-    A4Message ProtoClassPool::read(uint32_t class_id, 
-                                   google::protobuf::io::CodedInputStream* instream) 
-    {
+    
+    void ProtoClassPool::verify_class_id(uint32_t class_id) {
         if (class_id < _class_id_reader.size()) {
-            internal::from_stream_func factory = _class_id_reader[class_id];
+            if (_class_id_reader[class_id]) return;
+        }
+        // Look for fixed class_id message
+        internal::classreg reg = internal::map_class("", class_id);
+        if (!reg.descriptor)
+            FATAL("Unregistered class_id: ", class_id);
+        
+        if (class_id >= _class_id_reader.size()) {
+            _class_id_reader.resize(class_id+1);
+            _class_id_descriptor.resize(class_id+1);
+            _dynamic_descriptor.resize(class_id+1);
+        }
+        _class_id_reader[class_id] = reg.new_protoclass;
+        _class_id_descriptor[class_id] = reg.descriptor;
+        _dynamic_descriptor[class_id] = NULL;
+        assert(reg.new_protoclass);
+    }
+
+    shared<google::protobuf::Message> ProtoClassPool::get_new_message(uint32_t class_id) {
+        verify_class_id(class_id);
+        return  _class_id_reader[class_id]();
+    }
+    
+    shared<google::protobuf::Message> ProtoClassPool::get_new_message(const Descriptor* d) const {
+        return shared<google::protobuf::Message>(_message_factory->GetPrototype(d)->New());
+    }
+
+    shared<google::protobuf::Message> ProtoClassPool::parse_message(uint32_t class_id, 
+                                   shared<google::protobuf::io::CodedInputStream> coded_in,
+                                   size_t size)
+    {
+        assert(coded_in);
+        //std::cerr << "Parse from stream " << coded_in.get() << "\tSZ " << size << "\tID " << class_id << std::endl;
+        auto msg = get_new_message(class_id);
+        auto lim = coded_in->PushLimit(size);
+        if (not msg->ParseFromCodedStream(coded_in.get())) {
+            FATAL("Could not parse from stream!");
+            coded_in->PushLimit(0); // Prevent the stream from reading further
+            return shared<google::protobuf::Message>();
+        }
+        coded_in->PopLimit(lim);
+        return msg;
+    }
+
+    shared<google::protobuf::Message> ProtoClassPool::parse_message(uint32_t class_id, 
+            const std::string& bytes)
+    {
+        //std::cerr << "Parse from string\tSZ" << bytes.size() << "\tID " << class_id << std::endl;
+        auto msg = get_new_message(class_id);
+        if (!msg->ParseFromString(bytes)) {
+            return shared<google::protobuf::Message>();
+        }
+        return msg;
+    }
+
+    const Descriptor* ProtoClassPool::descriptor(uint32_t class_id) {
+        verify_class_id(class_id);
+        auto d = _class_id_descriptor[class_id];
+        assert(d);
+        return d;
+    }
+
+    const Descriptor* ProtoClassPool::dynamic_descriptor(uint32_t class_id) {
+        verify_class_id(class_id);
+        return _dynamic_descriptor[class_id];
+    }
+
+#if 0
+    shared<A4Message> ProtoClassPool::read(uint32_t class_id,
+                                   google::protobuf::io::CodedInputStream* instream,
+                                   size_t size)
+    {
+
+
+        if (class_id < _class_id_reader.size()) {
+            internal::new_protoclass_func factory = _class_id_reader[class_id];
             if (factory) {
                 return A4Message(class_id,
-                                 _class_id_reader[class_id](instream),
+                                 _class_id_reader[class_id],
+                                 instream, size,
                                  _class_id_descriptor[class_id],
                                  _dynamic_descriptor[class_id],
-                                 _descriptor_pool,
-                                 _message_factory
+                                 _descriptor_pool
                                  );
             }
         }
@@ -48,13 +121,15 @@ namespace a4{ namespace io{
             _class_id_reader.resize(class_id+1);
             _class_id_descriptor.resize(class_id+1);
             _dynamic_descriptor.resize(class_id+1);
-            _class_id_reader[class_id] = reg.from_stream;
+            _class_id_reader[class_id] = reg.new_protoclass;
             _class_id_descriptor[class_id] = reg.descriptor;
             _dynamic_descriptor[class_id] = NULL;
         }
-        return A4Message(class_id, reg.from_stream(instream), reg.descriptor, 
-                          NULL, _descriptor_pool, _message_factory);
-    };
+        assert(reg.new_protoclass);
+        return A4Message(class_id, reg.new_protoclass, instream, size, 
+                          reg.descriptor, NULL, _descriptor_pool);
+    }
+#endif
 
     void ProtoClassPool::add_protoclass(const ProtoClass& protoclass) {
         uint32_t class_id = protoclass.class_id();
@@ -91,33 +166,28 @@ namespace a4{ namespace io{
             std::string dminor = gd->options().GetExtension(minor_version);
             if (cmajor != dmajor) {
                 FATAL("Major versions of compiled-in and read messages do not agree:",
-                                "Compiled in: '", cmajor, "', Read: '", dmajor, "'");
+                      "Compiled in: '", cmajor, "', Read: '", dmajor, "'");
             } else if (cminor != dminor) {
                 WARNING("Minor versions of compiled-in and read messages do not agree: "
                         "Compiled in: '", cminor, "' << Read: '", dminor, "'");
             }
-            _class_id_reader[class_id] = reg.from_stream;
+            _class_id_reader[class_id] = reg.new_protoclass;
             _class_id_descriptor[class_id] = reg.descriptor;
             _dynamic_descriptor[class_id] = gd;
         } else { // Use dynamic reading
             // WARNING("No compiled version of ", protoclass.full_name(), " found!");
             const Message* prototype = _message_factory->GetPrototype(gd);
-            _class_id_reader[class_id] = bind(&ProtoClassPool::message_factory, this, prototype, _1);
+            _class_id_reader[class_id] = bind(&ProtoClassPool::new_protoclass, this, prototype);
             _class_id_descriptor[class_id] = gd;
             _dynamic_descriptor[class_id] = gd;
         }
     }
 
-    shared<Message> ProtoClassPool::message_factory(
-        const google::protobuf::Message* prototype,
-        google::protobuf::io::CodedInputStream* instr)
+    shared<Message> ProtoClassPool::new_protoclass(
+        const google::protobuf::Message* prototype)
     {
-        shared<Message> msg(prototype->New());
-        bool success = msg->ParseFromCodedStream(instr);
-        assert(success);
-        return msg;
+        return shared<Message>(prototype->New());
     }
-
 
 };};
 

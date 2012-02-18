@@ -32,8 +32,8 @@ void my_read(A4Input &in) {
     shared<InputStream> stream = in.get_stream();
     if (!stream) return;
     int cnt = 0;
-    while (A4Message msg = stream->next()) {
-        if (const TestEvent* te = msg.as<TestEvent>()) {
+    while (shared<A4Message> msg = stream->next()) {
+        if (const TestEvent* te = msg->as<TestEvent>()) {
             assert((cnt++%N) == te->event_number());
         }
     }

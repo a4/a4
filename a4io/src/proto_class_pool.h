@@ -22,13 +22,23 @@ namespace a4{ namespace io{
         public:
             ProtoClassPool();
             ~ProtoClassPool();
-            A4Message read(uint32_t class_id, google::protobuf::io::CodedInputStream* instream);
+            //shared<A4Message> read(uint32_t class_id, google::protobuf::io::CodedInputStream* instream, size_t size);
             void add_protoclass(const ProtoClass& protoclass);
-            shared<Message> message_factory(const google::protobuf::Message* prototype, google::protobuf::io::CodedInputStream* instr);
-
+            void verify_class_id(uint32_t class_id);
+            shared<google::protobuf::Message> get_new_message(uint32_t class_id);
+            shared<google::protobuf::Message> get_new_message(const google::protobuf::Descriptor* d) const;
+            shared<google::protobuf::Message> parse_message(uint32_t class_id, 
+                                   shared<google::protobuf::io::CodedInputStream> coded_in,
+                                           size_t size);
+            shared<google::protobuf::Message> parse_message(uint32_t class_id, 
+                                            const std::string& bytes);
+            const google::protobuf::Descriptor* descriptor(uint32_t class_id);
+            const google::protobuf::Descriptor* dynamic_descriptor(uint32_t class_id);
         private:
+            shared<Message> new_protoclass(const google::protobuf::Message* prototype);
             std::set<std::string> _encountered_file_descriptors;
-            std::vector<internal::from_stream_func> _class_id_reader;
+            std::vector<internal::new_protoclass_func> _class_id_reader;
+            std::vector<const google::protobuf::Message*> _class_id_prototype;
             std::vector<const google::protobuf::Descriptor*> _class_id_descriptor;
             std::vector<const google::protobuf::Descriptor*> _dynamic_descriptor;
             shared<google::protobuf::DescriptorPool> _descriptor_pool;

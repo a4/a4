@@ -16,10 +16,12 @@ namespace a4{ namespace io{
 
     namespace internal {
         typedef boost::function<shared<Message> (google::protobuf::io::CodedInputStream*)> from_stream_func;
+        typedef boost::function<shared<Message> ()> new_protoclass_func;
         typedef struct classreg_struct {
             classreg_struct() : descriptor(NULL), from_stream(NULL) {};
             const google::protobuf::Descriptor* descriptor;
             from_stream_func from_stream;
+            new_protoclass_func new_protoclass;
         } classreg;
     
         classreg map_class(std::string name, uint32_t class_id=0, classreg=classreg(), bool warn=false);
@@ -30,12 +32,19 @@ namespace a4{ namespace io{
             msg->ParseFromCodedStream(instr);
             return msg;
         }
+        
+        template <typename ProtoClass>
+        shared<Message> new_protoclass() {
+            return shared<ProtoClass>(new ProtoClass());
+        }
 
         template <typename ProtoClass>
         classreg reg_protoclass() {
             classreg r;
             r.descriptor = ProtoClass::descriptor();
             r.from_stream = from_stream_func(from_stream<ProtoClass>);
+            r.new_protoclass = new_protoclass_func(new_protoclass<ProtoClass>);
+            
             return map_class("", 0, r);
         }
     }

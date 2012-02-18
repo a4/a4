@@ -28,6 +28,7 @@ using google::protobuf::Reflection;
 #include <a4/message.h>
 #include <dynamic_message.h>
 
+using a4::io::A4Message;
 
 template<typename T> struct ItemOrdering {
     bool operator() (const T& lhs, const T& rhs) { 
@@ -416,7 +417,7 @@ int main(int argc, char ** argv) {
     commandline_options.add_options()
         ("help,h", "produce help message")
         ("event-index,i", po::value(&event_index)->default_value(0), "event to start dumping from (starts at 0)")
-        ("count,c", po::value(&event_count)->default_value(1), "maximum number to dump")
+        ("n", po::value(&event_count)->default_value(1), "maximum number to dump")
         ("all,a", po::bool_switch(&dump_all)->default_value(false), "dump all events")
         ("input", po::value(&input_files), "input file names (runs once per specified file)")
         ("var,v", po::value(&variables), "variables to dump (defaults to all)")
@@ -461,21 +462,21 @@ int main(int argc, char ** argv) {
     
     const size_t total = event_index + event_count;
     for (; dump_all || i < total; i++) {
-        a4::io::A4Message m = stream_msg ? stream->next_bare_message() : stream->next();
+        shared<A4Message> m = stream_msg ? stream->next_bare_message() : stream->next();
         if (!m) break;
         
         // Skip messages which don't satisfy the selection
-        if (any(selections, CheckSelection(*m.message())))
+        if (any(selections, CheckSelection(*m->message())))
             continue;
         
         if (!(collect_stats || message_info))
-            dump_message(*m.message(), variables, types, short_form);
+            dump_message(*m->message(), variables, types, short_form);
         
         if (collect_stats)
-            sc.collect(*m.message());
+            sc.collect(*m->message());
         
         if (message_info)
-            mic.collect(*m.message());
+            mic.collect(*m->message());
     }
     
     if (collect_stats)

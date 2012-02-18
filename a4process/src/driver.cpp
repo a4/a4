@@ -51,7 +51,7 @@ SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg)
 
 class BaseOutputAdaptor : public OutputAdaptor {
     public:
-        A4Message current_metadata;
+        shared<A4Message> current_metadata;
         std::string merge_key, split_key; 
         A4Output* out;
         A4Output* res;
@@ -84,70 +84,70 @@ class BaseOutputAdaptor : public OutputAdaptor {
             backstore.reset(new ObjectBackStore());
             driver->set_store(p, backstore->store());
             if (outstream and forward_metadata and current_metadata) {
-                current_metadata.unionize();                
-                outstream->metadata(*current_metadata.message());
+                current_metadata->unionize();                
+                outstream->metadata(*current_metadata->message());
             }
             in_block = true;
         }
 
         void end_block() {            
             if (resstream && current_metadata) {
-                current_metadata.unionize();
-                resstream->metadata(*current_metadata.message());
+                current_metadata->unionize();
+                resstream->metadata(*current_metadata->message());
             }
             if (backstore && resstream) {
                 backstore->to_stream(*resstream);
             }
             backstore.reset();
             if (outstream and !forward_metadata and current_metadata) {
-                current_metadata.unionize();
-                outstream->metadata(*current_metadata.message());
+                current_metadata->unionize();
+                outstream->metadata(*current_metadata->message());
             }
             in_block = false;
         }
 
-        void new_outgoing_metadata(A4Message new_metadata) {
+        void new_outgoing_metadata(shared<const A4Message> new_metadata) {
             // Check if we merge the old into the new metadata
             // and hold off on writing it.
             bool merge = false;
-            A4Message old_metadata = current_metadata;
+            shared<A4Message> old_metadata = current_metadata;
 
             // Determine if merging is necessary
             if (new_metadata && old_metadata && merge_key != "") {
-                std::string s1 = old_metadata.assert_field_is_single_value(merge_key);
-                std::string s2 = new_metadata.assert_field_is_single_value(merge_key);
+                std::string s1 = old_metadata->assert_field_is_single_value(merge_key);
+                std::string s2 = new_metadata->assert_field_is_single_value(merge_key);
                 if (s1 == s2) merge = true;
             }
 
             if (merge) {
                 //std::cerr << "Merging\n" << old_metadata.message()->ShortDebugString()
                 //          << "\n...and...\n" << new_metadata.message()->ShortDebugString() << std::endl;
-                current_metadata += new_metadata;
-                //std::cerr << "...to...\n" << current_metadata.message()->ShortDebugString() << std::endl;
+                *current_metadata += *new_metadata;
+                //std::cerr << "...to...\n" << current_metadata->message()->ShortDebugString() << std::endl;
             } else { // Normal action in case of new metadata
                 // If we are in charge of metadata, start a new block now...
                 end_block();
 
                 std::string postfix = "";
                 if (new_metadata && split_key != "") 
-                    postfix = new_metadata.assert_field_is_single_value(split_key);
-                current_metadata = new_metadata;
+                    postfix = new_metadata->assert_field_is_single_value(split_key);
+                current_metadata.reset(new A4Message(*new_metadata));
 
                 start_block(postfix);
             } // end of normal action in case of new metadata
 
         }
 
-        virtual void metadata(A4Message m) {
+        virtual void metadata(shared<const A4Message> m) {
             FATAL("To write metadata manually, you have to change the metadata_behavior of the Processor!");
         }
     
-        void write(A4Message m) {
+        void write(shared<const A4Message> m) {
             if (!in_block) 
                 FATAL("Whoa?? Writing outside of a metadata block? How did you do this?");
             
             if (outstream) 
-                outstream->write(*m.message());
+                outstream->write(m);
         }
 
     protected:
@@ -165,7 +165,7 @@ class ManualOutputAdaptor : public BaseOutputAdaptor {
         ManualOutputAdaptor(Driver* d, Processor* p, bool forward_metadata, A4Output* out, A4Output* res) 
             : BaseOutputAdaptor(d, p, forward_metadata, out, res) {}
         
-        void metadata(A4Message m) {
+        void metadata(shared<const A4Message> m) {
             new_outgoing_metadata(m);
         }
 };
@@ -215,10 +215,10 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             break;
         
         if (instream->new_metadata()) { // Start of new metadata block
-            A4Message new_metadata = instream->current_metadata();
+            shared<const A4Message> c_new_metadata = instream->current_metadata();
 
             // WARNING: "no metadata" events are subsumed into previous/next metadata here!
-            if (new_metadata) {
+            if (c_new_metadata) {
                 // Process end of old metadata block, if any.
                 if (output_adaptor->current_metadata)
                     p->process_end_metadata();
@@ -227,23 +227,31 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                 // In Manual Mode, this may also trigger a callback in the output_adaptor.
                 // Note that set_metadata is only called here, since the processor should only
                 // ever see incoming metadata (by contract).
-                self->set_metadata(p, new_metadata);
-                p->process_new_metadata();
 
-                if (auto_metadata)
-                    output_adaptor->new_outgoing_metadata(new_metadata);
+                self->set_metadata(p, c_new_metadata);
+                shared<A4Message> new_metadata = p->process_new_metadata();
+                if (auto_metadata){
+                    if (new_metadata) {
+                        output_adaptor->new_outgoing_metadata(new_metadata);
+                    } else {
+                        output_adaptor->new_outgoing_metadata(c_new_metadata);
+                    }
+                } else if (new_metadata) {
+                    FATAL("You must not modify metadata in process_new_metadata if auto_metadata is off!");
+                }
+
             }
         }
 
-        while (A4Message msg = instream->next_with_metadata()) {
+        while (shared<A4Message> msg = instream->next_with_metadata()) {
             if (!run)
                 break;
             
             if (instream->new_metadata()) { // Start of new metadata block
-                A4Message new_metadata = instream->current_metadata();
+                shared<const A4Message> c_new_metadata = instream->current_metadata();
 
                 // WARNING: "no metadata" events are subsumed into previous/next metadata here!
-                if (new_metadata) {
+                if (c_new_metadata) {
                     // Process end of old metadata block, if any.
                     if (output_adaptor->current_metadata)
                         p->process_end_metadata();
@@ -252,16 +260,21 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                     // In Manual Mode, this may also trigger a callback in the output_adaptor.
                     // Note that set_metadata is only called here, since the processor should only
                     // ever see incoming metadata (by contract).
-                    self->set_metadata(p, new_metadata);
-                    p->process_new_metadata();
-
-                    // WARNING: "no metadata" events are subsumed into previous/next metadata here!
-                    if (auto_metadata)
-                        output_adaptor->new_outgoing_metadata(new_metadata);
+                    self->set_metadata(p, c_new_metadata);
+                    shared<A4Message> new_metadata = p->process_new_metadata();
+                    if (auto_metadata){
+                        if (new_metadata) {
+                            output_adaptor->new_outgoing_metadata(new_metadata);
+                        } else {
+                            output_adaptor->new_outgoing_metadata(c_new_metadata);
+                        }
+                    } else if (new_metadata) {
+                        FATAL("You must not modify metadata in process_new_metadata if auto_metadata is off!");
+                    }
                 }
             }
             // Do not send metadata messages to process()
-            if (msg.metadata())
+            if (msg->metadata())
                 continue;
 
             self->set_store(p, output_adaptor->backstore->store());
@@ -310,6 +323,7 @@ try
     
     int n_threads, number;
     int hw_threads = get_cpuinfo().physical_cores;
+    bool no_gdb = false;
     FileList inputs;
     po::options_description commandline_options;
     po::options_description config_file_options;
@@ -321,6 +335,7 @@ try
     po::options_description popt("Processing options");
     popt.add_options()
         ("help", "print this help message")
+        ("disable-gdb", po::bool_switch(&no_gdb), "switch of internal segfault handling")
         ("input,i", po::value<FileList>(&inputs), "input file(s)")
         ("output,o", po::value<string>(&output), "output file")
         ("results,r", po::value<string>(&results), "result file")
@@ -381,6 +396,10 @@ try
     // After finishing all option reading, notify the result
     po::notify(arguments);
     configuration->read_arguments(arguments);
+
+    if (not no_gdb) {
+        a4::Fatal::enable_throw_on_segfault();
+    }
 
     if (number != -1) n_threads = 1;
 

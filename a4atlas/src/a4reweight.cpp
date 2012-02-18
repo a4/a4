@@ -27,7 +27,7 @@ class A4ReweightProcessor : public ResultsProcessor<A4ReweightProcessor, EventMe
             S.set_slow(name, s); 
         }
     }
-    void process_new_metadata();
+    shared<A4Message> process_new_metadata();
     double weight;
 };
 
@@ -71,11 +71,11 @@ class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
     double lumi;
 };
 
-void A4ReweightProcessor::process_new_metadata() {
+shared<A4Message> A4ReweightProcessor::process_new_metadata() {
     auto config = my<A4ReweightConfiguration>();
     if (not metadata().simulation()) {
         weight = 1;
-        return;
+        return shared<A4Message>();
     }
     if (metadata().run_size() != 1) {
         FATAL("Cannot reweight if runs have been merged!");
@@ -95,8 +95,10 @@ void A4ReweightProcessor::process_new_metadata() {
         xs = config->xs.find(run)->second;
     }
     weight = xs * config->lumi / sum_mcw;
-    metadata().set_sum_mc_weights(xs * config->lumi);
-    metadata().set_reweight_lumi(config->lumi);
+    auto md = metadata();
+    md.set_sum_mc_weights(xs * config->lumi);
+    md.set_reweight_lumi(config->lumi);
+    return shared<A4Message>(new A4Message(md));
 }
 
 int main(int argc, const char* argv[]) {

@@ -40,10 +40,12 @@ namespace a4{ namespace io{
 
             /// Write a message to the stream
             bool write(const google::protobuf::Message& m);
+            bool write(shared<const A4Message> m);
 
             /// Write a metadata message to the stream
             /// Take care to respect the metadata message direction - forward means the events following
             bool metadata(const google::protobuf::Message& m);
+            bool metadata(shared<const A4Message> m);
 
             /// \internal Explicitly open the file. \endinternal
             bool open();
@@ -87,6 +89,7 @@ namespace a4{ namespace io{
 
 
             bool write(uint32_t class_id, const google::protobuf::Message& m);
+            bool write(uint32_t class_id, shared<const A4Message> m);
             bool write_header(std::string description);
             bool write_footer();
             bool start_compression();

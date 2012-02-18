@@ -17,12 +17,12 @@ int main(int argc, char ** argv) {
     InputStream r(fn);
 
     int cnt = 0;
-    while (A4Message rr = r.next()) {
-        if (rr.is<TestEvent>()) {
-            const TestEvent* te = rr.as<TestEvent>();
-            A4Message md = r.current_metadata();
-            assert(!md.null());
-            assert(te->event_number() / 1000 == md.as<TestMetaData>()->meta_data());
+    while (shared<A4Message> rr = r.next()) {
+        if (rr->is<TestEvent>()) {
+            const TestEvent* te = rr->as<TestEvent>();
+            shared<const A4Message> md = r.current_metadata();
+            assert(md);
+            assert(te->event_number() / 1000 == md->as<TestMetaData>()->meta_data());
             //std::cout << "TestEvent: " << te->event_number() << std::endl;
             cnt++;
         }
