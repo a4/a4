@@ -9,7 +9,7 @@
 #include "proto_class_pool.h"
 #include "zero_copy_resource.h"
 
-#include <A4Stream.pb.h>
+#include <a4/io/A4Stream.pb.h>
 
 namespace a4{ namespace io{
 

@@ -6,7 +6,7 @@
 
 #include <a4/message.h>
 
-#include <A4.pb.h>
+#include <a4/io/A4.pb.h>
 
 #include "dynamic_message.h"
 #include "proto_class_pool.h"

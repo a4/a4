@@ -3,7 +3,7 @@
 
 #include <a4/register.h>
 
-#include "A4Stream.pb.h"
+#include <a4/io/A4Stream.pb.h>
 
 namespace google{ namespace protobuf{ class Message; }}
 

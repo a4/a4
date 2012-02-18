@@ -12,7 +12,7 @@
 #include <a4/register.h>
 #include <a4/message.h>
 
-#include <A4Stream.pb.h>
+#include <a4/io/A4Stream.pb.h>
 
 namespace a4{ namespace io{
 
