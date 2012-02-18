@@ -1,0 +1,62 @@
+package a4.atlas.ntup.photon;
+import "a4/root/RootExtension.proto";
+
+message TopoMET {
+    optional float etx = 1 [(root_branch)="etx"];
+    optional float ety = 2 [(root_branch)="ety"];
+    
+    optional float phi = 100 [(root_branch)="phi"];
+    
+    optional float et = 200 [(root_branch)="et"];
+    optional float sumet = 201 [(root_branch)="sumet"];
+    
+    optional float SUMET_EMFrac = 300 [(root_branch)="SUMET_EMFrac"];
+    
+    optional float etx_PEMB = 400 [(root_branch)="etx_PEMB"];
+    optional float ety_PEMB = 401 [(root_branch)="ety_PEMB"];
+    optional float sumet_PEMB = 402 [(root_branch)="sumet_PEMB"];
+    optional float phi_PEMB = 403 [(root_branch)="phi_PEMB"];
+    optional float etx_EMB = 404 [(root_branch)="etx_EMB"];
+    optional float ety_EMB = 405 [(root_branch)="ety_EMB"];
+    optional float sumet_EMB = 406 [(root_branch)="sumet_EMB"];
+    optional float phi_EMB = 407 [(root_branch)="phi_EMB"];
+    optional float etx_PEMEC = 408 [(root_branch)="etx_PEMEC"];
+    optional float ety_PEMEC = 409 [(root_branch)="ety_PEMEC"];
+    optional float sumet_PEMEC = 410 [(root_branch)="sumet_PEMEC"];
+    optional float phi_PEMEC = 411 [(root_branch)="phi_PEMEC"];
+    optional float etx_EME = 412 [(root_branch)="etx_EME"];
+    optional float ety_EME = 413 [(root_branch)="ety_EME"];
+    optional float sumet_EME = 414 [(root_branch)="sumet_EME"];
+    optional float phi_EME = 415 [(root_branch)="phi_EME"];
+    optional float etx_TILE = 416 [(root_branch)="etx_TILE"];
+    optional float ety_TILE = 417 [(root_branch)="ety_TILE"];
+    optional float sumet_TILE = 418 [(root_branch)="sumet_TILE"];
+    optional float phi_TILE = 419 [(root_branch)="phi_TILE"];
+    optional float etx_HEC = 420 [(root_branch)="etx_HEC"];
+    optional float ety_HEC = 421 [(root_branch)="ety_HEC"];
+    optional float sumet_HEC = 422 [(root_branch)="sumet_HEC"];
+    optional float phi_HEC = 423 [(root_branch)="phi_HEC"];
+    optional float etx_FCAL = 424 [(root_branch)="etx_FCAL"];
+    optional float ety_FCAL = 425 [(root_branch)="ety_FCAL"];
+    optional float sumet_FCAL = 426 [(root_branch)="sumet_FCAL"];
+    optional float phi_FCAL = 427 [(root_branch)="phi_FCAL"];
+    optional float nCell_PEMB = 428 [(root_branch)="nCell_PEMB"];
+    optional float nCell_EMB = 429 [(root_branch)="nCell_EMB"];
+    optional float nCell_PEMEC = 430 [(root_branch)="nCell_PEMEC"];
+    optional float nCell_EME = 431 [(root_branch)="nCell_EME"];
+    optional float nCell_TILE = 432 [(root_branch)="nCell_TILE"];
+    optional float nCell_HEC = 433 [(root_branch)="nCell_HEC"];
+    optional float nCell_FCAL = 434 [(root_branch)="nCell_FCAL"];
+    optional float etx_CentralReg = 435 [(root_branch)="etx_CentralReg"];
+    optional float ety_CentralReg = 436 [(root_branch)="ety_CentralReg"];
+    optional float sumet_CentralReg = 437 [(root_branch)="sumet_CentralReg"];
+    optional float phi_CentralReg = 438 [(root_branch)="phi_CentralReg"];
+    optional float etx_EndcapRegion = 439 [(root_branch)="etx_EndcapRegion"];
+    optional float ety_EndcapRegion = 440 [(root_branch)="ety_EndcapRegion"];
+    optional float sumet_EndcapRegion = 441 [(root_branch)="sumet_EndcapRegion"];
+    optional float phi_EndcapRegion = 442 [(root_branch)="phi_EndcapRegion"];
+    optional float etx_ForwardReg = 443 [(root_branch)="etx_ForwardReg"];
+    optional float ety_ForwardReg = 444 [(root_branch)="ety_ForwardReg"];
+    optional float sumet_ForwardReg = 445 [(root_branch)="sumet_ForwardReg"];
+    optional float phi_ForwardReg = 446 [(root_branch)="phi_ForwardReg"];
+}

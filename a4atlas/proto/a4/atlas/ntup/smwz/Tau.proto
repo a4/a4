@@ -1,0 +1,162 @@
+package a4.atlas.ntup.smwz;
+import "a4/root/RootExtension.proto";
+
+message Tau {
+    optional float Et = 1 [(root_branch)="Et"];
+    optional float pt = 2 [(root_branch)="pt"];
+    optional float m = 3 [(root_branch)="m"];
+    optional float eta = 4 [(root_branch)="eta"];
+    optional float phi = 5 [(root_branch)="phi"];
+    
+    optional float charge = 100 [(root_branch)="charge"];
+    
+    optional float BDTEleScore = 200 [(root_branch)="BDTEleScore"];
+    optional float BDTJetScore = 201 [(root_branch)="BDTJetScore"];
+    
+    optional float likelihood = 300 [(root_branch)="likelihood"];
+    optional float SafeLikelihood = 301 [(root_branch)="SafeLikelihood"];
+    
+    optional int32 electronVetoLoose = 400 [(root_branch)="electronVetoLoose"];
+    optional int32 electronVetoMedium = 401 [(root_branch)="electronVetoMedium"];
+    optional int32 electronVetoTight = 402 [(root_branch)="electronVetoTight"];
+    optional int32 muonVeto = 403 [(root_branch)="muonVeto"];
+    
+    optional int32 tauCutLoose = 500 [(root_branch)="tauCutLoose"];
+    optional int32 tauCutMedium = 501 [(root_branch)="tauCutMedium"];
+    optional int32 tauCutTight = 502 [(root_branch)="tauCutTight"];
+    
+    optional int32 tauLlhLoose = 600 [(root_branch)="tauLlhLoose"];
+    optional int32 tauLlhMedium = 601 [(root_branch)="tauLlhMedium"];
+    optional int32 tauLlhTight = 602 [(root_branch)="tauLlhTight"];
+    
+    optional int32 JetBDTSigLoose = 700 [(root_branch)="JetBDTSigLoose"];
+    optional int32 JetBDTSigMedium = 701 [(root_branch)="JetBDTSigMedium"];
+    optional int32 JetBDTSigTight = 702 [(root_branch)="JetBDTSigTight"];
+    
+    optional int32 EleBDTLoose = 800 [(root_branch)="EleBDTLoose"];
+    optional int32 EleBDTMedium = 801 [(root_branch)="EleBDTMedium"];
+    optional int32 EleBDTTight = 802 [(root_branch)="EleBDTTight"];
+    
+    optional int32 author = 900 [(root_branch)="author"];
+    
+    optional int32 ROIword = 1000 [(root_branch)="ROIword"];
+    
+    optional int32 nProng = 1100 [(root_branch)="nProng"];
+    
+    optional int32 numTrack = 1200 [(root_branch)="numTrack"];
+    optional int32 seedCalo_numTrack = 1201 [(root_branch)="seedCalo_numTrack"];
+    
+    optional float etOverPtLeadTrk = 1300 [(root_branch)="etOverPtLeadTrk"];
+    optional float ipZ0SinThetaSigLeadTrk = 1301 [(root_branch)="ipZ0SinThetaSigLeadTrk"];
+    
+    optional float leadTrkPt = 1400 [(root_branch)="leadTrkPt"];
+    optional int32 nLooseTrk = 1401 [(root_branch)="nLooseTrk"];
+    optional int32 nLooseConvTrk = 1402 [(root_branch)="nLooseConvTrk"];
+    optional int32 nProngLoose = 1403 [(root_branch)="nProngLoose"];
+    
+    optional float ipSigLeadTrk = 1500 [(root_branch)="ipSigLeadTrk"];
+    optional float ipSigLeadLooseTrk = 1501 [(root_branch)="ipSigLeadLooseTrk"];
+    optional float etOverPtLeadLooseTrk = 1502 [(root_branch)="etOverPtLeadLooseTrk"];
+    optional float leadLooseTrkPt = 1503 [(root_branch)="leadLooseTrkPt"];
+    optional float chrgLooseTrk = 1504 [(root_branch)="chrgLooseTrk"];
+    
+    optional float massTrkSys = 1600 [(root_branch)="massTrkSys"];
+    
+    optional float trkWidth2 = 1700 [(root_branch)="trkWidth2"];
+    optional float trFlightPathSig = 1701 [(root_branch)="trFlightPathSig"];
+    
+    optional float etEflow = 1800 [(root_branch)="etEflow"];
+    optional float mEflow = 1801 [(root_branch)="mEflow"];
+    
+    optional int32 nPi0 = 1900 [(root_branch)="nPi0"];
+    
+    optional float ele_E237E277 = 2000 [(root_branch)="ele_E237E277"];
+    optional float ele_PresamplerFraction = 2001 [(root_branch)="ele_PresamplerFraction"];
+    optional float ele_ECALFirstFraction = 2002 [(root_branch)="ele_ECALFirstFraction"];
+    
+    optional float seedCalo_EMRadius = 2100 [(root_branch)="seedCalo_EMRadius"];
+    optional float seedCalo_hadRadius = 2101 [(root_branch)="seedCalo_hadRadius"];
+    optional float seedCalo_etEMAtEMScale = 2102 [(root_branch)="seedCalo_etEMAtEMScale"];
+    optional float seedCalo_etHadAtEMScale = 2103 [(root_branch)="seedCalo_etHadAtEMScale"];
+    optional float seedCalo_isolFrac = 2104 [(root_branch)="seedCalo_isolFrac"];
+    optional float seedCalo_centFrac = 2105 [(root_branch)="seedCalo_centFrac"];
+    optional float seedCalo_stripWidth2 = 2106 [(root_branch)="seedCalo_stripWidth2"];
+    optional int32 seedCalo_nStrip = 2107 [(root_branch)="seedCalo_nStrip"];
+    optional float seedCalo_etEMCalib = 2108 [(root_branch)="seedCalo_etEMCalib"];
+    optional float seedCalo_etHadCalib = 2109 [(root_branch)="seedCalo_etHadCalib"];
+    optional float seedCalo_eta = 2110 [(root_branch)="seedCalo_eta"];
+    optional float seedCalo_phi = 2111 [(root_branch)="seedCalo_phi"];
+    optional float seedCalo_nIsolLooseTrk = 2112 [(root_branch)="seedCalo_nIsolLooseTrk"];
+    optional float seedCalo_trkAvgDist = 2113 [(root_branch)="seedCalo_trkAvgDist"];
+    optional float seedCalo_trkRmsDist = 2114 [(root_branch)="seedCalo_trkRmsDist"];
+    optional float seedCalo_caloIso = 2115 [(root_branch)="seedCalo_caloIso"];
+    optional float seedCalo_caloIsoCorrected = 2116 [(root_branch)="seedCalo_caloIsoCorrected"];
+    optional float seedCalo_dRmax = 2117 [(root_branch)="seedCalo_dRmax"];
+    optional float seedCalo_lead2ClusterEOverAllClusterE = 2118 [(root_branch)="seedCalo_lead2ClusterEOverAllClusterE"];
+    optional float seedCalo_lead3ClusterEOverAllClusterE = 2119 [(root_branch)="seedCalo_lead3ClusterEOverAllClusterE"];
+    
+    optional int32 numTopoClusters = 2200 [(root_branch)="numTopoClusters"];
+    optional float numEffTopoClusters = 2201 [(root_branch)="numEffTopoClusters"];
+    
+    optional float topoInvMass = 2300 [(root_branch)="topoInvMass"];
+    optional float effTopoInvMass = 2301 [(root_branch)="effTopoInvMass"];
+    
+    optional float topoMeanDeltaR = 2400 [(root_branch)="topoMeanDeltaR"];
+    optional float effTopoMeanDeltaR = 2401 [(root_branch)="effTopoMeanDeltaR"];
+    
+    optional float numCells = 2500 [(root_branch)="numCells"];
+    
+    optional float seedTrk_EMRadius = 2600 [(root_branch)="seedTrk_EMRadius"];
+    optional float seedTrk_isolFrac = 2601 [(root_branch)="seedTrk_isolFrac"];
+    optional float seedTrk_etChrgHadOverSumTrkPt = 2602 [(root_branch)="seedTrk_etChrgHadOverSumTrkPt"];
+    optional float seedTrk_isolFracWide = 2603 [(root_branch)="seedTrk_isolFracWide"];
+    optional float seedTrk_etHadAtEMScale = 2604 [(root_branch)="seedTrk_etHadAtEMScale"];
+    optional float seedTrk_etEMAtEMScale = 2605 [(root_branch)="seedTrk_etEMAtEMScale"];
+    optional float seedTrk_etEMCL = 2606 [(root_branch)="seedTrk_etEMCL"];
+    optional float seedTrk_etChrgEM = 2607 [(root_branch)="seedTrk_etChrgEM"];
+    optional float seedTrk_etNeuEM = 2608 [(root_branch)="seedTrk_etNeuEM"];
+    optional float seedTrk_etResNeuEM = 2609 [(root_branch)="seedTrk_etResNeuEM"];
+    optional float seedTrk_hadLeakEt = 2610 [(root_branch)="seedTrk_hadLeakEt"];
+    optional float seedTrk_sumEMCellEtOverLeadTrkPt = 2611 [(root_branch)="seedTrk_sumEMCellEtOverLeadTrkPt"];
+    optional float seedTrk_secMaxStripEt = 2612 [(root_branch)="seedTrk_secMaxStripEt"];
+    optional float seedTrk_stripWidth2 = 2613 [(root_branch)="seedTrk_stripWidth2"];
+    optional int32 seedTrk_nStrip = 2614 [(root_branch)="seedTrk_nStrip"];
+    optional float seedTrk_etChrgHad = 2615 [(root_branch)="seedTrk_etChrgHad"];
+    optional int32 seedTrk_nOtherCoreTrk = 2616 [(root_branch)="seedTrk_nOtherCoreTrk"];
+    optional int32 seedTrk_nIsolTrk = 2617 [(root_branch)="seedTrk_nIsolTrk"];
+    optional float seedTrk_etIsolEM = 2618 [(root_branch)="seedTrk_etIsolEM"];
+    optional float seedTrk_etIsolHad = 2619 [(root_branch)="seedTrk_etIsolHad"];
+    
+    optional float calcVars_etHad_EMScale_Pt3Trks = 2700 [(root_branch)="calcVars_etHad_EMScale_Pt3Trks"];
+    optional float calcVars_etEM_EMScale_Pt3Trks = 2701 [(root_branch)="calcVars_etEM_EMScale_Pt3Trks"];
+    optional float calcVars_ipSigLeadLooseTrk = 2702 [(root_branch)="calcVars_ipSigLeadLooseTrk"];
+    optional float calcVars_drMin = 2703 [(root_branch)="calcVars_drMin"];
+    optional float calcVars_TRTHTOverLT_LeadTrk = 2704 [(root_branch)="calcVars_TRTHTOverLT_LeadTrk"];
+    optional float calcVars_calRadius = 2705 [(root_branch)="calcVars_calRadius"];
+    optional float calcVars_EMFractionAtEMScale = 2706 [(root_branch)="calcVars_EMFractionAtEMScale"];
+    optional float calcVars_trackIso = 2707 [(root_branch)="calcVars_trackIso"];
+    optional int32 seedCalo_track_n = 2708 [(root_branch)="seedCalo_track_n"];
+    optional int32 seedCalo_wideTrk_n = 2709 [(root_branch)="seedCalo_wideTrk_n"];
+    optional int32 otherTrk_n = 2710 [(root_branch)="otherTrk_n"];
+    
+    optional float EF_dr = 2800 [(root_branch)="EF_dr"];
+    optional float EF_E = 2801 [(root_branch)="EF_E"];
+    optional float EF_Et = 2802 [(root_branch)="EF_Et"];
+    optional float EF_pt = 2803 [(root_branch)="EF_pt"];
+    optional float EF_eta = 2804 [(root_branch)="EF_eta"];
+    optional float EF_phi = 2805 [(root_branch)="EF_phi"];
+    optional int32 EF_matched = 2806 [(root_branch)="EF_matched"];
+    optional float L2_dr = 2807 [(root_branch)="L2_dr"];
+    optional float L2_E = 2808 [(root_branch)="L2_E"];
+    optional float L2_Et = 2809 [(root_branch)="L2_Et"];
+    optional float L2_pt = 2810 [(root_branch)="L2_pt"];
+    optional float L2_eta = 2811 [(root_branch)="L2_eta"];
+    optional float L2_phi = 2812 [(root_branch)="L2_phi"];
+    optional int32 L2_matched = 2813 [(root_branch)="L2_matched"];
+    optional float L1_dr = 2814 [(root_branch)="L1_dr"];
+    optional float L1_Et = 2815 [(root_branch)="L1_Et"];
+    optional float L1_pt = 2816 [(root_branch)="L1_pt"];
+    optional float L1_eta = 2817 [(root_branch)="L1_eta"];
+    optional float L1_phi = 2818 [(root_branch)="L1_phi"];
+    optional int32 L1_matched = 2819 [(root_branch)="L1_matched"];
+}

@@ -1,0 +1,142 @@
+package a4.atlas.ntup.smwz;
+import "a4/root/RootExtension.proto";
+
+message MuonFeature {
+    optional float pt = 1 [(root_branch)="pt"];
+    optional float eta = 2 [(root_branch)="eta"];
+    optional float phi = 3 [(root_branch)="phi"];
+    optional float dir_phi = 4 [(root_branch)="dir_phi"];
+    
+    optional float zeta = 100 [(root_branch)="zeta"];
+    optional float dir_zeta = 101 [(root_branch)="dir_zeta"];
+    
+    optional float radius = 200 [(root_branch)="radius"];
+    
+    optional float beta = 300 [(root_branch)="beta"];
+    
+    optional float br_radius = 400 [(root_branch)="br_radius"];
+    optional float br_sagitta = 401 [(root_branch)="br_sagitta"];
+    
+    optional float ec_alpha = 500 [(root_branch)="ec_alpha"];
+    optional float ec_beta = 501 [(root_branch)="ec_beta"];
+    
+    optional int32 roiId = 600 [(root_branch)="roiId"];
+    
+    optional int32 saddress = 700 [(root_branch)="saddress"];
+    
+    optional int32 algoId = 800 [(root_branch)="algoId"];
+    
+    optional float sp1_r = 900 [(root_branch)="sp1_r"];
+    optional float sp1_z = 901 [(root_branch)="sp1_z"];
+    optional float sp1_slope = 902 [(root_branch)="sp1_slope"];
+    optional float sp2_r = 903 [(root_branch)="sp2_r"];
+    optional float sp2_z = 904 [(root_branch)="sp2_z"];
+    optional float sp2_slope = 905 [(root_branch)="sp2_slope"];
+    optional float sp3_r = 906 [(root_branch)="sp3_r"];
+    optional float sp3_z = 907 [(root_branch)="sp3_z"];
+    optional float sp3_slope = 908 [(root_branch)="sp3_slope"];
+    
+    optional int32 L2_2mu10 = 1000 [(root_branch)="L2_2mu10"];
+    optional int32 L2_2mu10_empty = 1001 [(root_branch)="L2_2mu10_empty"];
+    optional int32 L2_2mu10_loose = 1002 [(root_branch)="L2_2mu10_loose"];
+    optional int32 L2_2mu10_loose_empty = 1003 [(root_branch)="L2_2mu10_loose_empty"];
+    optional int32 L2_2mu10_loose_noOvlpRm = 1004 [(root_branch)="L2_2mu10_loose_noOvlpRm"];
+    optional int32 L2_2mu13_Zmumu_IDTrkNoCut = 1005 [(root_branch)="L2_2mu13_Zmumu_IDTrkNoCut"];
+    optional int32 L2_2mu4 = 1006 [(root_branch)="L2_2mu4"];
+    optional int32 L2_2mu4_Bmumu = 1007 [(root_branch)="L2_2mu4_Bmumu"];
+    optional int32 L2_2mu4_Bmumux = 1008 [(root_branch)="L2_2mu4_Bmumux"];
+    optional int32 L2_2mu4_DiMu = 1009 [(root_branch)="L2_2mu4_DiMu"];
+    optional int32 L2_2mu4_DiMu_DY = 1010 [(root_branch)="L2_2mu4_DiMu_DY"];
+    optional int32 L2_2mu4_DiMu_DY20 = 1011 [(root_branch)="L2_2mu4_DiMu_DY20"];
+    optional int32 L2_2mu4_DiMu_DY_noVtx_noOS = 1012 [(root_branch)="L2_2mu4_DiMu_DY_noVtx_noOS"];
+    optional int32 L2_2mu4_DiMu_SiTrk = 1013 [(root_branch)="L2_2mu4_DiMu_SiTrk"];
+    optional int32 L2_2mu4_DiMu_noVtx_noOS = 1014 [(root_branch)="L2_2mu4_DiMu_noVtx_noOS"];
+    optional int32 L2_2mu4_Jpsimumu = 1015 [(root_branch)="L2_2mu4_Jpsimumu"];
+    optional int32 L2_2mu4_Jpsimumu_IDTrkNoCut = 1016 [(root_branch)="L2_2mu4_Jpsimumu_IDTrkNoCut"];
+    optional int32 L2_2mu4_Upsimumu = 1017 [(root_branch)="L2_2mu4_Upsimumu"];
+    optional int32 L2_2mu4i_DiMu_DY = 1018 [(root_branch)="L2_2mu4i_DiMu_DY"];
+    optional int32 L2_2mu6 = 1019 [(root_branch)="L2_2mu6"];
+    optional int32 L2_2mu6_MSonly_g10_loose = 1020 [(root_branch)="L2_2mu6_MSonly_g10_loose"];
+    optional int32 L2_2mu6_MSonly_g10_loose_nonfilled = 1021 [(root_branch)="L2_2mu6_MSonly_g10_loose_nonfilled"];
+    optional int32 L2_2mu6_NL = 1022 [(root_branch)="L2_2mu6_NL"];
+    optional int32 L2_mu0_cal_empty = 1023 [(root_branch)="L2_mu0_cal_empty"];
+    optional int32 L2_mu0_empty_NoAlg = 1024 [(root_branch)="L2_mu0_empty_NoAlg"];
+    optional int32 L2_mu0_firstempty_NoAlg = 1025 [(root_branch)="L2_mu0_firstempty_NoAlg"];
+    optional int32 L2_mu0_unpaired_iso_NoAlg = 1026 [(root_branch)="L2_mu0_unpaired_iso_NoAlg"];
+    optional int32 L2_mu10 = 1027 [(root_branch)="L2_mu10"];
+    optional int32 L2_mu10_Jpsimumu = 1028 [(root_branch)="L2_mu10_Jpsimumu"];
+    optional int32 L2_mu10_NL = 1029 [(root_branch)="L2_mu10_NL"];
+    optional int32 L2_mu10_Upsimumu_FS = 1030 [(root_branch)="L2_mu10_Upsimumu_FS"];
+    optional int32 L2_mu10_Upsimumu_tight_FS = 1031 [(root_branch)="L2_mu10_Upsimumu_tight_FS"];
+    optional int32 L2_mu10_cal = 1032 [(root_branch)="L2_mu10_cal"];
+    optional int32 L2_mu10_loose = 1033 [(root_branch)="L2_mu10_loose"];
+    optional int32 L2_mu10_muCombTag_NoEF = 1034 [(root_branch)="L2_mu10_muCombTag_NoEF"];
+    optional int32 L2_mu11_empty_NoAlg = 1035 [(root_branch)="L2_mu11_empty_NoAlg"];
+    optional int32 L2_mu13 = 1036 [(root_branch)="L2_mu13"];
+    optional int32 L2_mu13_MG = 1037 [(root_branch)="L2_mu13_MG"];
+    optional int32 L2_mu13_muCombTag_NoEF = 1038 [(root_branch)="L2_mu13_muCombTag_NoEF"];
+    optional int32 L2_mu15 = 1039 [(root_branch)="L2_mu15"];
+    optional int32 L2_mu15_medium = 1040 [(root_branch)="L2_mu15_medium"];
+    optional int32 L2_mu15i = 1041 [(root_branch)="L2_mu15i"];
+    optional int32 L2_mu15i_medium = 1042 [(root_branch)="L2_mu15i_medium"];
+    optional int32 L2_mu18 = 1043 [(root_branch)="L2_mu18"];
+    optional int32 L2_mu18_MG = 1044 [(root_branch)="L2_mu18_MG"];
+    optional int32 L2_mu18_MG_medium = 1045 [(root_branch)="L2_mu18_MG_medium"];
+    optional int32 L2_mu18_medium = 1046 [(root_branch)="L2_mu18_medium"];
+    optional int32 L2_mu20 = 1047 [(root_branch)="L2_mu20"];
+    optional int32 L2_mu20_IDTrkNoCut = 1048 [(root_branch)="L2_mu20_IDTrkNoCut"];
+    optional int32 L2_mu20_MG = 1049 [(root_branch)="L2_mu20_MG"];
+    optional int32 L2_mu20_MG_medium = 1050 [(root_branch)="L2_mu20_MG_medium"];
+    optional int32 L2_mu20_empty = 1051 [(root_branch)="L2_mu20_empty"];
+    optional int32 L2_mu20_medium = 1052 [(root_branch)="L2_mu20_medium"];
+    optional int32 L2_mu20_muCombTag_NoEF = 1053 [(root_branch)="L2_mu20_muCombTag_NoEF"];
+    optional int32 L2_mu20i = 1054 [(root_branch)="L2_mu20i"];
+    optional int32 L2_mu20i_medium = 1055 [(root_branch)="L2_mu20i_medium"];
+    optional int32 L2_mu22 = 1056 [(root_branch)="L2_mu22"];
+    optional int32 L2_mu22_MG = 1057 [(root_branch)="L2_mu22_MG"];
+    optional int32 L2_mu22_MG_medium = 1058 [(root_branch)="L2_mu22_MG_medium"];
+    optional int32 L2_mu22_medium = 1059 [(root_branch)="L2_mu22_medium"];
+    optional int32 L2_mu4 = 1060 [(root_branch)="L2_mu4"];
+    optional int32 L2_mu40_MSonly_barrel = 1061 [(root_branch)="L2_mu40_MSonly_barrel"];
+    optional int32 L2_mu40_MSonly_barrel_medium = 1062 [(root_branch)="L2_mu40_MSonly_barrel_medium"];
+    optional int32 L2_mu40_MSonly_empty = 1063 [(root_branch)="L2_mu40_MSonly_empty"];
+    optional int32 L2_mu40_MSonly_tight = 1064 [(root_branch)="L2_mu40_MSonly_tight"];
+    optional int32 L2_mu40_MSonly_tighter = 1065 [(root_branch)="L2_mu40_MSonly_tighter"];
+    optional int32 L2_mu40_slow = 1066 [(root_branch)="L2_mu40_slow"];
+    optional int32 L2_mu40_slow_empty = 1067 [(root_branch)="L2_mu40_slow_empty"];
+    optional int32 L2_mu40_slow_medium = 1068 [(root_branch)="L2_mu40_slow_medium"];
+    optional int32 L2_mu40_slow_outOfTime = 1069 [(root_branch)="L2_mu40_slow_outOfTime"];
+    optional int32 L2_mu4_DiMu = 1070 [(root_branch)="L2_mu4_DiMu"];
+    optional int32 L2_mu4_DiMu_FS_noOS = 1071 [(root_branch)="L2_mu4_DiMu_FS_noOS"];
+    optional int32 L2_mu4_Jpsimumu = 1072 [(root_branch)="L2_mu4_Jpsimumu"];
+    optional int32 L2_mu4_L1J10_matched = 1073 [(root_branch)="L2_mu4_L1J10_matched"];
+    optional int32 L2_mu4_L1J15_matched = 1074 [(root_branch)="L2_mu4_L1J15_matched"];
+    optional int32 L2_mu4_L1J20_matched = 1075 [(root_branch)="L2_mu4_L1J20_matched"];
+    optional int32 L2_mu4_L1J30_matched = 1076 [(root_branch)="L2_mu4_L1J30_matched"];
+    optional int32 L2_mu4_L1J50_matched = 1077 [(root_branch)="L2_mu4_L1J50_matched"];
+    optional int32 L2_mu4_L1J75_matched = 1078 [(root_branch)="L2_mu4_L1J75_matched"];
+    optional int32 L2_mu4_L1MU11_MSonly_cosmic = 1079 [(root_branch)="L2_mu4_L1MU11_MSonly_cosmic"];
+    optional int32 L2_mu4_L1MU11_cosmic = 1080 [(root_branch)="L2_mu4_L1MU11_cosmic"];
+    optional int32 L2_mu4_MSonly_cosmic = 1081 [(root_branch)="L2_mu4_MSonly_cosmic"];
+    optional int32 L2_mu4_Trk_Jpsi = 1082 [(root_branch)="L2_mu4_Trk_Jpsi"];
+    optional int32 L2_mu4_Trk_Upsi_FS = 1083 [(root_branch)="L2_mu4_Trk_Upsi_FS"];
+    optional int32 L2_mu4_Upsimumu_FS = 1084 [(root_branch)="L2_mu4_Upsimumu_FS"];
+    optional int32 L2_mu4_Upsimumu_SiTrk_FS = 1085 [(root_branch)="L2_mu4_Upsimumu_SiTrk_FS"];
+    optional int32 L2_mu4_Upsimumu_tight_FS = 1086 [(root_branch)="L2_mu4_Upsimumu_tight_FS"];
+    optional int32 L2_mu4_cosmic = 1087 [(root_branch)="L2_mu4_cosmic"];
+    optional int32 L2_mu4_j10_a4tc_EFFS = 1088 [(root_branch)="L2_mu4_j10_a4tc_EFFS"];
+    optional int32 L2_mu4_j40_xe20_loose_noMu = 1089 [(root_branch)="L2_mu4_j40_xe20_loose_noMu"];
+    optional int32 L2_mu4_j95_L1matched = 1090 [(root_branch)="L2_mu4_j95_L1matched"];
+    optional int32 L2_mu4mu6_Bmumu = 1091 [(root_branch)="L2_mu4mu6_Bmumu"];
+    optional int32 L2_mu4mu6_BmumuX = 1092 [(root_branch)="L2_mu4mu6_BmumuX"];
+    optional int32 L2_mu4mu6_DiMu = 1093 [(root_branch)="L2_mu4mu6_DiMu"];
+    optional int32 L2_mu4mu6_DiMu_noVtx_noOS = 1094 [(root_branch)="L2_mu4mu6_DiMu_noVtx_noOS"];
+    optional int32 L2_mu4mu6_Jpsimumu = 1095 [(root_branch)="L2_mu4mu6_Jpsimumu"];
+    optional int32 L2_mu4mu6_Upsimumu = 1096 [(root_branch)="L2_mu4mu6_Upsimumu"];
+    optional int32 L2_mu6 = 1097 [(root_branch)="L2_mu6"];
+    optional int32 L2_mu6_DiMu_noOS = 1098 [(root_branch)="L2_mu6_DiMu_noOS"];
+    optional int32 L2_mu6_Jpsimumu = 1099 [(root_branch)="L2_mu6_Jpsimumu"];
+    optional int32 L2_mu6_Jpsimumu_SiTrk = 1100 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
+    optional int32 L2_mu6_Jpsimumu_tight = 1101 [(root_branch)="L2_mu6_Jpsimumu_tight"];
+    optional int32 L2_mu6_Trk_Jpsi_loose = 1102 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+}

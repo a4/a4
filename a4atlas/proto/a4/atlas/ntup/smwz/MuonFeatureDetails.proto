@@ -1,0 +1,6 @@
+package a4.atlas.ntup.smwz;
+import "a4/root/RootExtension.proto";
+
+message MuonFeatureDetails {
+    
+}

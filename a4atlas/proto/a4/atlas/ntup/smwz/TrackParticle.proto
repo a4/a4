@@ -1,0 +1,16 @@
+package a4.atlas.ntup.smwz;
+import "a4/root/RootExtension.proto";
+
+message TrackParticle {
+    optional float pt = 1 [(root_branch)="pt"];
+    optional float eta = 2 [(root_branch)="eta"];
+    
+    optional float d0_wrtPV = 100 [(root_branch)="d0_wrtPV"];
+    optional float z0_wrtPV = 101 [(root_branch)="z0_wrtPV"];
+    optional float phi_wrtPV = 102 [(root_branch)="phi_wrtPV"];
+    optional float theta_wrtPV = 103 [(root_branch)="theta_wrtPV"];
+    optional float qoverp_wrtPV = 104 [(root_branch)="qoverp_wrtPV"];
+    
+    optional float chi2 = 200 [(root_branch)="chi2"];
+    optional int32 ndof = 201 [(root_branch)="ndof"];
+}

@@ -1,0 +1,57 @@
+package a4.atlas.ntup.photon;
+import "a4/root/RootExtension.proto";
+
+message TrackParticle {
+    optional float d0 = 1 [(root_branch)="d0"];
+    optional float z0 = 2 [(root_branch)="z0"];
+    
+    optional float phi = 100 [(root_branch)="phi"];
+    optional float theta = 101 [(root_branch)="theta"];
+    
+    optional float qoverp = 200 [(root_branch)="qoverp"];
+    
+    optional float pt = 300 [(root_branch)="pt"];
+    optional float eta = 301 [(root_branch)="eta"];
+    
+    optional float d0_wrtPV = 400 [(root_branch)="d0_wrtPV"];
+    optional float z0_wrtPV = 401 [(root_branch)="z0_wrtPV"];
+    optional float phi_wrtPV = 402 [(root_branch)="phi_wrtPV"];
+    optional float d0_wrtBS = 403 [(root_branch)="d0_wrtBS"];
+    optional float z0_wrtBS = 404 [(root_branch)="z0_wrtBS"];
+    optional float phi_wrtBS = 405 [(root_branch)="phi_wrtBS"];
+    
+    optional float chi2 = 500 [(root_branch)="chi2"];
+    optional int32 ndof = 501 [(root_branch)="ndof"];
+    
+    optional int32 nBLHits = 600 [(root_branch)="nBLHits"];
+    optional int32 nPixHits = 601 [(root_branch)="nPixHits"];
+    optional int32 nSCTHits = 602 [(root_branch)="nSCTHits"];
+    optional int32 nTRTHits = 603 [(root_branch)="nTRTHits"];
+    optional int32 nTRTHighTHits = 604 [(root_branch)="nTRTHighTHits"];
+    
+    optional int32 nPixHoles = 700 [(root_branch)="nPixHoles"];
+    optional int32 nSCTHoles = 701 [(root_branch)="nSCTHoles"];
+    optional int32 nTRTHoles = 702 [(root_branch)="nTRTHoles"];
+    
+    optional int32 expectBLayerHit = 800 [(root_branch)="expectBLayerHit"];
+    
+    optional int32 nMDTHits = 900 [(root_branch)="nMDTHits"];
+    optional int32 nCSCEtaHits = 901 [(root_branch)="nCSCEtaHits"];
+    optional int32 nCSCPhiHits = 902 [(root_branch)="nCSCPhiHits"];
+    optional int32 nRPCEtaHits = 903 [(root_branch)="nRPCEtaHits"];
+    optional int32 nRPCPhiHits = 904 [(root_branch)="nRPCPhiHits"];
+    optional int32 nTGCEtaHits = 905 [(root_branch)="nTGCEtaHits"];
+    optional int32 nTGCPhiHits = 906 [(root_branch)="nTGCPhiHits"];
+    optional int32 nHits = 907 [(root_branch)="nHits"];
+    optional int32 nHoles = 908 [(root_branch)="nHoles"];
+    
+    optional int32 hitPattern = 1000 [(root_branch)="hitPattern"];
+    
+    optional float TRTHighTHitsRatio = 1100 [(root_branch)="TRTHighTHitsRatio"];
+    optional float TRTHighTOutliersRatio = 1101 [(root_branch)="TRTHighTOutliersRatio"];
+    
+    optional float mc_probability = 1200 [(root_branch)="mc_probability"];
+    optional int32 mc_barcode = 1201 [(root_branch)="mc_barcode"];
+    
+    optional float conv_weight = 1300 [(root_branch)="conv_weight"];
+}

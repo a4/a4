@@ -1,0 +1,27 @@
+package a4.atlas.ntup.smwz;
+import "a4/root/RootExtension.proto";
+
+message MuonROI {
+    optional float pt = 1 [(root_branch)="pt"];
+    optional float eta = 2 [(root_branch)="eta"];
+    optional float phi = 3 [(root_branch)="phi"];
+    
+    optional string thrName = 100 [(root_branch)="thrName"];
+    optional int32 thrNumber = 101 [(root_branch)="thrNumber"];
+    optional int32 RoINumber = 102 [(root_branch)="RoINumber"];
+    
+    optional int32 sectorAddress = 200 [(root_branch)="sectorAddress"];
+    
+    optional int32 firstCandidate = 300 [(root_branch)="firstCandidate"];
+    
+    optional int32 moreCandInRoI = 400 [(root_branch)="moreCandInRoI"];
+    optional int32 moreCandInSector = 401 [(root_branch)="moreCandInSector"];
+    
+    optional int32 source = 500 [(root_branch)="source"];
+    
+    optional int32 hemisphere = 600 [(root_branch)="hemisphere"];
+    
+    optional int32 charge = 700 [(root_branch)="charge"];
+    
+    optional int32 vetoed = 800 [(root_branch)="vetoed"];
+}

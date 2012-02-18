@@ -47,8 +47,8 @@ using google::protobuf::compiler::SourceTreeDescriptorDatabase;
 #include "common.h"
 #include "period_mapping.h"
 
-#include "a4/root/atlas/ntup_photon/Event.pb.h"
-#include "a4/root/atlas/ntup_smwz/Event.pb.h"
+#include "a4/atlas/ntup/photon/Event.pb.h"
+#include "a4/atlas/ntup/smwz/Event.pb.h"
 
 #include "a4/atlas/Event.pb.h"
 
@@ -509,9 +509,9 @@ int main(int argc, char ** argv) {
     if (tree_type == "test")
         descriptor = a4::root::test::Event::descriptor();
     else if (tree_type == "PHOTON")
-        descriptor = a4::root::atlas::ntup_photon::Event::descriptor();
+        descriptor = a4::atlas::ntup::photon::Event::descriptor();
     else if (tree_type == "SMWZ")
-        descriptor = a4::root::atlas::ntup_smwz::Event::descriptor();
+        descriptor = a4::atlas::ntup::smwz::Event::descriptor();
     else
     {        
         const FileDescriptor* file_descriptor = pool.FindFileByName(tree_type);

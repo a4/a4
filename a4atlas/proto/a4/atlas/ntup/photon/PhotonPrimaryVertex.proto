@@ -1,0 +1,25 @@
+package a4.atlas.ntup.photon;
+import "a4/root/RootExtension.proto";
+
+message PhotonPrimaryVertex {
+    optional float px = 1 [(root_branch)="px"];
+    optional float py = 2 [(root_branch)="py"];
+    optional float pz = 3 [(root_branch)="pz"];
+    optional float E = 4 [(root_branch)="E"];
+    optional float m = 5 [(root_branch)="m"];
+    
+    optional int32 nTracks = 100 [(root_branch)="nTracks"];
+    
+    optional float sumPt = 200 [(root_branch)="sumPt"];
+    optional float sumPt2 = 201 [(root_branch)="sumPt2"];
+    
+    optional int32 type = 300 [(root_branch)="type"];
+    
+    optional float missPt = 400 [(root_branch)="missPt"];
+    optional float meanPt = 401 [(root_branch)="meanPt"];
+    
+    optional int32 nTracks_05GeV = 500 [(root_branch)="nTracks_05GeV"];
+    optional int32 nTracks_07GeV = 501 [(root_branch)="nTracks_07GeV"];
+    optional int32 nTracks_1GeV = 502 [(root_branch)="nTracks_1GeV"];
+    optional int32 nTracks_2GeV = 503 [(root_branch)="nTracks_2GeV"];
+}

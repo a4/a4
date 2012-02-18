@@ -1,0 +1,195 @@
+package a4.atlas.ntup.smwz;
+import "a4/root/RootExtension.proto";
+
+message Jet {
+    optional float E = 1 [(root_branch)="E"];
+    optional float pt = 2 [(root_branch)="pt"];
+    optional float m = 3 [(root_branch)="m"];
+    optional float eta = 4 [(root_branch)="eta"];
+    optional float phi = 5 [(root_branch)="phi"];
+    
+    optional float EtaOrigin = 100 [(root_branch)="EtaOrigin"];
+    optional float PhiOrigin = 101 [(root_branch)="PhiOrigin"];
+    optional float MOrigin = 102 [(root_branch)="MOrigin"];
+    optional float EtaOriginEM = 103 [(root_branch)="EtaOriginEM"];
+    optional float PhiOriginEM = 104 [(root_branch)="PhiOriginEM"];
+    optional float MOriginEM = 105 [(root_branch)="MOriginEM"];
+    
+    optional float WIDTH = 200 [(root_branch)="WIDTH"];
+    
+    optional float n90 = 300 [(root_branch)="n90"];
+    
+    optional float Timing = 400 [(root_branch)="Timing"];
+    
+    optional float LArQuality = 500 [(root_branch)="LArQuality"];
+    
+    optional float nTrk = 600 [(root_branch)="nTrk"];
+    optional float sumPtTrk = 601 [(root_branch)="sumPtTrk"];
+    
+    optional float OriginIndex = 700 [(root_branch)="OriginIndex"];
+    
+    optional float HECQuality = 800 [(root_branch)="HECQuality"];
+    
+    optional float NegativeE = 900 [(root_branch)="NegativeE"];
+    
+    optional float AverageLArQF = 1000 [(root_branch)="AverageLArQF"];
+    
+    optional float YFlip12 = 1100 [(root_branch)="YFlip12"];
+    optional float YFlip23 = 1101 [(root_branch)="YFlip23"];
+    
+    optional float BCH_CORR_CELL = 1200 [(root_branch)="BCH_CORR_CELL"];
+    optional float BCH_CORR_DOTX = 1201 [(root_branch)="BCH_CORR_DOTX"];
+    optional float BCH_CORR_JET = 1202 [(root_branch)="BCH_CORR_JET"];
+    optional float BCH_CORR_JET_FORCELL = 1203 [(root_branch)="BCH_CORR_JET_FORCELL"];
+    
+    optional float ENG_BAD_CELLS = 1300 [(root_branch)="ENG_BAD_CELLS"];
+    optional float N_BAD_CELLS = 1301 [(root_branch)="N_BAD_CELLS"];
+    optional float N_BAD_CELLS_CORR = 1302 [(root_branch)="N_BAD_CELLS_CORR"];
+    optional float BAD_CELLS_CORR_E = 1303 [(root_branch)="BAD_CELLS_CORR_E"];
+    
+    optional float NumTowers = 1400 [(root_branch)="NumTowers"];
+    
+    optional int32 SamplingMax = 1500 [(root_branch)="SamplingMax"];
+    optional float fracSamplingMax = 1501 [(root_branch)="fracSamplingMax"];
+    
+    optional float hecf = 1600 [(root_branch)="hecf"];
+    
+    optional float tgap3f = 1700 [(root_branch)="tgap3f"];
+    
+    optional int32 isUgly = 1800 [(root_branch)="isUgly"];
+    
+    optional int32 isBadLoose = 1900 [(root_branch)="isBadLoose"];
+    optional int32 isBadMedium = 1901 [(root_branch)="isBadMedium"];
+    optional int32 isBadTight = 1902 [(root_branch)="isBadTight"];
+    
+    optional float emfrac = 2000 [(root_branch)="emfrac"];
+    
+    optional float Offset = 2100 [(root_branch)="Offset"];
+    
+    optional float EMJES = 2200 [(root_branch)="EMJES"];
+    optional float EMJES_EtaCorr = 2201 [(root_branch)="EMJES_EtaCorr"];
+    optional float EMJESnooffset = 2202 [(root_branch)="EMJESnooffset"];
+    
+    optional float GCWJES = 2300 [(root_branch)="GCWJES"];
+    optional float GCWJES_EtaCorr = 2301 [(root_branch)="GCWJES_EtaCorr"];
+    
+    optional float CB = 2400 [(root_branch)="CB"];
+    
+    optional float LCJES = 2500 [(root_branch)="LCJES"];
+    
+    optional float emscale_E = 2600 [(root_branch)="emscale_E"];
+    optional float emscale_pt = 2601 [(root_branch)="emscale_pt"];
+    optional float emscale_m = 2602 [(root_branch)="emscale_m"];
+    optional float emscale_eta = 2603 [(root_branch)="emscale_eta"];
+    optional float emscale_phi = 2604 [(root_branch)="emscale_phi"];
+    
+    optional float jvtx_x = 2700 [(root_branch)="jvtx_x"];
+    optional float jvtx_y = 2701 [(root_branch)="jvtx_y"];
+    optional float jvtx_z = 2702 [(root_branch)="jvtx_z"];
+    optional float jvtxf = 2703 [(root_branch)="jvtxf"];
+    repeated float jvtxfFull = 2704 [(root_branch)="jvtxfFull"];
+    
+    optional float GSCFactorF = 2800 [(root_branch)="GSCFactorF"];
+    optional float WidthFraction = 2801 [(root_branch)="WidthFraction"];
+    
+    optional float flavor_weight_Comb = 2900 [(root_branch)="flavor_weight_Comb"];
+    optional float flavor_weight_IP2D = 2901 [(root_branch)="flavor_weight_IP2D"];
+    optional float flavor_weight_IP3D = 2902 [(root_branch)="flavor_weight_IP3D"];
+    optional float flavor_weight_SV0 = 2903 [(root_branch)="flavor_weight_SV0"];
+    optional float flavor_weight_SV1 = 2904 [(root_branch)="flavor_weight_SV1"];
+    optional float flavor_weight_SV2 = 2905 [(root_branch)="flavor_weight_SV2"];
+    optional float flavor_weight_JetProb = 2906 [(root_branch)="flavor_weight_JetProb"];
+    optional float flavor_weight_SoftMuonTag = 2907 [(root_branch)="flavor_weight_SoftMuonTag"];
+    optional float flavor_weight_JetFitterTagNN = 2908 [(root_branch)="flavor_weight_JetFitterTagNN"];
+    optional float flavor_weight_JetFitterCOMBNN = 2909 [(root_branch)="flavor_weight_JetFitterCOMBNN"];
+    optional float flavor_weight_GbbNN = 2910 [(root_branch)="flavor_weight_GbbNN"];
+    optional float flavor_component_ip2d_pu = 2911 [(root_branch)="flavor_component_ip2d_pu"];
+    optional float flavor_component_ip2d_pb = 2912 [(root_branch)="flavor_component_ip2d_pb"];
+    optional int32 flavor_component_ip2d_isValid = 2913 [(root_branch)="flavor_component_ip2d_isValid"];
+    optional int32 flavor_component_ip2d_ntrk = 2914 [(root_branch)="flavor_component_ip2d_ntrk"];
+    optional float flavor_component_ip3d_pu = 2915 [(root_branch)="flavor_component_ip3d_pu"];
+    optional float flavor_component_ip3d_pb = 2916 [(root_branch)="flavor_component_ip3d_pb"];
+    optional int32 flavor_component_ip3d_isValid = 2917 [(root_branch)="flavor_component_ip3d_isValid"];
+    optional int32 flavor_component_ip3d_ntrk = 2918 [(root_branch)="flavor_component_ip3d_ntrk"];
+    optional float flavor_component_sv1_pu = 2919 [(root_branch)="flavor_component_sv1_pu"];
+    optional float flavor_component_sv1_pb = 2920 [(root_branch)="flavor_component_sv1_pb"];
+    optional int32 flavor_component_sv1_isValid = 2921 [(root_branch)="flavor_component_sv1_isValid"];
+    optional float flavor_component_sv2_pu = 2922 [(root_branch)="flavor_component_sv2_pu"];
+    optional float flavor_component_sv2_pb = 2923 [(root_branch)="flavor_component_sv2_pb"];
+    optional int32 flavor_component_sv2_isValid = 2924 [(root_branch)="flavor_component_sv2_isValid"];
+    optional float flavor_component_jfit_pu = 2925 [(root_branch)="flavor_component_jfit_pu"];
+    optional float flavor_component_jfit_pb = 2926 [(root_branch)="flavor_component_jfit_pb"];
+    optional float flavor_component_jfit_pc = 2927 [(root_branch)="flavor_component_jfit_pc"];
+    optional int32 flavor_component_jfit_isValid = 2928 [(root_branch)="flavor_component_jfit_isValid"];
+    optional float flavor_component_jfitcomb_pu = 2929 [(root_branch)="flavor_component_jfitcomb_pu"];
+    optional float flavor_component_jfitcomb_pb = 2930 [(root_branch)="flavor_component_jfitcomb_pb"];
+    optional float flavor_component_jfitcomb_pc = 2931 [(root_branch)="flavor_component_jfitcomb_pc"];
+    optional int32 flavor_component_jfitcomb_isValid = 2932 [(root_branch)="flavor_component_jfitcomb_isValid"];
+    optional int32 flavor_component_jfit_nvtx = 2933 [(root_branch)="flavor_component_jfit_nvtx"];
+    optional int32 flavor_component_jfit_nvtx1t = 2934 [(root_branch)="flavor_component_jfit_nvtx1t"];
+    optional int32 flavor_component_jfit_ntrkAtVx = 2935 [(root_branch)="flavor_component_jfit_ntrkAtVx"];
+    optional float flavor_component_jfit_efrc = 2936 [(root_branch)="flavor_component_jfit_efrc"];
+    optional float flavor_component_jfit_mass = 2937 [(root_branch)="flavor_component_jfit_mass"];
+    optional float flavor_component_jfit_sig3d = 2938 [(root_branch)="flavor_component_jfit_sig3d"];
+    optional float flavor_component_jfit_deltaPhi = 2939 [(root_branch)="flavor_component_jfit_deltaPhi"];
+    optional float flavor_component_jfit_deltaEta = 2940 [(root_branch)="flavor_component_jfit_deltaEta"];
+    repeated float flavor_component_ipplus_trk_d0val = 2941 [(root_branch)="flavor_component_ipplus_trk_d0val"];
+    repeated float flavor_component_ipplus_trk_d0sig = 2942 [(root_branch)="flavor_component_ipplus_trk_d0sig"];
+    repeated float flavor_component_ipplus_trk_z0val = 2943 [(root_branch)="flavor_component_ipplus_trk_z0val"];
+    repeated float flavor_component_ipplus_trk_z0sig = 2944 [(root_branch)="flavor_component_ipplus_trk_z0sig"];
+    repeated float flavor_component_ipplus_trk_w2D = 2945 [(root_branch)="flavor_component_ipplus_trk_w2D"];
+    repeated float flavor_component_ipplus_trk_w3D = 2946 [(root_branch)="flavor_component_ipplus_trk_w3D"];
+    repeated float flavor_component_ipplus_trk_pJP = 2947 [(root_branch)="flavor_component_ipplus_trk_pJP"];
+    repeated float flavor_component_ipplus_trk_pJPneg = 2948 [(root_branch)="flavor_component_ipplus_trk_pJPneg"];
+    repeated int32 flavor_component_ipplus_trk_grade = 2949 [(root_branch)="flavor_component_ipplus_trk_grade"];
+    repeated int32 flavor_component_ipplus_trk_isFromV0 = 2950 [(root_branch)="flavor_component_ipplus_trk_isFromV0"];
+    optional int32 flavor_component_svp_isValid = 2951 [(root_branch)="flavor_component_svp_isValid"];
+    optional int32 flavor_component_svp_ntrkv = 2952 [(root_branch)="flavor_component_svp_ntrkv"];
+    optional int32 flavor_component_svp_ntrkj = 2953 [(root_branch)="flavor_component_svp_ntrkj"];
+    optional int32 flavor_component_svp_n2t = 2954 [(root_branch)="flavor_component_svp_n2t"];
+    optional float flavor_component_svp_mass = 2955 [(root_branch)="flavor_component_svp_mass"];
+    optional float flavor_component_svp_efrc = 2956 [(root_branch)="flavor_component_svp_efrc"];
+    optional float flavor_component_svp_x = 2957 [(root_branch)="flavor_component_svp_x"];
+    optional float flavor_component_svp_y = 2958 [(root_branch)="flavor_component_svp_y"];
+    optional float flavor_component_svp_z = 2959 [(root_branch)="flavor_component_svp_z"];
+    optional float flavor_component_svp_err_x = 2960 [(root_branch)="flavor_component_svp_err_x"];
+    optional float flavor_component_svp_err_y = 2961 [(root_branch)="flavor_component_svp_err_y"];
+    optional float flavor_component_svp_err_z = 2962 [(root_branch)="flavor_component_svp_err_z"];
+    optional float flavor_component_svp_cov_xy = 2963 [(root_branch)="flavor_component_svp_cov_xy"];
+    optional float flavor_component_svp_cov_xz = 2964 [(root_branch)="flavor_component_svp_cov_xz"];
+    optional float flavor_component_svp_cov_yz = 2965 [(root_branch)="flavor_component_svp_cov_yz"];
+    optional float flavor_component_svp_chi2 = 2966 [(root_branch)="flavor_component_svp_chi2"];
+    optional int32 flavor_component_svp_ndof = 2967 [(root_branch)="flavor_component_svp_ndof"];
+    optional int32 flavor_component_svp_ntrk = 2968 [(root_branch)="flavor_component_svp_ntrk"];
+    optional int32 flavor_component_sv0p_isValid = 2969 [(root_branch)="flavor_component_sv0p_isValid"];
+    optional int32 flavor_component_sv0p_ntrkv = 2970 [(root_branch)="flavor_component_sv0p_ntrkv"];
+    optional int32 flavor_component_sv0p_ntrkj = 2971 [(root_branch)="flavor_component_sv0p_ntrkj"];
+    optional int32 flavor_component_sv0p_n2t = 2972 [(root_branch)="flavor_component_sv0p_n2t"];
+    optional float flavor_component_sv0p_mass = 2973 [(root_branch)="flavor_component_sv0p_mass"];
+    optional float flavor_component_sv0p_efrc = 2974 [(root_branch)="flavor_component_sv0p_efrc"];
+    optional float flavor_component_sv0p_x = 2975 [(root_branch)="flavor_component_sv0p_x"];
+    optional float flavor_component_sv0p_y = 2976 [(root_branch)="flavor_component_sv0p_y"];
+    optional float flavor_component_sv0p_z = 2977 [(root_branch)="flavor_component_sv0p_z"];
+    optional float flavor_component_sv0p_err_x = 2978 [(root_branch)="flavor_component_sv0p_err_x"];
+    optional float flavor_component_sv0p_err_y = 2979 [(root_branch)="flavor_component_sv0p_err_y"];
+    optional float flavor_component_sv0p_err_z = 2980 [(root_branch)="flavor_component_sv0p_err_z"];
+    optional float flavor_component_sv0p_cov_xy = 2981 [(root_branch)="flavor_component_sv0p_cov_xy"];
+    optional float flavor_component_sv0p_cov_xz = 2982 [(root_branch)="flavor_component_sv0p_cov_xz"];
+    optional float flavor_component_sv0p_cov_yz = 2983 [(root_branch)="flavor_component_sv0p_cov_yz"];
+    optional float flavor_component_sv0p_chi2 = 2984 [(root_branch)="flavor_component_sv0p_chi2"];
+    optional int32 flavor_component_sv0p_ndof = 2985 [(root_branch)="flavor_component_sv0p_ndof"];
+    optional int32 flavor_component_sv0p_ntrk = 2986 [(root_branch)="flavor_component_sv0p_ntrk"];
+    repeated float flavor_component_softmuoninfo_muon_w = 2987 [(root_branch)="flavor_component_softmuoninfo_muon_w"];
+    repeated float flavor_component_softmuoninfo_muon_pTRel = 2988 [(root_branch)="flavor_component_softmuoninfo_muon_pTRel"];
+    
+    optional float el_dr = 3000 [(root_branch)="el_dr"];
+    optional int32 el_matched = 3001 [(root_branch)="el_matched"];
+    optional float mu_dr = 3002 [(root_branch)="mu_dr"];
+    optional int32 mu_matched = 3003 [(root_branch)="mu_matched"];
+    optional float L1_dr = 3004 [(root_branch)="L1_dr"];
+    optional int32 L1_matched = 3005 [(root_branch)="L1_matched"];
+    optional float L2_dr = 3006 [(root_branch)="L2_dr"];
+    optional int32 L2_matched = 3007 [(root_branch)="L2_matched"];
+    optional float EF_dr = 3008 [(root_branch)="EF_dr"];
+    optional int32 EF_matched = 3009 [(root_branch)="EF_matched"];
+}

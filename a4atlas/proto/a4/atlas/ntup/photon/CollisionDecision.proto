@@ -1,0 +1,9 @@
+package a4.atlas.ntup.photon;
+import "a4/root/RootExtension.proto";
+
+message CollisionDecision {
+    optional bool passCaloTime = 1 [(root_branch)="passCaloTime"];
+    optional bool passMBTSTime = 2 [(root_branch)="passMBTSTime"];
+    optional bool passTrigger = 3 [(root_branch)="passTrigger"];
+    optional bool pass = 4 [(root_branch)="pass"];
+}
