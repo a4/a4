@@ -32,7 +32,8 @@ def configure(conf):
     if conf.options.with_protobuf:
         protobuf_pkg = pjoin(conf.options.with_protobuf, "lib/pkgconfig")
     else:
-        protobuf_pkg = pjoin(os.getcwd(), "protobuf/lib/pkgconfig")
+        protobuf_pkg = pjoin(conf.path.abspath(), "protobuf/lib/pkgconfig")
+    import os
     pkgp = os.getenv("PKG_CONFIG_PATH")
     if os.getenv("PKG_CONFIG_PATH"):
         os.environ["PKG_CONFIG_PATH"] = ":".join((protobuf_pkg, os.getenv("PKG_CONFIG_PATH")))
@@ -43,7 +44,7 @@ def configure(conf):
     # find snappy
     if conf.options.with_snappy:
         find_at(conf, "snappy", conf.options.with_snappy)
-    elif not find_at(conf, "snappy", pjoin(os.getcwd(), "snappy")):
+    elif not find_at(conf, "snappy", pjoin(conf.path.abspath(), "snappy")):
         conf.check_cxx(lib="snappy", uselib_store="snappy", mandatory=False)
 
     # find root
@@ -64,16 +65,23 @@ def configure(conf):
 
     for pack in ("a4io", "a4process", "a4hist", "a4atlas", "a4root"):
         conf.parse_flags("-I{0}/src".format(pack), uselib=pack.upper())
-    conf.parse_flags("-L.", uselib="A4_LIBS")
+    #conf.parse_flags("-L.", uselib="A4_LIBS")
 
     conf.to_log("Final environment:")
     conf.to_log(conf.env)
     conf.write_config_header('a4io/src/a4/config.h')
 
+def build(bld):
+    add_pack(bld, "a4io")
+    add_pack(bld, "a4process", ["A4IO"])
+    add_pack(bld, "a4hist", ["A4IO", "A4PROCESS", "CERN_ROOT_SYSTEM"])
+    add_pack(bld, "a4root", ["A4IO", "A4PROCESS", "A4HIST", "CERN_ROOT_SYSTEM"])
+    add_pack(bld, "a4atlas", ["A4ROOT", "A4HIST", "A4IO", "A4PROCESS"])
+
 def add_pack(bld, pack, use=[]):
     proto_targets = []
-    for pf in get_pfiles("%s/proto" % pack):
-        used_packs = ["%s/proto" % p for p in [pack]+[u.lower() for u in use if u.startswith("A4")]]
+    used_packs = ["%s/proto" % p for p in [pack]+[u.lower() for u in use if u.startswith("A4")]]
+    for pf in bld.path.ant_glob("%s/proto/**.proto" % pack):
         proto_targets.extend(add_proto(bld, pack, pf, used_packs))
     proto_cc = [f for f in proto_targets if f.endswith(".pb.cc")]
     lib_cppfiles = bld.path.ant_glob("%s/src/*.cpp" % pack)
@@ -86,32 +94,18 @@ def add_pack(bld, pack, use=[]):
     bld.shlib(source=proto_cc+lib_cppfiles, target=pack, vnum="0.1.0", use=using)
 
     libs = [u.lower() for u in using if u.lower().startswith("a4")]
-    using += ["A4_LIBS"]
+    #using += ["A4_LIBS"]
     for app in app_cppfiles:
-        if "objstore" in str(app.change_ext("")):
-            print "OBJSTORE ", using, libs
         bld.program(source=[app], target=str(app.change_ext("")), use=using + libs)
     for app in test_cppfiles:
-        if "objstore" in str(app.change_ext("")):
-            print "OBJSTORE ", using, libs
         bld.program(source=[app], target=str(app.change_ext("")), use=using + libs)
     if gtest_cppfiles:
         bld.program(features="gtest", source=gtest_cppfiles, target="gtest_%s"%pack, use=using + libs)
 
-def build(bld):
-    add_pack(bld, "a4io")
-    add_pack(bld, "a4process", ["A4IO"])
-    add_pack(bld, "a4hist", ["A4IO", "A4PROCESS", "CERN_ROOT_SYSTEM"])
-    add_pack(bld, "a4root", ["A4IO", "A4PROCESS", "A4HIST", "CERN_ROOT_SYSTEM"])
-    add_pack(bld, "a4atlas", ["A4ROOT", "A4HIST", "A4IO", "A4PROCESS"])
-
-from os.path import basename, dirname
-from os import walk
-
-def add_proto(bld, pack, pf, includes):
+def add_proto(bld, pack, pf_node, includes):
+    from os.path import basename, dirname
     spack = pack.replace("a4", "a4/")
-    pf_node = bld.path.find_resource(pf)
-    pfd, pfn = dirname(pf), basename(pf)
+    pfd, pfn = pf_node.path_from(bld.path.src_get()), str(pf_node)
 
     if pfd[:len(pjoin(pack, "proto", spack))] != pjoin(pack, "proto", spack):
         bld.fatal("Unexpected file: {0}".format(pfd))
@@ -136,14 +130,6 @@ def add_proto(bld, pack, pf, includes):
         source=pf, target=" ".join(cpptargets+pytarget))
 
     return cpptargets + pytarget
-
-def get_pfiles(d):
-    pfiles = []
-    for dname, dirs, files in walk(d):
-        for f in files:
-            if f.endswith(".proto"):
-                pfiles.append(pjoin(dname, f))
-    return pfiles
 
 def find_at(conf, lib, where):
     if not exists(where):
