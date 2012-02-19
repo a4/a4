@@ -410,7 +410,7 @@ int main(int argc, char** argv) {
     std::vector<std::string> input_files, variables, types, selection_strings;
     size_t event_count = -1, event_index = -1;
     bool collect_stats = false, short_form = false, message_info = false,
-         stream_msg = false, dump_all = false, show_footer = false;
+         internal_msg = false, dump_all = false, show_footer = false;
     
     po::positional_options_description p;
     p.add("input", -1);
@@ -418,18 +418,18 @@ int main(int argc, char** argv) {
     po::options_description commandline_options("Allowed options");
     commandline_options.add_options()
         ("help,h", "produce help message")
-        ("event-index,i", po::value(&event_index)->default_value(0), "event to start dumping from (starts at 0)")
-        ("n", po::value(&event_count)->default_value(1), "maximum number to dump")
-        ("all,a", po::bool_switch(&dump_all)->default_value(false), "dump all events")
-        ("input", po::value(&input_files), "input file names (runs once per specified file)")
+        ("event-index,i", po::value(&event_index), "event to start dumping from (starts at 0)")
+        ("all,a", po::bool_switch(&dump_all), "dump all events")
+        ("n", po::value(&event_count), "maximum number to dump")
         ("var,v", po::value(&variables), "variables to dump (defaults to all)")
         ("type,t", po::value(&types), "variables to dump (defaults to all)")
-        ("stream,s", po::bool_switch(&stream_msg)->default_value(false), "also dump stream internal messages")
-        ("collect-stats,S", po::bool_switch(&collect_stats)->default_value(false), "should collect statistics for all numeric variables")
-        ("message-info", po::bool_switch(&message_info)->default_value(false), "should collect statistics relating to the message")
-        ("short-form", po::bool_switch(&short_form)->default_value(false), "print in a compact form, one event per line")
+        ("internal,I", po::bool_switch(&internal_msg), "also dump stream internal messages")
+        ("collect-stats,S", po::bool_switch(&collect_stats), "should collect statistics for all numeric variables")
+        ("message-info,M", po::bool_switch(&message_info), "should collect statistics relating to the message")
+        ("short-form,s", po::bool_switch(&short_form), "print in a compact form, one event per line")
         ("select", po::value(&selection_strings), "Select messages by string equality (e.g. --select event_number:1234)")
         ("footer,f", po::bool_switch(&show_footer), "Show information from the footer (e.g. object counts)")
+        ("input", po::value(&input_files), "input file names (runs once per specified file)")
     ;
     
     po::variables_map arguments;
@@ -456,6 +456,7 @@ int main(int argc, char** argv) {
     
     if (show_footer) {
         foreach (auto& footer, stream->footers()) {
+            // TODO(pwaller): Prettify
             VERBOSE("Footer: ", footer.DebugString());
         }
         return 0;
@@ -464,7 +465,7 @@ int main(int argc, char** argv) {
     // Stream in events we don't care about
     size_t i = 0;
     for (; i < event_index; i++)
-        if (stream_msg ? !stream->next_bare_message() : !stream->next())
+        if (internal_msg ? !stream->next_bare_message() : !stream->next())
             FATAL("Ran out of events! There are only ", i, " on the file!");
         
     std::vector<Selection> selections;
@@ -473,8 +474,9 @@ int main(int argc, char** argv) {
     
     const size_t total = event_index + event_count;
     for (; dump_all || i < total; i++) {
-        shared<A4Message> m = stream_msg ? stream->next_bare_message() : stream->next();
-        if (!m) break;
+        shared<A4Message> m = internal_msg ? stream->next_bare_message() : stream->next();
+        if (!m)
+            break;
         
         // Skip messages which don't satisfy the selection
         if (any(selections, CheckSelection(*m->message())))
