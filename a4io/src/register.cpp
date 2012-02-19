@@ -22,10 +22,8 @@ namespace a4{ namespace io{
         if (reg.descriptor) {
             all_classes[reg.descriptor->full_name()] = reg;
         } else if (lookup_class_id) {
-            // Put the generation into the first lookup (see "static initialization order fiasco"
-            // Did i mention that i miss the auto keyword?
-            typedef std::pair<std::string, internal::classreg> Iter;
-            foreach(const Iter& i, all_classes) {
+            // Put the generation into the first lookup (see "static initialization order fiasco")
+            foreach (auto& i, all_classes) {
                 assert(fixed_class_id.number() == kFixedClassIdFieldNumber);
                 if (i.second.descriptor->options().HasExtension(a4::io::fixed_class_id)) {
                     uint32_t class_id = i.second.descriptor->options().GetExtension(a4::io::fixed_class_id);
@@ -39,16 +37,16 @@ namespace a4{ namespace io{
                         lookup_class_id, " when there is none.");
             }
         } else if (name.size() != 0) {
-            std::map<std::string, internal::classreg>::const_iterator res = all_classes.find(name);
+            auto res = all_classes.find(name);
             if (res == all_classes.end()) {
                 // If it is not a FQN, search subpackages...
                 if (name.find('.') == std::string::npos) {
-                    foreach(auto item, all_classes) {
+                    foreach (auto item, all_classes) {
                         size_t pos = item.first.find_last_of('.');
                         if (pos != std::string::npos && item.first.substr(pos+1) == name) {
                             if (warn) {
-                                WARNING("Substituting ", item.first, " for not fully qualified ",
-                                        name, "!");
+                                WARNING("Substituting ", item.first, 
+                                        " for not fully qualified ", name, "!");
                             }
                             return item.second;
                         }
