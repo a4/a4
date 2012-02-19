@@ -278,7 +278,23 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                 continue;
 
             self->set_store(p, output_adaptor->backstore->store());
-            process_rerun_systematics(p, msg);
+            try {
+                process_rerun_systematics(p, msg);
+            } catch (...) {
+                ERROR("Caught an exception in the processor");
+                if (msg) {
+                    try {
+                        auto protomsg = msg->message();
+                        ERROR(protomsg->GetDescriptor()->full_name(), ":");
+                        ERROR(protomsg->DebugString());
+                    } catch (...) {
+                        ERROR("Could not show event");
+                    }
+                } else {
+                    ERROR("Processed message is invalid");
+                }
+                throw;
+            }
 
             // Skip if the user wants us to.
             if (p->skip_to_next_metadata) {
