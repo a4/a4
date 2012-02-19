@@ -12,6 +12,12 @@ namespace a4{ namespace io{
     // Notice: DO NOT call other functions in the static initialization.
     // The order of initialization is NOT DETERMINED.
     internal::classreg internal::map_class(std::string name, uint32_t lookup_class_id, internal::classreg reg, bool warn) {
+    
+        // Provide backwards compatibility with d22ba2d (see #68) for compiled-
+        // in messages. Can be removed one day once all datasets are regenerated
+        if (name.find("a4.root.atlas.ntup_") != std::string::npos)
+            name = "a4.atlas.ntup." + name.substr(name.rfind("_")+1);
+        
         static std::map<std::string, internal::classreg> all_classes;
         if (reg.descriptor) {
             all_classes[reg.descriptor->full_name()] = reg;
