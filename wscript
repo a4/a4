@@ -88,11 +88,15 @@ def add_pack(bld, pack, use=[]):
     libs = [u.lower() for u in using if u.lower().startswith("a4")]
     using += ["A4_LIBS"]
     for app in app_cppfiles:
-        bld.program(source=[app], target=str(app.change_ext("")), use=using, lib=libs)
+        if "objstore" in str(app.change_ext("")):
+            print "OBJSTORE ", using, libs
+        bld.program(source=[app], target=str(app.change_ext("")), use=using + libs)
     for app in test_cppfiles:
-        bld.program(source=[app], target=str(app.change_ext("")), use=using, lib=libs)
+        if "objstore" in str(app.change_ext("")):
+            print "OBJSTORE ", using, libs
+        bld.program(source=[app], target=str(app.change_ext("")), use=using + libs)
     if gtest_cppfiles:
-        bld.program(features="gtest", source=gtest_cppfiles, target="gtest_%s"%pack, use=using, lib=libs)
+        bld.program(features="gtest", source=gtest_cppfiles, target="gtest_%s"%pack, use=using + libs)
 
 def build(bld):
     add_pack(bld, "a4io")
