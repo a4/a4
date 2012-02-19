@@ -2,7 +2,7 @@
 
 #include "a4/output_stream.h"
 #include "a4/input_stream.h"
-#include "A4Key.pb.h"
+#include "a4/process/A4Key.pb.h"
 
 using namespace std;
 using namespace a4::io;

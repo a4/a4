@@ -6,15 +6,15 @@ from glob import glob
 boost_libs = "system filesystem program_options thread chrono"
 
 def options(opt):
-    opt.load('compiler_c compiler_cxx python boost')
+    opt.load('compiler_c compiler_cxx python boost unittest_gtest')
     opt.add_option('--with-snappy', default=None, help="Also looks for snappy at the given path")
     opt.add_option('--with-protobuf', default=None, help="Also looks for protobuf at the given path")
     opt.add_option('--with-cern-root-system', default=None, help="Also looks for the CERN Root System at the given path")
 
 def configure(conf):
-    conf.load('compiler_c compiler_cxx python boost')
+    conf.load('compiler_c compiler_cxx python boost unittest_gtest')
     conf.check_python_version((2,6,0))
-    conf.parse_flags("-Wall -std=c++0x", uselib="CPP0X")
+    conf.parse_flags("-ldl -Wall -std=c++0x", uselib="CPP0X")
     conf.check(features='cxx cxxprogram', 
               lib=['m'],
               use=["CPP0X"],
@@ -63,7 +63,8 @@ def configure(conf):
     #conf.define("HAVE_STD_TR1_SMART_PTR", 1)
 
     for pack in ("a4io", "a4process", "a4hist", "a4atlas", "a4root"):
-        conf.parse_flags("-I{0}/src -L{0}".format(pack), uselib=pack.upper())
+        conf.parse_flags("-I{0}/src".format(pack), uselib=pack.upper())
+    conf.parse_flags("-L.", uselib="A4_LIBS")
 
     conf.to_log("Final environment:")
     conf.to_log(conf.env)
@@ -75,18 +76,28 @@ def add_pack(bld, pack, use=[]):
         used_packs = ["%s/proto" % p for p in [pack]+[u.lower() for u in use if u.startswith("A4")]]
         proto_targets.extend(add_proto(bld, pack, pf, used_packs))
     proto_cc = [f for f in proto_targets if f.endswith(".pb.cc")]
-    all_cppfiles = glob("%s/src/*.cpp" % pack)
-    cppfiles = [f for f in all_cppfiles if not basename(f).startswith("test_")]
-    test_cppfiles = [f for f in all_cppfiles if basename(f).startswith("test_")]
-    bld.stlib(source=proto_cc+cppfiles, target=pack, vnum="0.1.0", use=["CPP0X", "PROTOBUF", "BOOST", pack.upper()] + use)
-    bld.shlib(source=proto_cc+cppfiles, target=pack, vnum="0.1.0", use=["CPP0X", "PROTOBUF", "BOOST", pack.upper()] + use)
+    lib_cppfiles = bld.path.ant_glob("%s/src/*.cpp" % pack)
+    app_cppfiles = bld.path.ant_glob("%s/src/apps/*.cpp" % pack)
+    test_cppfiles = bld.path.ant_glob("%s/src/tests/*.cpp" % pack)
+    gtest_cppfiles = bld.path.ant_glob("%s/src/gtests/*.cpp" % pack)
+
+    using = ["CPP0X", "PROTOBUF", "BOOST", pack.upper()] + use
+    bld.stlib(source=proto_cc+lib_cppfiles, target=pack, vnum="0.1.0", use=using)
+    bld.shlib(source=proto_cc+lib_cppfiles, target=pack, vnum="0.1.0", use=using)
+
+    libs = [u.lower() for u in using if u.lower().startswith("a4")]
+    using += ["A4_LIBS"]
+    for app in app_cppfiles:
+        bld.program(source=[app], target=str(app.change_ext("")), use=using, lib=libs)
     for app in test_cppfiles:
-        bld.program(source=[app], target=basename(app).replace(".cpp", ""), use=["CPP0X", "PROTOBUF", "BOOST", pack.upper()], libs=pack)
+        bld.program(source=[app], target=str(app.change_ext("")), use=using, lib=libs)
+    if gtest_cppfiles:
+        bld.program(features="gtest", source=gtest_cppfiles, target="gtest_%s"%pack, use=using, lib=libs)
 
 def build(bld):
     add_pack(bld, "a4io")
     add_pack(bld, "a4process", ["A4IO"])
-    add_pack(bld, "a4hist", ["A4IO", "A4PROCESS"])
+    add_pack(bld, "a4hist", ["A4IO", "A4PROCESS", "CERN_ROOT_SYSTEM"])
     add_pack(bld, "a4root", ["A4IO", "A4PROCESS", "A4HIST", "CERN_ROOT_SYSTEM"])
     add_pack(bld, "a4atlas", ["A4ROOT", "A4HIST", "A4IO", "A4PROCESS"])
 
