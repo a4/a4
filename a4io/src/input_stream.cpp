@@ -46,4 +46,7 @@ namespace a4{ namespace io{
     const std::vector<StreamFooter>& InputStream::footers() {
         return _impl->footers();
     }
+    std::vector<const google::protobuf::FileDescriptor*> InputStream::get_filedescriptors() {
+        return _impl->get_filedescriptors();
+    }
 };};

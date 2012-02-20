@@ -424,7 +424,7 @@ int main(int argc, char ** argv) {
             "which event factory to use (SMWZ, PHOTON, test or .proto file with Event message)")
         ("input,i", po::value<std::vector<std::string> >(&input_files), "input file names")
         ("output,o", po::value<std::string>(&output_file)->default_value("test_io.a4"), "output file name")
-        ("n", po::value<Long64_t>(&event_count)->default_value(-1), "number of events to process (-1=all available)")
+        ("number,n", po::value<Long64_t>(&event_count)->default_value(-1), "number of events to process (-1=all available)")
         ("compression-type,C", po::value(&compression_type)->default_value(default_compression), "compression level '[TYPE] [LEVEL]'")
         ("metadata-frequency,m", po::value(&metadata_frequency)->default_value(metadata_frequency), "Metadata frequency [N] (1 per N)")
     ;

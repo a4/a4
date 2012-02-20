@@ -34,6 +34,14 @@ namespace a4{ namespace io{
                                             const std::string& bytes);
             const google::protobuf::Descriptor* descriptor(uint32_t class_id);
             const google::protobuf::Descriptor* dynamic_descriptor(uint32_t class_id);
+            
+            std::vector<const google::protobuf::FileDescriptor*> get_filedescriptors() {
+                std::vector<const google::protobuf::FileDescriptor*> result;
+                foreach (auto& fd_name, _encountered_file_descriptors)
+                    result.push_back(_descriptor_pool->FindFileByName(fd_name));
+                return result;
+            }
+        
         private:
             shared<Message> new_protoclass(const google::protobuf::Message* prototype);
             std::set<std::string> _encountered_file_descriptors;

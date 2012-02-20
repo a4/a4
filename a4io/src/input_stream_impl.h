@@ -73,6 +73,15 @@ namespace a4{ namespace io{
                 }
                 return _footers;
             }
+            
+            std::vector<const google::protobuf::FileDescriptor*> get_filedescriptors() {
+                if (not _current_class_pool) {
+                    if (_started) 
+                        FATAL("Coding Bug: footers() first called after reading started!");
+                    startup(true);
+                }
+                return _current_class_pool->get_filedescriptors();
+            }
 
         private:
             unique<ZeroCopyStreamResource> _raw_in;

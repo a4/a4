@@ -13,14 +13,17 @@ using std::numeric_limits;
 #include <unordered_map>
 
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
 
 #include <google/protobuf/text_format.h>
 #include <google/protobuf/descriptor.h>
+#include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/message.h>
 using google::protobuf::DescriptorPool;
 using google::protobuf::FileDescriptor;
 using google::protobuf::FieldDescriptor;
 using google::protobuf::Descriptor;
+using google::protobuf::DescriptorProto;
 using google::protobuf::Message;
 using google::protobuf::Reflection;
 
@@ -335,27 +338,13 @@ public:
     
 };
 
-void dump_message(const Message& message, 
-                  const std::vector<std::string>& vars, 
-                  const std::vector<std::string>& types, bool shortform=true) {
-                  
-    if (vars.size()) {
-        // specialized code
-        FATAL("Not implemented yet");
+void dump_message(const Message& message, bool shortform=true) {
+    if (shortform) {
+        std::cout << message.ShortDebugString() << std::endl;
     } else {
-        std::string str, type(message.GetDescriptor()->name());
-        if (types.size() && find(types.begin(), types.end(), type) == types.end()) {
-            // Not a selected type
-            return;
-        }
-        if (shortform) {
-            std::cout << message.ShortDebugString() << std::endl;
-        } else {
-            std::cout << "message of type '" << type << "':" <<std::endl;
-            google::protobuf::TextFormat::PrintToString(message, &str);
-            std::cout << str << std::endl;
-        }
-    }    
+        VERBOSE("message of type '", message.GetDescriptor()->full_name(), "'");
+        std::cout << message.DebugString() << std::endl;
+    }
 }
 
 template<class Container, class Predicate>
@@ -402,15 +391,152 @@ public:
     }
 };
 
+bool dump_stream(shared<a4::io::InputStream> stream,
+                  const bool show_footer,
+                  const bool internal_msg,
+                  const bool collect_stats,
+                  const bool message_info,
+                  const bool dump_all,
+                  size_t& skip_events,
+                  size_t& event_count,
+                  const bool short_form,
+                  const std::vector<Selection>& selections,
+                  const bool show_metadata,
+                  const bool dump_proto)
+{
+    
+    if (show_footer) {
+        foreach (auto& footer, stream->footers()) {
+            // TODO(pwaller): Prettify
+            VERBOSE("Footer: ", footer.DebugString());
+        }
+        return true;
+    }
+    
+    if (show_metadata) {
+        const auto& all_metadata = stream->all_metadata();
+        
+        VERBOSE("File contains ", all_metadata.size(), " header(s)");
+        
+        foreach (const auto& header, all_metadata) {
+            foreach (const auto& metadata, header) {
+                dump_message(*metadata->message(), short_form);
+            }
+        }
+        
+        stream->close();
+        return true;
+    }
+    
+    if (dump_proto) {
+        const auto& file_descriptors = stream->get_filedescriptors();
+        foreach (const auto* file_descriptor, file_descriptors) {
+            auto& name = file_descriptor->name();
+            if (name.find("google/") != std::string::npos)
+                continue;
+            
+            VERBOSE("Proto: ", name);
+            //std::cout << file_descriptor->DebugString();
+            auto* evm = file_descriptor->FindMessageTypeByName("EventMetaData");
+            if (evm) {
+                
+                DEBUG("Here: ", evm->name());
+                std::cout << evm->DebugString();
+                auto* f = evm->field(0);
+                DEBUG("Field: ", f->DebugString());
+                DEBUG("Options: ", f->options().uninterpreted_option().size());
+                DEBUG("Options: ", f->options().unknown_fields().field_count    ());
+                /*
+                DescriptorProto x;
+                ev->CopyTo(&x);
+                DEBUG("here 1");
+                std::cout << x.DebugString();
+                */
+            }
+            
+            //std::cout << file_descriptor->DebugString();
+            auto* ev = file_descriptor->FindMessageTypeByName("Event");
+            if (ev) {
+                
+                DEBUG("Here: ", ev->name());
+                std::cout << ev->DebugString();
+                auto* f = ev->field(0);
+                DEBUG("Field: ", f->DebugString());
+                DEBUG("Options: ", f->options().uninterpreted_option().size());
+                DEBUG("Options: ", f->options().unknown_fields().field_count    ());
+                /*
+                DescriptorProto x;
+                ev->CopyTo(&x);
+                DEBUG("here 1");
+                std::cout << x.DebugString();
+                */
+            }
+        }
+        
+        stream->close();
+        return true;
+    }
+    // Stream in events we don't care about
+    for (; skip_events; skip_events--)
+        if (internal_msg ? !stream->next_bare_message() : !stream->next())
+            FATAL("Tried to read more events than there are in the file.");
+    
+    StatsCollector sc;
+    MessageInfoCollector mic;
+    
+    for (; dump_all || event_count; event_count--) {
+        shared<A4Message> m = internal_msg ? stream->next_bare_message() : stream->next();
+        if (!m)
+            break;
+        
+        // Skip messages which don't satisfy the selection
+        if (any(selections, CheckSelection(*m->message())))
+            continue;
+        
+        if (!(collect_stats || message_info))
+            dump_message(*m->message(), short_form);
+        
+        if (collect_stats)
+            sc.collect(*m->message());
+        
+        if (message_info)
+            mic.collect(*m->message());
+    }
+    
+    stream->close();
+    
+    if (collect_stats)
+        std::cout << sc;
+    
+    if (message_info) {
+        std::cout << mic;
+        std::cout << "Total message sizes: " << mic.total_bytes() << std::endl;
+        std::cout << "Total bytes read (beware mmap, use nomm:// to avoid): " 
+                  << stream->ByteCount() << std::endl;
+    }
+    return true;
+}
+
 int main(int argc, char** argv) {
     a4::Fatal::enable_throw_on_segfault();
 
     namespace po = boost::program_options;
 
-    std::vector<std::string> input_files, variables, types, selection_strings;
-    size_t event_count = -1, event_index = -1;
+    std::vector<std::string> input_files, selection_strings;
+    size_t event_count = 1, event_index = 0;
     bool collect_stats = false, short_form = false, message_info = false,
-         internal_msg = false, dump_all = false, show_footer = false;
+         internal_msg = false, dump_all = false, show_footer = false,
+         show_metadata = false, dump_proto = false;
+    
+    DEBUG("argv[0] = ", argv[0]);
+    
+    std::string invocation(boost::filesystem::path(argv[0]).filename().string());
+    
+    if (invocation == "a4info")
+        show_metadata = true;
+    else if (invocation == "a4count")
+        show_footer = true;
+    
     
     po::positional_options_description p;
     p.add("input", -1);
@@ -420,15 +546,15 @@ int main(int argc, char** argv) {
         ("help,h", "produce help message")
         ("event-index,i", po::value(&event_index), "event to start dumping from (starts at 0)")
         ("all,a", po::bool_switch(&dump_all), "dump all events")
-        ("n", po::value(&event_count), "maximum number to dump")
-        ("var,v", po::value(&variables), "variables to dump (defaults to all)")
-        ("type,t", po::value(&types), "variables to dump (defaults to all)")
+        ("number,n", po::value(&event_count), "maximum number to dump")
         ("internal,I", po::bool_switch(&internal_msg), "also dump stream internal messages")
         ("collect-stats,S", po::bool_switch(&collect_stats), "should collect statistics for all numeric variables")
         ("message-info,M", po::bool_switch(&message_info), "should collect statistics relating to the message")
         ("short-form,s", po::bool_switch(&short_form), "print in a compact form, one event per line")
         ("select", po::value(&selection_strings), "Select messages by string equality (e.g. --select event_number:1234)")
         ("footer,f", po::bool_switch(&show_footer), "Show information from the footer (e.g. object counts)")
+        ("metadata,m", po::bool_switch(&show_metadata), "Show only metadata")
+        ("proto,p", po::bool_switch(&dump_proto), "Dump .proto files")
         ("input", po::value(&input_files), "input file names (runs once per specified file)")
     ;
     
@@ -444,62 +570,24 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    StatsCollector sc;
-    MessageInfoCollector mic;
+    if (show_footer || dump_all) {
+        FATAL_ASSERT((event_count == 1 && event_index == 0), "Specifying event count or index is incompatible with --footer and --dump-all");
+    }
     
     a4::io::A4Input in;
     
     foreach (std::string filename, input_files)
         in.add_file(filename);
         
-    shared<a4::io::InputStream> stream = in.get_stream();
-    
-    if (show_footer) {
-        foreach (auto& footer, stream->footers()) {
-            // TODO(pwaller): Prettify
-            VERBOSE("Footer: ", footer.DebugString());
-        }
-        return 0;
-    }
-    
-    // Stream in events we don't care about
-    size_t i = 0;
-    for (; i < event_index; i++)
-        if (internal_msg ? !stream->next_bare_message() : !stream->next())
-            FATAL("Ran out of events! There are only ", i, " on the file!");
-        
     std::vector<Selection> selections;
     foreach (auto& selection_string, selection_strings)
         selections.push_back(Selection(selection_string));
-    
-    const size_t total = event_index + event_count;
-    for (; dump_all || i < total; i++) {
-        shared<A4Message> m = internal_msg ? stream->next_bare_message() : stream->next();
-        if (!m)
-            break;
         
-        // Skip messages which don't satisfy the selection
-        if (any(selections, CheckSelection(*m->message())))
-            continue;
-        
-        if (!(collect_stats || message_info))
-            dump_message(*m->message(), variables, types, short_form);
-        
-        if (collect_stats)
-            sc.collect(*m->message());
-        
-        if (message_info)
-            mic.collect(*m->message());
-    }
-    
-    if (collect_stats)
-        std::cout << sc;
-    
-    if (message_info) {
-        std::cout << mic;
-        std::cout << "Total message sizes: " << mic.total_bytes() << std::endl;
-        std::cout << "Total bytes read (beware mmap, use nomm:// to avoid): " 
-                  << stream->ByteCount() << std::endl;
+    while (shared<a4::io::InputStream> stream = in.get_stream()) {
+        if (!dump_stream(stream, show_footer, internal_msg, collect_stats, 
+                         message_info, dump_all, event_index, event_count, 
+                         short_form, selections, show_metadata, dump_proto))
+            return 1;
     }
     
     return 0;

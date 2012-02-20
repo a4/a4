@@ -6,6 +6,12 @@
 #include <a4/types.h>
 #include <a4/message.h>
 
+namespace google { 
+namespace protobuf {
+    class FileDescriptor;
+};
+};
+
 namespace a4{ namespace io{
 
     class InputStreamImpl;
@@ -69,6 +75,8 @@ namespace a4{ namespace io{
             const std::vector<std::vector<shared<a4::io::A4Message>>>& all_metadata();
             
             const std::vector<StreamFooter>& footers();
+            
+            std::vector<const google::protobuf::FileDescriptor*> get_filedescriptors();
             
         private:
             bool _new_metadata;
