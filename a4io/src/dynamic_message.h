@@ -211,6 +211,8 @@ class ConstDynamicField {
         bool message() const { return _f->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE; }
 
         const std::string& name() const { return _f->full_name(); }
+        
+        bool present() const { return _r->HasField(_m, _f); }
 
         FieldContent value() const {
             assert(!repeated());
