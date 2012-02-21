@@ -82,6 +82,9 @@ using boost::shared_array;
             foreach(value_def, iterable) if(++index,true)
 #endif
 
+#define likely(x)       __builtin_expect((x),1)
+#define unlikely(x)     __builtin_expect((x),0)
+
 using std_memory_prefix::static_pointer_cast;
 using std_memory_prefix::dynamic_pointer_cast;
 // also, no reinterpret_cast until gcc 4.4...
