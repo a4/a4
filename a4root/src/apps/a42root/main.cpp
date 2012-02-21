@@ -20,7 +20,7 @@ using google::protobuf::Message;
 
 
 class MessageTreeNode {
-public:
+    
     // Keyed on the field identifier
     std::map<uint32_t, shared<MessageTreeNode>> _children;
     
@@ -28,6 +28,40 @@ public:
     const FieldDescriptor* _field;
     bool _repeated;
     int _depth;
+    TTree* _tree;
+    TBranch* _branch;
+    
+public:
+    
+    // Root node (Whole event)
+    MessageTreeNode(TTree* tree)
+        : _prefix(), _field(NULL), _repeated(false), _depth(0), _tree(tree),
+          _branch(NULL)
+    {
+    
+    }
+    
+    MessageTreeNode(const FieldDescriptor* field, uint32_t parent_depth,
+                    const std::string& prefix, TTree* tree)
+        : _prefix(prefix), _field(field), _tree(tree), _branch(NULL)
+    {
+        _repeated = field->is_repeated();
+        _depth = parent_depth + (_repeated ? 1 : 0);
+        assert(_depth < 3);
+        
+        // Initialize pointers that we can point at with TTree::Bronch
+        #define VALUE_TYPE(type) \
+            type##_value_1_p = &type##_value_1; \
+            type##_value_2_p = &type##_value_2;
+        VALUE_TYPE(Bool);
+        VALUE_TYPE(Int);
+        VALUE_TYPE(UInt);
+        VALUE_TYPE(Float);
+        VALUE_TYPE(Double);
+        VALUE_TYPE(Long64);
+        VALUE_TYPE(ULong64);
+        #undef VALUE_TYPE
+    }
     
     #define VALUE_TYPE(type) \
         type##_t type##_value_0; \
@@ -46,7 +80,8 @@ public:
     #undef VALUE_TYPE
     
     void set(const FieldContent& content) {
-    
+        if (unlikely(!_branch))
+            branch();
         #define SET_TYPE(proto_type, type) \
             case FieldDescriptor::CPPTYPE_##proto_type: \
                 if (_depth == 0) \
@@ -140,20 +175,28 @@ public:
         #undef ROOT_TYPE
     }
     
-    void bronch(TTree* tree) {
+    void branch() {
         auto rc = root_class();
-        TBranch* br = NULL;
+        //TBranch* br = NULL;
         if (_depth == 0) {
-            br = tree->Branch(_prefix.c_str(), get_address(), rc.c_str());
+            _branch = _tree->Branch(_prefix.c_str(), get_address(), rc.c_str());
         } else {
             //tree->Bronch(_prefix.c_str(), rc.c_str(), get_address());
-            br = tree->Branch(_prefix.c_str(), rc.c_str(), get_address());
+            _branch = _tree->Branch(_prefix.c_str(), rc.c_str(), get_address());
         }
         
-        br->SetBasketSize(32768);
-        br->SetEntryOffsetLen(512);
-    }
+        _branch->SetBasketSize(32768);
+        _branch->SetEntryOffsetLen(512);
         
+        // The tree already has some entries, we need to put some into this
+        // branch so that the result is correctly aligned.
+        Long64_t entries = _tree->GetEntries();
+        if (entries != 0)
+            for (Long64_t i = 0; i < entries; i++)
+                _branch->Fill();
+    }
+    
+    // Initialize empty vectors to the correct depth
     void push_back(int push_depth) {        
         assert(push_depth == 1);
         assert(push_depth <= _depth);
@@ -212,32 +255,6 @@ public:
         }
         
         #undef CLEAR
-    }      
-    
-    // Root node (Whole event)
-    MessageTreeNode() : _prefix(), _field(NULL), _depth(0) {
-    
-    }
-        
-    MessageTreeNode(const FieldDescriptor* field, uint32_t parent_depth, 
-                    const std::string& prefix) : _prefix(prefix), _field(field)
-    {
-        _repeated = field->is_repeated();
-        _depth = parent_depth + (_repeated ? 1 : 0);
-        assert(_depth < 3);
-                
-        // Initialize pointers that we can point at with TTree::Bronch
-        #define VALUE_TYPE(type) \
-            type##_value_1_p = &type##_value_1; \
-            type##_value_2_p = &type##_value_2; 
-        VALUE_TYPE(Bool);
-        VALUE_TYPE(Int);
-        VALUE_TYPE(UInt);
-        VALUE_TYPE(Float);
-        VALUE_TYPE(Double);
-        VALUE_TYPE(Long64);
-        VALUE_TYPE(ULong64);
-        #undef VALUE_TYPE
     }
     
     shared<MessageTreeNode> add_child(const FieldDescriptor* field) {
@@ -252,13 +269,15 @@ public:
             prefix += field->name();
         }
         
-        shared<MessageTreeNode> child(new MessageTreeNode(field, _depth, prefix));
+        auto* treenode = new MessageTreeNode(field, _depth, prefix, _tree);
+        shared<MessageTreeNode> child(treenode);
         _children[field->number()] = child;
         
         return child;
     }
     
     void fill(const Message& m) {
+        // Initialize empty vectors for our children
         if (_field && _repeated) {
             foreach (auto child_iter, _children)
                 child_iter.second->push_back(_depth);
@@ -271,14 +290,17 @@ public:
                 for (int i = 0; i < fieldcontent.size(); i++)
                     set(fieldcontent.value(i));
             } else {
+                // Skip empty fields
+                if (!fieldcontent.present())
+                    return;
                 set(fieldcontent.value());
             }
         } else {
-            // 
+            // We have children (we are a message type)
             foreach (auto child_iter, _children) {
                 auto child = child_iter.second;
-                ConstDynamicField fieldcontent(m, child->_field);
                 if (not child->is_simple_type()) {
+                    ConstDynamicField fieldcontent(m, child->_field);
                     if (child->_repeated) {
                         // Repeated complex sub-message (e.g. 'repeated Electron electrons')
                         for (int i = 0; i < fieldcontent.size(); i++) {
@@ -301,19 +323,19 @@ public:
 class TreeFiller {
 
     TTree* _root_tree;
-    shared<MessageTreeNode> top_node;
+    shared<MessageTreeNode> _top_node;
 
 public:
-    TreeFiller(const Descriptor* descriptor) 
-        : top_node(new MessageTreeNode) 
-    {
+    TreeFiller(const Descriptor* descriptor) {
         
         _root_tree = new TTree(descriptor->name().c_str(), 
                                descriptor->full_name().c_str());
         
         _root_tree->SetAutoFlush();
         
-        make_tree(top_node, _root_tree, descriptor);
+        _top_node.reset(new MessageTreeNode(_root_tree));
+        
+        make_tree(_top_node, _root_tree, descriptor);
         
     }
     
@@ -342,14 +364,13 @@ public:
                 case FieldDescriptor::CPPTYPE_ENUM:
                 case FieldDescriptor::CPPTYPE_STRING:
                     DEBUG("String encountered!", field->full_name());
-                    assert(false);
+                    //assert(false);
                 default:
-                    assert(false);
+                    //assert(false);
+                    continue;
             };
             
-            if (plain_type) {
-                subnode->bronch(root_tree);
-            } else {
+            if (!plain_type) {
                 make_tree(subnode, root_tree, field->message_type());
             }
             
@@ -357,8 +378,8 @@ public:
     }
     
     void fill(const a4::io::A4Message& m) {
-        top_node->clear();
-        top_node->fill(*m.message());
+        _top_node->clear();
+        _top_node->fill(*m.message());
         _root_tree->Fill();
     }
 };
@@ -403,7 +424,8 @@ class A2RConfig : public a4::process::ConfigurationOf<a42rootProcessor> {
 
 
         void add_options(po::options_description_easy_init opt) {
-            opt("root-file,R", po::value(&filename)->default_value("output.root"), "ROOT output file");
+            opt("root-file,R", po::value(&filename)->default_value("output.root"), 
+                "ROOT output file");
         }
 
         virtual void setup_processor(a42rootProcessor& g) {
