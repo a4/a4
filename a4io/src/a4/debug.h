@@ -27,11 +27,11 @@
     #define DEBUG_ASSERT(A, ...) do { if(!(A)) { DEBUG( __VA_ARGS__ ); } } while (0)
 #endif
 
-#define FATAL_ASSERT(A, ...) do { if(!(A)) { FATAL( ##__VA_ARGS__ ); } } while (0)
-#define ERROR_ASSERT(A, ...) do { if(!(A)) { ERROR( ##__VA_ARGS__ ); } } while (0)
-#define WARNING_ASSERT(A, ...) do { if(!(A)) { WARNING( ##__VA_ARGS__ ); } } while (0)
-#define INFO_ASSERT(A, ...) do { if(!(A)) { INFO( ##__VA_ARGS__ ); } } while (0)
-#define VERBOSE_ASSERT(A, ...) do { if(!(A)) { VERBOSE( ##__VA_ARGS__ ); } } while (0)
+#define FATAL_ASSERT(A, ...) do { if(!(A)) { FATAL( __VA_ARGS__ ); } } while (0)
+#define ERROR_ASSERT(A, ...) do { if(!(A)) { ERROR( __VA_ARGS__ ); } } while (0)
+#define WARNING_ASSERT(A, ...) do { if(!(A)) { WARNING( __VA_ARGS__ ); } } while (0)
+#define INFO_ASSERT(A, ...) do { if(!(A)) { INFO( __VA_ARGS__ ); } } while (0)
+#define VERBOSE_ASSERT(A, ...) do { if(!(A)) { VERBOSE( __VA_ARGS__ ); } } while (0)
 
 #endif // _A4_DEBUG_H
 

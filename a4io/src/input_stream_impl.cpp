@@ -60,7 +60,7 @@ const string START_MAGIC = "A4STREAM";
 const string END_MAGIC = "KTHXBYE4";
 const int START_MAGIC_len = 8;
 const int END_MAGIC_len = 8;
-const uint32_t HIGH_BIT = 1<<31;
+const uint32_t HIGH_BIT = 1 << 31;
 
 namespace a4{ 
 namespace io{
@@ -173,7 +173,7 @@ bool InputStreamImpl::read_header(bool discovery_requested)
         } else {
             _current_metadata_index = -1;
             if (discovery_requested and not discover_all_metadata()) {
-                std::cerr << "ERROR - a4::io:InputStreamImpl - Failed to discover metadata - file corrupted?" << std::endl;
+                ERROR("a4::io:InputStreamImpl - Failed to discover metadata - file corrupted?");
                 return set_error();
             }
         }
@@ -275,7 +275,7 @@ bool InputStreamImpl::discover_all_metadata() {
         shared<A4Message> hmsg = next_message();
         drop_compression();
         if (!hmsg->is<StreamHeader>()) {
-            std::cerr << "ERROR - a4::io:InputStreamImpl - Unknown header class!" << std::endl;
+            ERROR("a4::io:InputStreamImpl - Unknown header class!");
             return false;
         }
         const StreamHeader* header = hmsg->as<StreamHeader>();
@@ -319,7 +319,8 @@ int64_t InputStreamImpl::seek(int64_t position) {
     assert(!_compressed_in);
     notify_last_unread_message();
     _coded_in.reset();
-    if (!_raw_in->Seek(position)) return -1;
+    if (!_raw_in->Seek(position))
+        return -1;
     int64_t pos = _raw_in->Tell();
     
     _coded_in.reset(new CodedInputStream(_raw_in.get()));
@@ -328,7 +329,8 @@ int64_t InputStreamImpl::seek(int64_t position) {
 }
 
 bool InputStreamImpl::carry_metadata(uint32_t& header, uint32_t& metadata) {
-    if ((0 < header) or not (header < _metadata_offset_per_header.size())) return false;
+    if ((0 < header) or not (header < _metadata_offset_per_header.size()))
+        return false;
     while (metadata < 0 and header > 0) {
         header -= 1;
         metadata += _metadata_offset_per_header[header].size();
@@ -338,7 +340,8 @@ bool InputStreamImpl::carry_metadata(uint32_t& header, uint32_t& metadata) {
         metadata -= _metadata_offset_per_header[header].size();
         header += 1;
     }
-    if ((0 < header) or not (header < _metadata_offset_per_header.size())) return false;
+    if ((0 < header) or not (header < _metadata_offset_per_header.size()))
+        return false;
     return true;
 }
 
@@ -346,19 +349,19 @@ bool InputStreamImpl::seek_to(uint32_t header, uint32_t metadata, bool carry) {
     drop_compression();
     if (!_discovery_complete) {
         if (seek(0) == -1) {
-            std::cerr << "ERROR - a4::io:InputStreamImpl - Cannot skip in this unseekable stream!" << std::endl;    
+            ERROR("a4::io:InputStreamImpl - Cannot skip in this unseekable stream!");
             set_error();
             return false;
         }
         if (not discover_all_metadata()) {
-            std::cerr << "ERROR - a4::io:InputStreamImpl - Failed to discover metadata - file corrupted?" << std::endl;
+            ERROR("a4::io:InputStreamImpl - Failed to discover metadata - file corrupted?");
             set_error();
             return false;
         }
     }
     if (carry and not carry_metadata(header, metadata)) { // modifies header and metadata
         if (not carry) {
-            std::cerr << "ERROR - a4::io:InputStreamImpl - Attempt to seek to nonexistent metadata!" << std::endl;
+            ERROR("a4::io:InputStreamImpl - Attempt to seek to nonexistent metadata!");
         }
         return false;
     }
@@ -609,6 +612,6 @@ void InputStreamImpl::notify_last_unread_message() {
         _last_unread_message->invalidate_stream();
         _last_unread_message.reset();
     }
-};
+}
 
 };}; // namespace a4::io

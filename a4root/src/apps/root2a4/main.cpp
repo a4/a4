@@ -419,8 +419,9 @@ int main(int argc, char ** argv) {
     po::options_description commandline_options("Allowed options");
     commandline_options.add_options()
         ("help,h", "produce help message")
-        ("tree-name,n", po::value<std::string>(&tree_name), "input TTree name")
-        ("tree-type,T", po::value<std::string>(&tree_type)->default_value("test"), "which event factory to use (SMWZ, PHOTON, test)")
+        ("tree-name,t", po::value<std::string>(&tree_name), "input TTree name")
+        ("tree-type,T", po::value<std::string>(&tree_type)->default_value("test"),
+            "which event factory to use (SMWZ, PHOTON, test or .proto file with Event message)")
         ("input,i", po::value<std::vector<std::string> >(&input_files), "input file names")
         ("output,o", po::value<std::string>(&output_file)->default_value("test_io.a4"), "output file name")
         ("n", po::value<Long64_t>(&event_count)->default_value(-1), "number of events to process (-1=all available)")

@@ -33,14 +33,14 @@ class A4ReweightProcessor : public ResultsProcessor<A4ReweightProcessor, EventMe
 
 class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
   public:
-    void setup_processor(A4ReweightProcessor &g) {
+    void setup_processor(A4ReweightProcessor& g) {
         g.weight = 0.0;
     }
     void add_options(po::options_description_easy_init opt) {
         opt("lumi,l", po::value(&lumi), "Luminosity in pb^-1");
         opt("xs,x", po::value(&xs_file), "Cross-Section file (Lines of the form <MC-ID> <XS [pb]>)");
     }
-    void read_arguments(po::variables_map &arguments) {
+    void read_arguments(po::variables_map& arguments) {
         if (arguments.count("lumi") == 0) {
             FATAL("No Luminosity specified!");
         }

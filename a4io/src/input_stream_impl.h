@@ -24,26 +24,26 @@ namespace a4{ namespace io{
             /// Returns the next bare message in the stream.
             shared<A4Message> next_bare_message();
             /// Returns the next regular or metadata message in the stream.
-            shared<A4Message> next_with_metadata() { return next(false);} ;
+            shared<A4Message> next_with_metadata() { return next(false); }
             /// Return the current metadata message.
-            shared<const A4Message> current_metadata() {return _current_metadata; };
+            shared<const A4Message> current_metadata() {return _current_metadata; }
             /// Seek to the given header/metadata combination.
             /// If carry==false, specifying a metadata index not in that header section
             /// causes an exception, otherwise the next header is used, or false is returned on EOF.
             bool seek_to(uint32_t header, uint32_t metadata, bool carry=false);
             /// Skip to the start of the next metadata block. Return false if EOF, true if not.
-            bool skip_to_next_metadata() { return seek_to(_current_header_index, _current_metadata_index+1, true); };
+            bool skip_to_next_metadata() { return seek_to(_current_header_index, _current_metadata_index+1, true); }
             /// True if new metadata has appeared since the last call to this function.
             bool new_metadata() { 
                 if (!_started) startup();
                 if (_new_metadata) { _new_metadata = false; return true; } else return false;
-            };
+            }
             /// True if the stream has not ended or encountered an error.
-            bool good() { return _good; };
+            bool good() { return _good; }
             /// True if the stream has encountered an error.
-            bool error() {return _error;};
+            bool error() { return _error; }
             /// True if the stream has finished without error.
-            bool end() {return !_error && !_good;};
+            bool end() { return !_error && !_good; }
             /// explicitely close the stream
             void close() {
                 _coded_in.reset();
