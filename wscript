@@ -162,13 +162,14 @@ def find_at(conf, lib, where):
 def try_miniboost(conf):
     miniboost_dir = pjoin(os.getcwd(),"miniboost")
     miniboost_lib = pjoin(miniboost_dir, "lib")
+    miniboost_inc = pjoin(miniboost_dir, "include")
     if not exists(miniboost_dir) or not exists(miniboost_lib):
         conf.msg("Checking for builtin miniboost", "not found", color="YELLOW")
         return False
     try:
         conf.env.stash()
         conf.env.append_value('RPATH', miniboost_lib)
-        conf.check_boost(lib=boost_libs, mt=True, includes=miniboost_dir, libs=miniboost_lib, abi="-a4")
+        conf.check_boost(lib=boost_libs, mt=True, includes=miniboost_inc, libs=miniboost_lib, abi="-a4")
         return True
     except conf.errors.ConfigurationError:
         conf.end_msg("failed",color="YELLOW")
