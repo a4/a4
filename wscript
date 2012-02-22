@@ -17,6 +17,7 @@ def configure(conf):
     import os
     from os.path import join as pjoin
     conf.load('compiler_c compiler_cxx python boost unittest_gtest libtool')
+    conf.cc_add_flags()
     conf.check_python_version((2,6,0))
     conf.find_program("doxygen", var="DOXYGEN", mandatory=False)
 
@@ -24,9 +25,10 @@ def configure(conf):
     conf.env.append_value("CXXFLAGS", ["-g", "-Wall", "-Werror", "-ansi"])
     conf.env.append_value("CXXFLAGS", ["-std=c++0x"])
     conf.env.append_value("LDFLAGS", ["-Wl,--as-needed"])
-    conf.env.append_value("RPATH", ["{0}/lib".format(conf.env.PREFIX)])
+    conf.env.append_value("RPATH", [conf.env.LIBDIR])
     conf.env.CXXFLAGS_OPTFAST = "-O2"
     conf.env.CXXFLAGS_OPTSIZE = "-Os"
+    conf.env.A4_VERSION = a4_version
 
     # find useful libraries
     conf.check(features='cxx cxxprogram', lib="m", uselib_store="DEFLIB")
@@ -42,17 +44,19 @@ def configure(conf):
         args='--libs --cflags')
 
     # find protobuf
+    pb_bin = []
     if conf.options.with_protobuf:
         protobuf_pkg = pjoin(conf.options.with_protobuf, "lib/pkgconfig")
-        conf.env.PROTOC = pjoin(conf.options.with_protobuf, "bin/protoc")
+        pb_bin.append(pjoin(conf.options.with_protobuf, "bin"))
     else:
         protobuf_pkg = pjoin(conf.path.abspath(), "protobuf/lib/pkgconfig")
-        conf.env.PROTOC = pjoin(conf.path.abspath(), "protobuf/bin/protoc")
+        pb_bin.append(pjoin(conf.path.abspath(), "protobuf/bin"))
     pkgp = os.getenv("PKG_CONFIG_PATH")
     pkgp = pkgp + ":" if pkgp else ""
     os.environ["PKG_CONFIG_PATH"] = pkgp + protobuf_pkg
     conf.check_cfg(package="protobuf", atleast_version="2.4.0",
-        uselib_store="PROTOBUF", args='--libs --cflags --variable=exec_prefix')
+        uselib_store="PROTOBUF", args='--libs --cflags')
+    conf.find_program("protoc", var="PROTOC", path_list=pb_bin)
 
     # find snappy
     if conf.options.with_snappy:
@@ -63,9 +67,17 @@ def configure(conf):
     # find boost
     if not try_miniboost(conf):
         conf.check_boost(lib=boost_libs, mt=True)
-    conf.start_msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION))
+
+    # print locations of used libraries
+    if conf.env.LIBPATH_SNAPPY:
+        loc = conf.env.LIBPATH_SNAPPY[0]
+        conf.msg("Using snappy library ", loc, color="WHITE")
+    loc = conf.env.LIBPATH_PROTOBUF
+    loc = loc[0] if loc else "(installed as system library)"
+    conf.msg("Using protobuf library ", loc, color="WHITE")
     boost_paths = conf.env.LIBPATH_BOOST + conf.env.STLIBPATH_BOOST
-    conf.end_msg(",".join(boost_paths), color="WHITE")
+    conf.msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION),\
+        ",".join(boost_paths), color="WHITE")
 
     #conf.env.STATICLIB_A4STATIC = ['a4']
     #conf.env.LIBPATH_A4STATIC   = ['.'] 
@@ -87,6 +99,8 @@ def configure(conf):
     conf.write_config_header('a4io/src/a4/config.h')
 
 def build(bld):
+    from os.path import join as pjoin
+
     if bld.cmd == 'doxygen':
         doc_packs(bld, ["a4io", "a4process", "a4hist", "a4atlas", "a4root"])
         return
@@ -103,21 +117,88 @@ def build(bld):
     #    vnum=a4_version, use=libsrc)
     #bld(features="cxx cxxshlib", target="a4", vnum=a4_version, use=libsrc)
 
-#TODO: Add this_a4.sh and a4.pc file generation:
-#edit = sed -e 's|$${prefix}|$(prefix)|g'
-#this_a4.sh: m4/this_a4.sh.in
-#	$(edit) m4/this_a4.sh.in > $@
-#
-#install-exec-hook:
-#	@mkdir -p $(DESTDIR)$(bindir)
-#	if ! test -f $(DESTDIR)$(bindir)/python; then $(LN_S) -f `which $(PYTHON)` $(DESTDIR)$(bindir)/python; fi
+    bld(rule=write_this_a4, target="this_a4.sh", install_path=bld.env.BINDIR)
+    bld(rule=write_pkgcfg, target="a4.pc", install_path=pjoin(bld.env.LIBDIR, "pkgconfig"))
+    #bld.symlink_as(pjoin(bld.env.BINDIR, "python"), bld.env.PYTHON)
 
-#.pc_in.pc:
-#	sed -e 's![$$](prefix)!$(prefix)!g' \
-#            -e 's![$$](exec_prefix)!$(exec_prefix)!g' \
-#            -e 's![$$](includedir)!$(includedir)!g' \
-#            -e 's![$$](libdir)!$(libdir)!g' \
-#            $< > $@
+def write_pkgcfg(task):
+    def libstr(use):
+        s = []
+        if task.env["LIBPATH_"+use]:
+            s.extend("-L%s"%l for l in task.env["LIBPATH_"+use])
+            s.extend("-l%s"%l for l in task.env["LIB_"+use])
+        return " ".join(s)
+
+    def cppstr(use):
+        s = []
+        s.extend(task.env.get_flat("CPPFLAGS_"+use).split())
+        s.extend("-I"+i for i in task.env.get_flat("INCLUDES_"+use).split())
+        return " ".join(s)
+
+    lines = []
+    from textwrap import dedent
+    lines.append(dedent("""
+    prefix={PREFIX}
+    exec_prefix={PREFIX}
+    includedir={PREFIX}/include
+    libdir={LIBDIR}
+    CXX={CXX}
+    PROTOC={PROTOC}
+
+    Name: A4
+    Description: An Analysis Tool for High-Energy Physics
+    URL: https://github.com/JohannesEbke/a4
+    Version: {A4_VERSION}
+    Cflags: -std=c++0x -I${PREFIX}/include {CPPFLAGS_PROTOBUF} {CPPFLAGS_BOOST} {CPPFLAGS_SNAPPY}
+    Libs: -L{LIBDIR} -la4io -la4process -la4root -la4hist {protobuflibs} {boostlibs} {snappylibs}
+    Requires: protobuf >= 2.4
+    """.format(
+        PREFIX=task.env.PREFIX, 
+        LIBDIR=task.env.LIBDIR, 
+        CXX=task.env.CXX[0], 
+        PROTOC=task.env.PROTOC, 
+        A4_VERSION=task.env.A4_VERSION, 
+        CPPFLAGS_PROTOBUF=cppstr("PROTOBUF"),
+        CPPFLAGS_BOOST=cppstr("BOOST"),
+        CPPFLAGS_SNAPPY=cppstr("SNAPPY"),
+        protobuflibs=libstr("PROTOBUF"),
+        boostlibs=libstr("BOOST"),
+        snappylibs=libstr("SNAPPY")
+    )))
+
+    task.outputs[0].write("\n".join(lines))
+    return 0
+
+def write_this_a4(task):
+    import os
+    lines = []
+    if task.env.LIBPATH_PROTOBUF:
+        lines.append("# Setup protobuf since it is not installed")
+        lines.append("export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:{0}/pkgconfig"\
+            .format(task.env.LIBPATH_PROTOBUF[0]))
+        pb_root = os.sep.join(task.env.LIBPATH_PROTOBUF[0].split(os.sep)[:-1])
+        lines.append("export PYTHONPATH={0}:$PYTHONPATH"\
+            .format(os.path.join(pb_root, "python")))
+
+    from textwrap import dedent
+    lines.append(dedent("""
+    export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:{LIBDIR}/pkgconfig
+    export PYTHONPATH={PYTHONDIR}:$PYTHONPATH
+    export PATH={BINDIR}:$PATH
+
+    # Get the used compiler with $(pkg-config a4 --variable=CXX)
+    # Get the used protoc compiler with $(pkg-config a4 --variable=PROTOC)
+
+    # In Makefiles, do not forget that the syntax is:
+    # CXX=$(shell pkg-config a4 --variable=CXX)
+    #""".format(
+        PYTHONDIR=task.env.PYTHONDIR,
+        LIBDIR=task.env.LIBDIR,
+        BINDIR=task.env.BINDIR)))
+
+
+    task.outputs[0].write("\n".join(lines))
+    return 0
 
 def doc_packs(bld, packs):
     if not bld.env.DOXYGEN:
