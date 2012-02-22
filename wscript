@@ -18,8 +18,9 @@ def configure(conf):
     from os.path import join as pjoin
     conf.load('compiler_c compiler_cxx python boost unittest_gtest libtool')
     conf.check_python_version((2,6,0))
+
     # comment the following line for "production" run (not recommended)
-    conf.env.append_value("CXXFLAGS", ["-g", "-Wall", "-Werror"])
+    conf.env.append_value("CXXFLAGS", ["-g", "-Wall", "-Werror", "-ansi"])
     conf.env.append_value("CXXFLAGS", ["-std=c++0x"])
     conf.env.append_value("LDFLAGS", ["-Wl,--as-needed"])
     conf.env.append_value("RPATH", ["{0}/lib".format(conf.env.PREFIX)])
@@ -129,17 +130,22 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     libnm = pjoin(pack, pack)
 
     # Build objects
-    bld.objects(source=lib_cppfiles, target=libnm+"_obj", cxxflags="-fPIC",
-        use=to_use+["OPTFAST"], includes=incs)
-    bld.objects(source=proto_cc, target=libnm+"_pbobj", cxxflags="-fPIC -Os",
-        use=to_use, includes=incs)
-    objs = [libnm+"_obj", libnm+"_pbobj"]
+    objs = []
+    if lib_cppfiles:
+        bld.objects(source=lib_cppfiles, target=libnm+"_obj", cxxflags="-fPIC",
+            use=to_use+["OPTFAST"], includes=incs)
+        objs.append(libnm+"_obj")
+    if proto_cc:
+        bld.objects(source=proto_cc, target=libnm+"_pbobj", cxxflags="-fPIC -Os",
+            use=to_use, includes=incs)
+        objs.append(libnm+"_pbobj")
 
     # Build libraries
-    bld(features="cxx cxxstlib", target=libnm, vnum=a4_version,
-        use=to_use + objs)
-    bld(features="libtool cxx cxxshlib", target=libnm, vnum=a4_version,
-        use=to_use + objs)
+    if objs:
+        bld(features="cxx cxxstlib", target=libnm, vnum=a4_version,
+            use=to_use + objs)
+        bld(features="libtool cxx cxxshlib", target=libnm, vnum=a4_version,
+            use=to_use + objs)
 
     # Build apps and tests
     opts = {}
@@ -155,7 +161,8 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     testinst = "${PREFIX}/bin/a4tests"
     opts["includes"] = incs
     for app, fls in app_cppfiles.iteritems():
-        bld.program(source=fls, target=pjoin(pack,app), **opts)
+        if fls:
+            bld.program(source=fls, target=pjoin(pack,app), **opts)
     for app in test_cppfiles:
         t = pjoin(pack, "test", str(app.change_ext("")))
         bld.program(source=[app], target=t, install_path=testinst, **opts)
@@ -167,8 +174,10 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     # install headers
     cwd = bld.path.find_node("{0}/src/a4".format(pack))
     if cwd:
-        bld.install_files('${PREFIX}/include/a4', cwd.ant_glob('**/*.h'),
-            cwd=cwd, relative_trick=True)
+        headers = cwd.ant_glob('**/*.h')
+        if headers:
+            bld.install_files('${PREFIX}/include/a4', cwd.ant_glob('**/*.h'),
+                cwd=cwd, relative_trick=True)
 
     if proto_h:
         cwd = bld.path.find_or_declare("{0}/src/a4".format(pack)).get_bld()
