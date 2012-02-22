@@ -28,9 +28,10 @@ def configure(conf):
     conf.env.CXXFLAGS_OPTSIZE = "-Os"
 
     # find useful libraries
-    conf.check(features='cxx cxxprogram',
-        lib=['m', 'dl', 'rt', 'pthread'],
-        uselib_store='DEFLIBS')
+    conf.check(features='cxx cxxprogram', lib="m", uselib_store="DEFLIB")
+    conf.check(features='cxx cxxprogram', lib="dl", uselib_store="DEFLIB")
+    conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB")
+    conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
 
     # find root
     root_cfg = "root-config"
@@ -125,7 +126,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     gtest_cppfiles = bld.path.ant_glob("%s/src/gtests/*.cpp" % pack)
 
     # Add compilation rules
-    to_use = ["DEFLIBS", "PROTOBUF", "BOOST"] + use
+    to_use = ["DEFLIB", "PROTOBUF", "BOOST"] + use
     incs = ["%s/src" % p for p in [pack] + other_packs]
     libnm = pjoin(pack, pack)
 
