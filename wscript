@@ -103,6 +103,22 @@ def build(bld):
     #    vnum=a4_version, use=libsrc)
     #bld(features="cxx cxxshlib", target="a4", vnum=a4_version, use=libsrc)
 
+#TODO: Add this_a4.sh and a4.pc file generation:
+#edit = sed -e 's|$${prefix}|$(prefix)|g'
+#this_a4.sh: m4/this_a4.sh.in
+#	$(edit) m4/this_a4.sh.in > $@
+#
+#install-exec-hook:
+#	@mkdir -p $(DESTDIR)$(bindir)
+#	if ! test -f $(DESTDIR)$(bindir)/python; then $(LN_S) -f `which $(PYTHON)` $(DESTDIR)$(bindir)/python; fi
+
+#.pc_in.pc:
+#	sed -e 's![$$](prefix)!$(prefix)!g' \
+#            -e 's![$$](exec_prefix)!$(exec_prefix)!g' \
+#            -e 's![$$](includedir)!$(includedir)!g' \
+#            -e 's![$$](libdir)!$(libdir)!g' \
+#            $< > $@
+
 def doc_packs(bld, packs):
     if not bld.env.DOXYGEN:
         bld.fatal("No doxygen executable found! Install doxygen and repeat ./waf configure.")
