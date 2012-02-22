@@ -1,5 +1,5 @@
-A4 - Another Attempt At Analysis
-================================
+A4 - An Analysis Tool for High-Energy Physics
+=============================================
 Johannes Ebke <ebke@cern.ch>
 
 
@@ -18,18 +18,22 @@ automatically together with A4 as 'builtin' libraries:
 ./get_miniboost.sh
 
 
-Installing from a Distribution
-------------------------------
+Source
+------
 
-This part is for you if you are using a distribution package of A4.
-You have probably downloaded and extracted a file named 'a4-0.X.tar.bz2' or
-similar already.
+Currently the best way to get an up-to-date A4 is either to clone the
+git repository with:
+git clone https://github.com/JohannesEbke/a4.git
+
+or obtain a tarball of the current master at:
+https://github.com/JohannesEbke/a4/tarball/master
+
+Installing
+----------
 
 To install A4 into 'my/software/a4' in your home directory, type:
 
-./configure --prefix=$HOME/my/software/a4
-make -j2 # you can replace 2 with your number of processors
-make install
+./waf configure build install --prefix=$HOME/my/software/a4
 
 To add this installation to the PYTHONPATH, PATH and compiler flags, go to the
 installation directory and run:
@@ -41,24 +45,4 @@ all the examples should work with the provided Makefiles - try it!
 
 The generated executables (except for the python ones) should also work if you
 have not sourced this_a4.sh.
-
-
-Installing from a Git Checkout
-------------------------------
-
-If you checked out A4 from git, you first need to run
-
-autoreconf -i
-
-to generate the 'configure' script and install some auxiliary files.
-To do this, you need the GNU Autotools, a very common software package.
-The versions we tested were 2.59, 2.65 and 2.68, but please tell us
-if your version does not work.
-
-
-Troubleshooting
----------------
-
-* In some cases autoreconf complains that it cannot find ltmain.sh.
-Running "libtoolize" once fixed this.
 

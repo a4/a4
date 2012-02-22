@@ -11,11 +11,9 @@ https://github.com/ksamdev/RTvsPBThreads
 For instructions on how to install A4, see INSTALL.
 
 If you are impatient, try:
-    ./configure --prefix=$PWD && make -j2 && make install
-    source bin/this_a4.sh
+    ./waf configure build install --prefix=$PWD/install
+    source install/bin/this_a4.sh
     cd tutorial/
-
-Troubleshooting tips are in INSTALL as well.
 
 A Doxygen reference page is usually available at
 http://www.ebke.org/a4
