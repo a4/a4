@@ -18,6 +18,7 @@ def configure(conf):
     from os.path import join as pjoin
     conf.load('compiler_c compiler_cxx python boost unittest_gtest libtool')
     conf.check_python_version((2,6,0))
+    conf.find_program("doxygen", var="DOXYGEN", mandatory=False)
 
     # comment the following line for "production" run (not recommended)
     conf.env.append_value("CXXFLAGS", ["-g", "-Wall", "-Werror", "-ansi"])
@@ -86,6 +87,10 @@ def configure(conf):
     conf.write_config_header('a4io/src/a4/config.h')
 
 def build(bld):
+    if bld.cmd == 'doxygen':
+        doc_packs(bld, ["a4io", "a4process", "a4hist", "a4atlas", "a4root"])
+        return
+
     libsrc =  list(add_pack(bld, "a4io"))
     libsrc += add_pack(bld, "a4process", ["a4io"])
     libsrc += add_pack(bld, "a4hist",
@@ -97,6 +102,28 @@ def build(bld):
     #bld(features="cxx cxxstlib", target="a4", name="a4static",
     #    vnum=a4_version, use=libsrc)
     #bld(features="cxx cxxshlib", target="a4", vnum=a4_version, use=libsrc)
+
+def doc_packs(bld, packs):
+    if not bld.env.DOXYGEN:
+        bld.fatal("No doxygen executable found! Install doxygen and repeat ./waf configure.")
+    srcs = []
+    for p in packs:
+        s = bld.path.find_or_declare("{0}/src".format(p))
+        if not s:
+            continue
+        if s.get_src():
+            srcs.append(s.get_src())
+        if s.get_bld():
+            srcs.append(s.get_bld())
+    sourcedirs = " ".join(s.abspath() for s in srcs)
+    udx = bld.path.find_or_declare("doc/user.doxygen.conf")
+    ddx = bld.path.find_or_declare("doc/dev.doxygen.conf")
+    bld(rule="cat ${SRC} | sed -e 's|__sourcedirs__|%s|' > ${TGT}" % sourcedirs,
+        source="doc/user.doxygen", target=udx)
+    bld(rule="cat ${SRC} | sed -e 's|__sourcedirs__|%s|' > ${TGT}" % sourcedirs,
+        source="doc/dev.doxygen", target=ddx)
+    bld(rule="${DOXYGEN} ${SRC}", source=udx, target="doc/user/html/index.html")
+    bld(rule="${DOXYGEN} ${SRC}", source=ddx, target="doc/dev/html/index.html")
 
 def add_pack(bld, pack, other_packs=[], use=[]):
     from os import listdir
@@ -253,4 +280,10 @@ def try_miniboost(conf):
         conf.end_msg("failed",color="YELLOW")
         conf.env.revert()
         return False
+
+from waflib import Build
+class doxygen(Build.BuildContext):
+    """generate doxygen documentation"""
+    fun = 'build'
+    cmd = 'doxygen'
 
