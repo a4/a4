@@ -122,7 +122,7 @@ def build(bld):
 def doc_packs(bld, packs):
     if not bld.env.DOXYGEN:
         bld.fatal("No doxygen executable found! Install doxygen and repeat ./waf configure.")
-    srcs = []
+    srcs = [bld.path.find_node("doc/doxygen")]
     for p in packs:
         s = bld.path.find_or_declare("{0}/src".format(p))
         if not s:
