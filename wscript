@@ -16,7 +16,9 @@ def options(opt):
 def configure(conf):
     import os
     from os.path import join as pjoin
-    conf.load('compiler_c compiler_cxx python boost unittest_gtest libtool')
+    conf.load('compiler_c compiler_cxx python')
+    conf.load('boost unittest_gtest libtool', tooldir="common/waf")
+
     conf.cc_add_flags()
     conf.check_python_version((2,6,0))
     conf.find_program("doxygen", var="DOXYGEN", mandatory=False)
@@ -79,9 +81,6 @@ def configure(conf):
     conf.msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION),\
         ",".join(boost_paths), color="WHITE")
 
-    #conf.env.STATICLIB_A4STATIC = ['a4']
-    #conf.env.LIBPATH_A4STATIC   = ['.'] 
-
     # We should test for these...
     conf.define("HAVE_CSTDINT", 1)
     #conf.define("HAVE_TR1_CSTDINT", 1)
@@ -100,9 +99,10 @@ def configure(conf):
 
 def build(bld):
     from os.path import join as pjoin
+    packs = ["a4io", "a4process", "a4hist", "a4atlas", "a4root", "a4plot"]
 
     if bld.cmd == 'doxygen':
-        doc_packs(bld, ["a4io", "a4process", "a4hist", "a4atlas", "a4root"])
+        doc_packs(bld, packs)
         return
 
     libsrc =  list(add_pack(bld, "a4io"))
@@ -117,9 +117,21 @@ def build(bld):
     #    vnum=a4_version, use=libsrc)
     #bld(features="cxx cxxshlib", target="a4", vnum=a4_version, use=libsrc)
 
+    # Install binaries
+    bld.install_files("${BINDIR}", bld.path.ant_glob("a4*/bin/*"), chmod=0755)
+
+    # Install python modules
+    for pack in packs:
+        cwd = bld.path.find_node("{0}/python".format(pack))
+        if cwd:
+            files = cwd.ant_glob('**/*.py')
+            if files:
+                bld.install_files('${PYTHONDIR}', files, cwd=cwd, relative_trick=True)
+
+    # Create this_a4.sh and packageconfig files, symlink python
     bld(rule=write_this_a4, target="this_a4.sh", install_path=bld.env.BINDIR)
     bld(rule=write_pkgcfg, target="a4.pc", install_path=pjoin(bld.env.LIBDIR, "pkgconfig"))
-    #bld.symlink_as(pjoin(bld.env.BINDIR, "python"), bld.env.PYTHON)
+    bld.symlink_as(pjoin(bld.env.BINDIR, "python"), bld.env.PYTHON[0])
 
 def write_pkgcfg(task):
     def libstr(use):
@@ -196,7 +208,6 @@ def write_this_a4(task):
         LIBDIR=task.env.LIBDIR,
         BINDIR=task.env.BINDIR)))
 
-
     task.outputs[0].write("\n".join(lines))
     return 0
 
@@ -224,7 +235,7 @@ def doc_packs(bld, packs):
 
 def add_pack(bld, pack, other_packs=[], use=[]):
     from os import listdir
-    from os.path import join as pjoin
+    from os.path import dirname, join as pjoin
 
     # Add protoc rules
     proto_targets = []
@@ -235,6 +246,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     # Find all source files to be compiled
     proto_cc = [f for f in proto_targets if f.suffix() == ".cc"]
     proto_h = [f for f in proto_targets if f.suffix() == ".h"]
+    proto_py = [f for f in proto_targets if f.suffix() == ".py"]
     lib_cppfiles = bld.path.ant_glob("%s/src/*.cpp" % pack)
 
     # Find applications and tests to be built
@@ -290,7 +302,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
             bld.program(source=fls, target=pjoin(pack,app), **opts)
     for app in test_cppfiles:
         t = pjoin(pack, "test", str(app.change_ext("")))
-        bld.program(source=[app], target=t, install_path=testinst, **opts)
+        bld.program(features="testt", source=[app], target=t, install_path=testinst, **opts)
     if gtest_cppfiles:
         t = pjoin(pack, "test", "gtest")
         bld.program(features="gtest", source=gtest_cppfiles, target=t,
@@ -306,8 +318,17 @@ def add_pack(bld, pack, other_packs=[], use=[]):
 
     if proto_h:
         cwd = bld.path.find_or_declare("{0}/src/a4".format(pack)).get_bld()
-        bld.install_files('${PREFIX}/include/a4', list(proto_h), cwd=cwd,
+        bld.install_files('${PREFIX}/include/a4', proto_h, cwd=cwd,
             relative_trick=True)
+
+    if proto_py:
+        cwd = bld.path.find_or_declare("{0}/python".format(pack)).get_bld()
+        paths = set(dirname(n.path_from(bld.path.get_bld())) for n in proto_py)
+        initfiles = [bld.path.find_or_declare(pjoin(p,"__init__.py")) for p in paths]
+        bld(rule="touch ${TGT}", target=initfiles)
+        bld.install_files('${PYTHONDIR}', proto_py+initfiles, cwd=cwd,
+            relative_trick=True)
+
 
     return objs
 
