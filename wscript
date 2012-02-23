@@ -133,6 +133,11 @@ def build(bld):
     bld(rule=write_pkgcfg, target="a4.pc", install_path=pjoin(bld.env.LIBDIR, "pkgconfig"))
     bld.symlink_as(pjoin(bld.env.BINDIR, "python"), bld.env.PYTHON[0])
 
+    # Add post-install checks
+    if bld.is_install:
+        do_installcheck(bld)
+
+
 def write_pkgcfg(task):
     def libstr(use):
         s = []
@@ -186,17 +191,17 @@ def write_this_a4(task):
     lines = []
     if task.env.LIBPATH_PROTOBUF:
         lines.append("# Setup protobuf since it is not installed")
-        lines.append("export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:{0}/pkgconfig"\
+        lines.append("export PKG_CONFIG_PATH=${{PKG_CONFIG_PATH+:$PKG_CONFIG_PATH}}{0}/pkgconfig"\
             .format(task.env.LIBPATH_PROTOBUF[0]))
         pb_root = os.sep.join(task.env.LIBPATH_PROTOBUF[0].split(os.sep)[:-1])
-        lines.append("export PYTHONPATH={0}:$PYTHONPATH"\
+        lines.append("export PYTHONPATH={0}${{PYTHONPATH+:$PYTHONPATH}}"\
             .format(os.path.join(pb_root, "python")))
 
     from textwrap import dedent
     lines.append(dedent("""
-    export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:{LIBDIR}/pkgconfig
-    export PYTHONPATH={PYTHONDIR}:$PYTHONPATH
-    export PATH={BINDIR}:$PATH
+    export PKG_CONFIG_PATH=${{PKG_CONFIG_PATH+:$PKG_CONFIG_PATH}}{LIBDIR}/pkgconfig
+    export PYTHONPATH={PYTHONDIR}${{PYTHONPATH+:$PYTHONPATH}}
+    export PATH={BINDIR}${{PATH+:$PATH}}
 
     # Get the used compiler with $(pkg-config a4 --variable=CXX)
     # Get the used protoc compiler with $(pkg-config a4 --variable=PROTOC)
@@ -259,6 +264,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
             fls = bld.path.ant_glob("{0}/src/apps/{1}/*.cpp".format(pack, app))
             app_cppfiles[app] = fls
     test_cppfiles = bld.path.ant_glob("%s/src/tests/*.cpp" % pack)
+    test_scripts = bld.path.ant_glob("%s/src/tests/*.sh" % pack)
     gtest_cppfiles = bld.path.ant_glob("%s/src/gtests/*.cpp" % pack)
 
     # Add compilation rules
@@ -284,9 +290,8 @@ def add_pack(bld, pack, other_packs=[], use=[]):
         bld(features="libtool cxx cxxshlib", target=libnm, vnum=a4_version,
             use=to_use + objs)
 
-    # Build apps and tests
+    # Set app and test options
     opts = {}
-
     # link dynamically against shared sublibraries
     opts["use"] = to_use + [pjoin(p,p) for p in other_packs + [pack]]
     opts["use"] += [p.upper() for p in [pack] + other_packs]
@@ -295,18 +300,35 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     # link statically against liba4
     #opts["use"] = to_use + ["a4static"]
 
-    testinst = "${PREFIX}/bin/a4tests"
+    # Build applications
     opts["includes"] = incs
     for app, fls in app_cppfiles.iteritems():
         if fls:
             bld.program(source=fls, target=pjoin(pack,app), **opts)
+
+    opts["install_path"] = None
+    # Build test applications
+    testapps = []
     for app in test_cppfiles:
-        t = pjoin(pack, "test", str(app.change_ext("")))
-        bld.program(features="testt", source=[app], target=t, install_path=testinst, **opts)
+        t = pjoin(pack, "tests", str(app.change_ext("")))
+        t = bld.path.find_or_declare(t)
+        is_test = "testt" if str(app).startswith("test_") else ""
+        bld.program(features=is_test, source=[app], target=t, **opts)
+        testapps.append(t)
+
+    # Run test scripts
+    for testscript in test_scripts:
+        if str(testscript).startswith("test_"):
+            t = pjoin(pack, "tests", str(testscript))
+            t = bld.path.find_or_declare(t)
+            tsk = bld(features="testsc", rule="cp ${SRC} ${TGT} && chmod +x ${TGT}",
+                source=testscript, target=t,
+                use=testapps)
+
+    # Build and run gtests
     if gtest_cppfiles:
-        t = pjoin(pack, "test", "gtest")
-        bld.program(features="gtest", source=gtest_cppfiles, target=t,
-            install_path=testinst, **opts)
+        t = pjoin(pack, "tests", "gtest")
+        bld.program(features="gtest", source=gtest_cppfiles, target=t, **opts)
 
     # install headers
     cwd = bld.path.find_node("{0}/src/a4".format(pack))
@@ -398,6 +420,24 @@ def try_miniboost(conf):
         conf.end_msg("failed",color="YELLOW")
         conf.env.revert()
         return False
+
+def do_installcheck(bld):
+    import os
+    # set test env
+    keys = bld.env.get_merged_dict().keys()
+
+    import os
+    os.environ["BINDIR"] = bld.env.BINDIR
+    os.environ["SRCDIR"] = bld.path.get_src().abspath()
+
+    test_scripts = bld.path.ant_glob("*/src/tests/install_*.sh")
+    for script in test_scripts:
+        pack = script.path_from(bld.path).split(os.sep)[0]
+        t = os.path.join(pack, "tests", str(script))
+        t = bld.path.find_or_declare(t)
+        bld(features="testsc", rule="cp ${SRC} ${TGT} && chmod +x ${TGT}",
+            source=script.get_src(), target=t, env=bld.env)
+
 
 from waflib import Build
 class doxygen(Build.BuildContext):

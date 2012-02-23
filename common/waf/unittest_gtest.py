@@ -122,7 +122,7 @@ def match_filter(filt, targ):
         return pat == targ
     return False
 
-@feature('testt', 'gtest')
+@feature('testt', 'gtest', 'testsc')
 @before('process_rule')
 def test_remover(self):
     if not Options.options.check and not Options.options.checkall and self.target != Options.options.checkone and not match_filter(Options.options.checkfilter, self.target):
@@ -142,6 +142,12 @@ def gtest_attach(self):
     DIR = os.path.relpath(self.env.UNITTEST_GTEST_PATH, self.path.abspath()) + '/' + GTEST_DIR
     self.includes = self.to_list(getattr(self, 'includes', [])) + [DIR]
     self.use = self.to_list(getattr(self, 'use', [])) + ['GTEST_PTHREAD', 'GTEST_OBJECTS']
+
+    
+@feature('testsc')
+@after('process_source')
+def make_test_script(self):
+    self.create_task('utest', self.target)
 
 @feature('testt', 'gtest')
 @after('apply_link')
@@ -220,7 +226,7 @@ class utest(Task.Task):
                 self.ut_exec += ['--gtest_filter=' + filt]
 
         cwd = getattr(self.generator, 'ut_cwd', '') or self.inputs[0].parent.abspath()
-        proc = Utils.subprocess.Popen(self.ut_exec, cwd=cwd, env=fu, stderr=Utils.subprocess.PIPE, stdout=Utils.subprocess.PIPE)
+        proc = Utils.subprocess.Popen(self.ut_exec, cwd=cwd, env=fu, stderr=Utils.subprocess.STDOUT, stdout=Utils.subprocess.PIPE)
         (stdout, stderr) = proc.communicate()
 
         tup = (filename, proc.returncode, stdout, stderr)
