@@ -145,10 +145,8 @@ namespace a4{ namespace io{
         // First, add all file descriptors to our pool
         foreach(const FileDescriptorProto& fdp, protoclass.file_descriptor()) {
             // Check if we already have this FD (unneccessary, should never be the case)
-            std::string fqn = fdp.package() + "." + fdp.name();
-            //std::cout << "Reading in file: " << fqn << std::endl;
-            assert(_encountered_file_descriptors.count(fqn) == 0);
-            _encountered_file_descriptors.insert(fqn);
+            assert(_encountered_file_descriptors.count(fdp.name()) == 0);
+            _encountered_file_descriptors.insert(fdp.name());
             _descriptor_pool->BuildFile(fdp);
         }
 
