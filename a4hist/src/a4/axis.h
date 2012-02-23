@@ -1,5 +1,5 @@
-#ifndef AXIS_H
-#define AXIS_H
+#ifndef _A4_AXIS_H_
+#define _A4_AXIS_H_
 
 #include <a4/types.h>
 

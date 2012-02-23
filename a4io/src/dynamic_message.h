@@ -1,5 +1,5 @@
-#ifndef _DYNAMIC_MESSAGE_H_
-#define _DYNAMIC_MESSAGE_H_
+#ifndef _A4_DYNAMIC_MESSAGE_H_
+#define _A4_DYNAMIC_MESSAGE_H_
 
 #include <unordered_set>
 #include <string>
@@ -12,8 +12,6 @@
 
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
-
-
 
 using google::protobuf::Message;
 using google::protobuf::FieldDescriptor;
@@ -199,7 +197,7 @@ namespace std {
     struct hash<FieldContent> {
         std::size_t operator()(const FieldContent& fc) const {
             return fc.hash_value();
-        };
+        }
     };
 }
 
@@ -255,9 +253,12 @@ class ConstDynamicField {
         }
 
         void assert_compatible(const ConstDynamicField& rhs) {
-            if(_m.GetDescriptor() != rhs._m.GetDescriptor()) FATAL("Unequal message descriptors!");
-            if(_f != rhs._f) FATAL("Unequal field descriptors!");
-            if(_f->containing_type() != _m.GetDescriptor()) FATAL("Field is not contained by this message!");
+            if (_m.GetDescriptor() != rhs._m.GetDescriptor())
+                FATAL("Unequal message descriptors!");
+            if (_f != rhs._f)
+                FATAL("Unequal field descriptors!");
+            if (_f->containing_type() != _m.GetDescriptor())
+                FATAL("Field is not contained by this message!");
         }
 
     protected:

@@ -1,5 +1,5 @@
-#ifndef _WORKER_H_
-#define _WORKER_H_
+#ifndef _A4_WORKER_H_
+#define _A4_WORKER_H_
 
 #include <string>
 #include <vector>

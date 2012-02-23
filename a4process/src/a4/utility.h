@@ -1,3 +1,5 @@
+#ifndef _A4_UTILITY_H_
+#define _A4_UTILITY_H_
 
 #include <algorithm>
 #include <vector>
@@ -73,3 +75,5 @@ bool in_map(const Map& input, const T& value) {
 }
 
 };};};
+
+#endif

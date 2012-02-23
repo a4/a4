@@ -1,3 +1,6 @@
+#ifndef _A4_CPU_INFO_H_
+#define _A4_CPU_INFO_H_
+
 // Based on code at
 // http://stackoverflow.com/a/3082553
 // "Programatically detect number of physical processors/cores or if 
@@ -79,3 +82,5 @@ struct cpuinfo_t get_cpuinfo() {
     
     return cpuinfo;
 }
+
+#endif

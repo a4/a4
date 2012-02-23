@@ -102,10 +102,11 @@ unique<T>&& reinterpret_pointer_cast(unique<V>&& p) {
 }
 
 // Provide an array deleter for shared and unique pointers
-template<typename T> struct array_delete {
-   void operator()(T* p) {
-      delete [] p;
-   }
+template<typename T> 
+struct array_delete {
+    void operator()(T* p) {
+        delete [] p;
+    }
 };
 
 #endif

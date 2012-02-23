@@ -1,5 +1,5 @@
-#ifndef HAVE_A4IO
-#define HAVE_A4IO
+#ifndef _A4_A4IO_
+#define _A4_A4IO_
 
 #include <string>
 #include <iostream>
@@ -7,7 +7,7 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/text_format.h>
 
-namespace a4{
+namespace a4 {
     /// A4IO
 
     ///   The A4IO package provides A4 Streams - reading and writing
@@ -26,7 +26,7 @@ namespace a4{
     ///    Streams of Events should be saved in .a4 files.
     ///    Results are saved in .results files (which are also a4 streams).
     ///
-    namespace io{
+    namespace io {
 
         class A4Message;
         class A4Input;

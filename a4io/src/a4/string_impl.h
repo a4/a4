@@ -1,6 +1,6 @@
-#pragma once
-#ifndef _A4_STRING_IMPL_H
-#define _A4_STRING_IMPL_H
+#ifndef _A4_STRING_IMPL_H_
+#define _A4_STRING_IMPL_H_
+
 #include <a4/string.h>
 #include <typeinfo>
 #include <cxxabi.h>
@@ -10,7 +10,7 @@ namespace _string_internal {
 
     static inline std::string str_printf(const char* s) {
         return std::string (s);
-    };
+    }
 
     template<typename T, typename... Args>
     std::string str_printf(const char* s, const T& value, const Args&... args) {
@@ -24,7 +24,7 @@ namespace _string_internal {
         }
         // Append extra arguments
         return res + std::string(value) + str_printf("", args...);
-    };
+    }
 
     inline static void _stream_in(std::stringstream& ss) {};
 
@@ -39,7 +39,7 @@ namespace _string_internal {
         std::stringstream ss;
         _stream_in(ss, args...);
         return ss.str();
-    };
+    }
 
 };
 
@@ -51,6 +51,6 @@ static inline std::string str_printf(const char* s, const Args&... args) {
 template<typename... Args>
 static inline std::string str_cat(const Args&... args) {
     return _string_internal::str_cat(args...);
-};
+}
 
 #endif
