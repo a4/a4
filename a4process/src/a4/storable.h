@@ -158,6 +158,14 @@ namespace a4{ namespace process{
                 return *static_cast<This*>(this);
             }
 
+            void assert_initialized() {
+                if (_initializations_remaining != 0) {
+                    try {
+                        std::cerr << as_message()->DebugString() << std::endl;
+                    } catch (...) {};
+                    throw a4::Fatal("Uninitialized Object used!"); 
+                }
+            }
         protected:
             // Override this!
             virtual void to_pb(bool blank_pb) {};

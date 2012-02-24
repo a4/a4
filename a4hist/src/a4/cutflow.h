@@ -60,6 +60,7 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
 
         template <typename... Args>
         void fillw(const double& w, const Args& ...args) {
+            assert_initialized();
             void *& res = _fast_access->lookup(args...);
             if (res != NULL) return fill_internal(uintptr_t(res)-1, w);
             res = (void*)new_bin(str_cat(args...));
