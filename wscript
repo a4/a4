@@ -82,7 +82,7 @@ def configure(conf):
         loc = "(installed as system library)"
     conf.msg("Using protobuf library ", loc, color="WHITE")
     boost_paths = conf.env.LIBPATH_BOOST + conf.env.STLIBPATH_BOOST
-    conf.msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION),\
+    conf.msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION),
         ",".join(boost_paths), color="WHITE")
 
     # We should test for these...
@@ -170,7 +170,7 @@ def write_pkgcfg(task):
     Description: An Analysis Tool for High-Energy Physics
     URL: https://github.com/JohannesEbke/a4
     Version: {A4_VERSION}
-    Cflags: -std=c++0x -I${PREFIX}/include {CPPFLAGS_PROTOBUF} {CPPFLAGS_BOOST} {CPPFLAGS_SNAPPY}
+    Cflags: -std=c++0x -I{PREFIX}/include {CPPFLAGS_PROTOBUF} {CPPFLAGS_BOOST} {CPPFLAGS_SNAPPY}
     Libs: -L{LIBDIR} -la4io -la4process -la4root -la4hist {protobuflibs} {boostlibs} {snappylibs}
     Requires: protobuf >= 2.4
     """.format(
@@ -195,17 +195,17 @@ def write_this_a4(task):
     lines = []
     if task.env.LIBPATH_PROTOBUF:
         lines.append("# Setup protobuf since it is not installed")
-        lines.append("export PKG_CONFIG_PATH=${{PKG_CONFIG_PATH+:$PKG_CONFIG_PATH}}{0}/pkgconfig"\
-            .format(task.env.LIBPATH_PROTOBUF[0]))
+        lines.append("export PKG_CONFIG_PATH=${{PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}}{0}/pkgconfig"
+                     .format(task.env.LIBPATH_PROTOBUF[0]))
         pb_root = os.sep.join(task.env.LIBPATH_PROTOBUF[0].split(os.sep)[:-1])
-        lines.append("export PYTHONPATH={0}${{PYTHONPATH+:$PYTHONPATH}}"\
-            .format(os.path.join(pb_root, "python")))
+    lines.append("export PYTHONPATH={0}${{PYTHONPATH:+:$PYTHONPATH}}"
+                 .format(os.path.join(pb_root, "python")))
 
     from textwrap import dedent
     lines.append(dedent("""
-    export PKG_CONFIG_PATH=${{PKG_CONFIG_PATH+:$PKG_CONFIG_PATH}}{LIBDIR}/pkgconfig
-    export PYTHONPATH={PYTHONDIR}${{PYTHONPATH+:$PYTHONPATH}}
-    export PATH={BINDIR}${{PATH+:$PATH}}
+    export PKG_CONFIG_PATH=${{PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}}{LIBDIR}/pkgconfig
+    export PYTHONPATH={PYTHONDIR}${{PYTHONPATH:+:$PYTHONPATH}}
+    export PATH={BINDIR}${{PATH:+:$PATH}}
 
     # Get the used compiler with $(pkg-config a4 --variable=CXX)
     # Get the used protoc compiler with $(pkg-config a4 --variable=PROTOC)
