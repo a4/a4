@@ -6,7 +6,7 @@
 import sys, re, os, optparse
 
 from waflib import TaskGen, Task, Utils
-from waflib.TaskGen import feature, after_method, before_method
+from waflib.TaskGen import feature, after_method, before_method, after
 from waflib.Tools import c_preproc
 from waflib.Logs import debug, warn, info, error
 
@@ -47,13 +47,13 @@ def fakelibtool_build(task):
         fu("dlname='%s'\n" % name0)
         strn = " ".join([name3, name2, name1, name0])
         fu("library_names='%s'\n" % (strn) )
-	fu("old_library='%s.a'\n" % task.inputs[0].name.replace(".so",".a"))
+	fu("old_library='%s'\n" % task.inputs[0].name.replace(".so",".a"))
 	vars = ' '.join(env['libtoolvars']+env['LINKFLAGS'])
         fu("inherited_linker_flags='%s'\n" % vars)
         libs = ""
         #print task.inputs[0].__class__.__name__
 	fu("dependency_libs='%s'\n" % libs)
-	fu("current=%s\nage=%s\nrevision=%s" % tuple(nums))
+	fu("current=%s\nage=%s\nrevision=%s\n" % tuple(nums))
 	fu("installed=yes\nshouldnotlink=no\n")
 	fu("dlopen=''\ndlpreopen=''\n")
 	fu("libdir='%s/lib'\n" % env['PREFIX'])
@@ -123,7 +123,11 @@ def apply_libtool(self):
 				continue
 			self.env.append_unique('LINKFLAGS', v)
 
-Task.task_type_from_func('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE', after="link stlink")
+@after('link stlink')
+class fakelibtool(Task.Task):
+    vars=fakelibtool_vardeps
+    func=fakelibtool_build
+    color='BLUE'
 
 class libtool_la_file:
 	def __init__ (self, la_filename):
