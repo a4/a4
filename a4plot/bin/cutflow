@@ -531,11 +531,11 @@ if __name__=="__main__":
                     exh = hb
                     for f, (t,v) in bcontent.iteritems():
                         if f in _bcontent:
-                            v = sum_histos((_bcontent[f][1], u))
+                            v = sum_histos((_bcontent[f][1], v))
                         _bcontent[f] = (t, v)
                     for f, (t,v) in dcontent.iteritems():
                         if f in _dcontent:
-                            v = sum_histos((_dcontent[f][1], u))
+                            v = sum_histos((_dcontent[f][1], v))
                         _dcontent[f] = (t, v)
 
             hb, bcontent, dcontent = exh, _bcontent, _dcontent

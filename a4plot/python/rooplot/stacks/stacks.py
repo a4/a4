@@ -208,7 +208,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
 
     dhist = mcstack if mcstack else [signals + data][0]
     
-    lumiLabel, atlasLabel = get_lumi_label(lumi, atlas=prelim, draft=not prelim)
+    lumiLabel, atlasLabel = get_lumi_label(lumi, atlas=prelim, draft=True)
     lumiLabel.Draw()
     if atlasLabel:
         atlasLabel.Draw()
