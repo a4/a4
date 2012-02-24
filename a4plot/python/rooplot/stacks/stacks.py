@@ -75,14 +75,15 @@ def create_mc_sum(mc_list, existing_mc_sum=None):
             mc_sum.Add(h)
     mc_sum.SetMarkerSize(0)
     mc_sum.SetLineColor(kRed)
+    mc_sum.SetFillColor(kOrange)
+    mc_sum.SetFillStyle(3144)
+    
     mc_sum_line = mc_sum.Clone("mc_sum_line")
     mc_sum_line.SetDirectory(0)
     mc_sum_line.SetFillStyle(0)
     mc_sum_line.SetFillColor(kWhite)
-    mc_sum_line.SetFillStyle(0)
-    mc_sum.SetFillColor(kOrange)
-    mc_sum.SetFillStyle(3003)
-    mc_sum.SetLineStyle(0)
+
+    #mc_sum.SetLineStyle(0)
     mc_sum.SetTitle("SM (stat)")
     return mc_sum_line, mc_sum
 
@@ -197,7 +198,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
         else:
             d.Draw("pe same")
 
-    legend = get_legend(data,mc_sum_line,list(reversed(list_mc)),signals)
+    legend = get_legend(data,mc_sum,list(reversed(list_mc)),signals)
     legend.Draw()
     save = []
 

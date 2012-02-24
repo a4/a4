@@ -138,26 +138,6 @@ def prep_histo_systematics(hn, histos, is_data):
         elif not h.GetTitle():
             h.SetTitle(f.fn.rstrip(".root"))
         if do_plot:
-
-            if xtitle is None:
-                xtitle = xtitles.get(hn, "")
-                x = h.GetXaxis()
-                n, mn, mx = x.GetNbins(), x.GetBinLowEdge(x.GetFirst()), x.GetBinUpEdge(x.GetLast())
-                delta = (mx-mn)/n
-                if xunits.get(hn, ""):
-                    per_str = " / %s"%xunits[hn] if delta == 1 else " / %g %s" % (delta, xunits[hn])
-                    xtitle = "%s [%s]" % (xtitle, xunits[hn])
-                else:
-                    if delta != 1:
-                        per_str = " / %g" % delta
-                    else:
-                        per_str = ""
-                ytitle = "#Events%s" % per_str
-            if xtitle:
-                h.GetXaxis().SetTitle(xtitle)
-            if ytitle:
-                h.GetYaxis().SetTitle(ytitle)
-
             rebin = xrebin.get(hn,1)
             range = None
             rebin_to = None
@@ -185,6 +165,25 @@ def prep_histo_systematics(hn, histos, is_data):
                 x_range_bin[hn] = range
             if rebin != 1:
                 h.Rebin(rebin)
+            if xtitle is None:
+                xtitle = xtitles.get(hn, "")
+                x = h.GetXaxis()
+                n, mn, mx = x.GetNbins(), x.GetBinLowEdge(x.GetFirst()), x.GetBinUpEdge(x.GetLast())
+                delta = (mx - mn) * 1.0 / n
+                if xunits.get(hn, ""):
+                    per_str = " / %s"%xunits[hn] if delta == 1 else " / %g %s" % (delta, xunits[hn])
+                    xtitle = "%s [%s]" % (xtitle, xunits[hn])
+                else:
+                    if delta != 1:
+                        per_str = " / %g" % delta
+                    else:
+                        per_str = ""
+                ytitle = "#Events%s" % per_str
+            if xtitle:
+                h.GetXaxis().SetTitle(xtitle)
+            if ytitle:
+                h.GetYaxis().SetTitle(ytitle)
+
         if is_data:
             continue
         for sgrp in all_systematics:
