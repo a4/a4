@@ -296,9 +296,9 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     # Build libraries
     if objs:
         bld(features="cxx cxxstlib", target=libnm, vnum=a4_version,
-            use=to_use + objs)
+            install_path="${LIBDIR}", use=to_use + objs)
         bld(features="libtool cxx cxxshlib", target=libnm, vnum=a4_version,
-            use=to_use + objs)
+            install_path="${LIBDIR}", use=to_use + objs)
 
     # Set app and test options
     opts = {}
