@@ -83,12 +83,15 @@ def configure(conf):
     if conf.env.LIBPATH_SNAPPY:
         loc = conf.env.LIBPATH_SNAPPY[0]
         conf.msg("Using snappy library ", loc, color="WHITE")
+        conf.define("HAVE_SNAPPY", 1)
+        
     loc = conf.env.LIBPATH_PROTOBUF
     if loc:
         loc = loc[0]
     else:
         loc = "(installed as system library)"
     conf.msg("Using protobuf library ", loc, color="WHITE")
+    
     boost_paths = conf.env.LIBPATH_BOOST + conf.env.STLIBPATH_BOOST
     conf.msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION),
         ",".join(boost_paths), color="WHITE")
@@ -117,7 +120,7 @@ def build(bld):
         doc_packs(bld, packs)
         return
 
-    libsrc =  list(add_pack(bld, "a4io"))
+    libsrc =  list(add_pack(bld, "a4io", [], ["SNAPPY"]))
     libsrc += add_pack(bld, "a4process", ["a4io"])
     libsrc += add_pack(bld, "a4hist",
         ["a4io", "a4process"], ["CERN_ROOT_SYSTEM"])
