@@ -49,7 +49,8 @@ def fakelibtool_build(task):
         fu("library_names='%s'\n" % (strn) )
 	fu("old_library='%s'\n" % task.inputs[0].name.replace(".so",".a"))
 	vars = ' '.join(env['libtoolvars']+env['LINKFLAGS'])
-        fu("inherited_linker_flags='%s'\n" % vars)
+        #fu("inherited_linker_flags='%s'\n" % vars)
+        fu("inherited_linker_flags=''\n")
         libs = ""
         #print task.inputs[0].__class__.__name__
 	fu("dependency_libs='%s'\n" % libs)
