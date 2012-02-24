@@ -74,18 +74,22 @@ for name, runs in sorted(ssets.iteritems()):
     print "%s" % name
     print "=" * len(name)
     print
-    print "ID      | Events      | SumWeights | Lumi            | Generator/Process"
-    print "------- | ----------- | ---------- | --------------- | -----------------"
+    print "ID      | XS [pb]    | Events      | SumWeights | Lumi            | Generator/Process"
+    print "------- | ---------- | ----------- | ---------- | --------------- | -----------------"
+    sum_xs = 0
     for run in sorted(runs):
-        print run, " | ",
+        xs, kfac, filt = map(float, sxs[name][run])
+        sum_xs += xs*kfac
+        print run, " | %10.2f | " % (xs*kfac),
         assert run == int(run)
         if not run in num_events:
             print "%10s | %10s | %8s fb^-1" % ("N/A", "N/A", "N/A"),
         else:
-            xs, kfac, filt = map(float, sxs[name][run])
+
             print "%10i | %10.2f | %8.3f fb^-1" % (num_events[run], sum_weights[run], sum_weights[run]/(1000*xs*kfac*filt)),
 
         gen, procname = sinfo[name][run]
         print " | %s %s" % (gen, procname)
+    print "sigma(%s) = %.2f" % (name, sum_xs)
     print
 
