@@ -24,7 +24,7 @@ def configure(conf):
     conf.find_program("doxygen", var="DOXYGEN", mandatory=False)
 
     # comment the following line for "production" run (not recommended)
-    conf.env.append_value("CXXFLAGS", ["-g", "-Wall", "-Werror", "-ansi"])
+    conf.env.append_value("CXXFLAGS", ["-g", "-Wall", "-Werror", "-ansi", "-fno-strict-aliasing"])
     conf.env.append_value("CXXFLAGS", ["-std=c++0x"])
     conf.env.append_value("LDFLAGS", ["-Wl,--as-needed"])
     conf.env.append_value("RPATH", [conf.env.LIBDIR])
