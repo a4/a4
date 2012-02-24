@@ -172,8 +172,8 @@ def write_pkgcfg(task):
     from textwrap import dedent
     lines.append(dedent("""
     prefix={PREFIX}
-    exec_prefix={PREFIX}
-    includedir={PREFIX}/include
+    exec_prefix=${{prefix}}
+    includedir=${{prefix}}/include
     libdir={LIBDIR}
     CXX={CXX}
     PROTOC={PROTOC}
@@ -183,7 +183,7 @@ def write_pkgcfg(task):
     URL: https://github.com/JohannesEbke/a4
     Version: {A4_VERSION}
     Cflags: -std=c++0x -I{PREFIX}/include {CPPFLAGS_PROTOBUF} {CPPFLAGS_BOOST} {CPPFLAGS_SNAPPY}
-    Libs: -L{LIBDIR} -la4root -la4hist -la4process -la4io {protobuflibs} {boostlibs} {snappylibs}
+    Libs: -L${{libdir}} -la4root -la4hist -la4process -la4io {protobuflibs} {boostlibs} {snappylibs}
     Requires: protobuf >= 2.4
     """.format(
         PREFIX=task.env.PREFIX, 
