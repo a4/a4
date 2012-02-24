@@ -124,11 +124,8 @@ def apply_libtool(self):
 				continue
 			self.env.append_unique('LINKFLAGS', v)
 
-@after('link stlink')
-class fakelibtool(Task.Task):
-    vars=fakelibtool_vardeps
-    func=fakelibtool_build
-    color='BLUE'
+
+Task.task_type_from_func('fakelibtool', vars=fakelibtool_vardeps, func=fakelibtool_build, color='BLUE', after="link stlink")
 
 class libtool_la_file:
 	def __init__ (self, la_filename):
