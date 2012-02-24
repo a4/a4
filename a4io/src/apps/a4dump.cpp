@@ -503,7 +503,6 @@ bool dump_stream(shared<a4::io::InputStream> stream,
             mic.collect(*m->message());
     }
     
-    stream->close();
     
     if (collect_stats)
         std::cout << sc;
@@ -514,6 +513,8 @@ bool dump_stream(shared<a4::io::InputStream> stream,
         std::cout << "Total bytes read (beware mmap, use nomm:// to avoid): " 
                   << stream->ByteCount() << std::endl;
     }
+    
+    stream->close();
     return true;
 }
 
