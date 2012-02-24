@@ -12,6 +12,8 @@ def options(opt):
         help="Also looks for the CERN Root System at the given path")
     opt.add_option('--with-snappy', default=None,
         help="Also look for snappy at the given path")
+    opt.add_option('--with-boost', default=None,
+        help="Also look for boost at the given path")
 
 def configure(conf):
     import os
@@ -70,8 +72,12 @@ def configure(conf):
         conf.check_cxx(lib="snappy", uselib_store="snappy", mandatory=False)
 
     # find boost
-    if not try_miniboost(conf):
-        conf.check_boost(lib=boost_libs, mt=True)
+    if conf.options.with_boost:
+        if not try_boost_path(conf, conf.options.with_boost):
+            conf.fatal("Could not find boost at %s" % conf.options.with_boost)
+    else:
+        if not try_boost_path(conf):
+            conf.check_boost(lib=boost_libs, mt=True)
 
     # print locations of used libraries
     if conf.env.LIBPATH_SNAPPY:
@@ -418,19 +424,21 @@ def find_at(conf, lib, where):
         conf.env.revert()
         return False
 
-def try_miniboost(conf):
+def try_boost_path(conf, boost_path=None):
     from os.path import exists, join as pjoin
-    miniboost_dir = pjoin(conf.path.abspath(),"miniboost")
-    miniboost_lib = pjoin(miniboost_dir, "lib")
-    miniboost_inc = pjoin(miniboost_dir, "include")
-    if not exists(miniboost_dir) or not exists(miniboost_lib):
-        conf.msg("Checking for builtin miniboost", "not found", color="YELLOW")
+    if boost_path is None:
+        boost_path = pjoin(conf.path.abspath(),"miniboost")
+    boost_lib = pjoin(boost_path, "lib")
+    boost_inc = pjoin(boost_path, "include")
+    conf.msg("Checking for boost at", boost_path, color="WHITE")
+    if not exists(boost_path) or not exists(boost_lib):
+        conf.msg("Checking for boost at %s"%boost_path, "not found", color="YELLOW")
         return False
     try:
         conf.env.stash()
-        conf.env.append_value('RPATH', miniboost_lib)
-        conf.check_boost(lib=boost_libs, mt=True, includes=miniboost_inc,
-            libs=miniboost_lib, abi="-a4")
+        conf.env.append_value('RPATH', boost_lib)
+        conf.check_boost(lib=boost_libs, mt=True, includes=boost_inc,
+            libs=boost_lib, abi="-a4")
         return True
     except conf.errors.ConfigurationError:
         conf.end_msg("failed",color="YELLOW")
