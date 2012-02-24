@@ -36,6 +36,7 @@ TEST(a4io_netio, try_dynamic_rfio) {
     ASSERT_EQ(0, calls.last_errno());
 }
 
+#if 0
 TEST(a4io_netio, try_dynamic_dcache_io) {
         
     dcap_filesystem_calls calls;
@@ -67,6 +68,7 @@ TEST(a4io_netio, try_dynamic_dcache_io) {
     ASSERT_EQ(0, calls.last_errno());
     */
 }
+#endif
 
 /*
 
