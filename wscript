@@ -122,6 +122,10 @@ def build(bld):
     #bld(features="cxx cxxstlib", target="a4", name="a4static",
     #    vnum=a4_version, use=libsrc)
     #bld(features="cxx cxxshlib", target="a4", vnum=a4_version, use=libsrc)
+    
+    # Install configuration header
+    ch = bld.path.find_resource("a4io/src/a4/config.h")
+    bld.install_files("${PREFIX}/include/a4", ch)
 
     # Install binaries
     bld.install_files("${BINDIR}", bld.path.ant_glob("a4*/bin/*"), chmod=0755)
