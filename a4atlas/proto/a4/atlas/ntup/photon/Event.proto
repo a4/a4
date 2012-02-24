@@ -42,6 +42,8 @@ message Event {
     // pwaller 13/02/2012
     optional double diphoton2012_mgg = 50000 [(root_branch)="diphoton2012_mgg"];
 
+    repeated Photon corrected_photons = 50001 [(root_branch)="ph_corr"];
+
     optional uint32 run_number = 1 [(root_branch)="RunNumber"];
     optional uint32 event_number = 2 [(root_branch)="EventNumber"];
     
