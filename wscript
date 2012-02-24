@@ -53,8 +53,9 @@ def configure(conf):
     else:
         protobuf_pkg = pjoin(conf.path.abspath(), "protobuf/lib/pkgconfig")
         pb_bin.append(pjoin(conf.path.abspath(), "protobuf/bin"))
-    pkgp = os.getenv("PKG_CONFIG_PATH")
-    pkgp = pkgp + ":" if pkgp else ""
+    pkgp = os.getenv("PKG_CONFIG_PATH", "")
+    if pkgp:
+        pkgp = pkgp + ":"
     os.environ["PKG_CONFIG_PATH"] = pkgp + protobuf_pkg
     conf.check_cfg(package="protobuf", atleast_version="2.4.0",
         uselib_store="PROTOBUF", args='--libs --cflags')
@@ -75,7 +76,10 @@ def configure(conf):
         loc = conf.env.LIBPATH_SNAPPY[0]
         conf.msg("Using snappy library ", loc, color="WHITE")
     loc = conf.env.LIBPATH_PROTOBUF
-    loc = loc[0] if loc else "(installed as system library)"
+    if loc:
+        loc = loc[0]
+    else:
+        loc = "(installed as system library)"
     conf.msg("Using protobuf library ", loc, color="WHITE")
     boost_paths = conf.env.LIBPATH_BOOST + conf.env.STLIBPATH_BOOST
     conf.msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION),\
@@ -312,7 +316,10 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     for app in test_cppfiles:
         t = pjoin(pack, "tests", str(app.change_ext("")))
         t = bld.path.find_or_declare(t)
-        is_test = "testt" if str(app).startswith("test_") else ""
+        if str(app).startswith("test_"):
+            is_test = "testt"
+        else:
+            is_test = ""
         bld.program(features=is_test, source=[app], target=t, **opts)
         testapps.append(t)
 
@@ -381,7 +388,10 @@ def add_proto(bld, pack, pf_node, includes):
     incs = " ".join(inc_paths)
 
     targets = [bld.path.find_or_declare(n) for n in cpptargets+pytarget]
-    pc = bld.env.PROTOC if bld.env.PROTOC else "protoc"
+    if bld.env.PROTOC:
+        pc = bld.env.PROTOC
+    else:
+        pc = "protoc"
     rule = "%s %s --python_out %s --cpp_out %s ${SRC}" % (pc, incs, po, co)
     bld(rule=rule, source=pf_node, target=targets)
     return targets
