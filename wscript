@@ -60,6 +60,8 @@ def configure(conf):
     conf.check_cfg(package="protobuf", atleast_version="2.4.0",
         uselib_store="PROTOBUF", args='--libs --cflags')
     conf.find_program("protoc", var="PROTOC", path_list=pb_bin)
+    if conf.env.LIBPATH_PROTOBUF:
+        conf.env.append_value('RPATH', conf.env.LIBPATH_PROTOBUF[0])
 
     # find snappy
     if conf.options.with_snappy:
