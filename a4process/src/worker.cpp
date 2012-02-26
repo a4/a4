@@ -147,19 +147,18 @@ bool Instructor::is_done() const
 
 void Instructor::cleanup() const {
     // Join all finished threads
-    while(_finished_threads.size()) {
+    while (_finished_threads.size()) {
         ThreadPtr thread = _finished_threads.back();
         thread->join();
         _finished_threads.pop_back();
     };
 }
 
-Instructor::Thread::Thread(Instructor &instructor, const int &id, WorkerPtr worker):
-    _instructor(instructor),
-    _worker(worker),
-    _thread_id(id),
-    _thread(boost::thread(&Thread::loop, this))
-{};
+Instructor::Thread::Thread(Instructor &instructor, const int &id, WorkerPtr worker)
+    : _instructor(instructor), _worker(worker), _thread_id(id),
+      _thread(boost::thread(&Thread::loop, this))
+{
+}
 
 // Private
 void Instructor::Thread::loop()

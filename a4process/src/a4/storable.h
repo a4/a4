@@ -83,7 +83,7 @@ namespace a4{ namespace process{
                 This t;
                 t.construct_from(*(this->as_message()));
                 return std::move(t);
-            };
+            }
 
             Storable && clone_storable() { return clone(); };
 
@@ -100,32 +100,32 @@ namespace a4{ namespace process{
                     to_pb(false);
                 }
                 return pb; 
-            };
+            }
 
             virtual void construct_from(const google::protobuf::Message& msg) {
                 if(_initialized()) FATAL("Object already constructed!");
                 pb.reset(new ProtoClass()); 
                 pb->CopyFrom(msg);
                 from_pb();
-            };
+            }
 
             virtual void construct_from(shared<google::protobuf::Message> msg) {
                 if(_initialized()) FATAL("Object already constructed!");
                 pb = dynamic_pointer_cast<ProtoClass>(msg);
                 from_pb();
-            };
+            }
 
             static shared<This> from_message(const google::protobuf::Message& msg) {
                 shared<This> t(new This());
                 t->construct_from(msg);
                 return t;
-            };
+            }
 
             static shared<This> from_message(shared<google::protobuf::Message> msg) {
                 shared<This> t(new This());
                 t->construct_from(msg);
                 return t;
-            };
+            }
 
             /// This constructor is needed to prevent GCC from complaining and
             /// possibly to work with compilers < GCC4.6
@@ -162,20 +162,22 @@ namespace a4{ namespace process{
                 if (_initializations_remaining != 0) {
                     try {
                         std::cerr << as_message()->DebugString() << std::endl;
-                    } catch (...) {};
-                    throw a4::Fatal("Uninitialized Object used!"); 
+                    } catch (...) {}
+                    
+                    FATAL("Uninitialized Object used!"); 
                 }
             }
+            
         protected:
             // Override this!
-            virtual void to_pb(bool blank_pb) {};
+            virtual void to_pb(bool blank_pb) {}
             // Override this!
-            virtual void from_pb() {};
+            virtual void from_pb() {}
 
             shared<ProtoClass> pb;
 
             int _initializations_remaining;
-            bool _initialized() const { return _initializations_remaining == 0; };
+            bool _initialized() const { return _initializations_remaining == 0; }
             static bool _registered;
             virtual bool get_registered() { return _registered; } // forces _registered to be inited
     };

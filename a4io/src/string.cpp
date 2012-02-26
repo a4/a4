@@ -6,4 +6,4 @@ std::ostream& _string_internal::operator<<(std::ostream &sstr, const std::type_i
     if (real_name) sstr << real_name; else sstr << ti.name();
     free(real_name);
     return sstr;
-};
+}

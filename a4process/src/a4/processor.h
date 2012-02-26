@@ -229,7 +229,7 @@ namespace a4{
                             process(next_name, *next);
                         }
                     }
-                };
+                }
 
                 shared<Storable> _next_storable(shared<const A4Message> msg);
 
@@ -239,7 +239,8 @@ namespace a4{
                     const ProtoMetaData* meta = msg->as<ProtoMetaData>();
                     if (!meta) FATAL("Unexpected Metadata type: ", typeid(*msg->message()), " (Expected: ", typeid(ProtoMetaData), ")");
                     return *meta;
-                };
+                }
+            
             protected:
                 std::string next_name;
                 bool have_name;

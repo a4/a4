@@ -78,13 +78,16 @@ namespace a4{ namespace process{
             /// Retrieve an ObjectStore "Reference" to this store.
             ObjectStore store();
             /// Directly retrieve an ObjectStore with the given prefix
-            template <typename ...Args> ObjectStore operator()(const Args& ...args) {
+            template <typename ...Args>
+            ObjectStore operator()(const Args& ...args) {
                 return store()(args...);
-            };
+            }
             /// Get a shared pointer to the given object.
             template <class C> shared<C> get(std::string s) const;
             /// Insert the given object into the store
-            void set(std::string name, shared<Storable> object) { (*_store)[name] = object; };
+            void set(std::string name, shared<Storable> object) {
+                (*_store)[name] = object;
+            }
             /// Get a list of all keys of all C objects in this store
             template <class C> std::vector<std::string> list() const;
             /// Get a list of all keys in this store

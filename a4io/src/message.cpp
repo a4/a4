@@ -241,6 +241,7 @@ namespace a4{ namespace io{
         return *this;
     }
     
+    // For metadata merging, take the union of MERGE_UNION fields.
     void A4Message::unionize() {
         assert_valid();
         if (not _message) return;
@@ -306,7 +307,7 @@ namespace a4{ namespace io{
         return field_as_string(field_name);
     }
     
-    const google::protobuf::Descriptor* A4Message::dynamic_descriptor() const {;
+    const google::protobuf::Descriptor* A4Message::dynamic_descriptor() const {
         return _pool->dynamic_descriptor(_class_id);
     }
     
