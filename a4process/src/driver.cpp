@@ -1,4 +1,6 @@
+#ifdef HAVE_ATOMIC
 #include <atomic>
+#endif
 #include <iostream>
 #include <fstream>
 #include <sstream>
