@@ -39,6 +39,7 @@ def configure(conf):
     conf.check(features='cxx cxxprogram', lib="dl", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
+    check_have_atomic(conf)
 
     # find root
     root_cfg = "root-config"
@@ -111,6 +112,21 @@ def configure(conf):
     conf.to_log("Final environment:")
     conf.to_log(conf.env)
     conf.write_config_header('a4io/src/a4/config.h')
+
+def check_have_atomic(conf):
+    conf.check_cxx(
+        msg="Checking for std::atomic",
+        fragment="""
+            #include <atomic>
+            int main(int argc, char* argv[]) {
+                std::atomic<int> a;
+                volatile int x = 1;
+                a += x;
+                return a;
+            }
+        """,
+        define_name="HAVE_ATOMIC",
+        mandatory=False)
 
 def build(bld):
     from os.path import join as pjoin

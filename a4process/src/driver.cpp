@@ -210,8 +210,10 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
 
     self->set_output_adaptor(p, output_adaptor.get());
 
+#ifdef HAVE_ATOMIC
     static std::atomic<uint64_t> total_events_processed(0),
                                   total_metadata_seen(0);
+#endif
 
     // Try as long as there are inputs
     int cnt = 0;
@@ -253,13 +255,17 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             if (!run)
                 break;
                 
+#ifdef HAVE_ATOMIC
             const uint64_t n = total_events_processed++;
             if (n % 10000 == 0) {
-                std::cout << "Processed " << n << " events (seen " << total_metadata_seen << " metadata)" << std::endl;
-            
+                VERBOSE("Processed ", n, " events (seen ", total_metadata_seen, " metadata)");
             }
+#endif
+
             if (instream->new_metadata()) { // Start of new metadata block
+#ifdef HAVE_ATOMIC
                 total_metadata_seen++;
+#endif
                 shared<const A4Message> c_new_metadata = instream->current_metadata();
 
                 // WARNING: "no metadata" events are subsumed into previous/next metadata here!
