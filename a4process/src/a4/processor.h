@@ -220,13 +220,13 @@ namespace a4{
                 }
 
                 // Generic storable processing
-                virtual void process(const std::string &, Storable &) {};
+                virtual void process_storable(const std::string&, Storable&) {}
 
                 void process_message(shared<const A4Message> msg) {
                     shared<Storable> next = _next_storable(msg);
                     if (next) {
                         if(!_test_process_as<This, Args...>::process((This*)this, next_name, next)) {
-                            process(next_name, *next);
+                            process_storable(next_name, *next);
                         }
                     }
                 }
