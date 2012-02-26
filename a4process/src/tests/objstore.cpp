@@ -29,7 +29,7 @@ class TestStringThing : public Storable {
         Storable&  operator+=(const a4::process::Storable&) { return *this; }
         Storable&  operator*=(const a4::process::Storable&) { return *this; }
         Storable&  operator*=(const double&) { return *this; }
-        Storable&& clone_storable() { return TestStringThing(*this); }
+        Storable&& clone_storable() { return std::move(TestStringThing(*this)); }
 
         TestStringThing& operator()(const int &nr) {
             if (_initialized) return *this;

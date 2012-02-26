@@ -21,7 +21,7 @@ class myhist : public Storable {
         void construct_from(std::shared_ptr<google::protobuf::Message>) {}
         Storable&  operator+=(const a4::process::Storable&) { return *this; }
         Storable&  operator*=(const double&) { return *this; }
-        Storable&& clone_storable() { return myhist(*this); }
+        Storable&& clone_storable() { return std::move(myhist(*this)); }
 };
 
 template <typename... Args>
