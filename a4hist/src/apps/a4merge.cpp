@@ -14,7 +14,7 @@ using namespace a4::hist;
 
 class A4MergeProcessor : public ResultsProcessor<A4MergeProcessor, a4::io::NoProtoClass, H1, H2, H3, Cutflow> {
   public:
-    void process(std::string name, shared<Storable> s) {
+    void process(const std::string& name, shared<Storable> s) {
         if (S.get_slow<Storable>(name)) {
             (*S.get_slow<Storable>(name)) += *s; 
         } else {

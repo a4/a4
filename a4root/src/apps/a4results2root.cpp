@@ -112,11 +112,11 @@ class A2RProcessor : public ResultsProcessor<A2RProcessor, a4::io::NoProtoClass,
         delete root_hist;
     }
 
-    void process(std::string name, shared<H1> h) { a4_hist_to_root(name, *h, new TH1D()); }
-    void process(std::string name, shared<H2> h) { a4_hist_to_root(name, *h, new TH2D()); }
-    void process(std::string name, shared<H3> h) { a4_hist_to_root(name, *h, new TH3D()); }
+    void process(const std::string& name, shared<H1> h) { a4_hist_to_root(name, *h, new TH1D()); }
+    void process(const std::string& name, shared<H2> h) { a4_hist_to_root(name, *h, new TH2D()); }
+    void process(const std::string& name, shared<H3> h) { a4_hist_to_root(name, *h, new TH3D()); }
     
-    void process(std::string name, shared<Cutflow> h) {
+    void process(const std::string& name, shared<Cutflow> h) {
         if (weight != 1.0) h->__mul__(weight);
         mkdirs(*f, name);
         path rpath(name);
