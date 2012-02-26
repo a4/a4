@@ -336,7 +336,7 @@ bool InputStreamImpl::carry_metadata(uint32_t& header, int32_t& metadata) {
         metadata += _metadata_offset_per_header[header].size();
     }
     while (header < _metadata_offset_per_header.size() 
-        and metadata > _metadata_offset_per_header[header].size()) {
+        and metadata > static_cast<int32_t>(_metadata_offset_per_header[header].size())) {
         metadata -= _metadata_offset_per_header[header].size();
         header += 1;
     }
@@ -371,7 +371,7 @@ bool InputStreamImpl::seek_to(uint32_t header, int32_t metadata, bool carry) {
         _current_header_index = header;
         // will be incremented when next metadata is read
         _current_metadata_index = metadata - 1;
-        if (metadata == _metadata_offset_per_header[header].size()) {
+        if (metadata == static_cast<int32_t>(_metadata_offset_per_header[header].size())) {
             // No more metadata in this header, current position is end
             // of stream.
             set_end();
@@ -390,7 +390,7 @@ bool InputStreamImpl::seek_to(uint32_t header, int32_t metadata, bool carry) {
             carry_metadata(header, metadata); // modifies header and metadata
             _current_header_index = header;
             _current_metadata_index = metadata;
-            if (metadata == _metadata_offset_per_header[header].size()) {
+            if (metadata == static_cast<int32_t>(_metadata_offset_per_header[header].size())) {
                 // No more metadata in this header, current position is end
                 // of stream.
                 set_end();
@@ -586,7 +586,7 @@ bool InputStreamImpl::handle_metadata(shared<A4Message> msg) {
         } else {
             _current_metadata = shared<A4Message>();
             auto& header_metadata = _metadata_per_header[_current_header_index];
-            if (header_metadata.size() > _current_metadata_index)
+            if (static_cast<int32_t>(header_metadata.size()) > _current_metadata_index)
                 _current_metadata = header_metadata[_current_metadata_index];
         }
         _new_metadata = true;
