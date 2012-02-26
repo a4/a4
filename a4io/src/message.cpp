@@ -21,10 +21,9 @@ namespace a4{ namespace io{
 
     void A4Message::invalidate_stream() const {
         if (not _instream_read) {
-            //std::cerr << "Invalidating stream by reading " << _size << std::endl;
             auto coded_in = _coded_in.lock();
             if (not coded_in->ReadString(&_bytes, _size)) {
-                std::cerr << "Invalidating stream failed!" << std::endl;
+                FATAL("Invalidating stream failed!");
                 coded_in->PushLimit(0);
                 _valid_bytes = false;
             } else {
