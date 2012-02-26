@@ -211,7 +211,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
 
     // Try as long as there are inputs
     int cnt = 0;
-    bool run = true;
+    bool run = true, should_close_stream = false;
     while (shared<InputStream> instream = self->in->get_stream()) {
         if (!run)
             break;
@@ -305,12 +305,17 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             }
 
             // Check if we reached limit
-            if (++cnt == limit)
+            if (++cnt == limit) {
                 run = false;
+                should_close_stream = true;
+            }
         }
         
         // We're about to get a new stream, record how many this one had
         stats.bytes += instream->ByteCount();
+        
+        if (should_close_stream)
+            instream->close();
         
         if (instream->error()) {
             ERROR("stream error in thread ", boost::this_thread::get_id());
