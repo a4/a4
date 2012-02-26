@@ -68,6 +68,8 @@ class BaseOutputAdaptor : public OutputAdaptor {
             backstore.reset();
             start_block(); // This writes no metadata
         }
+        
+        virtual ~BaseOutputAdaptor() {}
 
         void start_block(std::string postfix="") {
             if (out and (!outstream or postfix != last_postfix)) {

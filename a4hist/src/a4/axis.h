@@ -11,6 +11,8 @@ namespace pb{
 
 class Axis {
     public:
+        virtual ~Axis() {}
+    
         virtual unique<pb::Axis> get_proto() const = 0;
         static unique<Axis> from_proto(const pb::Axis &);
         unique<Axis> clone() const;
