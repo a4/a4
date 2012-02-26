@@ -328,7 +328,7 @@ int64_t InputStreamImpl::seek(int64_t position) {
     return pos;
 }
 
-bool InputStreamImpl::carry_metadata(uint32_t& header, uint32_t& metadata) {
+bool InputStreamImpl::carry_metadata(uint32_t& header, int32_t& metadata) {
     if ((0 < header) or not (header < _metadata_offset_per_header.size()))
         return false;
     while (metadata < 0 and header > 0) {
@@ -345,7 +345,7 @@ bool InputStreamImpl::carry_metadata(uint32_t& header, uint32_t& metadata) {
     return true;
 }
 
-bool InputStreamImpl::seek_to(uint32_t header, uint32_t metadata, bool carry) {
+bool InputStreamImpl::seek_to(uint32_t header, int32_t metadata, bool carry) {
     drop_compression();
     if (!_discovery_complete) {
         if (seek(0) == -1) {

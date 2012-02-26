@@ -30,13 +30,19 @@ namespace a4{ namespace io{
             /// Seek to the given header/metadata combination.
             /// If carry==false, specifying a metadata index not in that header section
             /// causes an exception, otherwise the next header is used, or false is returned on EOF.
-            bool seek_to(uint32_t header, uint32_t metadata, bool carry=false);
+            bool seek_to(uint32_t header, int32_t metadata, bool carry=false);
             /// Skip to the start of the next metadata block. Return false if EOF, true if not.
-            bool skip_to_next_metadata() { return seek_to(_current_header_index, _current_metadata_index+1, true); }
+            bool skip_to_next_metadata() {
+                return seek_to(_current_header_index, _current_metadata_index+1, true);
+            }
             /// True if new metadata has appeared since the last call to this function.
             bool new_metadata() { 
                 if (!_started) startup();
-                if (_new_metadata) { _new_metadata = false; return true; } else return false;
+                if (_new_metadata) {
+                    _new_metadata = false;
+                    return true;
+                }
+                return false;
             }
             /// True if the stream has not ended or encountered an error.
             bool good() { return _good; }
@@ -96,7 +102,7 @@ namespace a4{ namespace io{
             bool _good, _error, _started, _discovery_complete;
             uint64_t _items_read;
             unsigned int _current_header_index;
-            unsigned int _current_metadata_index;
+            int32_t _current_metadata_index;
             int _fileno;
 
             // metadata-related status
@@ -122,7 +128,7 @@ namespace a4{ namespace io{
             bool handle_compressed_section(shared<A4Message> msg);
             bool handle_stream_command(shared<A4Message> msg);
             bool handle_metadata(shared<A4Message> msg);
-            bool carry_metadata(uint32_t& header, uint32_t& metadata);
+            bool carry_metadata(uint32_t& header, int32_t& metadata);
 
             void notify_last_unread_message();
             shared<A4Message> _last_unread_message;

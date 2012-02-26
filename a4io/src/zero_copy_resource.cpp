@@ -234,12 +234,13 @@ namespace a4{ namespace io{
                 return seek(position, SEEK_SET) == static_cast<int64_t>(_position);
             }
             bool SeekBack(size_t position) { 
-                _position = seek(-position, SEEK_END);
+                off_t result = seek(-position, SEEK_END);
+                _position = result;
                 //off_t cur = seek(0, SEEK_CUR);
                 //if (cur != _position) {
                 //    FATAL("Seek failed: Expected position: ", _position, " actual position: ", cur);
                 //};
-                return _position >= 0;
+                return result >= 0;
             }
             size_t Tell() const { return _position; };
 
