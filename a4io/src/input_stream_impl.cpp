@@ -369,20 +369,33 @@ bool InputStreamImpl::seek_to(uint32_t header, int32_t metadata, bool carry) {
     if (_headers_forward[header]) {
         // If the metadata refers forward, just seek to it
         _current_header_index = header;
-        _current_metadata_index = metadata - 1; // will be incremented when next metadata is read
+        // will be incremented when next metadata is read
+        _current_metadata_index = metadata - 1;
+        if (metadata == _metadata_offset_per_header[header].size()) {
+            // No more metadata in this header, current position is end
+            // of stream.
+            set_end();
+            return false;
+        }
         seek(_metadata_offset_per_header[header][metadata]);
     } else {
-        // More complicated - find previous metadata, seek to that, and skip it
         if (metadata == 0 && header == 0) {
             // Easy case
             _current_header_index = 0;
             _current_metadata_index = 0;
             seek(0);
         } else {
+            // More complicated - find previous metadata, seek to that, and skip it
             metadata -= 1;
             carry_metadata(header, metadata); // modifies header and metadata
             _current_header_index = header;
             _current_metadata_index = metadata;
+            if (metadata == _metadata_offset_per_header[header].size()) {
+                // No more metadata in this header, current position is end
+                // of stream.
+                set_end();
+                return false;
+            }
             seek(_metadata_offset_per_header[header][metadata]);
             next(false); // read only the next metadata    
         }
