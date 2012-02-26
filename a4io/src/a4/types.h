@@ -28,8 +28,9 @@
 #include <a4/debug.h>
 
 #ifndef BOOST_SYSTEM_NO_DEPRECATED
-#define BOOST_SYSTEM_NO_DEPRECATED
+#define BOOST_SYSTEM_NO_DEPRECATED 1
 #endif
+
 #include <boost/shared_array.hpp>
 using boost::shared_array;
 
