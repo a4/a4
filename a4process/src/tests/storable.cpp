@@ -8,7 +8,6 @@
 #include <a4/input_stream.h>
 #include <a4/process/A4Key.pb.h>
 
-using namespace std;
 using namespace a4::process;
 using namespace a4::io;
 
@@ -151,7 +150,7 @@ void lookup1000(ObjectStore S) {
 
 template <typename... Args>
 void check_set(hash_lookup* h, const Args& ...args) {
-    string*& res = (string*&)h->lookup(args...);
+    std::string*& res = (std::string*&)h->lookup(args...);
     assert(res != NULL);
     assert(*res == str_cat(args...));
 }
@@ -227,13 +226,13 @@ int main(int argv, char ** argc) {
         inbs.from_stream(in);
     }
     int cnt = 0;
-    foreach(string name, backstore.list<ToyHist>()) {
+    foreach (std::string name, backstore.list<ToyHist>()) {
         float j1 = backstore.get<ToyHist>(name)->j;
         float j2 = inbs.get<ToyHist>(name)->j;
 
         assert(j1 == j2);
         cnt++;
     }
-    cout << "Tested " << cnt << " numbers for equality" << endl;
+    std::cout << "Tested " << cnt << " numbers for equality" << std::endl;
     return 0;
 }

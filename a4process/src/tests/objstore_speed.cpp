@@ -5,7 +5,6 @@
 #include <a4/object_store.h>
 #include <a4/object_store_impl.h>
 
-using namespace std;
 using namespace a4::process;
 
 std::vector<std::string> items;
@@ -18,7 +17,7 @@ class myhist : public Storable {
         virtual void set_message(const google::protobuf::Message&) {}
         virtual void set_message(shared<google::protobuf::Message>) {}
         void construct_from(const google::protobuf::Message&) {}
-        void construct_from(std::shared_ptr<google::protobuf::Message>) {}
+        void construct_from(shared<google::protobuf::Message>) {}
         Storable&  operator+=(const a4::process::Storable&) { return *this; }
         Storable&  operator*=(const double&) { return *this; }
         Storable&& clone_storable() { return std::move(myhist(*this)); }
@@ -133,7 +132,7 @@ void lookup1000(ObjectStore S) {
 
 template <typename... Args>
 void check_set(hash_lookup* h, const Args& ...args) {
-    string*& res = (string*&)h->lookup(args...);
+    std::string*& res = (std::string*&)h->lookup(args...);
     assert(res != NULL);
     assert(*res == str_cat(args...));
 }

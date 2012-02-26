@@ -3,7 +3,6 @@
 
 #include <a4/string.h>
 #include <typeinfo>
-#include <cxxabi.h>
 
 namespace _string_internal {
     std::ostream& operator<<(std::ostream &sstr, const std::type_info& ti);

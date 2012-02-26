@@ -164,7 +164,7 @@ Instructor::Thread::Thread(Instructor &instructor, const int &id, WorkerPtr work
 void Instructor::Thread::loop()
 {
     boost::shared_ptr<Worker::WorkUnit> work_unit;
-    while (work_unit = _instructor.thread_instruct(this)) {
+    while ((work_unit = _instructor.thread_instruct(this))) {
         _worker->process_work_unit(*work_unit);
     }
 }

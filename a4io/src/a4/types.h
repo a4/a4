@@ -33,12 +33,13 @@
 #include <boost/shared_array.hpp>
 using boost::shared_array;
 
-#ifdef __clang__
+#if __clang__
 
     // GCC <=4.6's implementation of shared_ptr is broken under the new C++0x 
     // standard. See good explanation here. Might be fixed one day.
     // http://stackoverflow.com/questions/7964360/using-stdshared-ptr-with-clang-and-libstdc
 
+    #include <boost/weak_ptr.hpp>
     #include <boost/shared_ptr.hpp>
     #define shared boost::shared_ptr
     #define weak_shared boost::weak_ptr

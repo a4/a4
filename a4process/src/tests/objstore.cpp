@@ -11,9 +11,7 @@
 #include <string.h>
 #include <stdexcept>
 #include <stdarg.h>
-#include <boost/shared_ptr.hpp>
 
-using namespace std;
 using namespace a4::process;
 
 class Results {};
@@ -39,7 +37,7 @@ class TestStringThing : public Storable {
         }
         bool _initialized;
         void foo() { n++; }
-        string s;
+        std::string s;
         int n;
 };
 
@@ -106,7 +104,7 @@ int main(int argv, char ** argc) {
     ObjectStore S = backstore.store();
 
     assert(!is_writeable_pointer("test"));
-    string a = "50";
+    std::string a = "50";
     assert(is_writeable_pointer(a.c_str()));
     a[1] = '1';
     assert(is_writeable_pointer(a.c_str()));
@@ -125,7 +123,7 @@ int main(int argv, char ** argc) {
         process(S, "p11f_");
     }
 
-    foreach(string name, backstore.list<TestStringThing>()) {
+    foreach (std::string name, backstore.list<TestStringThing>()) {
         int npro = S.find_slow<TestStringThing>(name)->n;
         if (npro != N) {
             ERROR("Uh oh: ", name, " has ", npro, " != ", N);

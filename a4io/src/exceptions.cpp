@@ -4,7 +4,18 @@
 
 #include <execinfo.h>
 #include <signal.h>
-#include <cxxabi.h>
+
+#if defined(__has_include)
+    #if __has_include(<cxxabi.h>)
+    #define A4_HAVE_DEMANGLING
+    #include <cxxabi.h>
+    #endif // __clang__
+#else
+    #if defined(__GLIBCXX__) || defined(__GLIBCPP__)
+    #define A4_HAVE_DEMANGLING
+    #include <cxxabi.h>
+    #endif // __GNUC__
+#endif
 
 #include <boost/thread.hpp>
 #include <boost/thread/locks.hpp>
@@ -80,11 +91,15 @@ namespace a4{
                 *offset_begin++ = '\0';
                 *offset_end++ = '\0';
 
-                int status;
+                int status = 1;
+                #ifdef A4_HAVE_DEMANGLING
                 char* real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
+                #else
+                char* real_name = mangled_name;
+                #endif
 
                 // if demangling is successful, output the demangled function name
-                if (status == 0) {    
+                if (status == 0) {
                     sstr << "[" << i << "] " << symbols[i] << " : " 
                               << real_name << "+" << offset_begin << offset_end 
                               << std::endl;
