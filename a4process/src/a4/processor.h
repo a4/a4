@@ -194,9 +194,13 @@ namespace a4{
                 virtual void process(const ProtoMessage&) = 0;
 
                 void process_message(shared<const A4Message> msg) {
-                    if (!msg) FATAL("No message!"); // TODO: Should not be fatal
+                    if (!msg)
+                        FATAL("No message!"); // TODO: Should not be fatal
                     const ProtoMessage* pmsg = msg->as<ProtoMessage>();
-                    if (!pmsg) FATAL("Unexpected Message type: ", typeid(*msg->message()), " (Expected: ", typeid(ProtoMessage), ")");
+                    if (!pmsg)
+                        FATAL("Unexpected Message type: ",
+                              typeid(*msg->message()), 
+                              " (Expected: ", typeid(ProtoMessage), ")");
                     process(*pmsg);
                 }
 
@@ -252,10 +256,16 @@ namespace a4{
         class ConfigurationOf : public Configuration {
             public:
                 /// Override this to setup your thread-safe Processor!
-                virtual void setup_processor(MyProcessor &g) {};
+                virtual void setup_processor(MyProcessor& g) {}
 
-                virtual void setup_processor(Processor &g) { setup_processor(dynamic_cast<MyProcessor&>(g)); };
-                virtual Processor* new_processor() { Processor* p = new MyProcessor(); p->my_configuration = this; return p;};
+                virtual void setup_processor(Processor& g) { 
+                    setup_processor(dynamic_cast<MyProcessor&>(g)); 
+                }
+                virtual Processor* new_processor() {
+                    Processor* p = new MyProcessor();
+                    p->my_configuration = this;
+                    return p;
+                }
         };
     };
 };
