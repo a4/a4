@@ -1,6 +1,12 @@
 #ifndef _A4_TYPES_H_
 #define _A4_TYPES_H_
 
+// Needs to be first so that we eliminate these 
+// "warning: ‘boost::system::posix_category’ defined but not used" type errors
+#ifndef BOOST_SYSTEM_NO_DEPRECATED
+#define BOOST_SYSTEM_NO_DEPRECATED 1
+#endif
+
 #include <a4/config.h>
 
 #if HAVE_CSTDINT
@@ -26,10 +32,6 @@
 #include <a4/exceptions.h>
 #include <a4/string.h>
 #include <a4/debug.h>
-
-#ifndef BOOST_SYSTEM_NO_DEPRECATED
-#define BOOST_SYSTEM_NO_DEPRECATED 1
-#endif
 
 #include <boost/shared_array.hpp>
 using boost::shared_array;
