@@ -80,8 +80,12 @@ shared<InputStream> A4Input::get_stream() {
 
     VERBOSE("Starting to process ", s->str());
     
-    std::function<void (InputStream*)> cb = 
+    #if defined(HAVE_LAMBDA) and defined(HAVE_NOEXCEPT)
+    auto cb = [&](InputStream* x) noexcept { report_finished(this, x); };
+    #else
+    std::function<void (InputStream*)> cb =
         std::bind(&A4Input::report_finished, this, std::placeholders::_1);
+    #endif
     
     return shared<InputStream>(s, cb);
 }

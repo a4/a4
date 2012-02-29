@@ -93,7 +93,13 @@ shared<OutputStream> A4Output::get_stream(std::string postfix, bool forward_meta
 
     if (!_regular_file) os->open();
 
-    std::function<void (OutputStream*)> cb = std::bind(&A4Output::report_finished, this, std::placeholders::_1);
+    #if defined(HAVE_LAMBDA) and defined(HAVE_NOEXCEPT)
+    auto cb = [&](OutputStream* x) noexcept { report_finished(this, x); };
+    #else
+    std::function<void (OutputStream*)> cb =
+        std::bind(&A4Output::report_finished, this, std::placeholders::_1);
+    #endif
+    
     shared<OutputStream> ret(os.get(), cb);
     return ret;
 }

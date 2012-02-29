@@ -39,7 +39,27 @@ def configure(conf):
     conf.check(features='cxx cxxprogram', lib="dl", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
+    
     check_have_atomic(conf)
+    
+    conf.check_cxx(
+        msg="Checking for C++11 lambda syntax",
+        fragment="""int main(int argc, char* argv[]) {
+                        volatile int a = 0;
+                        auto x = [&]() { return a; };
+                        return x();
+                    }""",
+        define_name="HAVE_LAMBDA",
+        mandatory=False)
+        
+    conf.check_cxx(
+        msg="Checking for C++11 noexcept keyword",
+        fragment="""int blarg() noexcept { return 2; }
+                    int main(int argc, char* argv[]) {
+                        return blarg();
+                    }""",
+        define_name="HAVE_NOEXCEPT",
+        mandatory=False)
 
     # find root
     root_cfg = "root-config"
