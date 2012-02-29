@@ -1,3 +1,5 @@
+#include <a4/config.h>
+
 #ifdef HAVE_ATOMIC
 #include <atomic>
 #endif
