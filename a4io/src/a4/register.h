@@ -10,7 +10,18 @@
 
 #include <a4/io/A4.pb.h>
 
-namespace google{ namespace protobuf{ namespace io{ class CodedInputStream; };};};
+namespace google {
+namespace protobuf {
+    
+    namespace io {
+        class CodedInputStream;
+    }
+}
+}
+
+
+namespace a4 {
+namespace io {
 
 namespace a4{ namespace io{
 
@@ -78,7 +89,9 @@ namespace a4{ namespace io{
             static const google::protobuf::Descriptor* descriptor() {return NULL;}
     };
 
-};};
+
+}
+}
 
 #define A4RegisterClass(X) template class a4::io::RegisterClass<X>;
 

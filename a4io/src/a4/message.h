@@ -14,7 +14,12 @@ namespace google {
 namespace protobuf {
     class Descriptor;
     class DescriptorPool;
-};};
+    class Message;
+    namespace io {
+        class CodedInputStream;
+    }
+}
+}
 
 namespace a4 {
 namespace io {
@@ -33,17 +38,17 @@ namespace io {
             A4Message(uint32_t class_id, shared<Message> msg, shared<ProtoClassPool> pool);
 
             /// Construct an A4Message from a compiled-in protobuf Message
-            explicit A4Message(shared<google::protobuf::Message> msg, bool metadata=true);
+            explicit A4Message(shared<Message> msg, bool metadata=true);
 
             /// Construct an A4Message from a compiled-in protobuf Message
-            explicit A4Message(const google::protobuf::Message& msg, bool metadata=true);
+            explicit A4Message(const Message& msg, bool metadata=true);
 
             /// Only explicit copying allowed
             explicit A4Message(const A4Message& m);
             ~A4Message();
             
             /// Get to protobuf Message of the A4Message, parsing if necessary
-            const google::protobuf::Message* message() const;
+            const Message* message() const;
 
             /// Get the serialized bytes of the message
             const std::string& bytes() const;
@@ -128,7 +133,7 @@ namespace io {
             mutable std::string _bytes;
 
             /// The Message itself
-            mutable shared<google::protobuf::Message> _message;
+            mutable shared<Message> _message;
 
             /// True if the input stream has been read
             mutable bool _instream_read;

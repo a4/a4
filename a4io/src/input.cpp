@@ -73,8 +73,9 @@ shared<InputStream> A4Input::get_stream() {
         _ready.pop_back();
     } else if (!_filenames.empty()) {
         s = pop_file();
-    } else
+    } else {
         return shared<InputStream>();
+    }
 
     _processing.insert(s);
 
@@ -90,3 +91,5 @@ shared<InputStream> A4Input::get_stream() {
     return shared<InputStream>(s, cb);
 }
 
+}
+}

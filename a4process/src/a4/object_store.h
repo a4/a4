@@ -8,7 +8,9 @@
 
 #define IS_FALSE(X) (sizeof(std::tuple<X...>) == -1)
 
-namespace a4{ namespace process{
+namespace a4 {
+namespace process {
+    
     class ObjectBackStore;
 
     /// Access Storable objects by name quickly.
@@ -30,7 +32,7 @@ namespace a4{ namespace process{
     /// copying it is cheap and fast.
     class ObjectStore {
         public:
-            ObjectStore() {};
+            ObjectStore() {}
             /// Get a reference to a C object identified by the concatenated args.
             /// If the object does not exist, it is created.
             /// Does not check the class type for performance reasons!
@@ -107,7 +109,8 @@ namespace a4{ namespace process{
             friend class ObjectStore;
     };
 
-};};
+}
+}
 
 #include <a4/object_store_impl.h>
 

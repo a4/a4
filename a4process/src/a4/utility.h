@@ -50,6 +50,7 @@ namespace a4 {
 namespace process {
 namespace utility {
 
+
 /// Builds a std::vector of pointer to elements from the `in` container.
 template<class ContainerType>
 std::vector<const typename ContainerType::value_type*> 
@@ -59,7 +60,7 @@ std::vector<const typename ContainerType::value_type*>
     foreach (const auto& value, in) {
         out.push_back(&value);
     }
-    return out; // std::move(out);
+    return out;
 }
 
 
@@ -74,6 +75,9 @@ bool in_map(const Map& input, const T& value) {
     return input.find(value) != input.end();
 }
 
-};};};
+
+}
+}
+}
 
 #endif

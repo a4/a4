@@ -157,9 +157,9 @@ class Processor {
         void set_metadata_behavior(MetadataBehavior m) { assert(!locked); metadata_behavior = m; }
 
         // Here follows internal stuff.
-        std::set<const char *> rerun_channels;
+        std::set<const char*> rerun_channels;
         const char* rerun_channels_current;
-        std::set<const char *> rerun_systematics;
+        std::set<const char*> rerun_systematics;
         const char* rerun_systematics_current;
 
         OutputAdaptor* _output_adaptor;

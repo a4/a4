@@ -12,7 +12,8 @@
 #include <a4/input_stream.h>
 
 
-namespace a4{ namespace io{
+namespace a4 {
+namespace io {
 
     /// Collects several Input streams and provide them on request.
     //
@@ -49,6 +50,9 @@ namespace a4{ namespace io{
             std::map<InputStream*,int> _resched_count;
             mutable boost::mutex _mutex;
     };
-}; };
+
+
+}
+}
 
 #endif

@@ -5,7 +5,9 @@
 #include <a4/input_stream.h>
 #include <a4/process/A4Key.pb.h>
 
-namespace a4{ namespace process{
+namespace a4 {
+namespace process {
+
 
 template<class This, class ProtoMetaData, class... Args>
 shared<Storable> ResultsProcessor<This, ProtoMetaData, Args...>::_next_storable(shared<const A4Message> msg) {
@@ -27,6 +29,7 @@ shared<Storable> ResultsProcessor<This, ProtoMetaData, Args...>::_next_storable(
 }
 
 
-};}; // namespace
+}
+} // namespace
 
 #endif

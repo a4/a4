@@ -4,15 +4,15 @@
 #include <string>
 
 #include <a4/types.h>
-#include <a4/message.h>
 
 namespace google { 
 namespace protobuf {
     class FileDescriptor;
-};
-};
+}
+}
 
-namespace a4{ namespace io{
+namespace a4 {
+namespace io {
 
     class InputStreamImpl;
     class StreamFooter;
@@ -83,6 +83,7 @@ namespace a4{ namespace io{
             unique<InputStreamImpl> _impl;
     };
 
-};};
+}
+}
 
 #endif

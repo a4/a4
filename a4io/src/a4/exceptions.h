@@ -11,7 +11,7 @@
 
 #include <a4/string.h>
 
-namespace a4{
+namespace a4 {
 
     class BackTraceException : public std::exception {
         public:
@@ -25,6 +25,7 @@ namespace a4{
             std::string _backtrace;
             std::string _full_backtrace;
     };
+    
     class Fatal : public BackTraceException {
         public:
             template<typename ...Args>
@@ -47,6 +48,6 @@ namespace a4{
     };
 
     
-};
+}
 
 #endif

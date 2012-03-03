@@ -3,12 +3,12 @@
 
 #include <a4/driver.h>
 
-namespace a4{ 
-    namespace io{
+namespace a4 {
+    namespace io {
         class A4Input;
         class A4Output;
     }
-    namespace process{
+    namespace process {
         
         class ProcessStats;
 
@@ -40,7 +40,7 @@ namespace a4{
             return driver->main(argc, argv);
         }
 
-    }; // namespace a4::process
-}; // namespace a4
+    } // namespace a4::process
+} // namespace a4
 
 #endif

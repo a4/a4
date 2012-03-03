@@ -9,17 +9,22 @@
 #include <a4/register.h>
 
 
-namespace google{ namespace protobuf{ 
-    namespace io{
+namespace google {
+namespace protobuf {
+    
+    namespace io {
         class ZeroCopyOutputStream;
         class FileOutputStream;
         class GzipOutputStream;
         class CodedOutputStream;
-    };
+    }
     class SimpleDescriptorDatabase;
-};};
+}
+}
 
-namespace a4{ namespace io{
+
+namespace a4 {
+namespace io {
 
     class BaseCompressedOutputStream;
 
@@ -123,6 +128,7 @@ namespace a4{ namespace io{
             void set_written_classid(const uint32_t& classid) { _written_classids.insert(classid); }
     };
 
-};};
+}
+}
 
 #endif

@@ -4,7 +4,11 @@
 
 #include <a4/process/A4Key.pb.h>
 
-namespace a4{ namespace process{
+namespace a4 {
+namespace process {
 
 
-};}; // namespace
+
+
+}
+}

@@ -6,6 +6,7 @@
 #include <a4/cutflow.h>
 #include <a4/results_processor.h>
 #include <a4/object_store.h>
+
 #include <a4/atlas/Event.pb.h>
 
 using namespace std;
@@ -103,4 +104,4 @@ shared<A4Message> A4ReweightProcessor::process_new_metadata() {
 
 int main(int argc, const char* argv[]) {
     return a4_main_configuration<A4ReweightConfiguration>(argc, argv);
-};
+}
