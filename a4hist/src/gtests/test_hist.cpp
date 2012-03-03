@@ -43,7 +43,8 @@ TEST(a4hist, nonatomicint) {
     for (uint64_t i = 0; i < n_threads; i++)
         tg.add_thread(new boost::thread(IncreaseBignum, n_per_thread)); 
     tg.join_all();
-    ASSERT_EQ(n_per_thread*n_threads, bignum);
+    // These won't be equal on multicore systems.
+    // ASSERT_EQ(n_per_thread*n_threads, bignum);
 }
 
 TEST(a4hist, h1) {
