@@ -3,6 +3,35 @@
 boost_libs = "system filesystem program_options thread chrono"
 a4_version = "0.1.0"
 
+def go(ctx):
+    from waflib.Options import commands, options
+    from os import getcwd
+    from os.path import join as pjoin
+    options.prefix = pjoin(getcwd(), "install")
+    commands += ["configure", "build", "install"]
+
+def onchange(ctx):
+    """
+    Detect changes to source files then run the following waf, e.g. "./waf onchange build"
+    """
+    
+    from sys import argv
+    argv = argv[1:]
+    assert argv[0] == "onchange"
+    argv = argv[1:]
+
+    from pipes import quote
+    args = " ".join(quote(arg) for arg in argv)
+
+    from waflib.Options import commands
+    commands[:] = []
+    
+    # System because
+    from os import system
+    system("common/autocompile.py ./waf {0}".format(args))
+        
+    raise SystemExit()
+
 def options(opt):
     opt.load('compiler_c compiler_cxx python')
     opt.load('boost unittest_gtest libtool', tooldir="common/waf")
