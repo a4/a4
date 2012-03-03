@@ -3,8 +3,6 @@
 
 #include <boost/function.hpp>
 
-#include <google/protobuf/message.h>
-
 #include <a4/a4io.h>
 #include <a4/types.h>
 
@@ -12,6 +10,7 @@
 
 namespace google {
 namespace protobuf {
+    class Message;
     
     namespace io {
         class CodedInputStream;
@@ -23,7 +22,7 @@ namespace protobuf {
 namespace a4 {
 namespace io {
 
-namespace a4{ namespace io{
+    using google::protobuf::Message;
 
     namespace internal {
         typedef boost::function<shared<Message> (google::protobuf::io::CodedInputStream*)> from_stream_func;

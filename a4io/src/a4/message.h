@@ -3,11 +3,7 @@
 
 #include <string>
 
-#include <google/protobuf/message.h>
-#include <google/protobuf/dynamic_message.h>
-
 #include <a4/types.h>
-#include <a4/register.h>
 
 // used internally
 namespace google {
@@ -24,6 +20,7 @@ namespace protobuf {
 namespace a4 {
 namespace io {
     class ProtoClassPool;
+    using google::protobuf::Message;
 
     /// Wrapped message returned from the InputStream
     static const uint32_t NO_CLASS_ID = ((1L<<32) - 2);

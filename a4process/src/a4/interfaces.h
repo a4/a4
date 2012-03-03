@@ -5,7 +5,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "a4/streamable.h"
+#include <a4/streamable.h>
+
 
 class Cloneable {
     public:

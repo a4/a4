@@ -3,7 +3,6 @@
 
 #include <a4/a4io.h>
 #include <a4/types.h>
-#include <a4/message.h>
 
 
 namespace google {

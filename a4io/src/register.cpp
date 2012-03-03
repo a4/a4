@@ -1,6 +1,8 @@
 #include <iostream>
 #include <map>
 
+#include <google/protobuf/descriptor.h>
+
 #include <a4/register.h>
 
 #include <a4/io/A4Stream.pb.h>

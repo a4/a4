@@ -5,10 +5,8 @@
 
 #include <boost/program_options.hpp>
 
-#include <a4/a4io.h>
 #include <a4/types.h>
-#include <a4/input_stream.h>
-#include <a4/output_stream.h>
+
 #include <a4/message.h>
 #include <a4/register.h>
 #include <a4/object_store.h>
@@ -46,8 +44,8 @@ class OutputAdaptor {
     public:
         virtual void write(shared<const A4Message> m) = 0;
         virtual void metadata(shared<const A4Message> m) = 0;
-        void write(const google::protobuf::Message& m) { write(shared<const A4Message>(new A4Message(m))); }
-        void metadata(const google::protobuf::Message& m) { metadata(shared<const A4Message>(new A4Message(m))); }
+        void write(const google::protobuf::Message& m);
+        void metadata(const google::protobuf::Message& m);
 };
 
 class Processor {

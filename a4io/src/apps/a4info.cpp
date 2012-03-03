@@ -25,7 +25,9 @@ using google::protobuf::Message;
 using google::protobuf::Reflection;
 
 #include <a4/input.h>
+#include <a4/input_stream.h>
 #include <a4/output.h>
+#include <a4/output_stream.h>
 #include <a4/message.h>
 
 

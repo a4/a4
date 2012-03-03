@@ -1,10 +1,8 @@
 #ifndef _A4_HASH_LOOKUP_H_
 #define _A4_HASH_LOOKUP_H_
 
-#include <vector>
 #include <map>
 #include <string>
-#include <stdexcept>
 
 #define HUID_CHECK
 #define HUID_CHECK_ONLY_ONCE

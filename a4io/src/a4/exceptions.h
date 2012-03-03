@@ -2,12 +2,6 @@
 #define _A4_EXCEPTIONS_
 
 #include <exception>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <cstdlib>
-
-#include <boost/filesystem.hpp>
 
 #include <a4/string.h>
 

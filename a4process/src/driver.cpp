@@ -16,9 +16,13 @@ typedef chrono::duration<double> duration;
 
 #include <boost/thread.hpp>
 
+#include <google/protobuf/descriptor.h>
+
 #include <a4/application.h>
 #include <a4/input.h>
+#include <a4/input_stream.h>
 #include <a4/output.h>
+#include <a4/output_stream.h>
 #include <a4/cpu_info.h>
 
 using std::string;

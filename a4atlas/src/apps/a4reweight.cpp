@@ -10,7 +10,6 @@
 #include <a4/atlas/Event.pb.h>
 
 using namespace std;
-using namespace boost::filesystem;
 using namespace a4::process;
 using namespace a4::io;
 using namespace a4::hist;

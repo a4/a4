@@ -33,6 +33,8 @@
 #include <a4/string.h>
 #include <a4/debug.h>
 
+// The shared_ptr include must come before the unique<> #define.
+#include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
 using boost::shared_array;
 

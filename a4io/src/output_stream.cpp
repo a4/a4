@@ -16,12 +16,13 @@
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
-#include "a4/message.h"
-#include "a4/output_stream.h"
+#include <a4/register.h>
+#include <a4/message.h>
+#include <a4/output_stream.h>
 #ifdef HAVE_SNAPPY
 #include "snappy_stream.h"
 #endif
-#include "a4/io/A4Stream.pb.h"
+#include <a4/io/A4Stream.pb.h>
 
 #include "gzip_stream.h"
 

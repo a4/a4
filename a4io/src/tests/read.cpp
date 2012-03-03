@@ -1,7 +1,8 @@
 #include <iostream>
 
-#include "a4/input_stream.h"
-#include "a4/io/A4Stream.pb.h"
+#include <a4/message.h>
+#include <a4/input_stream.h>
+#include <a4/io/A4Stream.pb.h>
 
 using namespace std;
 using namespace a4::io;

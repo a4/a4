@@ -1,4 +1,6 @@
 #include <iostream>
+#include <fstream>
+using std::ifstream;
 #include <iterator>
 using std::istream_iterator;
 
@@ -41,7 +43,9 @@ using google::protobuf::compiler::SourceTreeDescriptorDatabase;
 #include <TROOT.h>
 #include <RVersion.h>
 
+#include <a4/types.h>
 #include <a4/output.h>
+#include <a4/output_stream.h>
 #include <a4/input.h>
 
 #include "common.h"

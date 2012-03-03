@@ -5,12 +5,15 @@
 #include <vector>
 #include <cassert>
 #include <set>
+#include <map>
 
-#include <a4/register.h>
+#include <a4/types.h>
 
 
 namespace google {
 namespace protobuf {
+    class Descriptor;
+    class Message;
     
     namespace io {
         class ZeroCopyOutputStream;
@@ -26,6 +29,7 @@ namespace protobuf {
 namespace a4 {
 namespace io {
 
+    class A4Message;
     class BaseCompressedOutputStream;
 
     /// Class to write Messages to files or streams.

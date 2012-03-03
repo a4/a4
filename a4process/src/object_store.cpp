@@ -1,10 +1,14 @@
+#include <iostream>
+
+//#include <google/protobuf/message.h>
+
 #include <a4/object_store.h>
-#include <a4/process/A4Key.pb.h>
 #include <a4/register.h>
 #include <a4/message.h>
 #include <a4/output_stream.h>
 #include <a4/input_stream.h>
-#include <iostream>
+
+#include <a4/process/A4Key.pb.h>
 
 A4RegisterClass(a4::process::A4Key);
 A4RegisterClass(a4::process::TestHisto);

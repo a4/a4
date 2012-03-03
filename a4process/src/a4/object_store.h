@@ -8,6 +8,8 @@
 
 #define IS_FALSE(X) (sizeof(std::tuple<X...>) == -1)
 
+class hash_lookup;
+
 namespace a4 {
 namespace process {
     

@@ -1,14 +1,21 @@
 /// a4::io::A4Input A4Input maps files to streams.
 
+#include <a4/input.h>
+
+#include <unordered_set>
+
 #include <functional>
+#include <string>
 #include <iostream>
 
 #include <boost/thread.hpp>
 #include <boost/thread/locks.hpp>
 
-#include <a4/input.h>
+#include <a4/input_stream.h>
 
-using namespace a4::io;
+namespace a4 {
+namespace io {
+
 
 typedef boost::unique_lock<boost::mutex> Lock;
 

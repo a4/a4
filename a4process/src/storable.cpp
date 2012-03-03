@@ -1,5 +1,6 @@
 #include <map>
 
+#include <a4/message.h>
 #include <a4/storable.h>
 
 namespace a4 {
