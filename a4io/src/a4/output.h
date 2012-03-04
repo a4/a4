@@ -4,12 +4,12 @@
 #include <vector>
 
 #include <boost/thread.hpp>
-#include <boost/thread/locks.hpp>
-
-#include <a4/output_stream.h>
 
 
-namespace a4{ namespace io{
+namespace a4 {
+namespace io {
+
+    class OutputStream;
 
     /// Provides output streams to threads, and makes sure they are merged eventually.
     //
@@ -38,6 +38,8 @@ namespace a4{ namespace io{
             std::map<std::string, std::vector<std::string>> _filenames;
             mutable boost::mutex _mutex;
     };
-};};
+
+}
+}
 
 #endif

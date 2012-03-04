@@ -5,7 +5,10 @@
 
 #include <a4/types.h>
 
-namespace a4{ namespace process{
+
+namespace a4 {
+namespace process {
+
     using a4::process::Storable;
 
     template <class C, typename ...Args> 
@@ -101,6 +104,8 @@ namespace a4{ namespace process{
         return shared<C>();
     }
 
-};};
+
+}
+}
 
 #endif

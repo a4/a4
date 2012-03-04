@@ -1,8 +1,6 @@
 #define _FILE_OFFSET_BITS 64
 
-#include <a4/config.h>
-#include <a4/types.h>
-
+#include <deque>
 #include <iostream>
 #include <tuple>
 
@@ -29,6 +27,9 @@ typedef boost::unique_lock<boost::mutex> Lock;
 #include <google/protobuf/io/gzip_stream.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
+
+#include <a4/config.h>
+#include <a4/types.h>
 
 #include "dynamic_message.h"
 #include "gzip_stream.h"

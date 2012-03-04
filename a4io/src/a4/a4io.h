@@ -1,11 +1,6 @@
 #ifndef _A4_A4IO_
 #define _A4_A4IO_
 
-#include <string>
-#include <iostream>
-
-#include <google/protobuf/message.h>
-#include <google/protobuf/text_format.h>
 
 namespace a4 {
     /// A4IO
@@ -35,8 +30,6 @@ namespace a4 {
         class OutputStream;
 
         template <typename ProtoClass> class RegisterClass;
-
-        using google::protobuf::Message;
         
     }
 }

@@ -4,13 +4,13 @@
 
 #include <sys/stat.h>
 
-#include <a4/types.h>
-
 #include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/locks.hpp>
 
+#include <a4/types.h>
 #include <a4/output.h>
+#include <a4/output_stream.h>
 
 using namespace a4::io;
 using std::ios;

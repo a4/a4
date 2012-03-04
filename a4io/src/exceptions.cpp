@@ -17,6 +17,8 @@
     #endif // __GNUC__
 #endif
 
+#include <fstream>
+#include <boost/filesystem.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/locks.hpp>
 

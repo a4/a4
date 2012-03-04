@@ -1,10 +1,12 @@
-#include "a4/input_stream.h"
-#include "a4/message.h"
+#include <a4/input_stream.h>
+#include <a4/message.h>
+
 #include "input_stream_impl.h"
 
-#include "a4/io/A4Stream.pb.h"
+#include <a4/io/A4Stream.pb.h>
 
-namespace a4{ namespace io{
+namespace a4 {
+namespace io {
 
     // Forward everything to the implementation object.
     InputStream::InputStream(std::string url) {
@@ -49,4 +51,6 @@ namespace a4{ namespace io{
     std::vector<const google::protobuf::FileDescriptor*> InputStream::get_filedescriptors() {
         return _impl->get_filedescriptors();
     }
-};};
+
+}
+}

@@ -1,9 +1,10 @@
 #ifndef _A4_HASH_LOOKUP_IMPL_H_
 #define _A4_HASH_LOOKUP_IMPL_H_
 
+#include <sstream>
+
 #include <a4/debug.h>
 #include <a4/string.h>
-#include <iostream>
 
 // Get a hopefully unique ID 
 template <typename T, typename... Args>

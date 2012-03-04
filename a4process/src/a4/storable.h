@@ -3,9 +3,19 @@
 
 #include <a4/a4io.h>
 #include <a4/types.h>
-#include <a4/message.h>
 
-namespace a4{ namespace process{
+
+namespace google {
+namespace protobuf {
+    class Descriptor;
+    class Message;
+}
+}
+
+
+namespace a4 {
+namespace process {
+
 
     /// Storable objects are objects that can be stored in an ObjectStore.
     /// They should be derived from StorableAs instead of directly from Storable.
@@ -187,6 +197,7 @@ namespace a4{ namespace process{
 
     shared<Storable> message_to_storable(shared<const a4::io::A4Message> msg);
 
-};};
+}
+}
 
 #endif

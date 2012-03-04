@@ -1,10 +1,8 @@
 #ifndef _A4_HASH_LOOKUP_H_
 #define _A4_HASH_LOOKUP_H_
 
-#include <vector>
 #include <map>
 #include <string>
-#include <stdexcept>
 
 #define HUID_CHECK
 #define HUID_CHECK_ONLY_ONCE
@@ -28,7 +26,7 @@ class hash_lookup {
 
         /// Lookup a file (leaf)
         template <typename... Args>
-        void *& lookup(const Args& ...args);
+        void*& lookup(const Args& ...args);
 
         /// Lookup a directory
         template <typename... Args>
@@ -51,7 +49,7 @@ class hash_lookup {
         {
             update_from(parent);
             _check_huid = 0;
-        };
+        }
 
         void update_from(hash_lookup* master) {
             _files_size = master->_files_size;
@@ -59,7 +57,7 @@ class hash_lookup {
             _files = master->_files;
             _directories = master->_directories;
             _master = master->_master;
-        };
+        }
 
         void tear_down();
         hash_lookup* subhash() { return this; }

@@ -2,18 +2,19 @@
 #define _A4_INPUT_H_
 
 #include <unordered_set>
-#include <set>
-#include <map>
 #include <deque>
 
 #include <boost/thread.hpp>
-#include <boost/thread/locks.hpp>
 
-#include <a4/input_stream.h>
+#include <a4/types.h>
 
 
-namespace a4{ namespace io{
+namespace a4 {
+namespace io {
 
+    class InputStream;
+    
+    
     /// Collects several Input streams and provide them on request.
     //
     /// This class represents one or more input streams, and hands them out,
@@ -49,6 +50,9 @@ namespace a4{ namespace io{
             std::map<InputStream*,int> _resched_count;
             mutable boost::mutex _mutex;
     };
-}; };
+
+
+}
+}
 
 #endif

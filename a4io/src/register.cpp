@@ -1,13 +1,20 @@
 #include <iostream>
 #include <map>
 
+#include <google/protobuf/descriptor.h>
+
 #include <a4/register.h>
 
 #include <a4/io/A4Stream.pb.h>
 
-namespace google{ namespace protobuf{ class Message; }}
+namespace google {
+namespace protobuf { 
+    class Message;
+}
+}
 
-namespace a4{ namespace io{
+namespace a4 {
+namespace io {
 
     // Notice: DO NOT call other functions in the static initialization.
     // The order of initialization is NOT DETERMINED.
@@ -72,4 +79,5 @@ namespace a4{ namespace io{
     template class RegisterClass<TestMetaData>;
     template class RegisterClass<TestMergeMetaDataStatic>;
 
-}}
+}
+}

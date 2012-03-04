@@ -1,4 +1,8 @@
 #include <iostream>
+using namespace std;
+
+#include <boost/filesystem.hpp>
+using namespace boost::filesystem;
 
 #include <a4/application.h>
 #include <a4/histogram.h>
@@ -6,8 +10,6 @@
 #include <a4/results_processor.h>
 #include <a4/object_store.h>
 
-using namespace std;
-using namespace boost::filesystem;
 using namespace a4::process;
 using namespace a4::io;
 using namespace a4::hist;
@@ -25,4 +27,4 @@ class A4MergeProcessor : public ResultsProcessor<A4MergeProcessor, a4::io::NoPro
 
 int main(int argc, const char* argv[]) {
     return a4_main_process<A4MergeProcessor>(argc, argv);
-};
+}

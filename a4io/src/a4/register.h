@@ -3,16 +3,26 @@
 
 #include <boost/function.hpp>
 
-#include <google/protobuf/message.h>
-
 #include <a4/a4io.h>
 #include <a4/types.h>
 
 #include <a4/io/A4.pb.h>
 
-namespace google{ namespace protobuf{ namespace io{ class CodedInputStream; };};};
+namespace google {
+namespace protobuf {
+    class Message;
+    
+    namespace io {
+        class CodedInputStream;
+    }
+}
+}
 
-namespace a4{ namespace io{
+
+namespace a4 {
+namespace io {
+
+    using google::protobuf::Message;
 
     namespace internal {
         typedef boost::function<shared<Message> (google::protobuf::io::CodedInputStream*)> from_stream_func;
@@ -78,7 +88,9 @@ namespace a4{ namespace io{
             static const google::protobuf::Descriptor* descriptor() {return NULL;}
     };
 
-};};
+
+}
+}
 
 #define A4RegisterClass(X) template class a4::io::RegisterClass<X>;
 
