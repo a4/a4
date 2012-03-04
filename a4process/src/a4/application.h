@@ -28,15 +28,15 @@ namespace a4 {
 
         template <class MyConfiguration, class MyDriver=SimpleCommandLineDriver>
         int a4_main_configuration(int argc, const char* argv[]) {
-            unique<Configuration> p(new MyConfiguration);
-            unique<MyDriver> driver(new MyDriver(p.get()));
+            UNIQUE<Configuration> p(new MyConfiguration);
+            UNIQUE<MyDriver> driver(new MyDriver(p.get()));
             return driver->main(argc, argv);
         }
 
         template <class MyProcessor, class MyDriver=SimpleCommandLineDriver>
         int a4_main_process(const int& argc, const char* argv[]) {
-            unique<Configuration> p(new ConfigurationOf<MyProcessor>());
-            unique<MyDriver> driver(new MyDriver(p.get()));
+            UNIQUE<Configuration> p(new ConfigurationOf<MyProcessor>());
+            UNIQUE<MyDriver> driver(new MyDriver(p.get()));
             return driver->main(argc, argv);
         }
 

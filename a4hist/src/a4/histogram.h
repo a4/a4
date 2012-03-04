@@ -91,7 +91,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         void ensure_weights();
         void bin_init();
 
-        unique<Axis> _axis;
+        UNIQUE<Axis> _axis;
         shared_array<double> _data;
         shared_array<double> _weights_squared;
         uint64_t _entries;
@@ -178,10 +178,10 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
         H2 &operator =(const H2 &);
         void ensure_weights();
         void bin_init();
-        void add_axis(unique<Axis> axis);
+        void add_axis(UNIQUE<Axis> axis);
 
-        unique<Axis> _x_axis;
-        unique<Axis> _y_axis;
+        UNIQUE<Axis> _x_axis;
+        UNIQUE<Axis> _y_axis;
         
         shared_array<double> _data;
         shared_array<double> _weights_squared;
@@ -274,11 +274,11 @@ class H3 : public a4::process::StorableAs<H3, pb::H3>
         H3 &operator =(const H3 &);
         void ensure_weights();
         void bin_init();
-        void add_axis(unique<Axis> axis);
+        void add_axis(UNIQUE<Axis> axis);
 
-        unique<Axis> _x_axis;
-        unique<Axis> _y_axis;
-        unique<Axis> _z_axis;
+        UNIQUE<Axis> _x_axis;
+        UNIQUE<Axis> _y_axis;
+        UNIQUE<Axis> _z_axis;
         
         shared_array<double> _data;
         shared_array<double> _weights_squared;

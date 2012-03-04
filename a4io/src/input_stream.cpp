@@ -13,7 +13,7 @@ namespace io {
         _impl.reset(new InputStreamImpl(resource_from_url(url), url));
     }
 
-    InputStream::InputStream(unique<InputStreamImpl> impl) {
+    InputStream::InputStream(UNIQUE<InputStreamImpl> impl) {
         _impl = std::move(impl);
     }
     

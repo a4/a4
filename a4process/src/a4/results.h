@@ -42,7 +42,7 @@ class Results : public Printable, public Addable, public Scalable, public Object
         boost::shared_ptr<MetaData> metadata;
 
         void to_file(std::string fn);
-        static std::vector<unique<Results>> from_file(std::string fn);
+        static std::vector<UNIQUE<Results>> from_file(std::string fn);
 };
 typedef boost::shared_ptr<Results> ResultsPtr;
 

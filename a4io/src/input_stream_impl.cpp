@@ -66,7 +66,7 @@ const uint32_t HIGH_BIT = 1 << 31;
 namespace a4{ 
 namespace io{
 
-InputStreamImpl::InputStreamImpl(unique<ZeroCopyStreamResource> in, 
+InputStreamImpl::InputStreamImpl(UNIQUE<ZeroCopyStreamResource> in, 
                                  std::string name) {
     _started = false;
     _raw_in = std::move(in);

@@ -16,7 +16,7 @@ namespace a4{ namespace io{
     class InputStreamImpl
     {
         public:
-            InputStreamImpl(unique<ZeroCopyStreamResource>, std::string name);
+            InputStreamImpl(UNIQUE<ZeroCopyStreamResource>, std::string name);
             virtual ~InputStreamImpl();
 
             /// Returns the next regular message in the stream.
@@ -90,8 +90,8 @@ namespace a4{ namespace io{
             }
 
         private:
-            unique<ZeroCopyStreamResource> _raw_in;
-            unique<BaseCompressedInputStream> _compressed_in;
+            UNIQUE<ZeroCopyStreamResource> _raw_in;
+            UNIQUE<BaseCompressedInputStream> _compressed_in;
             shared<google::protobuf::io::CodedInputStream> _coded_in;
             shared<ProtoClassPool> _current_class_pool;
 

@@ -47,7 +47,7 @@ int main(int argv, char ** argc) {
     a[1] = '1';
     assert(is_writeable_pointer(a.c_str()));
 
-    unique<hash_lookup> hl(new hash_lookup());
+    UNIQUE<hash_lookup> hl(new hash_lookup());
 
     // Test the hash lookup for consistency
     test_check_set(hl.get(), "test");

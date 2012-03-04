@@ -33,8 +33,8 @@ namespace a4{ namespace io{
             virtual size_t Tell() const { return 0; };
 
             /// Get a clone of this stream with the given offset
-            virtual unique<ZeroCopyStreamResource> Clone(size_t offset) {
-                return unique<ZeroCopyStreamResource>();
+            virtual UNIQUE<ZeroCopyStreamResource> Clone(size_t offset) {
+                return UNIQUE<ZeroCopyStreamResource>();
             };
     };
 
@@ -70,7 +70,7 @@ namespace a4{ namespace io{
             size_t Tell() const;
             google::protobuf::int64 ByteCount() const { return Tell(); };
 
-            virtual unique<ZeroCopyStreamResource> Clone(size_t offset);
+            virtual UNIQUE<ZeroCopyStreamResource> Clone(size_t offset);
 
         protected:
             std::string _name;
@@ -89,7 +89,7 @@ namespace a4{ namespace io{
             bool open();
             bool close();
             bool Next(const void** data, int* size);
-            virtual unique<ZeroCopyStreamResource> Clone(size_t offset);
+            virtual UNIQUE<ZeroCopyStreamResource> Clone(size_t offset);
 
         private:
             void remap();
@@ -107,7 +107,7 @@ namespace a4{ namespace io{
             google::protobuf::int64 ByteCount() const;
               
         protected:
-            unique<google::protobuf::io::FileInputStream> _impl;
+            UNIQUE<google::protobuf::io::FileInputStream> _impl;
 
     };
 
@@ -115,7 +115,7 @@ namespace a4{ namespace io{
         public:
             UnixFile(std::string filename, int block_size = -1);
         protected:
-            unique<OpenFile> _file;
+            UNIQUE<OpenFile> _file;
     };
     
     class RemoteCopyingFile;
@@ -132,14 +132,14 @@ namespace a4{ namespace io{
             google::protobuf::int64 ByteCount() const;
         protected:
             void new_adaptor(bool tell=false) const;
-            mutable unique<google::protobuf::io::CopyingInputStreamAdaptor> _adaptor;
-            unique<RemoteCopyingFile> _file;
+            mutable UNIQUE<google::protobuf::io::CopyingInputStreamAdaptor> _adaptor;
+            UNIQUE<RemoteCopyingFile> _file;
             std::string _filename;
             int _block_size;
             mutable uint64_t _byte_count;
     };
 
-    unique<ZeroCopyStreamResource> resource_from_url(std::string url);
+    UNIQUE<ZeroCopyStreamResource> resource_from_url(std::string url);
 
 };};
 

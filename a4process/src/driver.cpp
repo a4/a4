@@ -185,9 +185,9 @@ class ManualOutputAdaptor : public BaseOutputAdaptor {
 void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, 
     Processor* p, int limit, ProcessStats& stats) {
     // This is MY processor! (makes sure processor is deleted on function exit)
-    // The argument to this function should be a move into a unique...
-    unique<Processor> processor(p);
-    unique<BaseOutputAdaptor> output_adaptor;
+    // The argument to this function should be a move into a UNIQUE...
+    UNIQUE<Processor> processor(p);
+    UNIQUE<BaseOutputAdaptor> output_adaptor;
     
     bool metadata_forward;
     bool auto_metadata = false;

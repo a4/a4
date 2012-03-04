@@ -68,7 +68,7 @@ class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
     private:
         void fill_internal(const uintptr_t& idx, const double& w);
         uintptr_t new_bin(std::string name);
-        unique<hash_lookup> _fast_access;
+        UNIQUE<hash_lookup> _fast_access;
         std::vector<double> _bin;
         shared<std::vector<double> > _weights_squared;
         std::vector<std::string> _cut_names;

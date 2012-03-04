@@ -7,16 +7,16 @@
 
 namespace a4{ namespace hist{
 
-unique<Axis> Axis::clone() const { 
-    unique<pb::Axis> pb = get_proto();
+UNIQUE<Axis> Axis::clone() const { 
+    UNIQUE<pb::Axis> pb = get_proto();
     return from_proto(*pb);
 };
 
-unique<Axis> Axis::from_proto(const pb::Axis& msg) {
+UNIQUE<Axis> Axis::from_proto(const pb::Axis& msg) {
     if (msg.has_bins())
-        return unique<Axis>(new SimpleAxis(msg));
+        return UNIQUE<Axis>(new SimpleAxis(msg));
     else
-        return unique<Axis>(new VariableAxis(msg));
+        return UNIQUE<Axis>(new VariableAxis(msg));
 }
 
 SimpleAxis::SimpleAxis() {};
@@ -50,8 +50,8 @@ SimpleAxis::SimpleAxis(const pb::Axis& msg) {
     _delta = _bins == 0 ? 0 : (_max - _min)/_bins;
 };
 
-unique<pb::Axis> SimpleAxis::get_proto() const {
-    unique<pb::Axis> axis(new pb::Axis);
+UNIQUE<pb::Axis> SimpleAxis::get_proto() const {
+    UNIQUE<pb::Axis> axis(new pb::Axis);
     axis->set_bins(_bins);
     axis->set_min(_min);
     axis->set_max(_max);
@@ -140,8 +140,8 @@ VariableAxis::VariableAxis(const pb::Axis& msg) {
     assert(sane());
 }
 
-unique<pb::Axis> VariableAxis::get_proto() const {
-    unique<pb::Axis> axis(new pb::Axis);
+UNIQUE<pb::Axis> VariableAxis::get_proto() const {
+    UNIQUE<pb::Axis> axis(new pb::Axis);
     axis->set_label(label);
     for (double const* x = _bin_bounds.get() + 1; x < _bin_bounds_end; x++)
         axis->add_variable_bins(*x);

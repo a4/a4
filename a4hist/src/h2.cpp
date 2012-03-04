@@ -24,7 +24,7 @@ void H2::bin_init() {
     _data.reset(new double[total_bins]());
 }
 
-void H2::add_axis(unique<Axis> axis) {
+void H2::add_axis(UNIQUE<Axis> axis) {
     if (_initializations_remaining == 1) {
         _x_axis = std::move(axis);
     } else {
@@ -34,13 +34,13 @@ void H2::add_axis(unique<Axis> axis) {
 }
 
 void H2::constructor(const uint32_t &bins, const double &min, const double &max, const char * label) {
-    unique<Axis> axis(new SimpleAxis(bins, min, max));
+    UNIQUE<Axis> axis(new SimpleAxis(bins, min, max));
     axis->label = label;
     add_axis(std::move(axis));
 }
 
 void H2::constructor(const std::vector<double>& bins, const char* label) {
-    unique<Axis> axis(new VariableAxis(bins));
+    UNIQUE<Axis> axis(new VariableAxis(bins));
     axis->label = label;
     add_axis(std::move(axis));
 }

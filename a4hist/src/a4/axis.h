@@ -13,9 +13,9 @@ class Axis {
     public:
         virtual ~Axis() {}
     
-        virtual unique<pb::Axis> get_proto() const = 0;
-        static unique<Axis> from_proto(const pb::Axis &);
-        unique<Axis> clone() const;
+        virtual UNIQUE<pb::Axis> get_proto() const = 0;
+        static UNIQUE<Axis> from_proto(const pb::Axis &);
+        UNIQUE<Axis> clone() const;
         virtual double min() const = 0;
         virtual double max() const = 0;
         virtual uint32_t bins() const = 0;
@@ -33,7 +33,7 @@ class SimpleAxis : public Axis {
         SimpleAxis(const pb::Axis &);
         ~SimpleAxis();
 
-        unique<pb::Axis> get_proto() const;
+        UNIQUE<pb::Axis> get_proto() const;
 
         double min() const {return _min;};
         double max() const {return _max;};
@@ -66,7 +66,7 @@ class VariableAxis : public SimpleAxis {
         VariableAxis(const pb::Axis&);
         ~VariableAxis();
 
-        unique<pb::Axis> get_proto() const;
+        UNIQUE<pb::Axis> get_proto() const;
 
         double min() const {return _bin_bounds[1];};
         double max() const {return _bin_bounds[bins()];};
@@ -83,11 +83,11 @@ class VariableAxis : public SimpleAxis {
     protected:
         bool sane() const;
         #ifdef __clang__
-        // The standard library implementation of unique<> is broken under clang
+        // The standard library implementation of UNIQUE<> is broken under clang
         // so we just use a shared array instead.
         shared_array<double> _bin_bounds;
         #else
-        unique<double[]> _bin_bounds;
+        UNIQUE<double[]> _bin_bounds;
         #endif
         double* _bin_bounds_end;
         

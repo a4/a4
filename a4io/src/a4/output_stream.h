@@ -93,8 +93,8 @@ namespace io {
             shared<google::protobuf::io::ZeroCopyOutputStream> _raw_out;
             shared<google::protobuf::io::FileOutputStream> _file_out;
             
-            unique<BaseCompressedOutputStream> _compressed_out;
-            unique<google::protobuf::io::CodedOutputStream> _coded_out;
+            UNIQUE<BaseCompressedOutputStream> _compressed_out;
+            UNIQUE<google::protobuf::io::CodedOutputStream> _coded_out;
 
 
             bool write(uint32_t class_id, const google::protobuf::Message& m);

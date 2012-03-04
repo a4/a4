@@ -33,7 +33,6 @@
 #include <a4/string.h>
 #include <a4/debug.h>
 
-// The shared_ptr include must come before the unique<> #define.
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_array.hpp>
 using boost::shared_array;
@@ -51,7 +50,7 @@ using boost::shared_array;
 
     // Boost doesn't define a unique<> so we use shared instead, which can lead
     // to incorrect code being allowed.
-    #define unique shared
+    #define UNIQUE shared
 
     namespace std_memory_prefix = std;
 
@@ -62,7 +61,7 @@ using boost::shared_array;
     // no template aliases yet.
     namespace std_memory_prefix = std;
     #define shared std::shared_ptr
-    #define unique std::unique_ptr
+    #define UNIQUE std::unique_ptr
     #define weak_shared std::weak_ptr
 
 #elif HAVE_STD_TR1_SMART_PTR
@@ -70,7 +69,7 @@ using boost::shared_array;
     #include <tr1/memory>
     namespace std_memory_prefix = std::tr1;
     #define shared std::tr1::shared_ptr
-    #define unique std::tr1::unique_ptr
+    #define UNIQUE std::tr1::unique_ptr
     #define weak_shared std::tr1::weak_ptr
 
 #else
@@ -96,18 +95,18 @@ using std_memory_prefix::dynamic_pointer_cast;
 // also, no reinterpret_cast until gcc 4.4...
 
 template<typename T, typename V>
-unique<T>&& static_pointer_cast(unique<V>&& p) {
-    return unique<T>(static_cast<T>(p));
+UNIQUE<T>&& static_pointer_cast(UNIQUE<V>&& p) {
+    return UNIQUE<T>(static_cast<T>(p));
 }
 
 template<typename T, typename V>
-unique<T>&& dynamic_pointer_cast(unique<V>&& p) {
-    return unique<T>(dynamic_cast<T>(p.release()));
+UNIQUE<T>&& dynamic_pointer_cast(UNIQUE<V>&& p) {
+    return UNIQUE<T>(dynamic_cast<T>(p.release()));
 }
 
 template<typename T, typename V>
-unique<T>&& reinterpret_pointer_cast(unique<V>&& p) {
-    return unique<T>(reinterpret_cast<T>(p.release()));
+UNIQUE<T>&& reinterpret_pointer_cast(UNIQUE<V>&& p) {
+    return UNIQUE<T>(reinterpret_cast<T>(p.release()));
 }
 
 // Provide an array deleter for shared and unique pointers

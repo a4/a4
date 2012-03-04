@@ -127,9 +127,9 @@ namespace a4{ namespace io{
     }
 
     // Get a clone of this stream with the given offset
-    unique<ZeroCopyStreamResource> UnixFileMMap::Clone(size_t offset) {
+    UNIQUE<ZeroCopyStreamResource> UnixFileMMap::Clone(size_t offset) {
         assert(_open);
-        unique<UnixFileMMap> f(new UnixFileMMap(_name));
+        UNIQUE<UnixFileMMap> f(new UnixFileMMap(_name));
         f->_file = _file;
         f->_position = offset;
         f->_mmap = (uint8_t*)_mmap + offset;
@@ -196,8 +196,8 @@ namespace a4{ namespace io{
         return true;
     }
 
-    unique<ZeroCopyStreamResource> UnixFilePartMMap::Clone(size_t offset) {
-        return unique<ZeroCopyStreamResource>();
+    UNIQUE<ZeroCopyStreamResource> UnixFilePartMMap::Clone(size_t offset) {
+        return UNIQUE<ZeroCopyStreamResource>();
     };
         
     UnixStream::UnixStream() {};
@@ -245,7 +245,7 @@ namespace a4{ namespace io{
             size_t Tell() const { return _position; };
 
         protected:
-            unique< ::filesystem_calls > fscalls;
+            UNIQUE< ::filesystem_calls > fscalls;
             string _filename;
             bool _is_closed;
             int _errno;
@@ -368,16 +368,16 @@ namespace a4{ namespace io{
         _adaptor.reset(new google::protobuf::io::CopyingInputStreamAdaptor(_file.get(), _block_size));
     }
 
-    unique<ZeroCopyStreamResource> resource_from_url(std::string url) {
+    UNIQUE<ZeroCopyStreamResource> resource_from_url(std::string url) {
         boost::trim(url);
-        if (url == "-") return unique<UnixStream>(new UnixStream(STDIN_FILENO));
+        if (url == "-") return UNIQUE<UnixStream>(new UnixStream(STDIN_FILENO));
 
         bool try_mmap = true;
 
         // Deal with rfio, dcap and file URLs
         string proto = url.substr(0,7);
         if (proto == "rfio://" or proto == "dcap://" or proto == "hdfs://") {
-            return unique<RemoteFile>(new RemoteFile(url, default_network_block_size));
+            return UNIQUE<RemoteFile>(new RemoteFile(url, default_network_block_size));
         } else if (proto == "file://") {
             url = url.substr(7);
         } else if (proto == "nomm://") {
@@ -389,9 +389,9 @@ namespace a4{ namespace io{
         if (stat(url.c_str(), &buffer) == -1) FATAL("Could not open ", url);
 
         // If it's a FIFO, use a non-seeking buffer
-        if (S_ISFIFO(buffer.st_mode) || !try_mmap) return unique<UnixFile>(new UnixFile(url));
-        //else return unique<UnixFilePartMMap>(new UnixFilePartMMap(url));
-        else return unique<UnixFileMMap>(new UnixFileMMap(url));
+        if (S_ISFIFO(buffer.st_mode) || !try_mmap) return UNIQUE<UnixFile>(new UnixFile(url));
+        //else return UNIQUE<UnixFilePartMMap>(new UnixFilePartMMap(url));
+        else return UNIQUE<UnixFileMMap>(new UnixFileMMap(url));
     }
 
 };};

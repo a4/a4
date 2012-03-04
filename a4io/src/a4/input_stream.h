@@ -28,7 +28,7 @@ namespace io {
     {
         public:
             InputStream(std::string);
-            InputStream(unique<InputStreamImpl>);
+            InputStream(UNIQUE<InputStreamImpl>);
             virtual ~InputStream();
 
             /// Returns the next regular message in the stream.
@@ -80,7 +80,7 @@ namespace io {
             
         private:
             bool _new_metadata;
-            unique<InputStreamImpl> _impl;
+            UNIQUE<InputStreamImpl> _impl;
     };
 
 }
