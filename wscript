@@ -270,6 +270,24 @@ def write_pkgcfg(task):
     task.outputs[0].write("\n".join(lines))
     return 0
 
+def write_header_test(header, cwd):
+    include = header.path_from(cwd).lstrip("./")
+    def writer(task):
+        lines = []
+        assert len(task.inputs) == 1
+        header = task.inputs[0]
+        lines.append("// Check if header is self-sufficient")
+        lines.append("#include <a4/{0}>".format(include))
+        lines.append("int main() { return 0; }")
+        task.outputs[0].write("\n".join(lines))
+    return writer
+
+def add_header_test(bld, cwd, header, opts):
+    test_cxx = header.change_ext('_standalone_test.cpp')
+    test_exe = header.change_ext('_standalone_test')
+    bld(rule=write_header_test(header, cwd), source=[header], target=test_cxx)
+    bld.program(features="testt", source=[test_cxx], target=test_exe, **opts)
+
 def write_this_a4(task):
     import os
     lines = []
@@ -424,6 +442,9 @@ def add_pack(bld, pack, other_packs=[], use=[]):
         if headers:
             bld.install_files('${PREFIX}/include/a4', cwd.ant_glob('**/*.h'),
                 cwd=cwd, relative_trick=True)
+            for h in headers:
+                add_header_test(bld, cwd, h, opts)
+
 
     if proto_h:
         cwd = bld.path.find_or_declare("{0}/src/a4".format(pack)).get_bld()
