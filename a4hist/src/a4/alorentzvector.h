@@ -139,13 +139,13 @@ struct ALorentzVector
     }
 };
 
-static ALorentzVector operator*(const double &sf, const ALorentzVector &rhs) {
+static __attribute__ ((unused)) ALorentzVector operator*(const double &sf, const ALorentzVector &rhs) {
     ALorentzVector result = rhs;
     result *= sf;
     return result;
 }
 
-static std::ostream& operator<<(std::ostream& os, const ALorentzVector& lv) {
+static __attribute__ ((unused)) std::ostream& operator<<(std::ostream& os, const ALorentzVector& lv) {
     return os << "ALV(" << lv.px << ", " << lv.py << ", " << lv.pz << "; " << lv.E << ")";
 }
 
