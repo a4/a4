@@ -68,8 +68,8 @@ struct cpuinfo_t get_cpuinfo() {
         cpuid(0x80000008, regs);
         cpuinfo.physical_cores = ((unsigned)(reg.ecx & 0xff)) + 1; // ECX[7:0] + 1
     } else {
-        WARNING("Unknown processor type '", cpuinfo.vendor,
-                "' (Expected 'GenuineIntel' or 'AuthenticAMD')");
+        //WARNING("Unknown processor type '", cpuinfo.vendor,
+        //        "' (Expected 'GenuineIntel' or 'AuthenticAMD')");
         cpuinfo.physical_cores = 1;
         cpuinfo.logical_cores = 1;
         cpuinfo.hyperthreading = 0;

@@ -4,6 +4,7 @@
 #include <boost/type_traits.hpp>
 
 #include <a4/types.h>
+#include <a4/object_store.h>
 
 
 namespace a4 {

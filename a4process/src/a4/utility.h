@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <vector>
 
+#include <boost/foreach.hpp>
+
 /// Sort `container` by a function fragment `key` which operates on the variable
 /// `itemname`
 #define SORT_KEY(container, itemname, key) \
@@ -19,7 +21,7 @@
 
 template<class Container, class Predicate>
 bool any(const Container& container, const Predicate& pred) {
-    foreach (const auto& item, container)
+    BOOST_FOREACH(const auto& item, container)
         if (pred(item)) 
             return true;
     return false;
@@ -27,7 +29,7 @@ bool any(const Container& container, const Predicate& pred) {
 
 template<class Container, class Predicate>
 bool all(const Container& container, const Predicate& pred) {
-    foreach (const auto& item, container)
+    BOOST_FOREACH(const auto& item, container)
         if (!pred(item)) 
             return false;
     return true;
@@ -57,7 +59,7 @@ std::vector<const typename ContainerType::value_type*>
   vector_of_ptr(const ContainerType& in) {
     std::vector<const typename ContainerType::value_type*> out;
     out.reserve(in.size());
-    foreach (const auto& value, in) {
+    BOOST_FOREACH(const auto& value, in) {
         out.push_back(&value);
     }
     return out;

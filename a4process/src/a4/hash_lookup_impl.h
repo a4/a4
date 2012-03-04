@@ -5,6 +5,7 @@
 
 #include <a4/debug.h>
 #include <a4/string.h>
+#include <a4/hash_lookup.h>
 
 // Get a hopefully unique ID 
 template <typename T, typename... Args>

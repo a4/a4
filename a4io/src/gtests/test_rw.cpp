@@ -1,8 +1,9 @@
 #include <iostream>
 
-#include "a4/io/A4Stream.pb.h"
-#include "a4/output_stream.h"
-#include "a4/input_stream.h"
+#include <a4/io/A4Stream.pb.h>
+#include <a4/message.h>
+#include <a4/input_stream.h>
+#include <a4/output_stream.h>
 
 #include <gtest/gtest.h>
 

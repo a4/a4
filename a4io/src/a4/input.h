@@ -1,8 +1,9 @@
 #ifndef _A4_INPUT_H_
 #define _A4_INPUT_H_
 
-#include <unordered_set>
 #include <deque>
+#include <set>
+#include <unordered_set>
 
 #include <boost/thread.hpp>
 

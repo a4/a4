@@ -5,6 +5,7 @@
 
 #include <boost/thread.hpp>
 
+#include <a4/types.h>
 
 namespace a4 {
 namespace io {

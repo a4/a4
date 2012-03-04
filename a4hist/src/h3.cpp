@@ -3,10 +3,10 @@
 #include <iostream>
 #include <string.h>
 
-#include "a4/axis.h"
-#include "a4/histogram.h"
+#include <a4/axis.h>
+#include <a4/histogram.h>
 
-#include "a4/hist/Histograms.pb.h"
+#include <a4/hist/Histograms.pb.h>
 
 namespace a4{ namespace hist{
 
