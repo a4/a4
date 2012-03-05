@@ -1,0 +1,9 @@
+import "a4/io/A4Stream.proto";
+
+package a4.io;
+
+message TestEventExt {
+  extend TestEvent {
+    optional int32 my_extension_value = 100000;
+  }
+}

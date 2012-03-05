@@ -72,6 +72,8 @@ message TestEvent
 
     optional int32 event_number = 1;
     optional double event_data = 2;
+    
+    extensions 100000 to max;
 }
 
 message TestRunLB
