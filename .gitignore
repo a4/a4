@@ -9,7 +9,7 @@
 *.ps
 
 /build/
-/build-clang/
+/build-*/
 
 install/
 InstallArea/
