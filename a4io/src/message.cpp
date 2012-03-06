@@ -293,6 +293,62 @@ namespace a4{ namespace io{
             return f.value().str();
         }
     }
+    
+    bool A4Message::check_key_mergable(const A4Message& rhs, const std::string& field_name) const {
+        assert(descriptor() == message()->GetDescriptor());
+        assert_valid();
+        
+        auto lhs_field = dynamic_field(field_name),
+             rhs_field = rhs.dynamic_field(field_name);
+        
+        if (not lhs_field->present() or not rhs_field->present())
+            FATAL("Tried to merge on '", field_name, "' which is not filled on the message");
+        
+        //if (lhs_fd != rhs_fd) {
+            //FATAL("TODO(pwaller): Replace this assertion with a compatibility check");
+        //}
+        MetadataMergeOptions merge_opt = lhs_field->merge_option();
+        if (merge_opt != rhs_field->merge_option())
+            FATAL("Trying to merge messages with incompatible merge options");
+        
+        if (lhs_field->repeated() != rhs_field->repeated() or
+            lhs_field->cpp_type() != rhs_field->cpp_type())
+            FATAL("Attempting to merge incompatible fields");
+        
+        switch (merge_opt) {
+            case MERGE_UNION:
+                if (!lhs_field->repeated())
+                    FATAL("MERGE_UNION on non-repeated field");
+            case MERGE_BLOCK_IF_DIFFERENT:
+                break;
+            case MERGE_ADD:
+            case MERGE_MULTIPLY:
+            case MERGE_APPEND:
+            case MERGE_DROP:
+                FATAL("Merge is keyed on ", lhs_field->name(), " which has merge == ", MetadataMergeOptions_Name(merge_opt));
+        }
+        
+        if (lhs_field->repeated()) {
+            if (merge_opt == MERGE_UNION) {
+                // This is the only merge type that makes sense for repeated values
+                
+                if (rhs_field->size() != 1)
+                    FATAL("Metadata being merged already has multiple keys.");
+                
+                // Check that the last one is equal to this one.
+                return lhs_field->value(lhs_field->size()-1) == rhs_field->value(0);
+                
+            } else {
+                FATAL("Tried to merge keying on repeated field with non MERGE_UNION: ",
+                      lhs_field->name(), " has merge == ", MetadataMergeOptions_Name(merge_opt));
+            }
+            FATAL("Bug. Please report this.");
+        } else {
+            return lhs_field->value() == rhs_field->value();
+        }
+        
+        return false;
+    }
 
     std::string A4Message::assert_field_is_single_value(const std::string& field_name) const {
         assert(descriptor() == message()->GetDescriptor());

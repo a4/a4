@@ -125,9 +125,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
 
             // Determine if merging is necessary
             if (new_metadata && old_metadata && merge_key != "") {
-                std::string s1 = old_metadata->assert_field_is_single_value(merge_key);
-                std::string s2 = new_metadata->assert_field_is_single_value(merge_key);
-                if (s1 == s2) merge = true;
+                merge = old_metadata->check_key_mergable(*new_metadata, merge_key);
             }
 
             if (merge) {
