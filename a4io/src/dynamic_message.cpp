@@ -4,6 +4,9 @@ using google::protobuf::Message;
 using google::protobuf::FieldDescriptor;
 using google::protobuf::Reflection;
 
+namespace a4 {
+namespace io {
+
 void add_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, DynamicField& merged) {
     if (f1.repeated()) {
         if (f1.size() != f2.size()) 
@@ -84,3 +87,5 @@ void inplace_append_fields(DynamicField& merged, ConstDynamicField& f2) {
         merged.add(f2.value(i));
 }
 
+}
+}

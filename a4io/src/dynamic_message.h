@@ -18,6 +18,9 @@ using google::protobuf::FieldDescriptor;
 using google::protobuf::EnumValueDescriptor;
 using google::protobuf::Reflection;
 
+namespace a4 {
+namespace io {
+
 typedef boost::variant<int32_t, int64_t, uint32_t, uint64_t, double, float, bool, std::string> FieldContentVariant;
 
 struct variant_adder : public boost::static_visitor<FieldContentVariant> {
@@ -192,15 +195,6 @@ class FieldContent {
 
 };
 
-namespace std {
-    template <>
-    struct hash<FieldContent> {
-        std::size_t operator()(const FieldContent& fc) const {
-            return fc.hash_value();
-        }
-    };
-}
-
 class ConstDynamicField {
     public:
     
@@ -303,5 +297,17 @@ void append_fields(const ConstDynamicField& f1, const ConstDynamicField& f2, Dyn
 void inplace_add_fields(DynamicField& merged, ConstDynamicField & f2);
 void inplace_multiply_fields(DynamicField& merged, ConstDynamicField& f2);
 void inplace_append_fields(DynamicField& merged, ConstDynamicField& f2);
+
+}
+}
+
+namespace std {
+    template <>
+    struct hash<a4::io::FieldContent> {
+        std::size_t operator()(const a4::io::FieldContent& fc) const {
+            return fc.hash_value();
+        }
+    };
+}
 
 #endif
