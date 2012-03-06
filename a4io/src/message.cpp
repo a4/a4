@@ -140,13 +140,15 @@ namespace a4{ namespace io{
     }
 
     void A4Message::version_check(const A4Message &m2) const {
+        if (descriptor() == m2.descriptor()) return;
+    
         if (descriptor()->full_name() != m2.descriptor()->full_name()) {
             FATAL("Typenames of objects to merge do not agree: ", descriptor()->full_name(), " != ", m2.descriptor()->full_name());
         }
-        const Descriptor* d1 = _pool->dynamic_descriptor(_class_id);
+        const Descriptor* d1 = dynamic_descriptor();
         if (not d1) d1 = _descriptor;
 
-        const Descriptor* d2 = m2._pool->dynamic_descriptor(m2._class_id);
+        const Descriptor* d2 = m2.dynamic_descriptor();
         if (not d2) d2 = m2._descriptor;
          
         if (d1 == d2) return;
@@ -168,10 +170,10 @@ namespace a4{ namespace io{
 
     A4Message& A4Message::operator+=(const A4Message& m2_) {
         // Find out which descriptor to use. Prefer dynamic descriptors
-        // since they are probably contain all fields.
+        // since they probably contain all fields.
         version_check(m2_);
 
-        const Descriptor* dd = dynamic_descriptor();
+        const Descriptor* dd = _pool ? dynamic_descriptor() : descriptor();
         const Descriptor* d = dd;
         if (not d) d = _descriptor;
 
@@ -307,6 +309,7 @@ namespace a4{ namespace io{
     }
     
     const google::protobuf::Descriptor* A4Message::dynamic_descriptor() const {
+        assert(_pool);
         return _pool->dynamic_descriptor(_class_id);
     }
     
