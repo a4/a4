@@ -30,7 +30,7 @@ TEST(a4io, read_write) {
         int cnt = 0;
         while (shared<A4Message> msg = r.next()) {
             if (const TestEvent* te = msg->as<TestEvent>()) {
-                assert(cnt++ == te->event_number());
+                ASSERT_EQ(cnt++, te->event_number());
             }
         }
         ASSERT_FALSE(r.error());

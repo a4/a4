@@ -102,6 +102,8 @@ namespace io {
             /// Return a field of this message in string representation
             std::string field_as_string(const std::string& field_name) const;
             std::string assert_field_is_single_value(const std::string& field_name) const;
+            /// Returns true if the field specified by `field_name` can be merged in the two messages
+            bool check_key_mergable(const A4Message& rhs, const std::string& field_name) const;
 
             bool assert_valid() const;
             
