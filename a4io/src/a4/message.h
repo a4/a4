@@ -20,6 +20,7 @@ namespace protobuf {
 namespace a4 {
 namespace io {
     class ProtoClassPool;
+    class ConstDynamicField;
     using google::protobuf::Message;
 
     /// Wrapped message returned from the InputStream
@@ -103,6 +104,8 @@ namespace io {
             std::string assert_field_is_single_value(const std::string& field_name) const;
 
             bool assert_valid() const;
+            
+            shared<ConstDynamicField> dynamic_field(const std::string& field_name) const;
         private:
 
             void version_check(const A4Message &m2) const;

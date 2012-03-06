@@ -13,6 +13,8 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
 
+#include <a4/io/A4.pb.h>
+
 using google::protobuf::Message;
 using google::protobuf::FieldDescriptor;
 using google::protobuf::EnumValueDescriptor;
@@ -46,6 +48,7 @@ struct variant_str : public boost::static_visitor<std::string> {
         return str_cat<T>(t);
     }
 };
+
 
 struct variant_hash : public boost::static_visitor<size_t> {
     size_t operator()() const { return 0; }
@@ -203,10 +206,12 @@ class ConstDynamicField {
         bool repeated() const { return _f->is_repeated(); }
 
         bool message() const { return _f->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE; }
+        
+        FieldDescriptor::CppType cpp_type() const { return _f->cpp_type(); }
 
         const std::string& name() const { return _f->full_name(); }
         
-        bool present() const { return _r->HasField(_m, _f); }
+        bool present() const { return repeated() ? size() != 0 : _r->HasField(_m, _f); }
 
         FieldContent value() const {
             assert(!repeated());
@@ -227,6 +232,10 @@ class ConstDynamicField {
         const Message& submessage(int i) const {
             assert(repeated());
             return _r->GetRepeatedMessage(_m, _f, i);
+        }
+        
+        MetadataMergeOptions merge_option() const {
+            return _f->options().GetExtension(merge);
         }
 
         int size() const {

@@ -326,5 +326,11 @@ namespace a4{ namespace io{
         }
         assert(false);
     }
+    
+    shared<ConstDynamicField> A4Message::dynamic_field(const std::string& field_name) const {
+        const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
+        FATAL_ASSERT(fd, "Field '", field_name, "' doesn't exist on ", descriptor()->full_name());
+        return shared<ConstDynamicField>(new ConstDynamicField(*message(), fd));
+    }
 
 };};
