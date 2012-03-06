@@ -213,8 +213,8 @@ namespace a4{ namespace io{
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
                     if(!(f1 == f2)) {
-                        DEBUG("this=", message()->DebugString());
-                        DEBUG("msg2=", m2->_message->DebugString());
+                        //DEBUG("this=", message()->DebugString());
+                        //DEBUG("msg2=", m2->_message->DebugString());
                         throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name(), ":", f1.value().str(), " != ", f2.value().str());
                     }
                     // NOOP!
