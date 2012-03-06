@@ -14,7 +14,10 @@ using google::protobuf::Message;
 #include <a4/message.h>
 #include <a4/application.h>
 #include <a4/processor.h>
-#include <dynamic_message.h>
+#include <a4/dynamic_message.h>
+
+using a4::io::FieldContent;
+using a4::io::ConstDynamicField;
 
 #include "a4/root/RootExtension.pb.h"
 

@@ -31,7 +31,7 @@ typedef boost::unique_lock<boost::mutex> Lock;
 #include <a4/config.h>
 #include <a4/types.h>
 
-#include "dynamic_message.h"
+#include <a4/dynamic_message.h>
 #include "gzip_stream.h"
 #ifdef HAVE_SNAPPY
 #include "snappy_stream.h"

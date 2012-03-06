@@ -30,11 +30,12 @@ using google::protobuf::Reflection;
 #include <a4/input.h>
 #include <a4/input_stream.h>
 #include <a4/message.h>
-#include <dynamic_message.h>
+#include <a4/dynamic_message.h>
 
 #include <a4/io/A4Stream.pb.h>
 
 using a4::io::A4Message;
+using a4::io::FieldContent;
 
 template<typename T> struct ItemOrdering {
     bool operator() (const T& lhs, const T& rhs) { 

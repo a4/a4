@@ -8,7 +8,7 @@
 
 #include <a4/io/A4.pb.h>
 
-#include "dynamic_message.h"
+#include <a4/dynamic_message.h>
 #include "proto_class_pool.h"
 
 using google::protobuf::DynamicMessageFactory;
