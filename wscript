@@ -503,15 +503,17 @@ def add_proto(bld, pack, pf_node, includes):
     bld(rule=rule, source=pf_node, target=targets)
     return targets
 
-def find_at(conf, lib, where):
+def find_at(conf, lib, where, static=False):
     from os.path import exists, join as pjoin
     if not exists(where):
         return False
     try:
         libn = lib.upper()
         conf.env.stash()
-        conf.env.append_value('RPATH', pjoin(where, "lib"))
-        conf.parse_flags("-I{0}/include -L{0}/lib".format(where), uselib=libn)
+        if not static:
+            conf.env.append_value('RPATH', pjoin(where, "lib"))
+        conf.parse_flags("-I{0}/include -L{0}/lib".format(where), uselib=libn,
+            force_static=static)
         conf.check_cxx(lib=lib, uselib_store=lib.upper(), use=[libn])
         return True
     except conf.errors.ConfigurationError:
