@@ -301,8 +301,8 @@ namespace a4{ namespace io{
         auto lhs_field = dynamic_field(field_name),
              rhs_field = rhs.dynamic_field(field_name);
         
-        if (not lhs_field->present() or not rhs_field->present())
-            FATAL("Tried to merge on '", field_name, "' which is not filled on the message");
+        if (lhs_field->present() != rhs_field->present())
+            FATAL("Merge key is missing in one metadata but present in another");
         
         //if (lhs_fd != rhs_fd) {
             //FATAL("TODO(pwaller): Replace this assertion with a compatibility check");
