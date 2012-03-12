@@ -8,13 +8,12 @@
 #include <a4/output_stream.h>
 #include <a4/input_stream.h>
 
-#include <a4/process/A4Key.pb.h>
+#include <a4/store/A4Key.pb.h>
 
-A4RegisterClass(a4::process::A4Key);
-A4RegisterClass(a4::process::TestHisto);
-A4RegisterClass(a4::process::TestHistoMetaData);
+A4RegisterClass(a4::store::A4Key);
 
-namespace a4{ namespace process{
+namespace a4 {
+namespace store {
 
     ObjectBackStore::ObjectBackStore() {
         hl.reset(new hash_lookup());

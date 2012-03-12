@@ -14,7 +14,7 @@ namespace protobuf {
 
 
 namespace a4 {
-namespace process {
+namespace store {
 
 
     /// Storable objects are objects that can be stored in an ObjectStore.

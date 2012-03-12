@@ -6,9 +6,9 @@
 #include <a4/storable.h>
 #include <a4/output_stream.h>
 #include <a4/input_stream.h>
-#include <a4/process/A4Key.pb.h>
+#include <a4/store/A4Key.pb.h>
 
-using namespace a4::process;
+using namespace a4::store;
 using namespace a4::io;
 
 std::vector<std::string> items;

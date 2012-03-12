@@ -11,7 +11,7 @@
 class hash_lookup;
 
 namespace a4 {
-namespace process {
+namespace store {
     
     class ObjectBackStore;
 

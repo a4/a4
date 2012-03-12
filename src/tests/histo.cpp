@@ -4,11 +4,15 @@
 #include <a4/input_stream.h>
 #include <a4/output_stream.h>
 
-#include <a4/process/A4Key.pb.h>
+#include <a4/register.h>
+#include <a4/store/A4Key.pb.h>
+using a4::store::TestHisto;
+using a4::store::TestHistoMetaData;
+A4RegisterClass(a4::store::TestHisto);
+A4RegisterClass(a4::store::TestHistoMetaData);
 
 using namespace std;
 using namespace a4::io;
-using namespace a4::process;
 
 int main(int argc, char ** argv) {
     {
