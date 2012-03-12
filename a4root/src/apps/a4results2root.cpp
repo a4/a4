@@ -21,6 +21,9 @@ using namespace a4::process;
 using namespace a4::hist;
 using namespace a4::io;
 
+// TODO(pwaller): make sure there isn't a good reason for this function 
+//                existing before removing it.
+// http://root.cern.ch/root/html/TDirectory.html#TDirectory:mkdir
 TDirectory* mkdirs(TFile &f, string file) {
 
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;

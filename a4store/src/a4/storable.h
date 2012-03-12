@@ -30,12 +30,16 @@ namespace store {
     class Storable {
         public:
             Storable() : _current_weight(1.0) {}
+#ifdef A4STORE_STANDALONE
+            // TODO: implement alternative storage mechanisms
+#else
             /// Get a Protobuf message that contains the information about this object
             virtual shared<const google::protobuf::Message> as_message() = 0;
             /// Use this function if the Storable should copy the info from the message
             virtual void construct_from(const google::protobuf::Message&) = 0;
             /// Use this function of the Storable is allowed to keep the message
             virtual void construct_from(shared<google::protobuf::Message> m) = 0;
+#endif // ifdef A4STORE_STANDALONE
             /// Require that merging works. Must throw an exception if merge fails. (may be bad_cast)
             virtual Storable& operator+=(const Storable &other) = 0;
             // Trying C++0x move semantics...
