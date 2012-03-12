@@ -137,6 +137,7 @@ namespace store {
                 return t;
             }
 
+            #ifdef HAVE_INITIALIZER_LISTS
             /// This constructor is needed to prevent GCC from complaining and
             /// possibly to work with compilers < GCC4.6
             template <typename... Args> This& operator()(const std::initializer_list<double>& bins, const char* label="") {
@@ -159,6 +160,7 @@ namespace store {
                 }
                 return *static_cast<This*>(this);
             }
+            #endif // HAVE_INITIALIZER_LISTS
             
             template <typename... Args> This& operator()(const Args&... args) {
                 if (_initializations_remaining != 0) {
