@@ -89,6 +89,21 @@ def configure(conf):
                     }""",
         define_name="HAVE_NOEXCEPT",
         mandatory=False)
+        
+    conf.check_cxx(
+        msg="Checking for C++11 initializer lists",
+        fragment="""
+            #include <vector>
+            int myfunc(const std::initializer_list<int>& x) {
+                std::vector<int> v(x);
+                return v.front();
+            }
+        
+            int main(int argc, char* argv[]) {
+                return myfunc({0, 1, 2});
+            }""",
+        define_name="HAVE_INITIALIZER_LISTS",
+        mandatory=False)
 
     # find root
     root_cfg = "root-config"

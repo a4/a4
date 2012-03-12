@@ -66,9 +66,7 @@ TEST(a4hist, h2) {
     ASSERT_EQ(2, h2.integral());
 }
 
-// No support for initializer lists in clang yet.
-// http://clang.llvm.org/cxx_status.html
-#ifndef __clang__
+#ifdef HAVE_INITIALIZER_LISTS
 TEST(a4hist, basic_variable_binning_check) {
     H1 h1;
     
@@ -116,7 +114,7 @@ TEST(a4hist, test_h1_grind_backstore) {
         S.T<H1>("hist")(100, 0, 1).fill(i);
 }
 
-#ifndef __clang__
+#ifndef HAVE_INITIALIZER_LISTS
 TEST(a4hist, test_h1_grind_backstore_variable) {
     ObjectBackStore backstore;
     auto S = backstore("test/");
@@ -137,7 +135,7 @@ TEST(a4hist, test_h1_grind_backstore_variable_int) {
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         S.T<H1>("hist")({10, 20, 1000, 1000000, 5000000}).fill(i);
 }
-#endif // clang
+#endif // HAVE_INITIALIZER_LISTS
 
 TEST(a4hist, test_h1_grind_backstore_many) {
     ObjectBackStore backstore;
@@ -208,14 +206,14 @@ TEST(a4hist, test_h1_grind_labelled) {
         h1("title")(100, 0, 1, "axis label").fill(i);
 }
 
-#ifndef __clang__
+#ifndef HAVE_INITIALIZER_LISTS
 TEST(a4hist, test_h1_grind_variable) {
     H1 h1;
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         h1({1., 2., 3., 4., 5., 100000., 1000000., 5000000.}).fill(i);
     //std::cout << h1 << std::endl;
 }
-#endif // clang
+#endif // HAVE_INITIALIZER_LISTS
 
 TEST(a4hist, test_h2_grind) {
     H2 h2;
@@ -223,7 +221,7 @@ TEST(a4hist, test_h2_grind) {
         h2(100, 0, 1)(100, 0, 1).fill(i, i);
 }
 
-#ifndef __clang__
+#ifndef HAVE_INITIALIZER_LISTS
 TEST(a4hist, test_h2_grind_variable) {
     H2 h2;
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
@@ -233,7 +231,7 @@ TEST(a4hist, test_h2_grind_variable) {
             
     //std::cout << h2 << std::endl;
 }
-#endif // clang
+#endif // HAVE_INITIALIZER_LISTS
 
 TEST(a4hist, test_h3_grind) {
     H3 h3;
@@ -241,7 +239,7 @@ TEST(a4hist, test_h3_grind) {
         h3(100, 0, 1)(100, 0, 1)(100, 0, 1).fill(i, i, i);
 }
 
-#ifndef __clang__
+#ifndef HAVE_INITIALIZER_LISTS
 TEST(a4hist, test_h3_grind_variable) {
     H3 h3;
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
@@ -264,7 +262,7 @@ TEST(a4hist, test_h3_grind_variable_titles) {
             
     //std::cout << h2 << std::endl;
 }
-#endif
+#endif // HAVE_INITIALIZER_LISTS
 
 #ifdef HAVE_CERN_ROOT_SYSTEM
 
