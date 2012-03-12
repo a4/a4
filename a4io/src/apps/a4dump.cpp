@@ -412,6 +412,7 @@ bool dump_stream(shared<a4::io::InputStream> stream,
             // TODO(pwaller): Prettify
             VERBOSE("Footer: ", footer.DebugString());
         }
+        stream->close();
         return true;
     }
     
