@@ -345,9 +345,10 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     from os.path import dirname, join as pjoin
 
     # Add protoc rules
+    proto_sources = bld.path.ant_glob("%s/proto/**/*.proto" % pack)
     proto_targets = []
     proto_includes = ["%s/proto" % p for p in [pack] + other_packs]
-    for protof in bld.path.ant_glob("%s/proto/**/*.proto" % pack):
+    for protof in proto_sources:
         proto_targets.extend(add_proto(bld, pack, protof, proto_includes))
 
     # Find all source files to be compiled
@@ -446,6 +447,11 @@ def add_pack(bld, pack, other_packs=[], use=[]):
                 add_header_test(bld, cwd, h, opts)
 
 
+    if proto_sources:
+        cwd = bld.path.find_or_declare("{0}/proto/a4".format(pack)).get_src()
+        bld.install_files('${PREFIX}/include/a4', proto_sources, cwd=cwd,
+            relative_trick=True)
+    
     if proto_h:
         cwd = bld.path.find_or_declare("{0}/src/a4".format(pack)).get_bld()
         bld.install_files('${PREFIX}/include/a4', proto_h, cwd=cwd,
