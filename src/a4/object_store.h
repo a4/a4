@@ -1,6 +1,9 @@
 #ifndef _A4_OBJECT_STORE_H_
 #define _A4_OBJECT_STORE_H_
 
+#include <string>
+#include <vector>
+
 #ifdef A4STORE_STANDALONE
 #define UNIQUE shared
 #else

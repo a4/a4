@@ -29,6 +29,12 @@ def build(bld):
         includes="src/",
         target="a4store")
     
+    bld(features="cxx cxxprogram",
+        source="src/apps/a4store_standalone_test.cpp",
+        includes="src/",
+        target="a4store_standalone_test",
+        use=["a4store", "CERN_ROOT_SYSTEM"])
+    
     headers = bld.path.ant_glob("src/a4/**.h")
     
     cwd = bld.path.find_or_declare("src/a4").get_src()
