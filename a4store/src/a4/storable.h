@@ -1,8 +1,15 @@
 #ifndef _A4_STORABLE_H_
 #define _A4_STORABLE_H_
 
+#ifdef A4STORE_STANDALONE
+
+#include <memory>
+#define shared std::shared_ptr
+
+#else
 #include <a4/a4io.h>
 #include <a4/types.h>
+#endif // ifdef A4STORE_STANDALONE else
 
 
 namespace google {
@@ -50,6 +57,8 @@ namespace store {
             double _current_weight;
     };
 
+
+    #ifndef A4STORE_STANDALONE    
     namespace internal {
 
         typedef shared<Storable> (*from_message_func)(const google::protobuf::Message&);
@@ -198,6 +207,8 @@ namespace store {
     bool StorableAs<This, ProtoClass>::_registered = internal::reg_storable<This, ProtoClass>();
 
     shared<Storable> message_to_storable(shared<const a4::io::A4Message> msg);
+    
+    #endif // ifndef A4STORE_STANDALONE
 
 }
 }

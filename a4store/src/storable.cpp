@@ -1,3 +1,5 @@
+#ifndef A4STORE_STANDALONE
+
 #include <map>
 
 #include <a4/message.h>
@@ -23,3 +25,6 @@ namespace store {
     
 }
 }
+
+#endif // ifndef A4STORE_STANDALONE
+
