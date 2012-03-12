@@ -1,11 +1,14 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
 
+#ifndef A4STORE_STANDALONE
 #include <boost/thread.hpp>
+typedef boost::unique_lock<boost::mutex> Lock;
+#endif
 
 #include <a4/hash_lookup.h>
 
-typedef boost::unique_lock<boost::mutex> Lock;
 
 const uint32_t max_hashtable_size = 1 << 25; // 512 mb
 
@@ -13,7 +16,9 @@ const uint32_t max_hashtable_size = 1 << 25; // 512 mb
 // We assume that these are compiled in and can therefore be cached.
 static std::vector<uintptr_t> read_only_regions_start;
 static std::vector<uintptr_t> read_only_regions_end;
+#ifndef A4STORE_STANDALONE
 static boost::mutex read_only_regions_mutex;
+#endif
 
 /// Read /prof/self/maps to determine the read only regions
 /// Checks that the parameter `p` is present in one of those regions.
@@ -46,7 +51,9 @@ void refill_read_only_regions(uintptr_t p) {
 /// Check to see if the char pointer _p has the writable bit 
 /// set in /proc/self/maps.
 bool is_writeable_pointer(const char* _p) {
+#ifndef A4STORE_STANDALONE
     Lock l(read_only_regions_mutex);
+#endif
     uintptr_t p = reinterpret_cast<uintptr_t>(_p);
     
     // Try twice, refilling the regions the second time through
