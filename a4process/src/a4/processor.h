@@ -9,7 +9,12 @@
 
 #include <a4/message.h>
 #include <a4/register.h>
+
 #include <a4/object_store.h>
+using a4::store::ObjectStore;
+using a4::store::ObjectBackStore;
+#include <a4/storable.h>
+using a4::store::Storable;
 
 namespace po = ::boost::program_options;
 

@@ -12,7 +12,7 @@
 #include <stdexcept>
 #include <stdarg.h>
 
-using namespace a4::process;
+using namespace a4::store;
 
 class Results {};
 
@@ -24,8 +24,8 @@ class TestStringThing : public Storable {
         }
         virtual void construct_from(const google::protobuf::Message&) {}
         virtual void construct_from(shared<google::protobuf::Message>) {}
-        Storable&  operator+=(const a4::process::Storable&) { return *this; }
-        Storable&  operator*=(const a4::process::Storable&) { return *this; }
+        Storable&  operator+=(const a4::store::Storable&) { return *this; }
+        Storable&  operator*=(const a4::store::Storable&) { return *this; }
         Storable&  operator*=(const double&) { return *this; }
         Storable&& clone_storable() { return std::move(TestStringThing(*this)); }
 

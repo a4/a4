@@ -8,9 +8,9 @@
 
 
 namespace a4 {
-namespace process {
+namespace store {
 
-    using a4::process::Storable;
+    using a4::store::Storable;
 
     template <class C, typename ...Args> 
     C& ObjectStore::T(const Args& ...args) {

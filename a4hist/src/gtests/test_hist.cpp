@@ -6,6 +6,8 @@
 
 #include <a4/histogram.h>
 #include <a4/object_store.h>
+using a4::store::ObjectStore;
+using a4::store::ObjectBackStore;
 
 using namespace a4::hist;
 
@@ -108,7 +110,7 @@ TEST(a4hist, test_h1_grind) {
 }
 
 TEST(a4hist, test_h1_grind_backstore) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         S.T<H1>("hist")(100, 0, 1).fill(i);
@@ -116,21 +118,21 @@ TEST(a4hist, test_h1_grind_backstore) {
 
 #ifndef __clang__
 TEST(a4hist, test_h1_grind_backstore_variable) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         S.T<H1>("hist")({10., 20., 1000., 1000000., 5000000.}).fill(i);
 }
 
 TEST(a4hist, test_h1_grind_backstore_variable_label) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         S.T<H1>("hist")({10., 20., 1000., 1000000., 5000000.}, "x").fill(i);
 }
 
 TEST(a4hist, test_h1_grind_backstore_variable_int) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         S.T<H1>("hist")({10, 20, 1000, 1000000, 5000000}).fill(i);
@@ -138,7 +140,7 @@ TEST(a4hist, test_h1_grind_backstore_variable_int) {
 #endif // clang
 
 TEST(a4hist, test_h1_grind_backstore_many) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS / 10; i++) {
         S.T<H1>("hist0")(100, 0, 1).fill(i+0);
@@ -154,7 +156,7 @@ TEST(a4hist, test_h1_grind_backstore_many) {
     }
 }
 
-void test_h1_grind_backstore_func_fill_histos(a4::process::ObjectStore S, const int& i) {
+void test_h1_grind_backstore_func_fill_histos(ObjectStore S, const int& i) {
     S.T<H1>("hist0")(100, 0, 1).fill(i+0);
     S.T<H1>("hist1")(100, 0, 1).fill(i+1);
     S.T<H1>("hist2")(100, 0, 1).fill(i+2);
@@ -168,7 +170,7 @@ void test_h1_grind_backstore_func_fill_histos(a4::process::ObjectStore S, const 
 }
 
 TEST(a4hist, test_h1_grind_backstore_func) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS / 10 / 10; i++) {
         test_h1_grind_backstore_func_fill_histos(S("0/"), i);
@@ -185,7 +187,7 @@ TEST(a4hist, test_h1_grind_backstore_func) {
 }
 
 TEST(a4hist, test_h1_grind_dynamic_100) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++) {
         S.T<H1>("hist0", i % 100)(100, 0, 1).fill(i+0);
@@ -193,7 +195,7 @@ TEST(a4hist, test_h1_grind_dynamic_100) {
 }
 
 TEST(a4hist, test_h1_grind_dynamic_crazy) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++) {
         S.T<H1>("hist0", i % 100, i % 200, i % 500)(100, 0, 1).fill(i+0);

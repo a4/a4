@@ -11,7 +11,7 @@
 
 namespace a4{ namespace hist{
 
-class Cutflow : public a4::process::StorableAs<Cutflow, pb::Cutflow>
+class Cutflow : public a4::store::StorableAs<Cutflow, pb::Cutflow>
 {
     public:
         class CutNameCount {

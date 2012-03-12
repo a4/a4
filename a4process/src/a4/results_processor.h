@@ -3,7 +3,15 @@
 
 #include <a4/processor.h>
 
-#include <a4/process/A4Key.pb.h>
+#include <a4/storable.h>
+#include <a4/store/A4Key.pb.h>
+using a4::store::A4Key;
+
+namespace a4 {
+namespace store {
+    class Storable;
+}
+}
 
 namespace a4 {
 namespace process {
@@ -19,7 +27,7 @@ shared<Storable> ResultsProcessor<This, ProtoMetaData, Args...>::_next_storable(
         have_name = true;
         return shared<Storable>();
     }
-    shared<Storable> pmsg = message_to_storable(msg);
+    shared<Storable> pmsg = a4::store::message_to_storable(msg);
     if (!pmsg)
         FATAL("Could not convert to Storable: ", typeid(*msg->message()));
     if (!have_name)

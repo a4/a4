@@ -179,20 +179,21 @@ def check_have_atomic(conf):
 
 def build(bld):
     from os.path import join as pjoin
-    packs = ["a4io", "a4process", "a4hist", "a4atlas", "a4root", "a4plot"]
+    packs = ["a4io", "a4store", "a4process", "a4hist", "a4atlas", "a4root", "a4plot"]
 
     if bld.cmd == 'doxygen':
         doc_packs(bld, packs)
         return
 
     libsrc =  list(add_pack(bld, "a4io", [], ["SNAPPY"]))
-    libsrc += add_pack(bld, "a4process", ["a4io"])
+    libsrc += add_pack(bld, "a4store", ["a4io"])
+    libsrc += add_pack(bld, "a4process", ["a4io", "a4store"])
     libsrc += add_pack(bld, "a4hist",
-        ["a4io", "a4process"], ["CERN_ROOT_SYSTEM"])
+        ["a4io", "a4store", "a4process"], ["CERN_ROOT_SYSTEM"])
     libsrc += add_pack(bld, "a4root",
-        ["a4io", "a4process", "a4hist", "a4atlas"], ["CERN_ROOT_SYSTEM"])
+        ["a4io", "a4store", "a4process", "a4hist", "a4atlas"], ["CERN_ROOT_SYSTEM"])
     libsrc += add_pack(bld, "a4atlas",
-        ["a4io", "a4process", "a4hist", "a4root"])
+        ["a4io", "a4store", "a4process", "a4hist", "a4root"])
     #bld(features="cxx cxxstlib", target="a4", name="a4static",
     #    vnum=a4_version, use=libsrc)
     #bld(features="cxx cxxshlib", target="a4", vnum=a4_version, use=libsrc)
@@ -251,7 +252,7 @@ def write_pkgcfg(task):
     URL: https://github.com/JohannesEbke/a4
     Version: {A4_VERSION}
     Cflags: -std=c++0x -I{PREFIX}/include {CPPFLAGS_PROTOBUF} {CPPFLAGS_BOOST} {CPPFLAGS_SNAPPY}
-    Libs: -L${{libdir}} -la4root -la4hist -la4process -la4io {protobuflibs} {boostlibs} {snappylibs}
+    Libs: -L${{libdir}} -la4root -la4hist -la4process -la4store -la4io {protobuflibs} {boostlibs} {snappylibs}
     Requires: protobuf >= 2.4
     """.format(
         PREFIX=task.env.PREFIX, 

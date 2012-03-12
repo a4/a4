@@ -1,4 +1,4 @@
-package a4.process;
+package a4.store;
 
 message A4Key
 {

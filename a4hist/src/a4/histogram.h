@@ -10,7 +10,7 @@
 
 namespace a4{ namespace hist{
 
-class H1 : public a4::process::StorableAs<H1, pb::H1>
+class H1 : public a4::store::StorableAs<H1, pb::H1>
 {
     public:
         H1();
@@ -99,7 +99,7 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
 
 std::ostream &operator<<(std::ostream &, const H1 &);
 
-class H2 : public a4::process::StorableAs<H2, pb::H2>
+class H2 : public a4::store::StorableAs<H2, pb::H2>
 {
     public:
         H2();
@@ -190,7 +190,7 @@ class H2 : public a4::process::StorableAs<H2, pb::H2>
 
 std::ostream &operator<<(std::ostream &, const H2 &);
 
-class H3 : public a4::process::StorableAs<H3, pb::H3>
+class H3 : public a4::store::StorableAs<H3, pb::H3>
 {
     public:
         H3();
