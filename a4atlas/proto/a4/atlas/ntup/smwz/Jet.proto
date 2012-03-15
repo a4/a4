@@ -192,4 +192,6 @@ message Jet {
     optional int32 L2_matched = 3007 [(root_branch)="L2_matched"];
     optional float EF_dr = 3008 [(root_branch)="EF_dr"];
     optional int32 EF_matched = 3009 [(root_branch)="EF_matched"];
+
+    extensions 100000 to max;
 }

@@ -3,4 +3,6 @@ import "a4/root/RootExtension.proto";
 
 message MuonFeatureDetails {
     
+
+    extensions 100000 to max;
 }

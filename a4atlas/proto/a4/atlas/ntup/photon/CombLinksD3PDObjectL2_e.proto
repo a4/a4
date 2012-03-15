@@ -27,4 +27,6 @@ message CombLinksD3PDObjectL2_e {
     repeated int32 TrigElectronContainerStatus = 601 [(root_branch)="TrigElectronContainerStatus"];
     repeated int32 TrigPhotonContainer = 602 [(root_branch)="TrigPhotonContainer"];
     repeated int32 TrigPhotonContainerStatus = 603 [(root_branch)="TrigPhotonContainerStatus"];
+
+    extensions 100000 to max;
 }

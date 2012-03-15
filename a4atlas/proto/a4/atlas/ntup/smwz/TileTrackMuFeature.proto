@@ -131,4 +131,6 @@ message TileTrackMuFeature {
     optional float idtrk_idtrkfitpar_pt = 511 [(root_branch)="idtrk_idtrkfitpar_pt"];
     optional int32 idtrk_idtrkfitpar_hasidtrkfitpar = 512 [(root_branch)="idtrk_idtrkfitpar_hasidtrkfitpar"];
     optional int32 idtrk_hasidtrk = 513 [(root_branch)="idtrk_hasidtrk"];
+
+    extensions 100000 to max;
 }

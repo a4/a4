@@ -32,4 +32,6 @@ message CombLinksD3PDObjectL2_mu {
     repeated int32 TrigInDetTrackCollection_TrigSiTrack_muonIsoStatus = 505 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_muonIsoStatus"];
     repeated int32 TrigInDetTrackCollection_TrigIDSCAN_muonIso = 506 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_muonIso"];
     repeated int32 TrigInDetTrackCollection_TrigIDSCAN_muonIsoStatus = 507 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_muonIsoStatus"];
+
+    extensions 100000 to max;
 }

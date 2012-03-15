@@ -373,4 +373,6 @@ message Electron {
     optional float transmax_loweta = 6707 [(root_branch)="transmax_loweta"];
     
     optional int32 trk_index = 6800 [(root_branch)="trk_index"];
+
+    extensions 100000 to max;
 }

@@ -153,4 +153,6 @@ message EFPhoton {
     optional float cl_eta = 1702 [(root_branch)="cl_eta"];
     optional float cl_phi = 1703 [(root_branch)="cl_phi"];
     optional float cl_etas2 = 1704 [(root_branch)="cl_etas2"];
+
+    extensions 100000 to max;
 }

@@ -112,4 +112,6 @@ message TileMuFeature {
     optional int32 L2_mu6_Jpsimumu_SiTrk = 400 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
     optional int32 L2_mu6_Jpsimumu_tight = 401 [(root_branch)="L2_mu6_Jpsimumu_tight"];
     optional int32 L2_mu6_Trk_Jpsi_loose = 402 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+
+    extensions 100000 to max;
 }

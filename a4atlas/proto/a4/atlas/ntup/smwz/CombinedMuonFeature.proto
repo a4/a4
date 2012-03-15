@@ -115,4 +115,6 @@ message CombinedMuonFeature {
     optional int32 mf_index = 400 [(root_branch)="mf_index"];
     optional int32 idscantrk_index = 401 [(root_branch)="idscantrk_index"];
     optional int32 sitracktrk_index = 402 [(root_branch)="sitracktrk_index"];
+
+    extensions 100000 to max;
 }

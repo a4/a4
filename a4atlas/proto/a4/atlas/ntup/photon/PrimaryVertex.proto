@@ -21,4 +21,6 @@ message PrimaryVertex {
     optional int32 trk_n = 500 [(root_branch)="trk_n"];
     repeated float trk_weight = 501 [(root_branch)="trk_weight"];
     repeated int32 trk_index = 502 [(root_branch)="trk_index"];
+
+    extensions 100000 to max;
 }

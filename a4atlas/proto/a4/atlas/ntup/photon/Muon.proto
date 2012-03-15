@@ -72,4 +72,6 @@ message Muon {
     optional int32 loose = 1700 [(root_branch)="loose"];
     optional int32 medium = 1701 [(root_branch)="medium"];
     optional int32 tight = 1702 [(root_branch)="tight"];
+
+    extensions 100000 to max;
 }

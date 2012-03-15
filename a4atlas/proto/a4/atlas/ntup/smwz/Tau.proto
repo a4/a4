@@ -159,4 +159,6 @@ message Tau {
     optional float L1_eta = 2817 [(root_branch)="L1_eta"];
     optional float L1_phi = 2818 [(root_branch)="L1_phi"];
     optional int32 L1_matched = 2819 [(root_branch)="L1_matched"];
+
+    extensions 100000 to max;
 }

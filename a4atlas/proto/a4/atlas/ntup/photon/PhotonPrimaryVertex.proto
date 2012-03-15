@@ -22,4 +22,6 @@ message PhotonPrimaryVertex {
     optional int32 nTracks_07GeV = 501 [(root_branch)="nTracks_07GeV"];
     optional int32 nTracks_1GeV = 502 [(root_branch)="nTracks_1GeV"];
     optional int32 nTracks_2GeV = 503 [(root_branch)="nTracks_2GeV"];
+
+    extensions 100000 to max;
 }

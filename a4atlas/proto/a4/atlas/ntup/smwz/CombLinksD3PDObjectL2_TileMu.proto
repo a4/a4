@@ -21,4 +21,6 @@ message CombLinksD3PDObjectL2_TileMu {
     repeated int32 TrigInDetTrackCollection_TrigSiTrack_TileStatus = 401 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_TileStatus"];
     repeated int32 TrigInDetTrackCollection_TrigIDSCAN_Tile = 402 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_Tile"];
     repeated int32 TrigInDetTrackCollection_TrigIDSCAN_TileStatus = 403 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_TileStatus"];
+
+    extensions 100000 to max;
 }

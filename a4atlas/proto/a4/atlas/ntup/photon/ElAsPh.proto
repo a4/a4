@@ -48,4 +48,6 @@ message ElAsPh {
     optional float E237 = 614 [(root_branch)="E237"];
     optional float E277 = 615 [(root_branch)="E277"];
     optional float weta2 = 616 [(root_branch)="weta2"];
+
+    extensions 100000 to max;
 }

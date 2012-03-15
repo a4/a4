@@ -51,4 +51,6 @@ message EmTauROI {
     optional int32 L1_EM5_MU10 = 629 [(root_branch)="L1_EM5_MU10"];
     optional int32 L1_EM5_MU6 = 630 [(root_branch)="L1_EM5_MU6"];
     optional int32 L1_EM7 = 631 [(root_branch)="L1_EM7"];
+
+    extensions 100000 to max;
 }

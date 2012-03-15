@@ -17,4 +17,6 @@ message TrigEMCluster {
     optional float eta1 = 205 [(root_branch)="eta1"];
     optional float emaxs1 = 206 [(root_branch)="emaxs1"];
     optional float e2tsts1 = 207 [(root_branch)="e2tsts1"];
+
+    extensions 100000 to max;
 }

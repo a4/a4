@@ -19,4 +19,6 @@ message TrigInDetTrack {
     optional float param_phi0 = 502 [(root_branch)="param_phi0"];
     optional float param_eta = 503 [(root_branch)="param_eta"];
     optional float param_pt = 504 [(root_branch)="param_pt"];
+
+    extensions 100000 to max;
 }

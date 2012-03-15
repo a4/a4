@@ -8,4 +8,6 @@ message MissingETComposition {
     repeated float wet = 100 [(root_branch)="wet"];
     
     repeated uint32 statusWord = 200 [(root_branch)="statusWord"];
+
+    extensions 100000 to max;
 }

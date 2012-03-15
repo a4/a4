@@ -22,4 +22,6 @@ message RefFinalMET {
     optional float ety_ForwardReg = 309 [(root_branch)="ety_ForwardReg"];
     optional float sumet_ForwardReg = 310 [(root_branch)="sumet_ForwardReg"];
     optional float phi_ForwardReg = 311 [(root_branch)="phi_ForwardReg"];
+
+    extensions 100000 to max;
 }

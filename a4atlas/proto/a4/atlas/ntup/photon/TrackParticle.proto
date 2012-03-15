@@ -54,4 +54,6 @@ message TrackParticle {
     optional int32 mc_barcode = 1201 [(root_branch)="mc_barcode"];
     
     optional float conv_weight = 1300 [(root_branch)="conv_weight"];
+
+    extensions 100000 to max;
 }

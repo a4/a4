@@ -15,4 +15,6 @@ message JetTruth {
     optional double flavor_truth_dRminToT = 202 [(root_branch)="flavor_truth_dRminToT"];
     optional int32 flavor_truth_BHadronpdg = 203 [(root_branch)="flavor_truth_BHadronpdg"];
     optional int32 flavor_truth_trueflav = 204 [(root_branch)="flavor_truth_trueflav"];
+
+    extensions 100000 to max;
 }

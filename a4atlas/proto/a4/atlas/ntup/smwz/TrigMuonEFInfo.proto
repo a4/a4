@@ -144,4 +144,6 @@ message TrigMuonEFInfo {
     repeated float track_CB_posZ = 236 [(root_branch)="track_CB_posZ"];
     repeated float track_CB_matchChi2 = 237 [(root_branch)="track_CB_matchChi2"];
     repeated int32 track_CB_hasCB = 238 [(root_branch)="track_CB_hasCB"];
+
+    extensions 100000 to max;
 }

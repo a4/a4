@@ -22,4 +22,6 @@ message RefFinalMET {
     
     optional float etx = 300 [(root_branch)="etx"];
     optional float ety = 301 [(root_branch)="ety"];
+
+    extensions 100000 to max;
 }

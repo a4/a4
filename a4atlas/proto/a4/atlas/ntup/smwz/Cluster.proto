@@ -97,4 +97,6 @@ message Cluster {
     optional float phi_FCAL1 = 769 [(root_branch)="phi_FCAL1"];
     optional float eta_FCAL2 = 770 [(root_branch)="eta_FCAL2"];
     optional float phi_FCAL2 = 771 [(root_branch)="phi_FCAL2"];
+
+    extensions 100000 to max;
 }

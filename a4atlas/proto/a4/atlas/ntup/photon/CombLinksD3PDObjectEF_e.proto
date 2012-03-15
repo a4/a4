@@ -18,4 +18,6 @@ message CombLinksD3PDObjectEF_e {
     repeated int32 egammaContainer_egamma_ElectronsStatus = 303 [(root_branch)="egammaContainer_egamma_ElectronsStatus"];
     repeated int32 egammaContainer_egamma_Photons = 304 [(root_branch)="egammaContainer_egamma_Photons"];
     repeated int32 egammaContainer_egamma_PhotonsStatus = 305 [(root_branch)="egammaContainer_egamma_PhotonsStatus"];
+
+    extensions 100000 to max;
 }

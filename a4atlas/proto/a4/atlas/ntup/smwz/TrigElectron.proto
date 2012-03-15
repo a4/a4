@@ -94,4 +94,6 @@ message TrigElectron {
     optional int32 L2_eb_random_unpaired_iso = 1252 [(root_branch)="L2_eb_random_unpaired_iso"];
     optional int32 L2_em3_empty_larcalib = 1253 [(root_branch)="L2_em3_empty_larcalib"];
     optional int32 L2_em5_empty_larcalib = 1254 [(root_branch)="L2_em5_empty_larcalib"];
+
+    extensions 100000 to max;
 }

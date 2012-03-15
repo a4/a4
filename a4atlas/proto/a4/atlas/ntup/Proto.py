@@ -341,6 +341,8 @@ class ProtoFile(object):
         PROTO_MESSAGE = dedent("""
             message {m.name} {{
                 {m.content_variables}
+                
+                extensions 100000 to max;
             }}
         """).strip()
         

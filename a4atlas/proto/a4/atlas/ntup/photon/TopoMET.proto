@@ -59,4 +59,6 @@ message TopoMET {
     optional float ety_ForwardReg = 444 [(root_branch)="ety_ForwardReg"];
     optional float sumet_ForwardReg = 445 [(root_branch)="sumet_ForwardReg"];
     optional float phi_ForwardReg = 446 [(root_branch)="phi_ForwardReg"];
+
+    extensions 100000 to max;
 }

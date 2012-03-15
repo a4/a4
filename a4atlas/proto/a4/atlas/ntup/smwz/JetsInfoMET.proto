@@ -8,4 +8,6 @@ message JetsInfoMET {
     
     optional float LeadingJetEt = 100 [(root_branch)="LeadingJetEt"];
     optional float LeadingJetEta = 101 [(root_branch)="LeadingJetEta"];
+
+    extensions 100000 to max;
 }

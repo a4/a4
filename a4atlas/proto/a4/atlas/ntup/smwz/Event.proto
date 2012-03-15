@@ -247,4 +247,6 @@ message Event {
     
     optional TrigMET trig_l2_met = 3300 [(root_prefix)="trig_L2_met_"];
     optional TrigMET trig_ef_met = 3301 [(root_prefix)="trig_EF_met_"];
+
+    extensions 100000 to max;
 }

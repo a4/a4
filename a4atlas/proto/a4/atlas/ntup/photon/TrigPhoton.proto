@@ -58,4 +58,6 @@ message TrigPhoton {
     optional int32 L2_g5_NoCut_cosmic = 338 [(root_branch)="L2_g5_NoCut_cosmic"];
     optional int32 L2_g60_loose = 339 [(root_branch)="L2_g60_loose"];
     optional int32 L2_g80_loose = 340 [(root_branch)="L2_g80_loose"];
+
+    extensions 100000 to max;
 }

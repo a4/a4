@@ -67,4 +67,6 @@ message DiPhoton {
     
     optional int32 ph_n = 300 [(root_branch)="ph_n"];
     repeated int32 ph_index = 301 [(root_branch)="ph_index"];
+
+    extensions 100000 to max;
 }

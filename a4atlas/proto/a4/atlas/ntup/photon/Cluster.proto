@@ -24,4 +24,6 @@ message Cluster {
     optional float centermag = 500 [(root_branch)="centermag"];
     
     optional float time = 600 [(root_branch)="time"];
+
+    extensions 100000 to max;
 }

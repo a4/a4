@@ -24,4 +24,6 @@ message TrigDecision {
     repeated int32 EF_wasResurrected = 311 [(root_branch)="EF_wasResurrected"];
     
     optional int32 bgCode = 400 [(root_branch)="bgCode"];
+
+    extensions 100000 to max;
 }

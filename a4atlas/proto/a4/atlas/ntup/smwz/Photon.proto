@@ -225,4 +225,6 @@ message Photon {
     optional float L1_dr = 4204 [(root_branch)="L1_dr"];
     optional int32 L1_index = 4205 [(root_branch)="L1_index"];
     optional int32 el_index = 4206 [(root_branch)="el_index"];
+
+    extensions 100000 to max;
 }

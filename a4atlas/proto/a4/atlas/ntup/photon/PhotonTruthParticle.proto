@@ -46,4 +46,6 @@ message PhotonTruthParticle {
     
     optional int32 isBremPhoton = 700 [(root_branch)="isBremPhoton"];
     optional int32 isHardProcPhoton = 701 [(root_branch)="isHardProcPhoton"];
+
+    extensions 100000 to max;
 }

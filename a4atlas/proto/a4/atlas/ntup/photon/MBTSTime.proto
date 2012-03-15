@@ -8,4 +8,6 @@ message MBTSTime {
     
     optional int32 countA = 100 [(root_branch)="countA"];
     optional int32 countC = 101 [(root_branch)="countC"];
+
+    extensions 100000 to max;
 }

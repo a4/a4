@@ -22,4 +22,6 @@ message TrigDecision {
     repeated int32 L2_wasResurrected = 309 [(root_branch)="L2_wasResurrected"];
     repeated int32 EF_wasPrescaled = 310 [(root_branch)="EF_wasPrescaled"];
     repeated int32 EF_wasResurrected = 311 [(root_branch)="EF_wasResurrected"];
+
+    extensions 100000 to max;
 }

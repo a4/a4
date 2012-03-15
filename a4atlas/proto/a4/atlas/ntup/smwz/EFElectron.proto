@@ -193,4 +193,6 @@ message EFElectron {
     optional float vertweight = 2500 [(root_branch)="vertweight"];
     
     optional int32 hastrack = 2600 [(root_branch)="hastrack"];
+
+    extensions 100000 to max;
 }

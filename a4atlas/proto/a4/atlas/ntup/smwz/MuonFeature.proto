@@ -139,4 +139,6 @@ message MuonFeature {
     optional int32 L2_mu6_Jpsimumu_SiTrk = 1100 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
     optional int32 L2_mu6_Jpsimumu_tight = 1101 [(root_branch)="L2_mu6_Jpsimumu_tight"];
     optional int32 L2_mu6_Trk_Jpsi_loose = 1102 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+
+    extensions 100000 to max;
 }

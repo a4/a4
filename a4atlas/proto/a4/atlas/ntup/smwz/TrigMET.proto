@@ -25,4 +25,6 @@ message TrigMET {
     repeated uint32 usedChannels = 500 [(root_branch)="usedChannels"];
     
     repeated int32 status = 600 [(root_branch)="status"];
+
+    extensions 100000 to max;
 }

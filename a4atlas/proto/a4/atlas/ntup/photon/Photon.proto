@@ -471,4 +471,6 @@ message Photon {
     repeated int32 convTrk_trackpatternReco1 = 6503 [(root_branch)="convTrk_trackpatternReco1"];
     repeated int32 convTrk_trackpatternReco2 = 6504 [(root_branch)="convTrk_trackpatternReco2"];
     repeated int32 convTrk_trackseedFinder = 6505 [(root_branch)="convTrk_trackseedFinder"];
+
+    extensions 100000 to max;
 }

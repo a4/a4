@@ -169,4 +169,6 @@ message Event {
     optional L1 l1 = 4000 [(root_prefix)="L1_"];
     optional L2 l2 = 4001 [(root_prefix)="L2_"];
     optional EF ef = 4002 [(root_prefix)="EF_"];
+
+    extensions 100000 to max;
 }

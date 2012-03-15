@@ -91,4 +91,6 @@ message Track {
     
     optional float TRTHighTHitsRatio = 1900 [(root_branch)="TRTHighTHitsRatio"];
     optional float TRTHighTOutliersRatio = 1901 [(root_branch)="TRTHighTOutliersRatio"];
+
+    extensions 100000 to max;
 }
