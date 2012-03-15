@@ -215,7 +215,7 @@ def build(bld):
     # Create this_a4.sh and packageconfig files, symlink python
     bld(rule=write_this_a4, target="this_a4.sh", install_path=bld.env.BINDIR)
     bld(rule=write_pkgcfg, target="a4.pc", install_path=pjoin(bld.env.LIBDIR, "pkgconfig"))
-    bld.symlink_as(pjoin(bld.env.BINDIR, "python"), bld.env.PYTHON[0])
+    #bld.symlink_as(pjoin(bld.env.BINDIR, "python"), bld.env.PYTHON[0])
 
     # Add post-install checks
     if bld.is_install:
