@@ -1,4 +1,4 @@
-package ntup_smwz;
+package a4.atlas.ntup.smwz;
 import "a4/root/RootExtension.proto";
 
 message BeamSpot {
@@ -9,12 +9,16 @@ message BeamSpot {
     // optional float sigma_x = 100 [(root_branch)="sigma_x"];
     // optional float sigma_y = 101 [(root_branch)="sigma_y"];
     // optional float sigma_z = 102 [(root_branch)="sigma_z"];
+
+    extensions 100000 to max;
 }
 
 message ChainEntry {
     // optional int32 chain_ChainId = 1 [(root_branch)="chain_ChainId"];
     // repeated int32 chain_RoIType = 2 [(root_branch)="chain_RoIType"];
     // repeated int32 chain_RoIIndex = 3 [(root_branch)="chain_RoIIndex"];
+
+    extensions 100000 to max;
 }
 
 message Cluster {
@@ -113,6 +117,8 @@ message Cluster {
     // optional float phi_FCAL1 = 769 [(root_branch)="phi_FCAL1"];
     // optional float eta_FCAL2 = 770 [(root_branch)="eta_FCAL2"];
     // optional float phi_FCAL2 = 771 [(root_branch)="phi_FCAL2"];
+
+    extensions 100000 to max;
 }
 
 message CombinedMuonFeature {
@@ -229,6 +235,8 @@ message CombinedMuonFeature {
     // optional int32 mf_index = 400 [(root_branch)="mf_index"];
     // optional int32 idscantrk_index = 401 [(root_branch)="idscantrk_index"];
     // optional int32 sitracktrk_index = 402 [(root_branch)="sitracktrk_index"];
+
+    extensions 100000 to max;
 }
 
 message CombLinksD3PDObjectEF_e {
@@ -248,6 +256,8 @@ message CombLinksD3PDObjectEF_e {
     // repeated int32 egammaContainer_egamma_ElectronsStatus = 303 [(root_branch)="egammaContainer_egamma_ElectronsStatus"];
     // repeated int32 egammaContainer_egamma_Photons = 304 [(root_branch)="egammaContainer_egamma_Photons"];
     // repeated int32 egammaContainer_egamma_PhotonsStatus = 305 [(root_branch)="egammaContainer_egamma_PhotonsStatus"];
+
+    extensions 100000 to max;
 }
 
 message CombLinksD3PDObjectEF_mu {
@@ -270,6 +280,8 @@ message CombLinksD3PDObjectEF_mu {
     // repeated int32 TrigMuonEFInfoContainer_MuGirlStatus = 403 [(root_branch)="TrigMuonEFInfoContainer_MuGirlStatus"];
     // repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EF = 404 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EF"];
     // repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EFStatus = 405 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EFStatus"];
+
+    extensions 100000 to max;
 }
 
 message CombLinksD3PDObjectEF_TileMu {
@@ -291,6 +303,8 @@ message CombLinksD3PDObjectEF_TileMu {
     // repeated int32 TrigMuonEFInfoContainer_MuGirlStatus = 305 [(root_branch)="TrigMuonEFInfoContainer_MuGirlStatus"];
     // repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EF = 306 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EF"];
     // repeated int32 TrigMuonEFInfoContainer_MuTagIMO_EFStatus = 307 [(root_branch)="TrigMuonEFInfoContainer_MuTagIMO_EFStatus"];
+
+    extensions 100000 to max;
 }
 
 message CombLinksD3PDObjectL2_e {
@@ -319,6 +333,8 @@ message CombLinksD3PDObjectL2_e {
     // repeated int32 TrigElectronContainerStatus = 601 [(root_branch)="TrigElectronContainerStatus"];
     // repeated int32 TrigPhotonContainer = 602 [(root_branch)="TrigPhotonContainer"];
     // repeated int32 TrigPhotonContainerStatus = 603 [(root_branch)="TrigPhotonContainerStatus"];
+
+    extensions 100000 to max;
 }
 
 message CombLinksD3PDObjectL2_mu {
@@ -352,6 +368,8 @@ message CombLinksD3PDObjectL2_mu {
     // repeated int32 TrigInDetTrackCollection_TrigSiTrack_muonIsoStatus = 505 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_muonIsoStatus"];
     // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_muonIso = 506 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_muonIso"];
     // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_muonIsoStatus = 507 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_muonIsoStatus"];
+
+    extensions 100000 to max;
 }
 
 message CombLinksD3PDObjectL2_TileMu {
@@ -374,10 +392,14 @@ message CombLinksD3PDObjectL2_TileMu {
     // repeated int32 TrigInDetTrackCollection_TrigSiTrack_TileStatus = 401 [(root_branch)="TrigInDetTrackCollection_TrigSiTrack_TileStatus"];
     // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_Tile = 402 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_Tile"];
     // repeated int32 TrigInDetTrackCollection_TrigIDSCAN_TileStatus = 403 [(root_branch)="TrigInDetTrackCollection_TrigIDSCAN_TileStatus"];
+
+    extensions 100000 to max;
 }
 
 message D3PDObject1 {
     // optional int32 hfor_type = 1 [(root_branch)="hfor_type"];
+
+    extensions 100000 to max;
 }
 
 message EFElectron {
@@ -572,6 +594,8 @@ message EFElectron {
     // optional float vertweight = 2500 [(root_branch)="vertweight"];
     
     // optional int32 hastrack = 2600 [(root_branch)="hastrack"];
+
+    extensions 100000 to max;
 }
 
 message EFPhoton {
@@ -702,6 +726,8 @@ message EFPhoton {
     // optional float cl_eta = 1702 [(root_branch)="cl_eta"];
     // optional float cl_phi = 1703 [(root_branch)="cl_phi"];
     // optional float cl_etas2 = 1704 [(root_branch)="cl_etas2"];
+
+    extensions 100000 to max;
 }
 
 message Electron {
@@ -1086,6 +1112,8 @@ message Electron {
     // optional int32 L2_index = 6303 [(root_branch)="L2_index"];
     // optional float L1_dr = 6304 [(root_branch)="L1_dr"];
     // optional int32 L1_index = 6305 [(root_branch)="L1_index"];
+
+    extensions 100000 to max;
 }
 
 message EmTauROI {
@@ -1138,6 +1166,8 @@ message EmTauROI {
     // optional int32 L1_EM5_MU10 = 629 [(root_branch)="L1_EM5_MU10"];
     // optional int32 L1_EM5_MU6 = 630 [(root_branch)="L1_EM5_MU6"];
     // optional int32 L1_EM7 = 631 [(root_branch)="L1_EM7"];
+
+    extensions 100000 to max;
 }
 
 message EnergySumROI {
@@ -1155,6 +1185,8 @@ message EnergySumROI {
     // optional uint32 RoIWord0 = 400 [(root_branch)="RoIWord0"];
     // optional uint32 RoIWord1 = 401 [(root_branch)="RoIWord1"];
     // optional uint32 RoIWord2 = 402 [(root_branch)="RoIWord2"];
+
+    extensions 100000 to max;
 }
 
 message IsoMuonFeature {
@@ -1280,6 +1312,8 @@ message IsoMuonFeature {
     // optional int32 L2_mu6_Jpsimumu_SiTrk = 600 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
     // optional int32 L2_mu6_Jpsimumu_tight = 601 [(root_branch)="L2_mu6_Jpsimumu_tight"];
     // optional int32 L2_mu6_Trk_Jpsi_loose = 602 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+
+    extensions 100000 to max;
 }
 
 message Jet {
@@ -1473,6 +1507,8 @@ message Jet {
     // optional int32 L2_matched = 3007 [(root_branch)="L2_matched"];
     // optional float EF_dr = 3008 [(root_branch)="EF_dr"];
     // optional int32 EF_matched = 3009 [(root_branch)="EF_matched"];
+
+    extensions 100000 to max;
 }
 
 message JetsInfoMET {
@@ -1482,6 +1518,8 @@ message JetsInfoMET {
     
     // optional float LeadingJetEt = 100 [(root_branch)="LeadingJetEt"];
     // optional float LeadingJetEta = 101 [(root_branch)="LeadingJetEta"];
+
+    extensions 100000 to max;
 }
 
 message MBTS {
@@ -1498,6 +1536,8 @@ message MBTS {
     // optional int32 module = 400 [(root_branch)="module"];
     
     // optional int32 channel = 500 [(root_branch)="channel"];
+
+    extensions 100000 to max;
 }
 
 message MBTSTime {
@@ -1507,6 +1547,8 @@ message MBTSTime {
     
     // optional int32 countA = 100 [(root_branch)="countA"];
     // optional int32 countC = 101 [(root_branch)="countC"];
+
+    extensions 100000 to max;
 }
 
 message MissingETComposition {
@@ -1516,10 +1558,14 @@ message MissingETComposition {
     // repeated float wet = 100 [(root_branch)="wet"];
     
     // repeated uint32 statusWord = 200 [(root_branch)="statusWord"];
+
+    extensions 100000 to max;
 }
 
 message MuonFeatureDetails {
     
+
+    extensions 100000 to max;
 }
 
 message MuonFeature {
@@ -1660,6 +1706,8 @@ message MuonFeature {
     // optional int32 L2_mu6_Jpsimumu_SiTrk = 1100 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
     // optional int32 L2_mu6_Jpsimumu_tight = 1101 [(root_branch)="L2_mu6_Jpsimumu_tight"];
     // optional int32 L2_mu6_Trk_Jpsi_loose = 1102 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+
+    extensions 100000 to max;
 }
 
 message Muon {
@@ -1942,6 +1990,8 @@ message Muon {
     // optional int32 L2CB_index = 3107 [(root_branch)="L2CB_index"];
     // optional float L1_dr = 3108 [(root_branch)="L1_dr"];
     // optional int32 L1_index = 3109 [(root_branch)="L1_index"];
+
+    extensions 100000 to max;
 }
 
 message MuonROI {
@@ -1967,6 +2017,8 @@ message MuonROI {
     // optional int32 charge = 700 [(root_branch)="charge"];
     
     // optional int32 vetoed = 800 [(root_branch)="vetoed"];
+
+    extensions 100000 to max;
 }
 
 message Photon {
@@ -2193,6 +2245,8 @@ message Photon {
     // optional float L1_dr = 4204 [(root_branch)="L1_dr"];
     // optional int32 L1_index = 4205 [(root_branch)="L1_index"];
     // optional int32 el_index = 4206 [(root_branch)="el_index"];
+
+    extensions 100000 to max;
 }
 
 message PrimaryVertex {
@@ -2222,6 +2276,8 @@ message PrimaryVertex {
     // optional int32 trk_n = 700 [(root_branch)="trk_n"];
     // repeated float trk_weight = 701 [(root_branch)="trk_weight"];
     // repeated int32 trk_index = 702 [(root_branch)="trk_index"];
+
+    extensions 100000 to max;
 }
 
 message RefFinalMET {
@@ -2245,6 +2301,8 @@ message RefFinalMET {
     
     // optional float etx = 300 [(root_branch)="etx"];
     // optional float ety = 301 [(root_branch)="ety"];
+
+    extensions 100000 to max;
 }
 
 message Tau {
@@ -2405,6 +2463,8 @@ message Tau {
     // optional float L1_eta = 2817 [(root_branch)="L1_eta"];
     // optional float L1_phi = 2818 [(root_branch)="L1_phi"];
     // optional int32 L1_matched = 2819 [(root_branch)="L1_matched"];
+
+    extensions 100000 to max;
 }
 
 message TileMuFeature {
@@ -2518,6 +2578,8 @@ message TileMuFeature {
     // optional int32 L2_mu6_Jpsimumu_SiTrk = 400 [(root_branch)="L2_mu6_Jpsimumu_SiTrk"];
     // optional int32 L2_mu6_Jpsimumu_tight = 401 [(root_branch)="L2_mu6_Jpsimumu_tight"];
     // optional int32 L2_mu6_Trk_Jpsi_loose = 402 [(root_branch)="L2_mu6_Trk_Jpsi_loose"];
+
+    extensions 100000 to max;
 }
 
 message TileTrackMuFeature {
@@ -2650,6 +2712,8 @@ message TileTrackMuFeature {
     // optional float idtrk_idtrkfitpar_pt = 511 [(root_branch)="idtrk_idtrkfitpar_pt"];
     // optional int32 idtrk_idtrkfitpar_hasidtrkfitpar = 512 [(root_branch)="idtrk_idtrkfitpar_hasidtrkfitpar"];
     // optional int32 idtrk_hasidtrk = 513 [(root_branch)="idtrk_hasidtrk"];
+
+    extensions 100000 to max;
 }
 
 message TopoMET {
@@ -2707,6 +2771,8 @@ message TopoMET {
     // optional float ety_ForwardReg = 344 [(root_branch)="ety_ForwardReg"];
     // optional float sumet_ForwardReg = 345 [(root_branch)="sumet_ForwardReg"];
     // optional float phi_ForwardReg = 346 [(root_branch)="phi_ForwardReg"];
+
+    extensions 100000 to max;
 }
 
 message TrackParticle {
@@ -2721,6 +2787,8 @@ message TrackParticle {
     
     // optional float chi2 = 200 [(root_branch)="chi2"];
     // optional int32 ndof = 201 [(root_branch)="ndof"];
+
+    extensions 100000 to max;
 }
 
 message Track {
@@ -2813,12 +2881,16 @@ message Track {
     
     // optional float TRTHighTHitsRatio = 1900 [(root_branch)="TRTHighTHitsRatio"];
     // optional float TRTHighTOutliersRatio = 1901 [(root_branch)="TRTHighTOutliersRatio"];
+
+    extensions 100000 to max;
 }
 
 message TrigDBKeys {
     // optional uint32 SMK = 1 [(root_branch)="SMK"];
     // optional uint32 L1PSK = 2 [(root_branch)="L1PSK"];
     // optional uint32 HLTPSK = 3 [(root_branch)="HLTPSK"];
+
+    extensions 100000 to max;
 }
 
 message TrigDecision {
@@ -2844,6 +2916,8 @@ message TrigDecision {
     // repeated int32 EF_wasResurrected = 311 [(root_branch)="EF_wasResurrected"];
     
     // optional int32 bgCode = 400 [(root_branch)="bgCode"];
+
+    extensions 100000 to max;
 }
 
 message TrigElectron {
@@ -2939,6 +3013,8 @@ message TrigElectron {
     // optional int32 L2_eb_random_unpaired_iso = 1252 [(root_branch)="L2_eb_random_unpaired_iso"];
     // optional int32 L2_em3_empty_larcalib = 1253 [(root_branch)="L2_em3_empty_larcalib"];
     // optional int32 L2_em5_empty_larcalib = 1254 [(root_branch)="L2_em5_empty_larcalib"];
+
+    extensions 100000 to max;
 }
 
 message TrigEMCluster {
@@ -2957,6 +3033,8 @@ message TrigEMCluster {
     // optional float eta1 = 205 [(root_branch)="eta1"];
     // optional float emaxs1 = 206 [(root_branch)="emaxs1"];
     // optional float e2tsts1 = 207 [(root_branch)="e2tsts1"];
+
+    extensions 100000 to max;
 }
 
 message TrigInDetTrack {
@@ -2977,6 +3055,8 @@ message TrigInDetTrack {
     // optional float param_phi0 = 502 [(root_branch)="param_phi0"];
     // optional float param_eta = 503 [(root_branch)="param_eta"];
     // optional float param_pt = 504 [(root_branch)="param_pt"];
+
+    extensions 100000 to max;
 }
 
 message TrigMET {
@@ -3003,6 +3083,8 @@ message TrigMET {
     // repeated uint32 usedChannels = 500 [(root_branch)="usedChannels"];
     
     // repeated int32 status = 600 [(root_branch)="status"];
+
+    extensions 100000 to max;
 }
 
 message TrigMuonEFInfo {
@@ -3148,6 +3230,8 @@ message TrigMuonEFInfo {
     // repeated float track_CB_posZ = 236 [(root_branch)="track_CB_posZ"];
     // repeated float track_CB_matchChi2 = 237 [(root_branch)="track_CB_matchChi2"];
     // repeated int32 track_CB_hasCB = 238 [(root_branch)="track_CB_hasCB"];
+
+    extensions 100000 to max;
 }
 
 message TrigPhoton {
@@ -3183,6 +3267,8 @@ message TrigPhoton {
     // optional int32 L2_g5_NoCut_cosmic = 314 [(root_branch)="L2_g5_NoCut_cosmic"];
     // optional int32 L2_g60_loose = 315 [(root_branch)="L2_g60_loose"];
     // optional int32 L2_g80_loose = 316 [(root_branch)="L2_g80_loose"];
+
+    extensions 100000 to max;
 }
 
 message TrigRoiDesc {
@@ -3197,6 +3283,8 @@ message TrigRoiDesc {
     
     // optional float etaMinus = 300 [(root_branch)="etaMinus"];
     // optional float etaPlus = 301 [(root_branch)="etaPlus"];
+
+    extensions 100000 to max;
 }
 
 message Event {
@@ -3401,5 +3489,7 @@ message Event {
     
     // optional TrigMET trig_l2_met = 3300 [(root_prefix)="trig_L2_met_"];
     // optional TrigMET trig_ef_met = 3301 [(root_prefix)="trig_EF_met_"];
+
+    extensions 100000 to max;
 }
 

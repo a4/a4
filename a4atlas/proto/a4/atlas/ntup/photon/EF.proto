@@ -215,4 +215,6 @@ message EF {
     optional bool xe70_tight_noMu = 211 [default=false, (root_branch)="xe70_tight_noMu"];
     optional bool xe80_noMu = 212 [default=false, (root_branch)="xe80_noMu"];
     optional bool xe90_noMu = 213 [default=false, (root_branch)="xe90_noMu"];
+    
+    extensions 100000 to max;
 }

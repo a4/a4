@@ -1,4 +1,4 @@
-package ntup_photon;
+package a4.atlas.ntup.photon;
 import "a4/root/RootExtension.proto";
 
 message BeamSpot {
@@ -9,16 +9,22 @@ message BeamSpot {
     // optional float sigma_x = 100 [(root_branch)="sigma_x"];
     // optional float sigma_y = 101 [(root_branch)="sigma_y"];
     // optional float sigma_z = 102 [(root_branch)="sigma_z"];
+
+    extensions 100000 to max;
 }
 
 message BunchConfigID {
     // optional uint32 configID = 1 [(root_branch)="configID"];
+
+    extensions 100000 to max;
 }
 
 message ChainEntry {
     // optional int32 chain_ChainId = 1 [(root_branch)="chain_ChainId"];
     // repeated int32 chain_RoIType = 2 [(root_branch)="chain_RoIType"];
     // repeated int32 chain_RoIIndex = 3 [(root_branch)="chain_RoIIndex"];
+
+    extensions 100000 to max;
 }
 
 message Cluster {
@@ -44,6 +50,8 @@ message Cluster {
     // optional float centermag = 500 [(root_branch)="centermag"];
     
     // optional float time = 600 [(root_branch)="time"];
+
+    extensions 100000 to max;
 }
 
 message CollisionDecision {
@@ -51,6 +59,8 @@ message CollisionDecision {
     // optional bool passMBTSTime = 2 [(root_branch)="passMBTSTime"];
     // optional bool passTrigger = 3 [(root_branch)="passTrigger"];
     // optional bool pass = 4 [(root_branch)="pass"];
+
+    extensions 100000 to max;
 }
 
 message CombLinksD3PDObjectEF_e {
@@ -70,6 +80,8 @@ message CombLinksD3PDObjectEF_e {
     // repeated int32 egammaContainer_egamma_ElectronsStatus = 303 [(root_branch)="egammaContainer_egamma_ElectronsStatus"];
     // repeated int32 egammaContainer_egamma_Photons = 304 [(root_branch)="egammaContainer_egamma_Photons"];
     // repeated int32 egammaContainer_egamma_PhotonsStatus = 305 [(root_branch)="egammaContainer_egamma_PhotonsStatus"];
+
+    extensions 100000 to max;
 }
 
 message CombLinksD3PDObjectL2_e {
@@ -98,6 +110,8 @@ message CombLinksD3PDObjectL2_e {
     // repeated int32 TrigElectronContainerStatus = 601 [(root_branch)="TrigElectronContainerStatus"];
     // repeated int32 TrigPhotonContainer = 602 [(root_branch)="TrigPhotonContainer"];
     // repeated int32 TrigPhotonContainerStatus = 603 [(root_branch)="TrigPhotonContainerStatus"];
+
+    extensions 100000 to max;
 }
 
 message DiPhoton {
@@ -166,6 +180,8 @@ message DiPhoton {
     
     // optional int32 ph_n = 300 [(root_branch)="ph_n"];
     // repeated int32 ph_index = 301 [(root_branch)="ph_index"];
+    
+    extensions 100000 to max;
 }
 
 message EF {
@@ -382,6 +398,8 @@ message EF {
     // optional bool xe70_tight_noMu = 211 [default=false, (root_branch)="xe70_tight_noMu"];
     // optional bool xe80_noMu = 212 [default=false, (root_branch)="xe80_noMu"];
     // optional bool xe90_noMu = 213 [default=false, (root_branch)="xe90_noMu"];
+    
+    extensions 100000 to max;
 }
 
 message EFElectron {
@@ -639,6 +657,8 @@ message EFElectron {
     // optional float vertweight = 2600 [(root_branch)="vertweight"];
     
     // optional int32 hastrack = 2700 [(root_branch)="hastrack"];
+
+    extensions 100000 to max;
 }
 
 message EFPhoton {
@@ -842,6 +862,8 @@ message ElAsPh {
     // optional float E237 = 614 [(root_branch)="E237"];
     // optional float E277 = 615 [(root_branch)="E277"];
     // optional float weta2 = 616 [(root_branch)="weta2"];
+
+    extensions 100000 to max;
 }
 
 message Electron {
@@ -1216,6 +1238,8 @@ message Electron {
     // optional float transmax_loweta = 6707 [(root_branch)="transmax_loweta"];
     
     // optional int32 trk_index = 6800 [(root_branch)="trk_index"];
+
+    extensions 100000 to max;
 }
 
 message EmTauROI {
@@ -1274,6 +1298,8 @@ message EmTauROI {
     // optional int32 L1_EM5_MU10 = 635 [(root_branch)="L1_EM5_MU10"];
     // optional int32 L1_EM5_MU6 = 636 [(root_branch)="L1_EM5_MU6"];
     // optional int32 L1_EM7 = 637 [(root_branch)="L1_EM7"];
+
+    extensions 100000 to max;
 }
 
 message GenEvent {
@@ -1297,6 +1323,8 @@ message GenEvent {
     
     // optional int32 nparticle = 500 [(root_branch)="nparticle"];
     // optional int32 pileUpType = 501 [(root_branch)="pileUpType"];
+
+    extensions 100000 to max;
 }
 
 message Jet {
@@ -1400,6 +1428,8 @@ message Jet {
     // optional int32 L2_matched = 2907 [(root_branch)="L2_matched"];
     // optional float EF_dr = 2908 [(root_branch)="EF_dr"];
     // optional int32 EF_matched = 2909 [(root_branch)="EF_matched"];
+
+    extensions 100000 to max;
 }
 
 message JetTruth {
@@ -1416,6 +1446,8 @@ message JetTruth {
     // optional double flavor_truth_dRminToT = 202 [(root_branch)="flavor_truth_dRminToT"];
     // optional int32 flavor_truth_BHadronpdg = 203 [(root_branch)="flavor_truth_BHadronpdg"];
     // optional int32 flavor_truth_trueflav = 204 [(root_branch)="flavor_truth_trueflav"];
+
+    extensions 100000 to max;
 }
 
 message L1 {
@@ -1493,6 +1525,8 @@ message L1 {
     // optional bool XE40 = 72 [default=false, (root_branch)="XE40"];
     // optional bool XE50 = 73 [default=false, (root_branch)="XE50"];
     // optional bool XE60 = 74 [default=false, (root_branch)="XE60"];
+    
+    extensions 100000 to max;
 }
 
 message L2 {
@@ -1696,6 +1730,8 @@ message L2 {
     // optional bool xe55_noMu = 198 [default=false, (root_branch)="xe55_noMu"];
     // optional bool xe60_noMu = 199 [default=false, (root_branch)="xe60_noMu"];
     // optional bool xe70_noMu = 200 [default=false, (root_branch)="xe70_noMu"];
+    
+    extensions 100000 to max;
 }
 
 message MBTS {
@@ -1712,6 +1748,8 @@ message MBTS {
     // optional int32 module = 400 [(root_branch)="module"];
     
     // optional int32 channel = 500 [(root_branch)="channel"];
+
+    extensions 100000 to max;
 }
 
 message MBTSTime {
@@ -1721,11 +1759,15 @@ message MBTSTime {
     
     // optional int32 countA = 100 [(root_branch)="countA"];
     // optional int32 countC = 101 [(root_branch)="countC"];
+
+    extensions 100000 to max;
 }
 
 message MET {
     // optional float etx = 1 [(root_branch)="etx"];
     // optional float ety = 2 [(root_branch)="ety"];
+
+    extensions 100000 to max;
 }
 
 message MissingETTruth {
@@ -1734,6 +1776,8 @@ message MissingETTruth {
     // optional float NonInt_phi = 3 [(root_branch)="NonInt_phi"];
     // optional float NonInt_et = 4 [(root_branch)="NonInt_et"];
     // optional float NonInt_sumet = 5 [(root_branch)="NonInt_sumet"];
+
+    extensions 100000 to max;
 }
 
 message Muon {
@@ -1807,6 +1851,8 @@ message Muon {
     // optional int32 loose = 1700 [(root_branch)="loose"];
     // optional int32 medium = 1701 [(root_branch)="medium"];
     // optional int32 tight = 1702 [(root_branch)="tight"];
+
+    extensions 100000 to max;
 }
 
 message PhotonPrimaryVertex {
@@ -1830,6 +1876,8 @@ message PhotonPrimaryVertex {
     // optional int32 nTracks_07GeV = 501 [(root_branch)="nTracks_07GeV"];
     // optional int32 nTracks_1GeV = 502 [(root_branch)="nTracks_1GeV"];
     // optional int32 nTracks_2GeV = 503 [(root_branch)="nTracks_2GeV"];
+
+    extensions 100000 to max;
 }
 
 message Photon {
@@ -2302,6 +2350,8 @@ message Photon {
     // repeated int32 convTrk_trackpatternReco1 = 6503 [(root_branch)="convTrk_trackpatternReco1"];
     // repeated int32 convTrk_trackpatternReco2 = 6504 [(root_branch)="convTrk_trackpatternReco2"];
     // repeated int32 convTrk_trackseedFinder = 6505 [(root_branch)="convTrk_trackseedFinder"];
+
+    extensions 100000 to max;
 }
 
 message PhotonTruthParticle {
@@ -2349,6 +2399,8 @@ message PhotonTruthParticle {
     
     // optional int32 isBremPhoton = 700 [(root_branch)="isBremPhoton"];
     // optional int32 isHardProcPhoton = 701 [(root_branch)="isHardProcPhoton"];
+
+    extensions 100000 to max;
 }
 
 message PrimaryVertex {
@@ -2371,6 +2423,8 @@ message PrimaryVertex {
     // optional int32 trk_n = 500 [(root_branch)="trk_n"];
     // repeated float trk_weight = 501 [(root_branch)="trk_weight"];
     // repeated int32 trk_index = 502 [(root_branch)="trk_index"];
+
+    extensions 100000 to max;
 }
 
 message RefFinalMET {
@@ -2394,6 +2448,8 @@ message RefFinalMET {
     // optional float ety_ForwardReg = 309 [(root_branch)="ety_ForwardReg"];
     // optional float sumet_ForwardReg = 310 [(root_branch)="sumet_ForwardReg"];
     // optional float phi_ForwardReg = 311 [(root_branch)="phi_ForwardReg"];
+
+    extensions 100000 to max;
 }
 
 message TopoMET {
@@ -2454,6 +2510,8 @@ message TopoMET {
     // optional float ety_ForwardReg = 444 [(root_branch)="ety_ForwardReg"];
     // optional float sumet_ForwardReg = 445 [(root_branch)="sumet_ForwardReg"];
     // optional float phi_ForwardReg = 446 [(root_branch)="phi_ForwardReg"];
+
+    extensions 100000 to max;
 }
 
 message TrackParticle {
@@ -2509,12 +2567,16 @@ message TrackParticle {
     // optional int32 mc_barcode = 1201 [(root_branch)="mc_barcode"];
     
     // optional float conv_weight = 1300 [(root_branch)="conv_weight"];
+
+    extensions 100000 to max;
 }
 
 message TrigDBKeys {
     // optional uint32 SMK = 1 [(root_branch)="SMK"];
     // optional uint32 L1PSK = 2 [(root_branch)="L1PSK"];
     // optional uint32 HLTPSK = 3 [(root_branch)="HLTPSK"];
+
+    extensions 100000 to max;
 }
 
 message TrigDecision {
@@ -2538,6 +2600,8 @@ message TrigDecision {
     // repeated int32 L2_wasResurrected = 309 [(root_branch)="L2_wasResurrected"];
     // repeated int32 EF_wasPrescaled = 310 [(root_branch)="EF_wasPrescaled"];
     // repeated int32 EF_wasResurrected = 311 [(root_branch)="EF_wasResurrected"];
+
+    extensions 100000 to max;
 }
 
 message TrigElectron {
@@ -2694,6 +2758,8 @@ message TrigElectron {
     // optional int32 L2_em105_passHLT = 1313 [(root_branch)="L2_em105_passHLT"];
     // optional int32 L2_em3_empty_larcalib = 1314 [(root_branch)="L2_em3_empty_larcalib"];
     // optional int32 L2_em5_empty_larcalib = 1315 [(root_branch)="L2_em5_empty_larcalib"];
+
+    extensions 100000 to max;
 }
 
 message TrigEMCluster {
@@ -2712,6 +2778,8 @@ message TrigEMCluster {
     // optional float eta1 = 205 [(root_branch)="eta1"];
     // optional float emaxs1 = 206 [(root_branch)="emaxs1"];
     // optional float e2tsts1 = 207 [(root_branch)="e2tsts1"];
+
+    extensions 100000 to max;
 }
 
 message TrigInDetTrack {
@@ -2732,6 +2800,8 @@ message TrigInDetTrack {
     // optional float param_phi0 = 502 [(root_branch)="param_phi0"];
     // optional float param_eta = 503 [(root_branch)="param_eta"];
     // optional float param_pt = 504 [(root_branch)="param_pt"];
+
+    extensions 100000 to max;
 }
 
 message TrigPhoton {
@@ -2791,6 +2861,8 @@ message TrigPhoton {
     // optional int32 L2_g5_NoCut_cosmic = 338 [(root_branch)="L2_g5_NoCut_cosmic"];
     // optional int32 L2_g60_loose = 339 [(root_branch)="L2_g60_loose"];
     // optional int32 L2_g80_loose = 340 [(root_branch)="L2_g80_loose"];
+
+    extensions 100000 to max;
 }
 
 message Event {
@@ -2922,5 +2994,7 @@ message Event {
     // optional L1 l1 = 4000 [(root_prefix)="L1_"];
     // optional L2 l2 = 4001 [(root_prefix)="L2_"];
     // optional EF ef = 4002 [(root_prefix)="EF_"];
+
+    extensions 100000 to max;
 }
 

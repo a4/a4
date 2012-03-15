@@ -202,4 +202,6 @@ message L2 {
     optional bool xe55_noMu = 198 [default=false, (root_branch)="xe55_noMu"];
     optional bool xe60_noMu = 199 [default=false, (root_branch)="xe60_noMu"];
     optional bool xe70_noMu = 200 [default=false, (root_branch)="xe70_noMu"];
+    
+    extensions 100000 to max;
 }

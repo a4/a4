@@ -28,11 +28,13 @@ def main():
     def mkproto(name, triggers):
         triggers = "\n    ".join(t.format(i) for i, t in enumerate(triggers, 1))
         content = dedent("""
-            package a4.root.atlas.{tupname};
+            package a4.atlas.ntup.{tupname};
             import "a4/root/RootExtension.proto";
             
             message {name} {{
                 {triggers}
+                
+                extensions 100000 to max;
             }}
         """).strip().format(name=name, triggers=triggers, tupname=tupname)
         with open("{0}/{1}.proto".format(tupname, name), "w") as fd:

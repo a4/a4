@@ -76,4 +76,6 @@ message L1 {
     optional bool XE40 = 72 [default=false, (root_branch)="XE40"];
     optional bool XE50 = 73 [default=false, (root_branch)="XE50"];
     optional bool XE60 = 74 [default=false, (root_branch)="XE60"];
+    
+    extensions 100000 to max;
 }
