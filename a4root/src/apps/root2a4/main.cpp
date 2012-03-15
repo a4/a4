@@ -108,7 +108,7 @@ public:
     
     void populate_fields(const shared<Message>& event)
     {
-        if (_desc && _refl && _field_run && _field_mc_channel)
+        if (_desc && _refl)
             return;
         _desc = event->GetDescriptor();
         _refl = event->GetReflection();
@@ -117,11 +117,11 @@ public:
         
     }
     
-    // Check to see if any vital propertys have changed since we last looked
+    // Check to see if any vital properties have changed since we last looked
     virtual bool need_new_metadata(shared<Message> event)
     {
         populate_fields(event);
-        if (_refl->HasField(*event, _field_run)) {
+        if (_field_run && _refl->HasField(*event, _field_run)) {
             const uint32_t run_number = _refl->GetUInt32(*event, _field_run);
             if (run_number != _run_number) {
                 _run_number = run_number;
@@ -130,7 +130,7 @@ public:
             }
         }
         
-        if (_refl->HasField(*event, _field_mc_channel)) {
+        if (_field_mc_channel && _refl->HasField(*event, _field_mc_channel)) {
             const uint32_t mc_channel = _refl->GetUInt32(*event, _field_mc_channel);
             if (mc_channel != _mc_channel) {
                 _mc_channel = mc_channel;
@@ -142,7 +142,8 @@ public:
         return false;
     }
     
-    // Called when we're about to write a metadata object, computes the field of it
+    // Called when the metadata object is about to be written
+    // FIll the fields on the metadata
     virtual void compute_info(const MessageBuffer& buffer)
     {
         ProcessingStep& p = *_processing_step;
