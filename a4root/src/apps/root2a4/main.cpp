@@ -320,9 +320,10 @@ private:
 /// Event class.
 void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream, 
     MessageFactory* dynamic_factory, const Descriptor* message_descriptor, 
-    Long64_t entries = -1, uint32_t metadata_frequency = 100000)
+    Long64_t entries=-1, const uint32_t metadata_frequency=100000, 
+    const Long64_t initial_offset=0)
 {
-    Long64_t tree_entries = tree.GetEntries();
+    const Long64_t tree_entries = tree.GetEntries();
     if (entries > tree_entries)
         entries = tree_entries;
     if (entries < 0)
@@ -360,8 +361,9 @@ void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream,
     
     
     size_t total_bytes_read = 0;
+    const Long64_t upper_index = initial_offset+entries;
     
-    for (Long64_t i = 0; i < entries; i++)
+    for (Long64_t i = initial_offset; i < upper_index; i++)
     {
         //std::cout << "Reading event " << i << std::endl;
         size_t read_data = tree.GetEntry(i);
@@ -409,7 +411,7 @@ int main(int argc, char ** argv) {
 
     std::string tree_name, tree_type, output_file, compression_type;
     std::vector<std::string> input_files;
-    Long64_t event_count = -1;
+    Long64_t event_count = -1, initial_offset = 0;
     uint32_t metadata_frequency = 100000;
     
     #ifdef HAVE_SNAPPY
@@ -429,7 +431,8 @@ int main(int argc, char ** argv) {
             "which event factory to use (SMWZ, PHOTON, test or .proto file with Event message)")
         ("input,i", po::value<std::vector<std::string> >(&input_files), "input file names")
         ("output,o", po::value<std::string>(&output_file)->default_value("test_io.a4"), "output file name")
-        ("number,n", po::value<Long64_t>(&event_count)->default_value(-1), "number of events to process (-1=all available)")
+        ("number,n", po::value<Long64_t>(&event_count), "number of events to process (-1=all available)")
+        ("offset,O", po::value<Long64_t>(&initial_offset), "initial offset (0=first event)")
         ("compression-type,C", po::value(&compression_type)->default_value(default_compression), "compression level '[TYPE] [LEVEL]'")
         ("metadata-frequency,m", po::value(&metadata_frequency)->default_value(metadata_frequency), "Metadata frequency [N] (1 per N)")
     ;
@@ -532,7 +535,7 @@ int main(int argc, char ** argv) {
         chrono::thread_clock::time_point cpustart = chrono::thread_clock::now();
         
         copy_chain(input, stream, &dynamic_factory, descriptor, event_count, 
-            metadata_frequency);
+            metadata_frequency, initial_offset);
             
             
         duration cputime  = chrono::thread_clock::now() - cpustart,
