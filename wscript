@@ -346,6 +346,10 @@ def add_pack(bld, pack, other_packs=[], use=[]):
 
     # Add protoc rules
     proto_sources = bld.path.ant_glob("%s/proto/**/*.proto" % pack)
+    if pack == "a4atlas":
+        proto_sources = [s for s in proto_sources
+                         if not ("_flat" in s.srcpath() and
+                                  "ntup" in s.srcpath())]
     proto_targets = []
     proto_includes = ["%s/proto" % p for p in [pack] + other_packs]
     for protof in proto_sources:
