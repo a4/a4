@@ -215,9 +215,11 @@ public:
         InputFile& i = *_processing_step->add_input_files();
         
         TFile* input_file = _chain.GetFile();
+        TTree* input_tree = _chain.GetTree();
         
         i.set_filename(input_file->GetName());
         i.set_size(input_file->GetSize());
+        i.set_first_entry_index(input_tree->GetReadEntry());
         
         std::string grl_path = std::string("Lumi/") + _chain.GetName();
         TObjString* grl_string = dynamic_cast<TObjString*>(input_file->Get(grl_path.c_str()));
