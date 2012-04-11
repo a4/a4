@@ -66,14 +66,12 @@ void H1::ensure_weights() {
 
 H1& H1::__mul__(const double& w) {
     const uint32_t total_bins = _axis->bins() + 2;
+    ensure_weights();
     for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
         *(_data.get() + bin) *= w;
-    if (!_weights_squared) {
-        _weights_squared.reset(new double[total_bins]);
-        for(uint32_t i = 0; i < total_bins; i++) _weights_squared[i] = _data[i];
-    }
-    for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin)
+    for(uint32_t bin = 0, bins = total_bins; bins > bin; ++bin) {
         *(_weights_squared.get() + bin) *= w*w;
+    }
     _entries *= w;
     return *this;
 }
