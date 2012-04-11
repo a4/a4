@@ -39,6 +39,7 @@ class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
     void add_options(po::options_description_easy_init opt) {
         opt("lumi,l", po::value(&lumi), "Luminosity in pb^-1");
         opt("xs,x", po::value(&xs_file), "Cross-Section file (Lines of the form <MC-ID> <XS [pb]>)");
+        opt("force,F", po::bool_switch(&force)->default_value(false), "Reweight even if metadata().simulation() is not set");
     }
     void read_arguments(po::variables_map& arguments) {
         if (arguments.count("lumi") == 0) {
@@ -69,25 +70,33 @@ class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
     std::string xs_file;
     std::map<int, double> xs;
     double lumi;
+    bool force;
 };
 
 shared<A4Message> A4ReweightProcessor::process_new_metadata() {
     auto config = my<A4ReweightConfiguration>();
-    if (not metadata().simulation()) {
+    if (not metadata().simulation() && not config->force) {
         weight = 1;
         return shared<A4Message>();
     }
-    if (metadata().run_size() != 1) {
-        FATAL("Cannot reweight if runs have been merged!");
+    if (metadata().mc_channel_size() != 1) {
+        FATAL("Cannot reweight if mc_channels have been merged!");
     }
-    int run = metadata().run(0);
-    if (!metadata().has_sum_mc_weights()) {
-        FATAL("Cannot reweight without sum of MC weights!");
-    }
+    int run = metadata().mc_channel(0);
     if (metadata().reweight_lumi() != 0) {
         FATAL("This set of histograms has already been reweighted!");
     }
-    double sum_mcw = metadata().sum_mc_weights();
+    double sum_mcw = 0;
+    if (!metadata().has_sum_mc_weights()) {
+        if (!metadata().has_event_count()) {
+            FATAL("Cannot reweight without sum of MC weights or event count!");
+        } else {
+            VERBOSE("sum_mc_weights not set, falling back to event_count");
+            sum_mcw = metadata().event_count();
+        }
+    } else {
+        sum_mcw = metadata().sum_mc_weights();
+    }
     double xs = 0;
     if (config->xs.find(run) ==  config->xs.end()) {
         ERROR("run ", run, " not found in XS file - reweighting with 0!");
