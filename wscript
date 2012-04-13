@@ -201,7 +201,7 @@ def build(bld):
         return
 
     libsrc =  list(add_pack(bld, "a4io", [], ["SNAPPY"]))
-    libsrc += add_pack(bld, "a4store", ["a4io"])
+    libsrc += add_pack(bld, "a4store", ["a4io"], ["CERN_ROOT_SYSTEM"])
     libsrc += add_pack(bld, "a4process", ["a4io", "a4store"])
     libsrc += add_pack(bld, "a4hist",
         ["a4io", "a4store", "a4process"], ["CERN_ROOT_SYSTEM"])
