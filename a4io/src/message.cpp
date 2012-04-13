@@ -209,6 +209,9 @@ namespace a4{ namespace io{
 
             DynamicField f1(*_message, d->field(i));
             ConstDynamicField f2(*m2->_message, d->field(i));
+            
+            if (!f1.present() && !f2.present())
+                continue;
 
             switch(merge_opts) {
                 case MERGE_BLOCK_IF_DIFFERENT:
