@@ -53,7 +53,8 @@ class Processor {
         enum MetadataBehavior { AUTO, MANUAL_FORWARD, MANUAL_BACKWARD, DROP };
         MetadataBehavior get_metadata_behavior() { return metadata_behavior; }
 
-        Processor() : my_configuration(NULL), skip_to_next_metadata(false), 
+        Processor() : my_configuration(NULL), skip_to_next_metadata(false),
+                      rerun_systematics_current(NULL),
                       locked(false), metadata_behavior(AUTO) {}
         virtual ~Processor() {}
 
