@@ -1,6 +1,8 @@
 #ifndef _A4_AXIS_H_
 #define _A4_AXIS_H_
 
+#include <cmath>
+
 #include <a4/types.h>
 
 namespace a4{ namespace hist{
@@ -60,7 +62,7 @@ std::ostream &operator<<(std::ostream &, const SimpleAxis &);
 
 class VariableAxis : public SimpleAxis {
     public:
-        VariableAxis();
+        VariableAxis() {};
         VariableAxis(const std::vector<double>& bins);
         VariableAxis(const VariableAxis&);
         VariableAxis(const pb::Axis&);
@@ -78,6 +80,16 @@ class VariableAxis : public SimpleAxis {
                 FATAL("Tried to request bin ", i, " of a ", 
                                  bins(), "-bin axis");
             return _bin_bounds[i+1];
+        }
+
+        static VariableAxis log_bins(uint32_t n, double lo, double hi) {
+            VariableAxis result;
+            result._init_bins(n+1);
+            const double log_lo = log10(lo), log_hi = log10(hi);
+            const double log_binwidth = (log_hi - log_lo) / n;
+            for (uint32_t i = 0; i < n+1; i++)
+                result._bin_bounds[i+1] = pow(10, log_lo + i*log_binwidth);
+            return result;
         }
 
     protected:

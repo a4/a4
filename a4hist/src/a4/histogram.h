@@ -29,10 +29,11 @@ class H1 : public a4::process::StorableAs<H1, pb::H1>
         }
         void constructor(const uint32_t &bins, const double &min, const double &max, const char* label="");
         void constructor(const std::vector<double>& bins, const char* label="");
-        H1& with_axis(const Axis& axis) {
+        H1& with_axis(const Axis& axis, const char* label="") {
             if (_initializations_remaining == 0) return *this;
             _initializations_remaining--;
             _axis = std::move(axis.clone());
+            _axis->label = label;
             bin_init();
             return *this;
         }
