@@ -1,6 +1,8 @@
 #ifndef _A4_STORABLE_H_
 #define _A4_STORABLE_H_
 
+#include <vector>
+
 #include <a4/a4io.h>
 #include <a4/types.h>
 

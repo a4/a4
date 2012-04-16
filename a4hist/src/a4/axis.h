@@ -2,6 +2,7 @@
 #define _A4_AXIS_H_
 
 #include <cmath>
+#include <vector>
 
 #include <a4/types.h>
 

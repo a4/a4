@@ -2,6 +2,7 @@
 #define _A4_INPUT_STREAM_H_
 
 #include <string>
+#include <vector>
 
 #include <a4/types.h>
 
