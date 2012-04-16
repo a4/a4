@@ -89,8 +89,6 @@ std::ostream &operator<<(std::ostream &out, const Axis &axis)
 // VariableAxis
 //
 
-VariableAxis::VariableAxis() {};
-
 VariableAxis::VariableAxis(const std::vector<double>& bins)
 {    
     _init_bins(bins.size());
