@@ -143,6 +143,8 @@ class Processor {
         /// Set this flag to skip to the next metadata block
         bool skip_to_next_metadata;
 
+	bool metadata_present() { return bool(metadata_message); }
+
     protected:
         /// In this store you can put named objects.
         /// It will be written and cleared at every metadata block boundary.
