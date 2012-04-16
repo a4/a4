@@ -234,7 +234,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             // WARNING: "no metadata" events are subsumed into previous/next metadata here!
             if (c_new_metadata) {
                 // Process end of old metadata block, if any.
-                if (output_adaptor->current_metadata)
+                if (p->metadata_present())
                     p->process_end_metadata();
 
                 // Process start of new incoming metadata block (this may modify new_metadata)
@@ -277,7 +277,7 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
                 // WARNING: "no metadata" events are subsumed into previous/next metadata here!
                 if (c_new_metadata) {
                     // Process end of old metadata block, if any.
-                    if (output_adaptor->current_metadata)
+                    if (p->metadata_present())
                         p->process_end_metadata();
 
                     // Process start of new incoming metadata block (this may modify new_metadata)
@@ -344,7 +344,9 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
             return;
         }
     }
-
+    
+    if (p->metadata_present())
+        p->process_end_metadata();
     // Stream store to output
     output_adaptor->end_block();
     stats.cputime = boost::chrono::thread_clock::now() - start;
