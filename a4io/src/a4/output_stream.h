@@ -69,7 +69,7 @@ namespace io {
                 SNAPPY,
                 LZ4,
             } CompressionType;
-            CompressionType compression_type(std::string s) {
+            static CompressionType compression_type(const std::string& s) {
                 if(s == "UNCOMPRESSED") return UNCOMPRESSED;
                 if(s == "ZLIB") return ZLIB;
                 if(s == "SNAPPY") return SNAPPY;

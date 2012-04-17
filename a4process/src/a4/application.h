@@ -2,6 +2,7 @@
 #define _A4_APPDRIVERS_H_
 
 #include <a4/driver.h>
+#include <a4/output_stream.h>
 
 namespace a4 {
     namespace io {
@@ -24,6 +25,9 @@ namespace a4 {
                 shared<a4::io::A4Input> in;
                 shared<a4::io::A4Output> out, res;
                 int threads;
+                std::string _compression_string;
+                a4::io::OutputStream::CompressionType _compression_type;
+                int _compression_level;
         };
 
         template <class MyConfiguration, class MyDriver=SimpleCommandLineDriver>
