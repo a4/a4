@@ -33,5 +33,10 @@
 #define INFO_ASSERT(A, ...) do { if(!(A)) { INFO( __VA_ARGS__ ); } } while (0)
 #define VERBOSE_ASSERT(A, ...) do { if(!(A)) { VERBOSE( __VA_ARGS__ ); } } while (0)
 
+// Used to silence
+// "error: ignoring return value of ‘func’, declared with attribute warn_unused_result
+// (but only when we know what we're doing!)
+#define A4_UNUSED(expression) ((void)expression)
+
 #endif // _A4_DEBUG_H
 

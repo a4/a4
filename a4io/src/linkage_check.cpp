@@ -44,7 +44,9 @@ public:
         
         if (_young_libraries.size()) {
             char prog[1024] = {0};
-            readlink("/proc/self/exe", prog, sizeof(prog));
+            const auto result = readlink("/proc/self/exe", prog, sizeof(prog));
+            // Silence warnings
+            A4_UNUSED(result);
             prog[sizeof(prog)/sizeof(char) - 1] = 0;
             
         
