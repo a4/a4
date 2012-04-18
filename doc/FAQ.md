@@ -120,11 +120,14 @@ merging files on the grid easier. They can then be broken apart on metadata
 boundaries using `a4copy --split-per run -o output.a4 input_runs.a4`.
 
 
-Why would I put in the effort to get my existing data into the .a4 format?
---------------------------------------------------------------------------
+How difficult is it to get my existing data into the .a4 format?
+----------------------------------------------------------------
 
-A4 provides `root2a4` and `a42root` to convert betweeen root files and the .a4
-format.
+A4 provides `root2a4` and `a42root` to convert betweeen flat CERN ROOT TTrees
+and the .a4 format. You just need to write down the .proto file ala
+[NTUP_PHOTON](https://github.com/JohannesEbke/a4/blob/master/a4atlas/proto/a4/atlas/ntup/photon/Event.proto).
+
+(This can be done automatically for ATLAS D3PDs, see [D3PDMakerA4](https://github.com/JohannesEbke/a4/tree/master/a4atlas/D3PDMakerA4)).
 
 
 How fast is it?
