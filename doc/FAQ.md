@@ -185,6 +185,45 @@ lightweight histogram type. The `a4results2root` provides conversion to CERN
 ROOT histograms.
 
 
+What is this `ObjectStore` you keep alluding to?
+------------------------------------------------
+
+The basic idea is to get rid of boilerplate and repetative code, which is found
+all over the place when filling lots of histograms. Usually you have define the
+histogram, create it, fill it, save it and plot it - at the very least. That
+means a lot of annoying unnecessary copy-pasta strewn across many functions.
+
+In addition, if you want to do anything extra, say, define axis labels, that is
+yet more effort. Putting your histograms into a neat directory structure is also
+a pain, and if there are are a dynamic number of histograms.. well. You get the
+picture.
+
+[`a4store`]() allows you to define histogram, its labels, its position in a
+directory heirarchy _and_ fill it all on the same line of code. It sounds like
+it would be a mess and slow, but the penalty is
+[insignificant](https://github.com/JohannesEbke/a4/blob/master/a4hist/src/gtests/test_hist.cpp)
+due to compiler optimization. It looks something like this:
+
+    Store.T<H1>("electron/pt")(100, 0, 100, "p_{T} [GeV]").fill(electron.pt());
+
+Don't let the use of strings put you off. `a4store` can tell that they are in a
+read only part of memory and only does a pointer lookup. Take a look at the
+[a4store readme](https://github.com/JohannesEbke/a4/blob/master/a4store/README.md)
+for more information.
+
+I don't want to use your crazy file format but a4store sounds cool..
+--------------------------------------------------------------------
+
+> .. can I just use that?
+
+Yes, and there are no dependancies, other than CERN ROOT! It's only O(2koc) of
+code which is a much more reasonable proposition to use. Simply copy the a4store
+directory and build it with `./waf`.
+
+It's a bit of a work in progress, but you can use it with pure CERN ROOT
+histograms in your analysis.
+
+
 Python support?
 ---------------
 
@@ -251,7 +290,6 @@ What things have you forgotten to mention in detail in this FAQ?
 ----------------------------------------------------------------
 
 * `a4process`
-* `a4store`
 * protobuf's extensions
 * Example analyses
 * Analysis workflow
