@@ -99,7 +99,9 @@ Protobuf is interesting and powerful, but it is _just_ a library to go between
 bytes and class instances. It does no more than this. That means that if you want
 to store more than one object, you need to write your own file format. For large
 numbers of objects you will want to use compression. The bytes-on-disk for one
-object are also not self describing. A4 also serializes the class
+object are also not self describing.
+
+A4 also serializes the class
 structure itself to disk, so that a standalone .a4 file is usable by itself.
 In addition, this allows one to write some generic tools, for example `a4dump`
 that can be used for inspecting and aggregating information.
@@ -118,6 +120,13 @@ merging files on the grid easier. They can then be broken apart on metadata
 boundaries using `a4copy --split-per run -o output.a4 input_runs.a4`.
 
 
+Why would I put in the effort to get my existing data into the .a4 format?
+--------------------------------------------------------------------------
+
+A4 provides `root2a4` and `a42root` to convert betweeen root files and the .a4
+format.
+
+
 How fast is it?
 ---------------
 
@@ -129,9 +138,15 @@ code, so, for example, `event.run_number()` only costs a few CPU instructions.
 With ~230 filled fields/message, approximately 80 kHz / core (~50mb/sec/core)
 can be achieved on an Intel Xeon E5520 @ 2.27GHz.
 
-Please don't trust the above statistics, it is the best case.
+In my analysis I am able to process 8 GB of data (O(8M events)) in 1 minute with
+a warm network disk cache - 2 minutes cold.
+
+Please don't trust the above statistics just yet.
 
 (TODO: put more concrete statistics here)
+
+Note that for "generic" utilities which work on proto classes not known in
+advance use a reflection API and are typically 5-10x slower.
 
 
 How does the file size compare with ROOT TTrees?
