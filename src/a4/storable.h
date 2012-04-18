@@ -1,6 +1,8 @@
 #ifndef _A4_STORABLE_H_
 #define _A4_STORABLE_H_
 
+#include <vector>
+
 #ifdef A4STORE_STANDALONE
 
 #include <memory>
