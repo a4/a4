@@ -1,7 +1,15 @@
 #include <iostream>
 
 #include <a4/application.h>
-#include <a4/process/A4Key.pb.h>
+
+using a4::store::StorableAs;
+
+#include <a4/store/A4Key.pb.h>
+using a4::store::TestHisto;
+using a4::store::TestHistoMetaData;
+A4RegisterClass(a4::store::TestHisto);
+A4RegisterClass(a4::store::TestHistoMetaData);
+
 #include <a4/io/A4Stream.pb.h>
 
 using namespace a4::process;

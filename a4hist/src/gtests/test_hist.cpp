@@ -6,6 +6,8 @@
 
 #include <a4/histogram.h>
 #include <a4/object_store.h>
+using a4::store::ObjectStore;
+using a4::store::ObjectBackStore;
 
 #include <boost/thread.hpp>
 
@@ -69,9 +71,7 @@ TEST(a4hist, h2) {
     ASSERT_EQ(2, h2.integral());
 }
 
-// No support for initializer lists in clang yet.
-// http://clang.llvm.org/cxx_status.html
-#ifndef __clang__
+#ifdef HAVE_INITIALIZER_LISTS
 TEST(a4hist, basic_variable_binning_check) {
     H1 h1;
     
@@ -113,37 +113,37 @@ TEST(a4hist, test_h1_grind) {
 }
 
 TEST(a4hist, test_h1_grind_backstore) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         S.T<H1>("hist")(100, 0, 1).fill(i);
 }
 
-#ifndef __clang__
+#ifndef HAVE_INITIALIZER_LISTS
 TEST(a4hist, test_h1_grind_backstore_variable) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         S.T<H1>("hist")({10., 20., 1000., 1000000., 5000000.}).fill(i);
 }
 
 TEST(a4hist, test_h1_grind_backstore_variable_label) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         S.T<H1>("hist")({10., 20., 1000., 1000000., 5000000.}, "x").fill(i);
 }
 
 TEST(a4hist, test_h1_grind_backstore_variable_int) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         S.T<H1>("hist")({10, 20, 1000, 1000000, 5000000}).fill(i);
 }
-#endif // clang
+#endif // HAVE_INITIALIZER_LISTS
 
 TEST(a4hist, test_h1_grind_backstore_many) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS / 10; i++) {
         S.T<H1>("hist0")(100, 0, 1).fill(i+0);
@@ -159,7 +159,7 @@ TEST(a4hist, test_h1_grind_backstore_many) {
     }
 }
 
-void test_h1_grind_backstore_func_fill_histos(a4::process::ObjectStore S, const int& i) {
+void test_h1_grind_backstore_func_fill_histos(ObjectStore S, const int& i) {
     S.T<H1>("hist0")(100, 0, 1).fill(i+0);
     S.T<H1>("hist1")(100, 0, 1).fill(i+1);
     S.T<H1>("hist2")(100, 0, 1).fill(i+2);
@@ -173,7 +173,7 @@ void test_h1_grind_backstore_func_fill_histos(a4::process::ObjectStore S, const 
 }
 
 TEST(a4hist, test_h1_grind_backstore_func) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS / 10 / 10; i++) {
         test_h1_grind_backstore_func_fill_histos(S("0/"), i);
@@ -190,7 +190,7 @@ TEST(a4hist, test_h1_grind_backstore_func) {
 }
 
 TEST(a4hist, test_h1_grind_dynamic_100) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++) {
         S.T<H1>("hist0", i % 100)(100, 0, 1).fill(i+0);
@@ -198,7 +198,7 @@ TEST(a4hist, test_h1_grind_dynamic_100) {
 }
 
 TEST(a4hist, test_h1_grind_dynamic_crazy) {
-    a4::process::ObjectBackStore backstore;
+    ObjectBackStore backstore;
     auto S = backstore("test/");
     for (size_t i = 0; i < GRIND_REPETITIONS; i++) {
         S.T<H1>("hist0", i % 100, i % 200, i % 500)(100, 0, 1).fill(i+0);
@@ -211,14 +211,14 @@ TEST(a4hist, test_h1_grind_labelled) {
         h1("title")(100, 0, 1, "axis label").fill(i);
 }
 
-#ifndef __clang__
+#ifndef HAVE_INITIALIZER_LISTS
 TEST(a4hist, test_h1_grind_variable) {
     H1 h1;
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
         h1({1., 2., 3., 4., 5., 100000., 1000000., 5000000.}).fill(i);
     //std::cout << h1 << std::endl;
 }
-#endif // clang
+#endif // HAVE_INITIALIZER_LISTS
 
 TEST(a4hist, test_h2_grind) {
     H2 h2;
@@ -226,7 +226,7 @@ TEST(a4hist, test_h2_grind) {
         h2(100, 0, 1)(100, 0, 1).fill(i, i);
 }
 
-#ifndef __clang__
+#ifndef HAVE_INITIALIZER_LISTS
 TEST(a4hist, test_h2_grind_variable) {
     H2 h2;
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
@@ -236,7 +236,7 @@ TEST(a4hist, test_h2_grind_variable) {
             
     //std::cout << h2 << std::endl;
 }
-#endif // clang
+#endif // HAVE_INITIALIZER_LISTS
 
 TEST(a4hist, test_h3_grind) {
     H3 h3;
@@ -244,7 +244,7 @@ TEST(a4hist, test_h3_grind) {
         h3(100, 0, 1)(100, 0, 1)(100, 0, 1).fill(i, i, i);
 }
 
-#ifndef __clang__
+#ifndef HAVE_INITIALIZER_LISTS
 TEST(a4hist, test_h3_grind_variable) {
     H3 h3;
     for (size_t i = 0; i < GRIND_REPETITIONS; i++)
@@ -267,7 +267,7 @@ TEST(a4hist, test_h3_grind_variable_titles) {
             
     //std::cout << h2 << std::endl;
 }
-#endif
+#endif // HAVE_INITIALIZER_LISTS
 
 #ifdef HAVE_CERN_ROOT_SYSTEM
 

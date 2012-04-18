@@ -3,8 +3,15 @@
 
 #include <vector>
 
+#ifdef A4STORE_STANDALONE
+
+#include <memory>
+#define shared std::shared_ptr
+
+#else
 #include <a4/a4io.h>
 #include <a4/types.h>
+#endif // ifdef A4STORE_STANDALONE else
 
 
 namespace google {
@@ -16,7 +23,7 @@ namespace protobuf {
 
 
 namespace a4 {
-namespace process {
+namespace store {
 
 
     /// Storable objects are objects that can be stored in an ObjectStore.
@@ -25,12 +32,16 @@ namespace process {
     class Storable {
         public:
             Storable() : _current_weight(1.0) {}
+#ifdef A4STORE_STANDALONE
+            // TODO: implement alternative storage mechanisms
+#else
             /// Get a Protobuf message that contains the information about this object
             virtual shared<const google::protobuf::Message> as_message() = 0;
             /// Use this function if the Storable should copy the info from the message
             virtual void construct_from(const google::protobuf::Message&) = 0;
             /// Use this function of the Storable is allowed to keep the message
             virtual void construct_from(shared<google::protobuf::Message> m) = 0;
+#endif // ifdef A4STORE_STANDALONE
             /// Require that merging works. Must throw an exception if merge fails. (may be bad_cast)
             virtual Storable& operator+=(const Storable &other) = 0;
             // Trying C++0x move semantics...
@@ -52,6 +63,8 @@ namespace process {
             double _current_weight;
     };
 
+
+    #ifndef A4STORE_STANDALONE    
     namespace internal {
 
         typedef shared<Storable> (*from_message_func)(const google::protobuf::Message&);
@@ -139,6 +152,7 @@ namespace process {
                 return t;
             }
 
+            #ifdef HAVE_INITIALIZER_LISTS
             /// This constructor is needed to prevent GCC from complaining and
             /// possibly to work with compilers < GCC4.6
             template <typename... Args> This& operator()(const std::initializer_list<double>& bins, const char* label="") {
@@ -161,6 +175,7 @@ namespace process {
                 }
                 return *static_cast<This*>(this);
             }
+            #endif // HAVE_INITIALIZER_LISTS
             
             template <typename... Args> This& operator()(const Args&... args) {
                 if (_initializations_remaining != 0) {
@@ -198,6 +213,8 @@ namespace process {
     bool StorableAs<This, ProtoClass>::_registered = internal::reg_storable<This, ProtoClass>();
 
     shared<Storable> message_to_storable(shared<const a4::io::A4Message> msg);
+    
+    #endif // ifndef A4STORE_STANDALONE
 
 }
 }

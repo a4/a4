@@ -1,7 +1,14 @@
 #ifndef _A4_OBJECT_STORE_H_
 #define _A4_OBJECT_STORE_H_
 
+#include <string>
+#include <vector>
+
+#ifdef A4STORE_STANDALONE
+#define UNIQUE shared
+#else
 #include <boost/static_assert.hpp>
+#endif
 
 #include <a4/hash_lookup.h>
 #include <a4/storable.h>
@@ -11,7 +18,7 @@
 class hash_lookup;
 
 namespace a4 {
-namespace process {
+namespace store {
     
     class ObjectBackStore;
 
@@ -96,10 +103,13 @@ namespace process {
             template <class C> std::vector<std::string> list() const;
             /// Get a list of all keys in this store
             std::vector<std::string> list() const;
+            
+#ifndef A4STORE_STANDALONE
             /// Write all objects out into the given stream
             void to_stream(a4::io::OutputStream &outs) const;
             /// Read Storable Objects from input stream until new_metadata() is true
             void from_stream(a4::io::InputStream& ins);
+#endif // A4STORE_STANDALONE
         protected:
             // The fast lookup table
             UNIQUE<hash_lookup> hl;

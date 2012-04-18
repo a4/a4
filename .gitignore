@@ -8,8 +8,7 @@
 *.eps
 *.ps
 
-/build/
-/build-*/
+/build*/
 
 install/
 InstallArea/
@@ -31,3 +30,6 @@ snappy/
 /.unittest-gtest/
 /.waf-*/
 
+/a4store/.lock-waf_linux2_build
+/a4store/.waf-*/
+/a4store/build*/

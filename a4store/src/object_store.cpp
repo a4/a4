@@ -1,20 +1,26 @@
+// This file targets gcc 4.3. 
+// Please no auto
+
 #include <iostream>
+#include <vector>
 
 //#include <google/protobuf/message.h>
 
-#include <a4/object_store.h>
+#ifndef A4STORE_STANDALONE
 #include <a4/register.h>
 #include <a4/message.h>
 #include <a4/output_stream.h>
 #include <a4/input_stream.h>
 
-#include <a4/process/A4Key.pb.h>
 
-A4RegisterClass(a4::process::A4Key);
-A4RegisterClass(a4::process::TestHisto);
-A4RegisterClass(a4::process::TestHistoMetaData);
+#include <a4/store/A4Key.pb.h>
+A4RegisterClass(a4::store::A4Key);
+#endif
 
-namespace a4{ namespace process{
+#include <a4/object_store.h>
+
+namespace a4 {
+namespace store {
 
     ObjectBackStore::ObjectBackStore() {
         hl.reset(new hash_lookup());
@@ -27,6 +33,7 @@ namespace a4{ namespace process{
         return ObjectStore(hl.get(), this, 1.0); 
     }
 
+#ifndef A4STORE_STANDALONE
     void ObjectBackStore::to_stream(a4::io::OutputStream& outs) const {
         for (auto i = _store->begin(); i != _store->end(); i++) {
             A4Key k;
@@ -53,10 +60,12 @@ namespace a4{ namespace process{
         }
     
     }
+#endif
 
     std::vector<std::string> ObjectBackStore::list() const {
         std::vector<std::string> res;
-        for (auto i = _store->begin(); i != _store->end(); i++) {
+        for (std::map<std::string, shared<Storable>>::const_iterator i = _store->begin();
+             i != _store->end(); i++) {
             res.push_back(i->first);
         }
         return res;

@@ -1,16 +1,26 @@
 #ifndef _A4_OBJECT_STORE_IMPL_H_
 #define _A4_OBJECT_STORE_IMPL_H_
 
-#include <boost/type_traits.hpp>
+#ifdef A4STORE_STANDALONE
 
+#include <memory>
+#define shared std::shared_ptr
+using std::static_pointer_cast;
+using std::dynamic_pointer_cast;
+#define BOOST_STATIC_ASSERT_MSG(...) 
+
+#else
+#include <boost/type_traits.hpp>
 #include <a4/types.h>
+#endif // ifdef A4STORE_STANDALONE else
+
 #include <a4/object_store.h>
 
 
 namespace a4 {
-namespace process {
+namespace store {
 
-    using a4::process::Storable;
+    using a4::store::Storable;
 
     template <class C, typename ...Args> 
     C& ObjectStore::T(const Args& ...args) {
@@ -39,7 +49,7 @@ namespace process {
 
     template <class C> 
     shared<C> ObjectStore::get_slow(const std::string& name) const {
-        auto res = backstore->get<C>(hl->get_path() + name);
+        shared<C> res = backstore->get<C>(hl->get_path() + name);
         if (res) static_cast<Storable*>(res.get())->weight(current_weight);
         return res;
     }
@@ -57,7 +67,7 @@ namespace process {
     C* ObjectStore::find(const Args& ...args) {
         BOOST_STATIC_ASSERT_MSG((boost::is_convertible<C*, Storable*>::value), 
             "You can only store objects that implement the Storable interface into the ObjectStore!");
-        auto res = dynamic_cast<C*>(static_cast<Storable*>(&T<C>(args...)));
+        C* res = dynamic_cast<C*>(static_cast<Storable*>(&T<C>(args...)));
         if (res)
             static_cast<Storable*>(res)->weight(current_weight);
         return res;
@@ -67,7 +77,7 @@ namespace process {
     C* ObjectStore::find_slow(const Args& ...args) {
         BOOST_STATIC_ASSERT_MSG((boost::is_convertible<C*, Storable*>::value), 
             "You can only store objects that implement the Storable interface into the ObjectStore!");
-        auto res = dynamic_cast<C*>(static_cast<Storable*>(backstore->find<C>(hl->get_path(), args...)));
+        C* res = dynamic_cast<C*>(static_cast<Storable*>(backstore->find<C>(hl->get_path(), args...)));
         if (res)
             static_cast<Storable*>(res)->weight(current_weight);
         return res;

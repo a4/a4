@@ -1,10 +1,12 @@
+#ifndef A4STORE_STANDALONE
+
 #include <map>
 
 #include <a4/message.h>
 #include <a4/storable.h>
 
 namespace a4 {
-namespace process {
+namespace store {
     namespace internal {
         from_message_func as_storable(const google::protobuf::Descriptor* d, from_message_func func) {
             static std::map<const google::protobuf::Descriptor*, from_message_func> all_storable_ids;
@@ -23,3 +25,6 @@ namespace process {
     
 }
 }
+
+#endif // ifndef A4STORE_STANDALONE
+
