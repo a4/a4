@@ -32,6 +32,15 @@ public:
 
     SpecificRootStorable() : _initializations_remaining(1) {}
 
+
+#ifdef A4STORE_STANDALONE
+            // TODO: implement alternative storage mechanisms
+#else
+    virtual shared<const google::protobuf::Message> as_message() { FATAL("Can't serialize root objects to protobuf"); }
+    virtual void construct_from(const google::protobuf::Message&) { FATAL("Can't build root obects from protobuf"); }
+    virtual void construct_from(shared<google::protobuf::Message> m) { construct_from(*m); }
+#endif // ifdef A4STORE_STANDALONE
+
     virtual Storable& operator+=(const Storable &other) { abort(); }
     virtual Storable&& operator+(const Storable &other) { abort(); }
     virtual Storable& operator*=(const double&) { abort(); }
