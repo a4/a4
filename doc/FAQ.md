@@ -213,7 +213,7 @@ yet more effort. Putting your histograms into a neat directory structure is also
 a pain, and if there are are a dynamic number of histograms.. well. You get the
 picture.
 
-[`a4store`]() allows you to define histogram, its labels, its position in a
+[`a4store`](https://github.com/JohannesEbke/a4/blob/master/a4store/README.md) allows you to define histogram, its labels, its position in a
 directory heirarchy _and_ fill it all on the same line of code. It sounds like
 it would be a mess and slow, but the penalty is
 [insignificant](https://github.com/JohannesEbke/a4/blob/master/a4hist/src/gtests/test_hist.cpp)
