@@ -810,8 +810,24 @@ class AOD2A4(AOD2A4Base):
             ptmx, ptmy, ptms = 0, 0, 0
 
             truth = list(self.sg["GEN_AOD"])
+
             hard = True
             for t in truth:
+                if hard:
+                    if t.alphaQCD() != -1:
+                        event.pdf_info.alpha_qcd = t.alphaQCD()
+                    if t.alphaQED() != -1:
+                        event.pdf_info.alpha_qed = t.alphaQED()
+                    if t.event_scale() != -1:
+                        event.pdf_info.event_scale = t.event_scale()
+                    if t.mpi() != -1:
+                        event.pdf_info.mpi = t.mpi()
+                    pdfi = t.pdf_info()
+                    event.pdf_info.id1, event.pdf_info.id2 = pdfi.id1(), pdfi.id2()
+                    event.pdf_info.pdf1, event.pdf_info.pdf2 = pdfi.pdf1(), pdfi.pdf2()
+                    event.pdf_info.scale_pdf = pdfi.scalePDF()
+                    event.pdf_info.x1, event.pdf_info.x2 = pdfi.x1(), pdfi.x2()
+
                 for p in get_all_particles(t):
                     if 10 < p.pdg_id() < 19:
                         if is_final(p) and not is_coloured(p) and p.momentum().perp() > 5000.0:

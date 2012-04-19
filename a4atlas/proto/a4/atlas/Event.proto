@@ -35,6 +35,21 @@ message RunLB
     optional int32 lumiblock = 2;
 }
 
+message PDFInfo
+{
+    optional int32 id1 = 1;
+    optional int32 id2 = 2;
+    optional double pdf1 = 3;
+    optional double pdf2 = 4;
+    optional double x1 = 5;
+    optional double x2 = 6;
+    optional double scale_pdf = 7;
+    optional double alpha_qcd = 8;
+    optional double alpha_qed = 9;
+    optional double event_scale = 10;
+    optional double mpi = 11;
+}
+
 // Note: Many of the properties of this class will only be correct when 
 //       aggregated by keying on `name`.
 
@@ -168,4 +183,6 @@ message Event
     repeated LorentzVector truth_neutrinos = 102;
     repeated TruthParticle truth_electrons = 103;
     repeated TruthParticle truth_muons = 104;
+
+    optional PDFInfo pdf_info = 105;
 }
