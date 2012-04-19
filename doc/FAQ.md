@@ -1,6 +1,16 @@
 A4 FAQ
 ======
 
+What is A4?
+-----------
+
+A4 is a file format for encapsulating protocol buffers messages. Reading and
+writing these files is provided by the `a4io` library, and there are other
+optional libraries which provide help with analysis: `a4atlas`, `a4hist`,
+`a4plot`, `a4process`, `a4root` and `a4store`. In addition, `a4store` can
+optionally be used by itself with CERN ROOT.
+
+
 What do I need?
 ---------------
 
