@@ -509,10 +509,10 @@ def add_proto(bld, pack, pf_node, includes):
 
     inc_paths = ["-I%s"%i for i in bld.env["INCLUDES_PROTOBUF"]]
     for i in includes:
-        res = bld.path.find_or_declare(i)
-        if not res: continue
-        rel_path = res.path_from(bld.path.get_bld())
-        inc_paths.append("-I" + rel_path)
+        res = bld.path.find_node(i)
+        if res:
+            rel_path = res.path_from(bld.path.get_bld())
+            inc_paths.append("-I" + rel_path)
     incs = " ".join(inc_paths)
 
     targets = [bld.path.find_or_declare(n) for n in cpptargets+pytarget]
