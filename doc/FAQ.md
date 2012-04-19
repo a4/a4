@@ -1,6 +1,7 @@
 A4 FAQ
 ======
 
+
 What is A4?
 -----------
 
@@ -14,10 +15,7 @@ optionally be used by itself with CERN ROOT.
 What do I need?
 ---------------
 
-* GCC >= 4.4
-* Boost >= 1.47
-* Protobuf >= 2.4.1
-* CERN ROOT >=5 (optional)
+GCC >= 4.4, Boost >= 1.47, Protobuf >= 2.4.1, CERN ROOT >=5 (optional)
 
 
 You have all these horrible dependencies!
