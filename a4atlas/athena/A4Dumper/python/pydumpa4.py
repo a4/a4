@@ -549,6 +549,10 @@ class AOD2A4(AOD2A4Base):
             j.fmax = self.jet_fmax(jet)
             j.sum_pt_trk = jet.getMoment("sumPtTrk")
             j.avg_lar_qf = jet.getMoment("AverageLArQF")
+            j.eta_origin = jet.getMoment('EtaOrigin')
+            j.phi_origin = jet.getMoment('PhiOrigin')
+            j.m_origin = jet.getMoment('MOrigin')
+
 
             if self.metref_composition.contains(jet):
                 set_met_contrib(j.met_contribution, self.metref_composition.getParameter(jet))

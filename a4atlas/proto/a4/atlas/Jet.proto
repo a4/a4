@@ -32,6 +32,9 @@ message Jet
     optional double n_trk = 124;
     optional double sum_pt_trk = 119;
     optional double avg_lar_qf = 123; 
+    optional double eta_origin = 126; 
+    optional double phi_origin = 127; 
+    optional double m_origin = 128; 
     
     enum TruthFlavor {
         Light = 0;
