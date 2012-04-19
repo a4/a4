@@ -279,7 +279,7 @@ def set_met_contrib(mc, weight):
         mc.wpx = weight.wpx()
         mc.wpy = weight.wpy()
         mc.status_word = weight.statusWord()
-        print mc.status_word, mc.wet, mc.wpx, mc.wpy
+        #print mc.status_word, mc.wet, mc.wpx, mc.wpy
 
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
 
