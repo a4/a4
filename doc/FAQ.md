@@ -299,10 +299,7 @@ I have an issue!
 ----------------
 
 If you have a problem of any kind, however small it seems, please let us know by
-[submitting an issue](https://github.com/JohannesEbke/a4/issues/new). If you ħave a failure which results in a backtrace
-(caused by A4), you can submit it to us automatically by
-[configuring your github credentials](http://help.github.com/set-your-user-name-email-and-github-token/)
-and running `a4shout.sh`.
+[submitting an issue](https://github.com/JohannesEbke/a4/issues/new).
 
 
 I'd like to contribute / I have an idea
