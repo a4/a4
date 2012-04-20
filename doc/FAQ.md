@@ -1,13 +1,23 @@
 A4 FAQ
 ======
 
+
+What is A4?
+-----------
+
+A4 is a file format for encapsulating Google's protobuf messages and a
+framework for efficiently processing them.
+
+Reading and writing these files is provided by the `a4io` library, and there
+are other optional libraries which provide help with analysis: `a4atlas`,
+`a4hist`, `a4plot`, `a4process`, `a4root` and `a4store`. In addition, `a4store`
+can optionally be used by itself with CERN ROOT.
+
+
 What do I need?
 ---------------
 
-* GCC >= 4.4
-* Boost >= 1.47
-* Protobuf >= 2.4.1
-* CERN ROOT >=5 (optional)
+GCC >= 4.4, Boost >= 1.47, Protobuf >= 2.4.1, CERN ROOT >=5 (optional)
 
 
 You have all these horrible dependencies!
@@ -291,10 +301,7 @@ I have an issue!
 ----------------
 
 If you have a problem of any kind, however small it seems, please let us know by
-[submitting an issue](https://github.com/JohannesEbke/a4/issues/new). If you ħave a failure which results in a backtrace
-(caused by A4), you can submit it to us automatically by
-[configuring your github credentials](http://help.github.com/set-your-user-name-email-and-github-token/)
-and running `a4shout.sh`.
+[submitting an issue](https://github.com/JohannesEbke/a4/issues/new).
 
 
 I'd like to contribute / I have an idea
