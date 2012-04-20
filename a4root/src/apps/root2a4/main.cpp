@@ -55,6 +55,7 @@ using google::protobuf::compiler::SourceTreeDescriptorDatabase;
 //#include <a4/atlas/ntup/smwz/Event.pb.h>
 
 #include <a4/atlas/Event.pb.h>
+#include <a4/atlas/EventMetaData.pb.h>
 
 using a4::atlas::EventMetaData;
 using a4::atlas::ProcessingStep;
