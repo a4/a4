@@ -273,35 +273,77 @@ bool OutputStream::write_footer() {
     return true;
 }
 
-void get_descriptors_recursively(
-    std::vector<const google::protobuf::FileDescriptor*>& file_descriptors, 
-    const google::protobuf::FileDescriptor* file_descriptor) 
+/// Given a FileDescriptor, return all of the dependencies
+/// in the file_descriptors set.
+std::vector<const google::protobuf::FileDescriptor*> get_file_descriptors(
+    std::set<const google::protobuf::FileDescriptor*>& seen_fds,
+    const google::protobuf::FileDescriptor* file_descriptor)
 {
-    foreach (const google::protobuf::FileDescriptor* fd, file_descriptors) {
-        if (fd->name() == file_descriptor->name())
-            return; // We have seen this one before
-    }
+    std::vector<const google::protobuf::FileDescriptor*> file_descriptors;
+    if (seen_fds.insert(file_descriptor).second)
+        return file_descriptors;
         
-    for (int i = 0; i < file_descriptor->dependency_count(); i++)
-        get_descriptors_recursively(file_descriptors, file_descriptor->dependency(i));
+    for (int i = 0; i < file_descriptor->dependency_count(); i++) {
+        const auto tmp = get_file_descriptors(seen_fds, file_descriptor->dependency(i));
+        file_descriptors.insert(file_descriptors.end(), tmp.begin(), tmp.end());
+    }
     
     file_descriptors.push_back(file_descriptor);
+    return file_descriptors;
 }
 
+
+/// Find all extension descriptors for `d`, including sub fields at any depth
+/// which are message types.
+/// Not handled: nested message types
+std::vector<const google::protobuf::FieldDescriptor*> get_extension_descriptors(
+    std::set<const google::protobuf::Descriptor*>& seen_descriptors,
+    const google::protobuf::Descriptor* d)
+{
+    std::vector<const google::protobuf::FieldDescriptor*> extensions;
+    if (seen_descriptors.insert(d).second)
+        return extensions;
+    
+    for (int i = 0; i < d->field_count(); i++) {
+        const auto& field = *d->field(i);
+        if (field.cpp_type() == google::protobuf::FieldDescriptor::CPPTYPE_MESSAGE) {
+            const auto tmp = get_extension_descriptors(seen_descriptors, field.message_type());
+            extensions.insert(extensions.end(), tmp.begin(), tmp.end());
+        }
+    }
+    
+    d->file()->pool()->FindAllExtensions(d, &extensions);
+    return extensions;
+}
+
+/// Write the protoclass definition to the output stream.
+/// Strategy: Find all of the file descriptors needed to fully represent a class
+/// (e.g. all of its field types). If any of the classes have been extended,
+/// their extensions must be written out, too.
 void OutputStream::write_protoclass(uint32_t class_id, const google::protobuf::Descriptor* d)
 {
     ProtoClass a4proto;
     a4proto.set_class_id(class_id);
     a4proto.set_full_name(d->full_name());
 
-    // Add necessary file descriptors
-    std::vector<const google::protobuf::FileDescriptor*> file_descriptors;
-    get_descriptors_recursively(file_descriptors, d->file());
+    // Fetch file descriptors depended on by the file containing this class
+    std::set<const google::protobuf::FileDescriptor*> seen_fds;
+    auto file_descriptors = get_file_descriptors(seen_fds, d->file());
+    
+    // Fetch extensions on all subclasses of this descriptor
+    std::set<const google::protobuf::Descriptor*> seen_descriptors;
+    auto extensions = get_extension_descriptors(seen_descriptors, d);
+    
+    foreach (const google::protobuf::FieldDescriptor* ext, extensions) {
+        const auto* fd = ext->file();
+        if (seen_fds.insert(fd).second)
+            continue;
+        file_descriptors.push_back(fd);
+    }
     foreach (const google::protobuf::FileDescriptor* fd, file_descriptors) {
-        if (!_written_file_descriptor_set.insert(fd->name()).second) continue;
-        google::protobuf::FileDescriptorProto fdp;
-        fd->CopyTo(&fdp); // Necessary to have it in proto form
-        a4proto.add_file_descriptor()->CopyFrom(fdp);
+        if (!_written_file_descriptor_set.insert(fd->name()).second)
+            continue; // Skip already written descriptors
+        fd->CopyTo(a4proto.add_file_descriptor());
     }
     protoclass_positions.push_back(get_bytes_written());
     if (class_id >= _class_id_counts.size()) {
