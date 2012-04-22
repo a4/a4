@@ -118,12 +118,16 @@ bool OutputStream::close() {
     return true;
 }
 
+/// Returns the current number of bytes written.
+/// Note: If compression is currently active, it is temporarily halted.
 uint64_t OutputStream::get_bytes_written() {
-    assert(!_compressed_out);
+    bool compressed = !!(_compressed_out);
+    if (compressed) stop_compression();
     assert(_raw_out);
     _coded_out.reset();
     uint64_t size = _raw_out->ByteCount();
     _coded_out.reset(new CodedOutputStream(_raw_out.get()));
+    if (compressed) start_compression();
     return size;
 }
 
@@ -169,15 +173,8 @@ bool OutputStream::write(shared<const A4Message> msg)
 bool OutputStream::metadata(const google::protobuf::Message &msg) {
     if (!_opened) if(!open()) { return false; };
     uint32_t class_id = find_class_id(msg.GetDescriptor(), true);
-    if (_compressed_out) {
-        stop_compression();
-        metadata_positions.push_back(get_bytes_written());
-        start_compression();
-        return write(class_id, msg);
-    } else {
-        metadata_positions.push_back(get_bytes_written());
-        return write(class_id, msg);
-    }
+    metadata_positions.push_back(get_bytes_written());
+    return write(class_id, msg);
 }
 
 void OutputStream::reset_coded_stream() {
@@ -306,13 +303,7 @@ void OutputStream::write_protoclass(uint32_t class_id, const google::protobuf::D
         fd->CopyTo(&fdp); // Necessary to have it in proto form
         a4proto.add_file_descriptor()->CopyFrom(fdp);
     }
-    if (_compressed_out) {
-        stop_compression();
-        protoclass_positions.push_back(get_bytes_written());
-        start_compression();
-    } else {
-        protoclass_positions.push_back(get_bytes_written());
-    }
+    protoclass_positions.push_back(get_bytes_written());
     if (class_id >= _class_id_counts.size()) {
         _class_id_counts.resize(class_id+1);
     }
