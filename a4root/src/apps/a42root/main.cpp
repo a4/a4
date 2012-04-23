@@ -1,5 +1,7 @@
 #include <map>
 #include <string>
+#include <vector>
+#include <unordered_set>
 
 #include <TTree.h>
 #include <TFile.h>
@@ -338,11 +340,13 @@ public:
         
         _top_node.reset(new MessageTreeNode(_root_tree));
         
-        make_tree(_top_node, _root_tree, descriptor);
+        make_tree(std::unordered_set<const FieldDescriptor*>(),
+                  _top_node, _root_tree, descriptor);
         
     }
     
-    void make_field(shared<MessageTreeNode> node, TTree* root_tree,
+    void make_field(std::unordered_set<const FieldDescriptor*>& seen_fds,
+                    shared<MessageTreeNode> node, TTree* root_tree,
                     const FieldDescriptor* field) {
         auto subnode = node->add_child(field);
         
@@ -371,16 +375,37 @@ public:
         };
         
         if (!plain_type) {
-            make_tree(subnode, root_tree, field->message_type());
+            make_tree(seen_fds, subnode, root_tree, field->message_type());
         }
         
     }
     
-    void make_tree(shared<MessageTreeNode> node, TTree* root_tree, 
+    // Note: seen_fds is copy constructed intentionally
+    void make_tree(std::unordered_set<const FieldDescriptor*> seen_fds,
+                   shared<MessageTreeNode> node, TTree* root_tree,
                    const Descriptor* descriptor) {
         
-        for (int i = 0; i < descriptor->field_count(); i++)
-            make_field(node, root_tree, descriptor->field(i));
+        DEBUG("Make tree: ", descriptor->full_name());
+        for (int i = 0; i < descriptor->field_count(); i++) {
+            const auto* fd = descriptor->field(i);
+            if (!seen_fds.insert(fd).second) {
+                WARNING("Skipping recursive descriptor for the second time: ", fd->full_name());
+                continue;
+            }
+            make_field(seen_fds, node, root_tree, fd);
+        }
+        
+        const auto* pool = descriptor->file()->pool();
+        std::vector<const FieldDescriptor*> extensions;
+        pool->FindAllExtensions(descriptor, &extensions);
+        
+        foreach (const auto* extension, extensions) {
+            if (!seen_fds.insert(extension).second) {
+                WARNING("Skipping recursive descriptor for the second time: ", extension->full_name());
+                continue;
+            }
+            make_field(seen_fds, node, root_tree, extension);
+        }
     }
     
     void fill(const a4::io::A4Message& m) {
