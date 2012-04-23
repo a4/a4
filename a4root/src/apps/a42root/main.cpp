@@ -342,42 +342,45 @@ public:
         
     }
     
+    void make_field(shared<MessageTreeNode> node, TTree* root_tree,
+                    const FieldDescriptor* field) {
+        auto subnode = node->add_child(field);
+        
+        bool plain_type = false;
+        
+        switch (field->cpp_type()) {
+            case FieldDescriptor::CPPTYPE_INT32:
+            case FieldDescriptor::CPPTYPE_INT64:
+            case FieldDescriptor::CPPTYPE_UINT32:
+            case FieldDescriptor::CPPTYPE_UINT64:
+            case FieldDescriptor::CPPTYPE_DOUBLE:
+            case FieldDescriptor::CPPTYPE_FLOAT:
+            case FieldDescriptor::CPPTYPE_BOOL:
+                plain_type = true;
+                break;
+            case FieldDescriptor::CPPTYPE_MESSAGE:
+                break;
+                
+            case FieldDescriptor::CPPTYPE_ENUM:
+            case FieldDescriptor::CPPTYPE_STRING:
+                DEBUG("String encountered!", field->full_name());
+                //assert(false);
+            default:
+                //assert(false);
+                return;
+        };
+        
+        if (!plain_type) {
+            make_tree(subnode, root_tree, field->message_type());
+        }
+        
+    }
+    
     void make_tree(shared<MessageTreeNode> node, TTree* root_tree, 
                    const Descriptor* descriptor) {
-        for (int i = 0; i < descriptor->field_count(); i++) {
-            auto* field = descriptor->field(i);
-            
-            auto subnode = node->add_child(field);
-            
-            bool plain_type = false;
-            
-            switch (field->cpp_type()) {
-                case FieldDescriptor::CPPTYPE_INT32:
-                case FieldDescriptor::CPPTYPE_INT64:
-                case FieldDescriptor::CPPTYPE_UINT32:
-                case FieldDescriptor::CPPTYPE_UINT64:
-                case FieldDescriptor::CPPTYPE_DOUBLE:
-                case FieldDescriptor::CPPTYPE_FLOAT:
-                case FieldDescriptor::CPPTYPE_BOOL:
-                    plain_type = true;
-                    break;
-                case FieldDescriptor::CPPTYPE_MESSAGE: 
-                    break;
-                    
-                case FieldDescriptor::CPPTYPE_ENUM:
-                case FieldDescriptor::CPPTYPE_STRING:
-                    DEBUG("String encountered!", field->full_name());
-                    //assert(false);
-                default:
-                    //assert(false);
-                    continue;
-            };
-            
-            if (!plain_type) {
-                make_tree(subnode, root_tree, field->message_type());
-            }
-            
-        }
+        
+        for (int i = 0; i < descriptor->field_count(); i++)
+            make_field(node, root_tree, descriptor->field(i));
     }
     
     void fill(const a4::io::A4Message& m) {
