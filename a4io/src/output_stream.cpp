@@ -280,7 +280,7 @@ std::vector<const google::protobuf::FileDescriptor*> get_file_descriptors(
     const google::protobuf::FileDescriptor* file_descriptor)
 {
     std::vector<const google::protobuf::FileDescriptor*> file_descriptors;
-    if (seen_fds.insert(file_descriptor).second)
+    if (!seen_fds.insert(file_descriptor).second)
         return file_descriptors;
         
     for (int i = 0; i < file_descriptor->dependency_count(); i++) {
@@ -301,7 +301,7 @@ std::vector<const google::protobuf::FieldDescriptor*> get_extension_descriptors(
     const google::protobuf::Descriptor* d)
 {
     std::vector<const google::protobuf::FieldDescriptor*> extensions;
-    if (seen_descriptors.insert(d).second)
+    if (!seen_descriptors.insert(d).second)
         return extensions;
     
     for (int i = 0; i < d->field_count(); i++) {
@@ -336,7 +336,7 @@ void OutputStream::write_protoclass(uint32_t class_id, const google::protobuf::D
     
     foreach (const google::protobuf::FieldDescriptor* ext, extensions) {
         const auto* fd = ext->file();
-        if (seen_fds.insert(fd).second)
+        if (!seen_fds.insert(fd).second)
             continue;
         file_descriptors.push_back(fd);
     }
