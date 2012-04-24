@@ -111,14 +111,6 @@ void H3::from_pb() {
 
 H3& H3::operator+=(const H3 &other) {
     return this->__add__(other);
-};
-
-void H3::ensure_weights() {
-    const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2)*(_z_axis->bins() + 2);
-    if (!_weights_squared) {
-        _weights_squared.reset(new double[total_bins]);
-        for(uint32_t i = 0; i < total_bins; i++) _weights_squared[i] = _data[i];
-    }
 }
 
 double H3::integral() const

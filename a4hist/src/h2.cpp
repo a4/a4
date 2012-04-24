@@ -105,14 +105,6 @@ void H2::from_pb() {
 
 H2& H2::operator+=(const H2 &other) {
     return this->__add__(other);
-};
-
-void H2::ensure_weights() {
-    const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2);
-    if (!_weights_squared) {
-        _weights_squared.reset(new double[total_bins]);
-        for(uint32_t i = 0; i < total_bins; i++) _weights_squared[i] = _data[i];
-    }
 }
 
 double H2::integral() const

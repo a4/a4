@@ -47,18 +47,16 @@ class H1 : public a4::store::StorableAs<H1, pb::H1>
         void fill(const double& x, const double& weight) {
             assert_initialized();
             int bin = _axis->find_bin(x);
-            *(_data.get() + bin) += weight;
-            ++_entries;
 
             if (_weights_squared) {
                 *(_weights_squared.get() + bin) += weight*weight;
             } else if (weight != 1.0) {
-                const uint32_t total_bins = _axis->bins() + 2;
-                _weights_squared.reset(new double[total_bins]);
-                for(uint32_t i = 0; i < total_bins; i++)
-                    _weights_squared[i] = _data[i];
+                ensure_weights();
                 *(_weights_squared.get() + bin) += weight*weight;
             }
+            
+            *(_data.get() + bin) += weight;
+            ++_entries;
         }
         
         H1& __add__(const H1 &);
@@ -89,7 +87,14 @@ class H1 : public a4::store::StorableAs<H1, pb::H1>
     private:
         // Prevent copying by assignment
         H1 &operator =(const H1 &);
-        void ensure_weights();
+        void ensure_weights() {
+            const uint32_t total_bins = _axis->bins() + 2;
+            if (!_weights_squared) {
+                _weights_squared.reset(new double[total_bins]);
+                for (uint32_t i = 0; i < total_bins; i++)
+                    _weights_squared[i] = _data[i];
+            }
+        }
         void bin_init();
 
         UNIQUE<Axis> _axis;
@@ -134,20 +139,18 @@ class H2 : public a4::store::StorableAs<H2, pb::H2>
             assert_initialized();
             int binx = _x_axis->find_bin(x);
             int biny = _y_axis->find_bin(y);
-
+            
             const int skip = _x_axis->bins() + 2;
-            *(_data.get() + binx + biny*skip) += weight;
-            ++_entries;
 
             if (_weights_squared) {
                 *(_weights_squared.get() + binx + biny*skip) += weight*weight;
             } else if (weight != 1.0) {
-                const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2);
-                _weights_squared.reset(new double[total_bins]);
-                for(uint32_t i = 0; i < total_bins; i++)
-                    _weights_squared[i] = _data[i];
+                ensure_weights();
                 *(_weights_squared.get() + binx + biny*skip) += weight*weight;
             }
+
+            *(_data.get() + binx + biny*skip) += weight;
+            ++_entries;
         }
 
         H2& __add__(const H2 &);
@@ -177,7 +180,14 @@ class H2 : public a4::store::StorableAs<H2, pb::H2>
     private:
         // Prevent copying by assignment
         H2 &operator =(const H2 &);
-        void ensure_weights();
+        void ensure_weights() {
+            const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2);
+            if (!_weights_squared) {
+                _weights_squared.reset(new double[total_bins]);
+                for (uint32_t i = 0; i < total_bins; i++)
+                    _weights_squared[i] = _data[i];
+            }
+        }
         void bin_init();
         void add_axis(UNIQUE<Axis> axis);
 
@@ -230,18 +240,16 @@ class H3 : public a4::store::StorableAs<H3, pb::H3>
             
             const int skip_x = _x_axis->bins() + 2;
             const int skip_y = _y_axis->bins() + 2;
-            *(_data.get() + binx + skip_x*(biny + skip_y*binz)) += weight;
-            ++_entries;
 
             if (_weights_squared) {
                 *(_weights_squared.get() + binx + skip_x*(biny + skip_y*binz)) += weight*weight;
             } else if (weight != 1.0) {
-                const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2)*(_z_axis->bins() + 2);
-                _weights_squared.reset(new double[total_bins]);
-                for(uint32_t i = 0; i < total_bins; i++)
-                    _weights_squared[i] = _data[i];
+                ensure_weights();
                 *(_weights_squared.get() + binx + skip_x*(biny + skip_y*binz)) += weight*weight;
             }
+            
+            *(_data.get() + binx + skip_x*(biny + skip_y*binz)) += weight;
+            ++_entries;
         }
         
         H3& __add__(const H3 &);
@@ -273,7 +281,14 @@ class H3 : public a4::store::StorableAs<H3, pb::H3>
     private:
         // Prevent copying by assignment
         H3 &operator =(const H3 &);
-        void ensure_weights();
+        void ensure_weights() {
+            const uint32_t total_bins = (_x_axis->bins() + 2)*(_y_axis->bins() + 2)*(_z_axis->bins() + 2);
+            if (!_weights_squared) {
+                _weights_squared.reset(new double[total_bins]);
+                for (uint32_t i = 0; i < total_bins; i++)
+                    _weights_squared[i] = _data[i];
+            }
+        }
         void bin_init();
         void add_axis(UNIQUE<Axis> axis);
 
