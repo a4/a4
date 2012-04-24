@@ -56,14 +56,6 @@ H1::~H1()
 {
 }
 
-void H1::ensure_weights() {
-    const uint32_t total_bins = _axis->bins() + 2;
-    if (!_weights_squared) {
-        _weights_squared.reset(new double[total_bins]);
-        for(uint32_t i = 0; i < total_bins; i++) _weights_squared[i] = _data[i];
-    }
-}
-
 H1& H1::__mul__(const double& w) {
     const uint32_t total_bins = _axis->bins() + 2;
     ensure_weights();
