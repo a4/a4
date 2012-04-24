@@ -47,8 +47,6 @@ class H1 : public a4::store::StorableAs<H1, pb::H1>
         void fill(const double& x, const double& weight) {
             assert_initialized();
             int bin = _axis->find_bin(x);
-            *(_data.get() + bin) += weight;
-            ++_entries;
 
             if (_weights_squared) {
                 *(_weights_squared.get() + bin) += weight*weight;
@@ -59,6 +57,9 @@ class H1 : public a4::store::StorableAs<H1, pb::H1>
                     _weights_squared[i] = _data[i];
                 *(_weights_squared.get() + bin) += weight*weight;
             }
+            
+            *(_data.get() + bin) += weight;
+            ++_entries;
         }
         
         H1& __add__(const H1 &);
@@ -136,8 +137,6 @@ class H2 : public a4::store::StorableAs<H2, pb::H2>
             int biny = _y_axis->find_bin(y);
 
             const int skip = _x_axis->bins() + 2;
-            *(_data.get() + binx + biny*skip) += weight;
-            ++_entries;
 
             if (_weights_squared) {
                 *(_weights_squared.get() + binx + biny*skip) += weight*weight;
@@ -148,6 +147,9 @@ class H2 : public a4::store::StorableAs<H2, pb::H2>
                     _weights_squared[i] = _data[i];
                 *(_weights_squared.get() + binx + biny*skip) += weight*weight;
             }
+
+            *(_data.get() + binx + biny*skip) += weight;
+            ++_entries;
         }
 
         H2& __add__(const H2 &);
@@ -230,8 +232,6 @@ class H3 : public a4::store::StorableAs<H3, pb::H3>
             
             const int skip_x = _x_axis->bins() + 2;
             const int skip_y = _y_axis->bins() + 2;
-            *(_data.get() + binx + skip_x*(biny + skip_y*binz)) += weight;
-            ++_entries;
 
             if (_weights_squared) {
                 *(_weights_squared.get() + binx + skip_x*(biny + skip_y*binz)) += weight*weight;
@@ -242,6 +242,9 @@ class H3 : public a4::store::StorableAs<H3, pb::H3>
                     _weights_squared[i] = _data[i];
                 *(_weights_squared.get() + binx + skip_x*(biny + skip_y*binz)) += weight*weight;
             }
+            
+            *(_data.get() + binx + skip_x*(biny + skip_y*binz)) += weight;
+            ++_entries;
         }
         
         H3& __add__(const H3 &);
