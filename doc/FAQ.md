@@ -5,10 +5,11 @@ A4 FAQ
 What is A4?
 -----------
 
-A4 is a file format for encapsulating Google's protobuf messages and a
-framework for efficiently processing them.
+A4 is a file format for encapsulating Google's protobuf messages. Protobuf messages
+are a simple and efficient way to encode structured data: http://code.google.com/p/protobuf/
+A4 is also a framework for efficiently processing lots of protobuf messages.
 
-Reading and writing these files is provided by the `a4io` library, and there
+Reading and writing A4 files is provided by the `a4io` library, and there
 are other optional libraries which provide help with analysis: `a4atlas`,
 `a4hist`, `a4plot`, `a4process`, `a4root` and `a4store`. In addition, `a4store`
 can optionally be used by itself with CERN ROOT.
@@ -25,12 +26,12 @@ You have all these horrible dependencies!
 
 > ".. isn't that a nightmare to build and maintain?"
 
-The main real difficulty is the compiler, which if it isn't satisfied you will
-likely need to ask your friendly local admins where they installed it so that
+The main difficulty is the compiler - if it is not installed you will likely 
+need to ask your friendly local admins where they installed it, so that
 you can put it into your path. (It's available on AFS for various architectures
 by tweaking this path: `/afs/cern.ch/sw/lcg/external/gcc/4.6.1/x86_64-slc5/setup.sh`)
 
-For protobuf and boost, we provide `./get_*.sh` scripts which will automatically
+For the protobuf and boost libraries, we provide `./get_*.sh` scripts which will automatically
 compile and install these libraries. Compilation takes on the order of a few
 minutes on a networked file system with a 4-core machine.
 
@@ -39,7 +40,7 @@ future shouldn't have to suffer the same (see issues below)!
 
 The RPATH of A4 is set correctly so LD_LIBRARY_PATH is not needed. Fully static
 builds are also possible and have been tested. A fully-static `root2a4` binary
-can be as small as 5MB (including statically linked root, protobuf, boost).
+can be as small as 5MB (including statically linked root, protobuf, and boost).
 
 
 Do I need root permissions to install it?
