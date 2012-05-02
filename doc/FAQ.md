@@ -244,7 +244,7 @@ I don't want to use your crazy file format but a4store sounds cool..
 
 > .. can I just use that?
 
-Yes, and there are no dependancies, other than CERN ROOT! It's only O(2koc) of
+Yes, and there are no dependancies, other than CERN ROOT! It's only about 2000 lines of
 code which is a much more reasonable proposition to use. Simply copy the a4store
 directory and build it with `./waf`.
 
