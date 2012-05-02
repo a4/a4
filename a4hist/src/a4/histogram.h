@@ -127,10 +127,12 @@ class H2 : public a4::store::StorableAs<H2, pb::H2>
         void constructor(const std::initializer_list<double>& bins, const char* label="") {
             constructor(std::vector<double>(bins), label);
         }
-        H2& with_axis(const Axis& axis) {
+        H2& with_axis(const Axis& axis, const char* label="") {
             if (_initializations_remaining == 0) return *this;
             _initializations_remaining--;
-            add_axis(axis.clone());
+            auto new_axis(axis.clone());
+            new_axis->label = label;
+            add_axis(std::move(new_axis));
             return *this;
         }
         
@@ -224,10 +226,12 @@ class H3 : public a4::store::StorableAs<H3, pb::H3>
             constructor(std::vector<double>(bins), label);
         }
         template <class AxisClass>
-        H3& with_axis(const AxisClass& axis) {
+        H3& with_axis(const AxisClass& axis, const char* label="") {
             if (_initializations_remaining == 0) return *this;
             _initializations_remaining--;
-            add_axis(axis.clone());
+            auto new_axis(axis.clone());
+            new_axis->label = label;
+            add_axis(std::move(new_axis));
             return *this;
         }
 
