@@ -153,7 +153,9 @@ namespace a4{ namespace io{
         // First, find the generated descriptor
         //std::cout << "Looking for " << protoclass.full_name() << std::endl;
         const Descriptor* gd = _descriptor_pool->FindMessageTypeByName(protoclass.full_name());
-        assert(gd);
+        if (!gd) {
+            FATAL("Couldn't find protoclass in pool: ", protoclass.full_name());
+        }
 
         // Now try to find an compiled-in function for the class
         internal::classreg reg = internal::map_class(protoclass.full_name());
