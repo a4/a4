@@ -3,12 +3,12 @@
 #include <a4/histogram.h>
 #include <a4/cutflow.h>
 #include <a4/alorentzvector.h>
-#include <a4/root/atlas/ntup_smwz/Event.pb.h>
+#include <a4/atlas/ntup/smwz/Event.pb.h>
 
 using namespace std;
 using namespace a4::process;
 using namespace a4::hist;
-using namespace a4::root::atlas::ntup_smwz;
+using namespace a4::atlas::ntup::smwz;
 
 class MyProcessor : public ProcessorOf<Event> {
   public:
