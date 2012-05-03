@@ -124,7 +124,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
             shared<A4Message> old_metadata = current_metadata;
 
             // Determine if merging is necessary
-            if (new_metadata && old_metadata && merge_key != "") {
+            if (old_metadata && merge_key != "") {
                 merge = old_metadata->check_key_mergable(*new_metadata, merge_key);
             }
 
@@ -138,7 +138,7 @@ class BaseOutputAdaptor : public OutputAdaptor {
                 end_block();
 
                 std::string postfix = "";
-                if (new_metadata && split_key != "") 
+                if (split_key != "") 
                     postfix = new_metadata->assert_field_is_single_value(split_key);
                 current_metadata.reset(new A4Message(*new_metadata));
 

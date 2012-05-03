@@ -51,11 +51,11 @@ namespace a4{
         while(!res1.eof()) {
             std::string ln;
             std::getline(res1, ln);
-            if(ln.substr(0, 31) == "ptrace: Operation not permitted.") {
+            if(ln.substr(0, 32) == "ptrace: Operation not permitted.") {
                 gdb_worked = false;
                 break;
             }
-            if(ln.substr(0, 7) == "warning:") continue;
+            if(ln.substr(0, 8) == "warning:") continue;
             res3 << "GDB: " << ln << std::endl;
         }
 
