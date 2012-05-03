@@ -8,6 +8,7 @@
 #include <a4/object_store.h>
 
 #include <a4/atlas/Event.pb.h>
+#include <a4/atlas/EventMetaData.pb.h>
 
 using namespace std;
 using namespace a4::process;
