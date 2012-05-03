@@ -1,5 +1,7 @@
 #include <map>
 #include <string>
+#include <vector>
+#include <unordered_set>
 
 #include <TTree.h>
 #include <TFile.h>
@@ -338,45 +340,71 @@ public:
         
         _top_node.reset(new MessageTreeNode(_root_tree));
         
-        make_tree(_top_node, _root_tree, descriptor);
+        make_tree(std::unordered_set<const FieldDescriptor*>(),
+                  _top_node, _root_tree, descriptor);
         
     }
     
-    void make_tree(shared<MessageTreeNode> node, TTree* root_tree, 
+    void make_field(std::unordered_set<const FieldDescriptor*>& seen_fds,
+                    shared<MessageTreeNode> node, TTree* root_tree,
+                    const FieldDescriptor* field) {
+        auto subnode = node->add_child(field);
+        
+        bool plain_type = false;
+        
+        switch (field->cpp_type()) {
+            case FieldDescriptor::CPPTYPE_INT32:
+            case FieldDescriptor::CPPTYPE_INT64:
+            case FieldDescriptor::CPPTYPE_UINT32:
+            case FieldDescriptor::CPPTYPE_UINT64:
+            case FieldDescriptor::CPPTYPE_DOUBLE:
+            case FieldDescriptor::CPPTYPE_FLOAT:
+            case FieldDescriptor::CPPTYPE_BOOL:
+                plain_type = true;
+                break;
+            case FieldDescriptor::CPPTYPE_MESSAGE:
+                break;
+                
+            case FieldDescriptor::CPPTYPE_ENUM:
+            case FieldDescriptor::CPPTYPE_STRING:
+                DEBUG("String encountered!", field->full_name());
+                //assert(false);
+            default:
+                //assert(false);
+                return;
+        };
+        
+        if (!plain_type) {
+            make_tree(seen_fds, subnode, root_tree, field->message_type());
+        }
+        
+    }
+    
+    // Note: seen_fds is copy constructed intentionally
+    void make_tree(std::unordered_set<const FieldDescriptor*> seen_fds,
+                   shared<MessageTreeNode> node, TTree* root_tree,
                    const Descriptor* descriptor) {
+        
+        DEBUG("Make tree: ", descriptor->full_name());
         for (int i = 0; i < descriptor->field_count(); i++) {
-            auto* field = descriptor->field(i);
-            
-            auto subnode = node->add_child(field);
-            
-            bool plain_type = false;
-            
-            switch (field->cpp_type()) {
-                case FieldDescriptor::CPPTYPE_INT32:
-                case FieldDescriptor::CPPTYPE_INT64:
-                case FieldDescriptor::CPPTYPE_UINT32:
-                case FieldDescriptor::CPPTYPE_UINT64:
-                case FieldDescriptor::CPPTYPE_DOUBLE:
-                case FieldDescriptor::CPPTYPE_FLOAT:
-                case FieldDescriptor::CPPTYPE_BOOL:
-                    plain_type = true;
-                    break;
-                case FieldDescriptor::CPPTYPE_MESSAGE: 
-                    break;
-                    
-                case FieldDescriptor::CPPTYPE_ENUM:
-                case FieldDescriptor::CPPTYPE_STRING:
-                    DEBUG("String encountered!", field->full_name());
-                    //assert(false);
-                default:
-                    //assert(false);
-                    continue;
-            };
-            
-            if (!plain_type) {
-                make_tree(subnode, root_tree, field->message_type());
+            const auto* fd = descriptor->field(i);
+            if (!seen_fds.insert(fd).second) {
+                WARNING("Skipping recursive descriptor for the second time: ", fd->full_name());
+                continue;
             }
-            
+            make_field(seen_fds, node, root_tree, fd);
+        }
+        
+        const auto* pool = descriptor->file()->pool();
+        std::vector<const FieldDescriptor*> extensions;
+        pool->FindAllExtensions(descriptor, &extensions);
+        
+        foreach (const auto* extension, extensions) {
+            if (!seen_fds.insert(extension).second) {
+                WARNING("Skipping recursive descriptor for the second time: ", extension->full_name());
+                continue;
+            }
+            make_field(seen_fds, node, root_tree, extension);
         }
     }
     
