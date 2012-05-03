@@ -11,8 +11,9 @@ class MyProcessor : public ProcessorOf<Event, EventStreamInfo> {
         cout << event.event_number() << endl;
         write(event);
     }
-    virtual void process_new_metadata() {
+    virtual shared<A4Message> process_new_metadata() {
         cout << "New Metadata: " << metadata().total_events() << endl;
+	return shared<A4Message>();
     }
 };
 

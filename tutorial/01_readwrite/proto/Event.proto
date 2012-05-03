@@ -6,7 +6,6 @@ import "Jet.proto";
 
 message Event
 {
-    optional int32 CLASS_ID = 2001;
     optional int32 run_number = 1;
     optional int32 event_number = 2;
     optional int32 lumi_block = 3;
