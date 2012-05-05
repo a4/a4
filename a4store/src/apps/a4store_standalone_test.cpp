@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+#ifdef HAVE_CERN_ROOT_SYSTEM
+
 #include <TFile.h>
 
 #include <a4/storable.h>
@@ -36,3 +38,12 @@ int main(int argc, char* argv[]) {
     backstore.write();
     return 0;
 }
+
+#else // not HAVE_CERN_ROOT_SYSTEM
+
+int main(int argc, char* argv[]) {
+    std::cout << "Not configured with ROOT available" << std::endl;
+    return 0;
+}
+
+#endif // HAVE_CERN_ROOT_SYSTEM

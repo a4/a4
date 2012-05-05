@@ -110,7 +110,7 @@ def configure(conf):
     if conf.options.with_cern_root_system:
         root_cfg = pjoin(conf.options.with_cern_root_system, "bin/root-config")
     conf.check_cfg(path=root_cfg, package="", uselib_store="CERN_ROOT_SYSTEM",
-        args='--libs --cflags')
+        args='--libs --cflags', mandatory=False)
 
     # find protobuf
     pb_bin = []
@@ -205,8 +205,9 @@ def build(bld):
     libsrc += add_pack(bld, "a4process", ["a4io", "a4store"])
     libsrc += add_pack(bld, "a4hist",
         ["a4io", "a4store", "a4process"], ["CERN_ROOT_SYSTEM"])
-    libsrc += add_pack(bld, "a4root",
-        ["a4io", "a4store", "a4process", "a4hist", "a4atlas"], ["CERN_ROOT_SYSTEM"])
+    if "HAVE_CERN_ROOT_SYSTEM=1" in bld.env.DEFINES:
+        libsrc += add_pack(bld, "a4root",
+            ["a4io", "a4store", "a4process", "a4hist", "a4atlas"], ["CERN_ROOT_SYSTEM"])
     libsrc += add_pack(bld, "a4atlas",
         ["a4io", "a4store", "a4process", "a4hist", "a4root"])
     #bld(features="cxx cxxstlib", target="a4", name="a4static",
