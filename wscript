@@ -43,6 +43,8 @@ def options(opt):
         help="Also look for snappy at the given path")
     opt.add_option('--with-boost', default=None,
         help="Also look for boost at the given path")
+    opt.add_option('--enable-atlas-ntup', action="append", default=[],
+        help="Build atlas ntup (e.g, photon, smwz)")
 
 def configure(conf):
     import os
@@ -160,6 +162,12 @@ def configure(conf):
     boost_paths = conf.env.LIBPATH_BOOST + conf.env.STLIBPATH_BOOST
     conf.msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION),
         ",".join(boost_paths), color="WHITE")
+    
+    conf.env.enabled_atlas_ntup = conf.options.enable_atlas_ntup
+    if conf.options.enable_atlas_ntup:
+        conf.msg("Will build atlas ntup: ",
+                 ", ".join(conf.options.enable_atlas_ntup),
+                 color="WHITE")
 
     # We should test for these...
     conf.define("HAVE_CSTDINT", 1)
@@ -195,6 +203,9 @@ def check_have_atomic(conf):
 def build(bld):
     from os.path import join as pjoin
     packs = ["a4io", "a4store", "a4process", "a4hist", "a4atlas", "a4root", "a4plot"]
+
+    if bld.options.enable_atlas_ntup:
+        raise RuntimeError("--enable-atlas-ntup is a configure time option")
 
     if bld.cmd == 'doxygen':
         doc_packs(bld, packs)
@@ -356,6 +367,35 @@ def doc_packs(bld, packs):
     bld(rule="${DOXYGEN} ${SRC}", source=udx, target="doc/user/html/index.html")
     bld(rule="${DOXYGEN} ${SRC}", source=ddx, target="doc/dev/html/index.html")
 
+def filter_a4atlas(bld, proto_sources):
+    # Don't ever build "*_flat.proto" files
+    proto_sources = [s for s in proto_sources
+                     if not ("_flat" in s.srcpath() and
+                              "ntup" in s.srcpath())]
+
+    ntup_dir = bld.srcnode.find_dir("a4atlas/proto/a4/atlas/ntup")
+
+    protos_by_ntup = {}
+    final_proto_sources = []
+    
+    # Build a dict of protos by ntup type, keeping protos which don't belong
+    # to the /ntup/ directory
+    for proto in proto_sources:
+        if proto.is_child_of(ntup_dir):
+            ntup_type = proto.path_from(ntup_dir).split("/")[0]
+            protos_by_ntup.setdefault(ntup_type, []).append(proto)
+        else:
+            final_proto_sources.append(proto)
+    
+    for ntup in bld.env.enabled_atlas_ntup:
+        if ntup not in protos_by_ntup:
+            raise RuntimeError(
+                "Invalid tuple type '{0}', valid ones are {1}"
+                .format(ntup, sorted(protos_by_ntup)))
+        final_proto_sources.extend(protos_by_ntup[ntup])
+    
+    return final_proto_sources
+
 def add_pack(bld, pack, other_packs=[], use=[]):
     from os import listdir
     from os.path import dirname, join as pjoin
@@ -363,9 +403,8 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     # Add protoc rules
     proto_sources = bld.path.ant_glob("%s/proto/**/*.proto" % pack)
     if pack == "a4atlas":
-        proto_sources = [s for s in proto_sources
-                         if not ("_flat" in s.srcpath() and
-                                  "ntup" in s.srcpath())]
+        proto_sources = filter_a4atlas(bld, proto_sources)
+        
     proto_targets = []
     proto_includes = ["%s/proto" % p for p in [pack] + other_packs]
     for protof in proto_sources:
