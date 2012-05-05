@@ -24,8 +24,8 @@ namespace io {
     using google::protobuf::Message;
 
     /// Wrapped message returned from the InputStream
-    static const uint32_t NO_CLASS_ID = ((1L<<32) - 2);
-    static const uint32_t NO_CLASS_ID_METADATA = ((1L<<32) - 1);
+    static const uint32_t NO_CLASS_ID = ((1LL<<32) - 2);
+    static const uint32_t NO_CLASS_ID_METADATA = ((1LL<<32) - 1);
 
     class A4Message {
         public:
