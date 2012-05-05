@@ -20,7 +20,7 @@ void cpuid(unsigned i, unsigned regs[4]) {
 #ifdef _WIN32
   __cpuid((int *)regs, (int)i);
 
-#else
+#elif __x86_64__
   asm volatile
     ("cpuid" :
         // Weird ordering is intentional.
@@ -30,11 +30,19 @@ void cpuid(unsigned i, unsigned regs[4]) {
         "=d" (regs[3])
      : "a" (i), "c" (0));
   // ECX is set to zero for cpuid function 4
+  
+#else
+    // Does not appear to be supported on i686
 #endif
 }
 
 struct cpuinfo_t get_cpuinfo() {
-    struct cpuinfo_t cpuinfo;
+    // Default to unknown single-CPU without hyperthreading
+    struct cpuinfo_t cpuinfo = {1, 1, false, "unknown"};
+    
+    #ifndef __x86_64__
+    return cpuinfo;
+    #endif
     
     // Take content in registers and interpret them as a string
     union {
