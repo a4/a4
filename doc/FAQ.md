@@ -18,7 +18,9 @@ can optionally be used by itself with CERN ROOT.
 What do I need?
 ---------------
 
-GCC >= 4.4, Boost >= 1.47, Protobuf >= 2.4.1, CERN ROOT >=5 (optional)
+Python >= 2.6, GCC >= 4.4, Boost >= 1.47, Protobuf >= 2.4.1, CERN ROOT >=5 (optional)
+
+Boost and Protobuf can be easily installed with the provided helper scripts.
 
 
 You have all these horrible dependencies!
