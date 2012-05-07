@@ -1,6 +1,31 @@
 A4 FAQ
 ======
 
+* [What is A4?](#what-is-a4)
+* [What do I need?](#what-do-i-need)
+* [You have all these horrible dependencies!](#you-have-all-these-horrible-dependencies)
+* [Do I need root permissions to install it?](#do-i-need-root-permissions-to-install-it)
+* [What are the build times like?](#what-are-the-build-times-like)
+* [Why protobuf?](#why-protobuf)
+* [What do .proto files look like?](#what-do-proto-files-look-like)
+* [Why A4? What does it do for me?](#why-a4-what-does-it-do-for-me)
+* [How difficult is it to get my existing data into the .a4 format?](#how-difficult-is-it-to-get-my-existing-data-into-the-a4-format)
+* [How fast is it?](#how-fast-is-it)
+* [How does the file size compare with ROOT TTrees?](#how-does-the-file-size-compare-with-root-ttrees)
+* [Compiler support?](#compiler-support)
+* [What is the A4 library structure?](#what-is-the-a4-library-structure)
+* [What is A4 good for?](#what-is-a4-good-for)
+* [Why reimplement histograms?](#why-reimplement-histograms)
+* [What is this `ObjectStore` you keep alluding to?](#what-is-this-objectstore-you-keep-alluding-to)
+* [I don't want to use your crazy file format but a4store sounds cool..](#i-dont-want-to-use-your-crazy-file-format-but-a4store-sounds-cool)
+* [Python support?](#python-support)
+* [Where is documentation for X?](#where-is-documentation-for-x)
+* [I can't find my variable! It's right _there_ in the protobuf!](#i-cant-find-my-variable-its-right-there-in-the-protobuf)
+* [Why can't I extend the C++ classes which protobuf generates?](#why-cant-i-extend-the-c-classes-which-protobuf-generates)
+* [I have an issue!](#i-have-an-issue)
+* [I'd like to contribute / I have an idea](#id-like-to-contribute--i-have-an-idea)
+* [What things have you forgotten to mention in detail in this FAQ?](#what-things-have-you-forgotten-to-mention-in-detail-in-this-faq)
+
 
 What is A4?
 -----------
@@ -18,7 +43,9 @@ can optionally be used by itself with CERN ROOT.
 What do I need?
 ---------------
 
-GCC >= 4.4, Boost >= 1.47, Protobuf >= 2.4.1, CERN ROOT >=5 (optional)
+Python >= 2.6, GCC >= 4.4, Boost >= 1.47, Protobuf >= 2.4.1, CERN ROOT >=5 (optional)
+
+Boost and Protobuf can be easily installed with the provided helper scripts.
 
 
 You have all these horrible dependencies!
