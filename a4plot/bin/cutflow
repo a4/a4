@@ -336,7 +336,7 @@ def make_table(labels, content):
         t.append("\\begin{table}\\begin{tiny}\n")
 
     if options.horizontal:
-        t = ["\\begin{tabular}{c%s}" % ("|".join("r" for i in range(len(widths_h))))]
+        t.append("\\begin{tabular}{c%s}" % ("|".join("r" for i in range(len(widths_h)))))
         t.append("\hline\hline")
         for l, sep in zip(table, separators):
             t.append(" & ".join(("%%%is"%w)%e for w, e in zip(widths_h, l)) + "\\\\")
@@ -555,5 +555,6 @@ if __name__=="__main__":
     else:
         raise Exception("What to do?")
 
-import os
+import os, sys
+sys.stdout.close()
 os._exit(0)
