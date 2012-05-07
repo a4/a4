@@ -586,10 +586,10 @@ bool InputStreamImpl::handle_metadata(shared<A4Message> msg) {
         _current_metadata_index++;
         if (_current_metadata_refers_forward) {
             _current_metadata = msg;
+            _new_metadata = true;
         } else {
             _do_reset_metadata = true;
         }
-        _new_metadata = true;
         return true;
     }
     return false;
@@ -612,6 +612,7 @@ shared<A4Message> InputStreamImpl::next(bool skip_metadata) {
         auto& header_metadata = _metadata_per_header[_current_header_index];
         if (static_cast<int32_t>(header_metadata.size()) > _current_metadata_index)
             _current_metadata = header_metadata[_current_metadata_index];
+        _new_metadata = true;
     }
     if (msg and handle_metadata(msg) && skip_metadata) 
         return next(skip_metadata);
