@@ -34,7 +34,7 @@ def onchange(ctx):
 
 def options(opt):
     opt.load('compiler_c compiler_cxx python')
-    opt.load('boost unittest_gtest libtool', tooldir="common/waf")
+    opt.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
     opt.add_option('--with-protobuf', default=None,
         help="Also look for protobuf at the given path")
     opt.add_option('--with-cern-root-system', default=None,
@@ -48,7 +48,7 @@ def configure(conf):
     import os
     from os.path import join as pjoin
     conf.load('compiler_c compiler_cxx python')
-    conf.load('boost unittest_gtest libtool', tooldir="common/waf")
+    conf.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
 
     conf.cc_add_flags()
     conf.check_python_version((2,6,0))
