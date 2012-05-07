@@ -227,35 +227,6 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     while (shared<InputStream> instream = self->in->get_stream()) {
         if (!run)
             break;
-        
-        if (instream->new_metadata()) { // Start of new metadata block
-            shared<const A4Message> c_new_metadata = instream->current_metadata();
-
-            // WARNING: "no metadata" events are subsumed into previous/next metadata here!
-            if (c_new_metadata) {
-                // Process end of old metadata block, if any.
-                if (p->metadata_present())
-                    p->process_end_metadata();
-
-                // Process start of new incoming metadata block (this may modify new_metadata)
-                // In Manual Mode, this may also trigger a callback in the output_adaptor.
-                // Note that set_metadata is only called here, since the processor should only
-                // ever see incoming metadata (by contract).
-
-                self->set_metadata(p, c_new_metadata);
-                shared<A4Message> new_metadata = p->process_new_metadata();
-                if (auto_metadata){
-                    if (new_metadata) {
-                        output_adaptor->new_outgoing_metadata(new_metadata);
-                    } else {
-                        output_adaptor->new_outgoing_metadata(c_new_metadata);
-                    }
-                } else if (new_metadata) {
-                    FATAL("You must not modify metadata in process_new_metadata if auto_metadata is off!");
-                }
-
-            }
-        }
 
         while (shared<A4Message> msg = instream->next_with_metadata()) {
             if (!run)

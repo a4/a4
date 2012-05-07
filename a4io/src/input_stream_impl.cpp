@@ -82,6 +82,7 @@ InputStreamImpl::InputStreamImpl(UNIQUE<ZeroCopyStreamResource> in,
     _current_header_index = 0;
     _current_metadata_index = 0;
     _last_unread_message.reset();
+    _do_reset_metadata = false;
 }
 
 InputStreamImpl::~InputStreamImpl() {};
@@ -169,7 +170,6 @@ bool InputStreamImpl::read_header(bool discovery_requested)
             _current_metadata_index = 0;
             if (_metadata_per_header[_current_header_index].size() > 0) {
                 _current_metadata = _metadata_per_header[_current_header_index][0];
-                _new_metadata = true;
             }
         } else {
             _current_metadata_index = -1;
@@ -179,6 +179,7 @@ bool InputStreamImpl::read_header(bool discovery_requested)
             }
         }
     }
+    _new_metadata = true; // always true, it could be <no metadata>
     return true;
 }
 
@@ -549,7 +550,8 @@ bool InputStreamImpl::handle_stream_command(shared<A4Message> msg) {
         } else {
             _current_metadata_index = -1;
         }
-        _new_metadata = true;
+        _do_reset_metadata = false; // if we had an increment before, ignore it
+        _new_metadata = true; // a footer invalidates metadata
         return true;
     } else if (msg->is<StreamHeader>()) {
         FATAL("Unexpected header!");
@@ -585,10 +587,7 @@ bool InputStreamImpl::handle_metadata(shared<A4Message> msg) {
         if (_current_metadata_refers_forward) {
             _current_metadata = msg;
         } else {
-            _current_metadata = shared<A4Message>();
-            auto& header_metadata = _metadata_per_header[_current_header_index];
-            if (static_cast<int32_t>(header_metadata.size()) > _current_metadata_index)
-                _current_metadata = header_metadata[_current_metadata_index];
+            _do_reset_metadata = true;
         }
         _new_metadata = true;
         return true;
@@ -607,6 +606,13 @@ shared<A4Message> InputStreamImpl::next(bool skip_metadata) {
     shared<A4Message> msg = next_message();
     if (msg and handle_stream_command(msg)) 
         return next(skip_metadata);
+    if (_do_reset_metadata) {
+        _do_reset_metadata = false;
+        _current_metadata = shared<A4Message>();
+        auto& header_metadata = _metadata_per_header[_current_header_index];
+        if (static_cast<int32_t>(header_metadata.size()) > _current_metadata_index)
+            _current_metadata = header_metadata[_current_metadata_index];
+    }
     if (msg and handle_metadata(msg) && skip_metadata) 
         return next(skip_metadata);
     return msg;

@@ -99,7 +99,7 @@ namespace a4{ namespace io{
             std::string _inputname;
 
             // status variables
-            bool _good, _error, _started, _discovery_complete;
+            bool _good, _error, _started, _discovery_complete, _do_reset_metadata;
             uint64_t _items_read;
             unsigned int _current_header_index;
             int32_t _current_metadata_index;
