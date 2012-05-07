@@ -596,6 +596,16 @@ bool InputStreamImpl::handle_metadata(shared<A4Message> msg) {
 }
 
 shared<A4Message> InputStreamImpl::next_message() {
+    if (_do_reset_metadata) {
+        _do_reset_metadata = false;
+        _current_metadata = shared<A4Message>();
+        if (_metadata_per_header.size() > _current_header_index) {
+            auto& header_metadata = _metadata_per_header[_current_header_index];
+            if (static_cast<int32_t>(header_metadata.size()) > _current_metadata_index)
+                _current_metadata = header_metadata[_current_metadata_index];
+        }
+        _new_metadata = true;
+    }
     shared<A4Message> msg = bare_message();
     if (msg and handle_compressed_section(msg))
         return next_message();
@@ -606,14 +616,8 @@ shared<A4Message> InputStreamImpl::next(bool skip_metadata) {
     shared<A4Message> msg = next_message();
     if (msg and handle_stream_command(msg)) 
         return next(skip_metadata);
-    if (_do_reset_metadata) {
-        _do_reset_metadata = false;
-        _current_metadata = shared<A4Message>();
-        auto& header_metadata = _metadata_per_header[_current_header_index];
-        if (static_cast<int32_t>(header_metadata.size()) > _current_metadata_index)
-            _current_metadata = header_metadata[_current_metadata_index];
-        _new_metadata = true;
-    }
+
+
     if (msg and handle_metadata(msg) && skip_metadata) 
         return next(skip_metadata);
     return msg;
