@@ -279,7 +279,7 @@ def write_pkgcfg(task):
     URL: https://github.com/JohannesEbke/a4
     Version: {A4_VERSION}
     Cflags: -std=c++0x -I{PREFIX}/include {CPPFLAGS_PROTOBUF} {CPPFLAGS_BOOST} {CPPFLAGS_SNAPPY}
-    Libs: -L${{libdir}} -la4root -la4hist -la4process -la4store -la4io {protobuflibs} {boostlibs} {snappylibs}
+    Libs: -L${{libdir}} -la4hist -la4process -la4store -la4io {protobuflibs} {boostlibs} {snappylibs}
     Requires: protobuf >= 2.4
     """.format(
         PREFIX=task.env.PREFIX, 
