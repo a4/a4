@@ -19,6 +19,10 @@ s1, s2, s3, s4, s5, s6 = options.step1, options.step2, options.step3, options.st
 if not any((s1, s2, s3, s4, s5, s6)):
     s1 = s2 = s3 = s4 = s5 = s6 = True
 
+if len(args) == 0:
+    parser.print_help()
+    sys.exit(-1)
+
 try:
     os.mkdir("_a4post")
 except OSError:
