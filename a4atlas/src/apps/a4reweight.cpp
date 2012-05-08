@@ -41,6 +41,7 @@ class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
         opt("lumi,l", po::value(&lumi), "Luminosity in pb^-1");
         opt("xs,x", po::value(&xs_file), "Cross-Section file (Lines of the form <MC-ID> <XS [pb]>)");
         opt("force,F", po::bool_switch(&force)->default_value(false), "Reweight even if metadata().simulation() is not set");
+        opt("run-number", po::bool_switch(&use_run_number)->default_value(false), "Use run number instead of mc channel.");
     }
     void read_arguments(po::variables_map& arguments) {
         if (arguments.count("lumi") == 0) {
@@ -71,7 +72,7 @@ class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
     std::string xs_file;
     std::map<int, double> xs;
     double lumi;
-    bool force;
+    bool force, use_run_number;
 };
 
 shared<A4Message> A4ReweightProcessor::process_new_metadata() {
@@ -80,10 +81,18 @@ shared<A4Message> A4ReweightProcessor::process_new_metadata() {
         weight = 1;
         return shared<A4Message>();
     }
-    if (metadata().mc_channel_size() != 1) {
-        FATAL("Cannot reweight if mc_channels have been merged!");
+    int run = -1;
+    if (config->use_run_number) {
+        if (metadata().run_size() != 1) {
+            FATAL("Cannot reweight if runs have been merged!");
+        }
+        run = metadata().run(0);
+    } else {
+        if (metadata().mc_channel_size() != 1) {
+            FATAL("Cannot reweight if mc_channels have been merged!");
+        }
+        run = metadata().mc_channel(0);
     }
-    int run = metadata().mc_channel(0);
     if (metadata().reweight_lumi() != 0) {
         FATAL("This set of histograms has already been reweighted!");
     }

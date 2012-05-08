@@ -113,7 +113,7 @@ if s3:
     else:
         assert options.lumi
 
-    if os.system("a4reweight -x %s -l %s --split-per run -r _a4post/result/mc/run  _a4post/step2/sim.1" % (options.xs, options.lumi)) != 0:
+    if os.system("a4reweight --run-number -x %s -l %s --split-per run -r _a4post/result/mc/run  _a4post/step2/sim.1" % (options.xs, options.lumi)) != 0:
         print "Failed a4reweight of MC!"
         sys.exit(-1)
 
