@@ -139,6 +139,35 @@ namespace a4{ namespace io{
         }
     }
 
+    void A4Message::self_version_check() const {
+        assert_valid();
+
+        // OK if we have no dynamic descriptor
+        if (not _pool) return;
+
+        // OK if the descriptor is the dynamically loaded one
+        auto d1 = descriptor();
+        auto d2 = dynamic_descriptor();
+        if (d1 == d2) return;
+
+        // Fail if the full name is different (should not happen)
+        if (d1->full_name() != d2->full_name()) {
+            FATAL("Compiled-in (", d1->full_name(), ") and on-disk (", d2->full_name() , ") typenames of an object do not agree!");
+        }
+
+        // Do version checking if the descriptors are different
+        std::string mymajor = d1->options().GetExtension(major_version);
+        std::string myminor = d1->options().GetExtension(minor_version);
+        std::string dmajor = d2->options().GetExtension(major_version);
+        std::string dminor = d2->options().GetExtension(minor_version);
+
+        if (mymajor != dmajor) {
+            FATAL("Major versions of compiled-in and on-disk '", d1->full_name(), "' objects do not agree:", mymajor, " != ", dmajor);
+        } else if (myminor != dminor) {
+            WARNING("Minor versions of compiled-in and on-disk '", d1->full_name(), "' objects do not agree:", mymajor, " != ", dmajor);
+        }
+    }
+
     void A4Message::version_check(const A4Message &m2) const {
         if (descriptor() == m2.descriptor()) return;
     
@@ -169,29 +198,29 @@ namespace a4{ namespace io{
     }
 
     A4Message& A4Message::operator+=(const A4Message& m2_) {
-        // Find out which descriptor to use. Prefer dynamic descriptors
-        // since they probably contain all fields.
+        // First, check self-compatibility of this and the next message
+        // This ensures that they are compatible with the compiled-in
+        // version of the message, if any
+        self_version_check();
+        m2_.self_version_check();
+
+        // Now, check compatibility with each other
         version_check(m2_);
 
-        const Descriptor* dd = _pool ? dynamic_descriptor() : descriptor();
-        const Descriptor* d = dd;
-        if (not d) d = _descriptor;
+        // Use the compiled in descriptor preferentially
+        // since it is probably newer (Change from previous behavior)
+        const Descriptor* d = descriptor();
 
-        //m1.reset(new A4Message(_class_id, _pool->get_new_message(d), _pool));
-        //m1.reset(new A4Message(_class_id, _pool->get_new_message(d), _pool));
-
-        if (_descriptor != d) {
-            _descriptor = d;
-            _message = _pool->get_new_message(d);
-            _message->ParseFromString(bytes());
-        }
-
+        // In case that the second message has a different descriptor
+        // we have to re-read it with that one
+        // This should not happen with compiled-in descriptors, but
+        // may/will happen with dynamically loaded ones over file boundaries
         const A4Message* m2 = &m2_;
-        shared<A4Message> m2tmp;
         if (m2_._descriptor != d) {
             auto new_msg = _pool->get_new_message(d);
             assert(new_msg);
             assert(new_msg->GetDescriptor() == d);
+            shared<A4Message> m2tmp;
             m2tmp.reset(new A4Message(_class_id, new_msg, _pool));
             m2tmp->_message->ParseFromString(m2_.bytes());
             m2 = m2tmp.get();

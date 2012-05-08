@@ -111,6 +111,7 @@ namespace io {
         private:
 
             void version_check(const A4Message &m2) const;
+            void self_version_check() const;
 
             /// Class ID on the wire (can be different for different headers)
             uint32_t _class_id;
