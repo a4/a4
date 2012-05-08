@@ -216,11 +216,11 @@ namespace a4{ namespace io{
         // This should not happen with compiled-in descriptors, but
         // may/will happen with dynamically loaded ones over file boundaries
         const A4Message* m2 = &m2_;
+        shared<A4Message> m2tmp; // this will delete m2 at the end of the function. Do not put inside if statement!
         if (m2_._descriptor != d) {
             auto new_msg = _pool->get_new_message(d);
             assert(new_msg);
             assert(new_msg->GetDescriptor() == d);
-            shared<A4Message> m2tmp;
             m2tmp.reset(new A4Message(_class_id, new_msg, _pool));
             m2tmp->_message->ParseFromString(m2_.bytes());
             m2 = m2tmp.get();
