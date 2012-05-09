@@ -80,16 +80,17 @@ public:
 
 typedef SpecificRootStorable<TH1D> RTH1;
 
-TDirectory* mkdirs(TDirectory* start, const std::string& file) {
-    if (!start->GetDirectory(file.c_str()))
-        start->mkdir(file.c_str());
-    TDirectory* d = start->GetDirectory(file.c_str());
-    d->cd();
-    return d;
-}
-
 class RootObjectStore : public ObjectBackStore {
 public:
+
+    static TDirectory* mkdirs(TDirectory* start, const std::string& file) {
+        if (!start->GetDirectory(file.c_str()))
+            start->mkdir(file.c_str());
+        TDirectory* d = start->GetDirectory(file.c_str());
+        d->cd();
+        return d;
+    }
+    
     void write() {
         TDirectory* destination = gDirectory;
         
