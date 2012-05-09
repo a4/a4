@@ -506,7 +506,7 @@ if __name__=="__main__":
                         nv = [UncertainNumber()] + [v[l] for l in labels] + [UncertainNumber()]
                         bcontent[f] = (t, nv)
                     for f, (t,v) in _dcontent.iteritems():
-                        nv = [CertainNumber()] + [v[l] for l in labels] + [CertainNumber()]
+                        nv = [CertainNumber()] + [v.get(l,CertainNumber()) for l in labels] + [CertainNumber()]
                         dcontent[f] = (t, nv)
                 mcsum = None if options.no_mcsum else sum_histos((bcontent[f][1] for f in bcontent), noneg=True)
                 plot_1d(hn, hb, bg_files, sg_files, data_files, dict(bcontent.items() + dcontent.items()), mcsum, options.style)
