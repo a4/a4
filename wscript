@@ -70,7 +70,8 @@ def configure(conf):
     conf.check(features='cxx cxxprogram', lib="dl", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
-    
+    conf.check(features='cxx cxxprogram', lib="z", header="zlib.h", uselib_store="DEFLIB")
+
     check_have_atomic(conf)
     
     conf.check_cxx(
@@ -432,6 +433,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
 
     # Add compilation rules
     to_use = ["DEFLIB", "PROTOBUF", "BOOST"] + use
+    to_use += [pjoin(p,p) for p in other_packs]
     incs = ["%s/src" % p for p in [pack] + other_packs]
     libnm = pjoin(pack, pack)
 
@@ -456,7 +458,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     # Set app and test options
     opts = {}
     # link dynamically against shared sublibraries
-    opts["use"] = to_use + [pjoin(p,p) for p in other_packs + [pack]]
+    opts["use"] = to_use + [pjoin(pack, pack)]
     opts["use"] += [p.upper() for p in [pack] + other_packs]
     # link against liba4.so
     #opts["use"] = to_use + ["a4"]
