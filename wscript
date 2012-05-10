@@ -153,9 +153,18 @@ def configure(conf):
     conf.write_config_header('a4io/src/a4/config.h')
 
 def check_cxx11_features(conf):
-
+    
     conf.check_cxx(
-        msg="Checking for std::atomic",
+        msg="Checking for C++11 auto keyword",
+        fragment="""
+            int main(int argc, char* argv[]) {
+                auto i = 10;
+                return i;
+            }""",
+        mandatory=True)
+    
+    conf.check_cxx(
+        msg="Checking for C++11 std::atomic",
         fragment="""
             #include <atomic>
             int main(int argc, char* argv[]) {
