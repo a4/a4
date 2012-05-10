@@ -33,6 +33,15 @@ def onchange(ctx):
     raise SystemExit()
 
 def options(opt):
+    from os import getcwd
+    from os.path import join as pjoin
+    
+    # Default the prefix to ${PWD}/install
+    prefix_option = opt.parser.get_option("--prefix")
+    old_default, new_default = prefix_option.default, pjoin(getcwd(), "install")
+    opt.parser.set_default("prefix", new_default)
+    prefix_option.help = prefix_option.help.replace(old_default, new_default)
+    
     opt.load('compiler_c compiler_cxx python')
     opt.load('boost unittest_gtest libtool compiler_magic check_with',
              tooldir="common/waf")
@@ -44,12 +53,13 @@ def options(opt):
         help="Also look for snappy at the given path")
     opt.add_option('--with-boost', default=None,
         help="Also look for boost at the given path")
+        
     opt.add_option('--enable-atlas-ntup', action="append", default=[],
         help="Build atlas ntup (e.g, photon, smwz)")
 
 def configure(conf):
     import os
-    from os.path import join as pjoin
+    from os.path import join as pjoin, exists
     conf.load('compiler_c compiler_cxx python')
     conf.load('boost unittest_gtest libtool compiler_magic check_with',
               tooldir="common/waf")
@@ -72,43 +82,9 @@ def configure(conf):
     conf.check(features='cxx cxxprogram', lib="dl", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
-    conf.check(features='cxx cxxprogram', lib="z", header="zlib.h", uselib_store="DEFLIB")
+    conf.check(features='cxx cxxprogram', lib="z", header_name="zlib.h", uselib_store="DEFLIB")
 
-    check_have_atomic(conf)
-    
-    conf.check_cxx(
-        msg="Checking for C++11 lambda syntax",
-        fragment="""int main(int argc, char* argv[]) {
-                        volatile int a = 0;
-                        auto x = [&]() { return a; };
-                        return x();
-                    }""",
-        define_name="HAVE_LAMBDA",
-        mandatory=False)
-        
-    conf.check_cxx(
-        msg="Checking for C++11 noexcept keyword",
-        fragment="""int blarg() noexcept { return 2; }
-                    int main(int argc, char* argv[]) {
-                        return blarg();
-                    }""",
-        define_name="HAVE_NOEXCEPT",
-        mandatory=False)
-        
-    conf.check_cxx(
-        msg="Checking for C++11 initializer lists",
-        fragment="""
-            #include <vector>
-            int myfunc(const std::initializer_list<int>& x) {
-                std::vector<int> v(x);
-                return v.front();
-            }
-        
-            int main(int argc, char* argv[]) {
-                return myfunc({0, 1, 2});
-            }""",
-        define_name="HAVE_INITIALIZER_LISTS",
-        mandatory=False)
+    check_cxx11_features(conf)
 
     # find root
     root_cfg = "root-config"
@@ -152,16 +128,33 @@ def configure(conf):
     #conf.define("HAVE_STRING_H", 1)
     conf.define("HAVE_STD_SMART_PTR", 1)
     #conf.define("HAVE_STD_TR1_SMART_PTR", 1)
+    
     conf.start_msg("Installation directory")
     conf.end_msg(conf.env.PREFIX, color="WHITE")
+    
+    if exists(conf.env.PREFIX) and not os.access(conf.env.PREFIX, os.W_OK):
+        conf.msg("", "Installation directory not writable!", color="RED")
+        conf.msg("", "'./waf install' as root or specify", color="YELLOW")
+        conf.msg("", "an alternative with", color="YELLOW")
+        conf.msg("", "'./waf configure --prefix=path'", color="YELLOW")
 
     conf.to_log("Final environment:")
     conf.to_log(conf.env)
     conf.write_config_header('a4io/src/a4/config.h')
 
-def check_have_atomic(conf):
+def check_cxx11_features(conf):
+    
     conf.check_cxx(
-        msg="Checking for std::atomic",
+        msg="Checking for C++11 auto keyword",
+        fragment="""
+            int main(int argc, char* argv[]) {
+                auto i = 10;
+                return i;
+            }""",
+        mandatory=True)
+    
+    conf.check_cxx(
+        msg="Checking for C++11 std::atomic",
         fragment="""
             #include <atomic>
             int main(int argc, char* argv[]) {
@@ -172,6 +165,40 @@ def check_have_atomic(conf):
             }
         """,
         define_name="HAVE_ATOMIC",
+        mandatory=False)
+        
+    conf.check_cxx(
+        msg="Checking for C++11 lambda syntax",
+        fragment="""int main(int argc, char* argv[]) {
+                        volatile int a = 0;
+                        auto x = [&]() { return a; };
+                        return x();
+                    }""",
+        define_name="HAVE_LAMBDA",
+        mandatory=False)
+        
+    conf.check_cxx(
+        msg="Checking for C++11 noexcept keyword",
+        fragment="""int blarg() noexcept { return 2; }
+                    int main(int argc, char* argv[]) {
+                        return blarg();
+                    }""",
+        define_name="HAVE_NOEXCEPT",
+        mandatory=False)
+        
+    conf.check_cxx(
+        msg="Checking for C++11 initializer lists",
+        fragment="""
+            #include <vector>
+            int myfunc(const std::initializer_list<int>& x) {
+                std::vector<int> v(x);
+                return v.front();
+            }
+        
+            int main(int argc, char* argv[]) {
+                return myfunc({0, 1, 2});
+            }""",
+        define_name="HAVE_INITIALIZER_LISTS",
         mandatory=False)
 
 def build(bld):
