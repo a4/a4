@@ -115,69 +115,27 @@ def configure(conf):
     if conf.options.with_cern_root_system:
         root_cfg = pjoin(conf.options.with_cern_root_system, "bin/root-config")
     conf.check_cfg(path=root_cfg, package="", uselib_store="CERN_ROOT_SYSTEM",
-        args='--libs --cflags', mandatory=False)
-
+                   args='--libs --cflags', mandatory=False)
 
     # find protobuf
-    conf.check_with(conf.check_cfg, "protobuf", package="protobuf", atleast_version="2.4.0", args="--cflags --libs")
-
-    """
-    pb_bin = []
-    if conf.options.with_protobuf:
-        protobuf_pkg = pjoin(conf.options.with_protobuf, "lib/pkgconfig")
-        pb_bin.append(pjoin(conf.options.with_protobuf, "bin"))
-    else:
-        protobuf_pkg = pjoin(conf.path.abspath(), "protobuf/lib/pkgconfig")
-        pb_bin.append(pjoin(conf.path.abspath(), "protobuf/bin"))
-    pkgp = os.getenv("PKG_CONFIG_PATH", "")
-    if pkgp:
-        pkgp = pkgp + ":"
-    os.environ["PKG_CONFIG_PATH"] = pkgp + protobuf_pkg
-    conf.check_cfg(package="protobuf", atleast_version="2.4.0",
-        uselib_store="PROTOBUF", args='--libs --cflags')
-    conf.find_program("protoc", var="PROTOC", path_list=pb_bin)
-    if conf.env.LIBPATH_PROTOBUF:
-        conf.env.append_value('RPATH', conf.env.LIBPATH_PROTOBUF[0])
-    """
+    conf.check_with(conf.check_cfg, "protobuf", package="protobuf",
+                    atleast_version="2.4.0", args="--cflags --libs",
+                    extra_paths=["./protobuf"])
 
     # find snappy
-    conf.check_with(conf.check_cfg, "snappy", package="snappy", args="--cflags --libs", mandatory=False)
-    """
-    if conf.options.with_snappy:
-        find_at(conf, "snappy", conf.options.with_snappy)
-    elif not find_at(conf, "snappy", pjoin(conf.path.abspath(), "snappy")):
-        conf.check_cxx(lib="snappy", uselib_store="snappy", mandatory=False)
-    """
-        
-
-    # find boost
-    conf.check_with(conf.check_boost, "boost", lib=boost_libs, mt=True)
-    """
-    if conf.options.with_boost:
-        if not try_boost_path(conf, conf.options.with_boost):
-            conf.fatal("Could not find boost at %s" % conf.options.with_boost)
-    else:
-        if not try_boost_path(conf):
-            conf.check_boost(lib=boost_libs, mt=True)
-    """
-
-    # print locations of used libraries
-    # TODO: Implement this in check_with
-    if conf.env.LIBPATH_SNAPPY:
-        loc = conf.env.LIBPATH_SNAPPY[0]
-        conf.msg("Using snappy library ", loc, color="WHITE")
-        conf.define("HAVE_SNAPPY", 1)
-        
-    loc = conf.env.LIBPATH_PROTOBUF
-    if loc:
-        loc = loc[0]
-    else:
-        loc = "(installed as system library)"
-    conf.msg("Using protobuf library ", loc, color="WHITE")
+    conf.check_with(conf.check_cxx, "snappy", lib="snappy",
+                    mandatory=False, extra_paths=["./snappy"])
     
-    boost_paths = conf.env.LIBPATH_BOOST + conf.env.STLIBPATH_BOOST
-    conf.msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION),
-        ",".join(boost_paths), color="WHITE")
+    # find boost
+    def check_boost(*args, **kwargs):
+        check_path = kwargs.pop("check_path")
+        if "/miniboost" in check_path:
+            kwargs["abi"] = "-a4"
+        includes, libs = pjoin(check_path, "include"), pjoin(check_path, "lib")
+        conf.check_boost(includes=includes, libs=libs, *args, **kwargs)
+    
+    conf.check_with(check_boost, "boost", lib=boost_libs, mt=True,
+                    extra_paths=["./miniboost"])
     
     conf.env.enabled_atlas_ntup = conf.options.enable_atlas_ntup
     if conf.options.enable_atlas_ntup:
@@ -580,45 +538,6 @@ def add_proto(bld, pack, pf_node, includes):
     rule = "%s %s --python_out %s --cpp_out %s ${SRC}" % (pc, incs, po, co)
     bld(rule=rule, source=pf_node, target=targets)
     return targets
-
-def find_at(conf, lib, where, static=False):
-    from os.path import exists, join as pjoin
-    if not exists(where):
-        return False
-    try:
-        libn = lib.upper()
-        conf.env.stash()
-        if not static:
-            conf.env.append_value('RPATH', pjoin(where, "lib"))
-        conf.parse_flags("-I{0}/include -L{0}/lib".format(where), uselib=libn,
-            force_static=static)
-        conf.check_cxx(lib=lib, uselib_store=lib.upper(), use=[libn])
-        return True
-    except conf.errors.ConfigurationError:
-        conf.end_msg("failed",color="YELLOW")
-        conf.env.revert()
-        return False
-
-def try_boost_path(conf, boost_path=None):
-    from os.path import exists, join as pjoin
-    if boost_path is None:
-        boost_path = pjoin(conf.path.abspath(),"miniboost")
-    boost_lib = pjoin(boost_path, "lib")
-    boost_inc = pjoin(boost_path, "include")
-    conf.msg("Checking for boost at", boost_path, color="WHITE")
-    if not exists(boost_path) or not exists(boost_lib):
-        conf.msg("Checking for boost at %s"%boost_path, "not found", color="YELLOW")
-        return False
-    try:
-        conf.env.stash()
-        conf.env.append_value('RPATH', boost_lib)
-        conf.check_boost(lib=boost_libs, mt=True, includes=boost_inc,
-            libs=boost_lib, abi="-a4")
-        return True
-    except conf.errors.ConfigurationError:
-        conf.end_msg("failed",color="YELLOW")
-        conf.env.revert()
-        return False
 
 def do_installcheck(bld):
     import os
