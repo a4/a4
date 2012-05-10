@@ -10,15 +10,21 @@
 
 /build*/
 
-install/
+/scan-build/
+
+/install/
+/install-*/
+
 InstallArea/
 D3PDMakerA4/
 
-tmp/
+/tmp/
 
-miniboost/
-protobuf/
-snappy/
+/boost*
+/miniboost*/
+/protobuf*/
+/snappy*/
+/gtest/
 
 # Sources
 /miniboost-*.tar.*
@@ -33,3 +39,4 @@ snappy/
 /a4store/.lock-waf_linux2_build
 /a4store/.waf-*/
 /a4store/build*/
+/a4store/install*/
