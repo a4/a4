@@ -34,7 +34,8 @@ def onchange(ctx):
 
 def options(opt):
     opt.load('compiler_c compiler_cxx python')
-    opt.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
+    opt.load('boost unittest_gtest libtool compiler_magic check_with',
+             tooldir="common/waf")
     opt.add_option('--with-protobuf', default=None,
         help="Also look for protobuf at the given path")
     opt.add_option('--with-cern-root-system', default=None,
@@ -50,7 +51,8 @@ def configure(conf):
     import os
     from os.path import join as pjoin
     conf.load('compiler_c compiler_cxx python')
-    conf.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
+    conf.load('boost unittest_gtest libtool compiler_magic check_with',
+              tooldir="common/waf")
 
     conf.cc_add_flags()
     conf.check_python_version((2,6,0))
@@ -115,7 +117,11 @@ def configure(conf):
     conf.check_cfg(path=root_cfg, package="", uselib_store="CERN_ROOT_SYSTEM",
         args='--libs --cflags', mandatory=False)
 
+
     # find protobuf
+    conf.check_with(conf.check_cfg, "protobuf", package="protobuf", atleast_version="2.4.0", args="--cflags --libs")
+
+    """
     pb_bin = []
     if conf.options.with_protobuf:
         protobuf_pkg = pjoin(conf.options.with_protobuf, "lib/pkgconfig")
@@ -132,22 +138,31 @@ def configure(conf):
     conf.find_program("protoc", var="PROTOC", path_list=pb_bin)
     if conf.env.LIBPATH_PROTOBUF:
         conf.env.append_value('RPATH', conf.env.LIBPATH_PROTOBUF[0])
+    """
 
     # find snappy
+    conf.check_with(conf.check_cfg, "snappy", package="snappy", args="--cflags --libs", mandatory=False)
+    """
     if conf.options.with_snappy:
         find_at(conf, "snappy", conf.options.with_snappy)
     elif not find_at(conf, "snappy", pjoin(conf.path.abspath(), "snappy")):
         conf.check_cxx(lib="snappy", uselib_store="snappy", mandatory=False)
+    """
+        
 
     # find boost
+    conf.check_with(conf.check_boost, "boost", lib=boost_libs, mt=True)
+    """
     if conf.options.with_boost:
         if not try_boost_path(conf, conf.options.with_boost):
             conf.fatal("Could not find boost at %s" % conf.options.with_boost)
     else:
         if not try_boost_path(conf):
             conf.check_boost(lib=boost_libs, mt=True)
+    """
 
     # print locations of used libraries
+    # TODO: Implement this in check_with
     if conf.env.LIBPATH_SNAPPY:
         loc = conf.env.LIBPATH_SNAPPY[0]
         conf.msg("Using snappy library ", loc, color="WHITE")
