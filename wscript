@@ -33,8 +33,18 @@ def onchange(ctx):
     raise SystemExit()
 
 def options(opt):
+    from os import getcwd
+    from os.path import join as pjoin
+    
+    # Default the prefix to ${PWD}/install
+    prefix_option = opt.parser.get_option("--prefix")
+    old_default, new_default = prefix_option.default, pjoin(getcwd(), "install")
+    opt.parser.set_default("prefix", new_default)
+    prefix_option.help = prefix_option.help.replace(old_default, new_default)
+    
     opt.load('compiler_c compiler_cxx python')
     opt.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
+    
     opt.add_option('--with-protobuf', default=None,
         help="Also look for protobuf at the given path")
     opt.add_option('--with-cern-root-system', default=None,
@@ -43,12 +53,13 @@ def options(opt):
         help="Also look for snappy at the given path")
     opt.add_option('--with-boost', default=None,
         help="Also look for boost at the given path")
+        
     opt.add_option('--enable-atlas-ntup', action="append", default=[],
         help="Build atlas ntup (e.g, photon, smwz)")
 
 def configure(conf):
     import os
-    from os.path import join as pjoin
+    from os.path import join as pjoin, exists
     conf.load('compiler_c compiler_cxx python')
     conf.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
 
@@ -145,8 +156,15 @@ def configure(conf):
     #conf.define("HAVE_STRING_H", 1)
     conf.define("HAVE_STD_SMART_PTR", 1)
     #conf.define("HAVE_STD_TR1_SMART_PTR", 1)
+    
     conf.start_msg("Installation directory")
     conf.end_msg(conf.env.PREFIX, color="WHITE")
+    
+    if exists(conf.env.PREFIX) and not os.access(conf.env.PREFIX, os.W_OK):
+        conf.msg("", "Installation directory not writable!", color="RED")
+        conf.msg("", "'./waf install' as root or specify", color="YELLOW")
+        conf.msg("", "an alternative with", color="YELLOW")
+        conf.msg("", "'./waf configure --prefix=path'", color="YELLOW")
 
     conf.to_log("Final environment:")
     conf.to_log(conf.env)
