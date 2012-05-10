@@ -70,7 +70,7 @@ def configure(conf):
     conf.check(features='cxx cxxprogram', lib="dl", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
-    conf.check(features='cxx cxxprogram', lib="z", header="zlib.h", uselib_store="DEFLIB")
+    conf.check(features='cxx cxxprogram', lib="z", header_name="zlib.h", uselib_store="DEFLIB")
 
     check_have_atomic(conf)
     
