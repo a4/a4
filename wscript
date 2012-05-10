@@ -72,41 +72,7 @@ def configure(conf):
     conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="z", header="zlib.h", uselib_store="DEFLIB")
 
-    check_have_atomic(conf)
-    
-    conf.check_cxx(
-        msg="Checking for C++11 lambda syntax",
-        fragment="""int main(int argc, char* argv[]) {
-                        volatile int a = 0;
-                        auto x = [&]() { return a; };
-                        return x();
-                    }""",
-        define_name="HAVE_LAMBDA",
-        mandatory=False)
-        
-    conf.check_cxx(
-        msg="Checking for C++11 noexcept keyword",
-        fragment="""int blarg() noexcept { return 2; }
-                    int main(int argc, char* argv[]) {
-                        return blarg();
-                    }""",
-        define_name="HAVE_NOEXCEPT",
-        mandatory=False)
-        
-    conf.check_cxx(
-        msg="Checking for C++11 initializer lists",
-        fragment="""
-            #include <vector>
-            int myfunc(const std::initializer_list<int>& x) {
-                std::vector<int> v(x);
-                return v.front();
-            }
-        
-            int main(int argc, char* argv[]) {
-                return myfunc({0, 1, 2});
-            }""",
-        define_name="HAVE_INITIALIZER_LISTS",
-        mandatory=False)
+    check_cxx11_features(conf)
 
     # find root
     root_cfg = "root-config"
@@ -186,7 +152,8 @@ def configure(conf):
     conf.to_log(conf.env)
     conf.write_config_header('a4io/src/a4/config.h')
 
-def check_have_atomic(conf):
+def check_cxx11_features(conf):
+
     conf.check_cxx(
         msg="Checking for std::atomic",
         fragment="""
@@ -199,6 +166,40 @@ def check_have_atomic(conf):
             }
         """,
         define_name="HAVE_ATOMIC",
+        mandatory=False)
+        
+    conf.check_cxx(
+        msg="Checking for C++11 lambda syntax",
+        fragment="""int main(int argc, char* argv[]) {
+                        volatile int a = 0;
+                        auto x = [&]() { return a; };
+                        return x();
+                    }""",
+        define_name="HAVE_LAMBDA",
+        mandatory=False)
+        
+    conf.check_cxx(
+        msg="Checking for C++11 noexcept keyword",
+        fragment="""int blarg() noexcept { return 2; }
+                    int main(int argc, char* argv[]) {
+                        return blarg();
+                    }""",
+        define_name="HAVE_NOEXCEPT",
+        mandatory=False)
+        
+    conf.check_cxx(
+        msg="Checking for C++11 initializer lists",
+        fragment="""
+            #include <vector>
+            int myfunc(const std::initializer_list<int>& x) {
+                std::vector<int> v(x);
+                return v.front();
+            }
+        
+            int main(int argc, char* argv[]) {
+                return myfunc({0, 1, 2});
+            }""",
+        define_name="HAVE_INITIALIZER_LISTS",
         mandatory=False)
 
 def build(bld):
