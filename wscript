@@ -28,7 +28,7 @@ def onchange(ctx):
     
     # System because
     from os import system
-    system("common/autocompile.py ./waf {0}".format(args))
+    system("common/autocompile.py ./waf %s" % args)
         
     raise SystemExit()
 
@@ -45,6 +45,9 @@ def options(opt):
         help="Also look for boost at the given path")
     opt.add_option('--enable-atlas-ntup', action="append", default=[],
         help="Build atlas ntup (e.g, photon, smwz)")
+        
+    opt.add_option('--enable-a4-python', action="store_true",
+        help="Install a4 python modules (requires python 2.6)")
 
 def configure(conf):
     import os
@@ -53,7 +56,11 @@ def configure(conf):
     conf.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
 
     conf.cc_add_flags()
-    conf.check_python_version((2,6,0))
+    min_python_version = None
+    if conf.options.enable_a4_python:
+        conf.env.enable_a4_python = "1"
+        min_python_version = (2, 6)
+    conf.check_python_version(min_python_version)
     conf.find_program("doxygen", var="DOXYGEN", mandatory=False)
 
     # comment the following line for "production" run (not recommended)
@@ -160,7 +167,7 @@ def configure(conf):
     conf.msg("Using protobuf library ", loc, color="WHITE")
     
     boost_paths = conf.env.LIBPATH_BOOST + conf.env.STLIBPATH_BOOST
-    conf.msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION),
+    conf.msg("Using boost %s libraries " % conf.env.BOOST_VERSION,
         ",".join(boost_paths), color="WHITE")
     
     conf.env.enabled_atlas_ntup = conf.options.enable_atlas_ntup
@@ -230,15 +237,20 @@ def build(bld):
     bld.install_files("${PREFIX}/include/a4", ch)
 
     # Install binaries
-    bld.install_files("${BINDIR}", bld.path.ant_glob("a4*/bin/*"), chmod=0755)
+    binaries = bld.path.ant_glob("a4*/bin/*")
+    if not bld.env.enable_a4_python:
+        # filter out files ending in .py
+        binaries = [b for b in binaries if not b.name.endswith(".py")]
+    bld.install_files("${BINDIR}", binaries, chmod=0755)
 
-    # Install python modules
-    for pack in packs:
-        cwd = bld.path.find_node("{0}/python".format(pack))
-        if cwd:
+    if bld.env.enable_a4_python:
+        # Install python modules
+        for pack in packs:
+            cwd = bld.path.find_node("%s/python" % pack)
+            if not cwd: continue
             files = cwd.ant_glob('**/*.py')
-            if files:
-                bld.install_files('${PYTHONDIR}', files, cwd=cwd, relative_trick=True)
+            if not files: continue
+            bld.install_files('${PYTHONDIR}', files, cwd=cwd, relative_trick=True)
 
     # Create this_a4.sh and packageconfig files, symlink python
     bld(rule=write_this_a4, target="this_a4.sh", install_path=bld.env.BINDIR)
@@ -267,21 +279,21 @@ def write_pkgcfg(task):
     lines = []
     from textwrap import dedent
     lines.append(dedent("""
-    prefix={PREFIX}
-    exec_prefix=${{prefix}}
-    includedir=${{prefix}}/include
-    libdir={LIBDIR}
-    CXX={CXX}
-    PROTOC={PROTOC}
+    prefix=%(PREFIX)s
+    exec_prefix=${prefix}
+    includedir=${prefix}/include
+    libdir=%(LIBDIR)s
+    CXX=%(CXX)s
+    PROTOC=%(PROTOC)s
 
     Name: A4
     Description: An Analysis Tool for High-Energy Physics
     URL: https://github.com/JohannesEbke/a4
-    Version: {A4_VERSION}
-    Cflags: -std=c++0x -I{PREFIX}/include {CPPFLAGS_PROTOBUF} {CPPFLAGS_BOOST} {CPPFLAGS_SNAPPY}
-    Libs: -L${{libdir}} -la4hist -la4process -la4store -la4io {protobuflibs} {boostlibs} {snappylibs}
+    Version: %(A4_VERSION)s
+    Cflags: -std=c++0x -I%(PREFIX)s/include %(CPPFLAGS_PROTOBUF)s %(CPPFLAGS_BOOST)s %(CPPFLAGS_SNAPPY)s
+    Libs: -L${libdir} -la4hist -la4process -la4store -la4io %(protobuflibs)s %(boostlibs)s %(snappylibs)s
     Requires: protobuf >= 2.4
-    """.format(
+    """ % dict(
         PREFIX=task.env.PREFIX, 
         LIBDIR=task.env.LIBDIR, 
         CXX=task.env.CXX[0], 
@@ -305,7 +317,7 @@ def write_header_test(header, cwd):
         assert len(task.inputs) == 1
         header = task.inputs[0]
         lines.append("// Check if header is self-sufficient")
-        lines.append("#include <a4/{0}>".format(include))
+        lines.append("#include <a4/%s>" % include)
         lines.append("int main() { return 0; }")
         task.outputs[0].write("\n".join(lines))
     return writer
@@ -321,24 +333,24 @@ def write_this_a4(task):
     lines = []
     if task.env.LIBPATH_PROTOBUF:
         lines.append("# Setup protobuf since it is not installed")
-        lines.append("export PKG_CONFIG_PATH=${{PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}}{0}/pkgconfig"
-                     .format(task.env.LIBPATH_PROTOBUF[0]))
+        lines.append("export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}%s/pkgconfig"
+                     % task.env.LIBPATH_PROTOBUF[0])
         pb_root = os.sep.join(task.env.LIBPATH_PROTOBUF[0].split(os.sep)[:-1])
-    lines.append("export PYTHONPATH={0}${{PYTHONPATH:+:$PYTHONPATH}}"
-                 .format(os.path.join(pb_root, "python")))
+    lines.append("export PYTHONPATH=%s${PYTHONPATH:+:$PYTHONPATH}"
+                 % os.path.join(pb_root, "python"))
 
     from textwrap import dedent
     lines.append(dedent("""
-    export PKG_CONFIG_PATH=${{PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}}{LIBDIR}/pkgconfig
-    export PYTHONPATH={PYTHONDIR}${{PYTHONPATH:+:$PYTHONPATH}}
-    export PATH={BINDIR}${{PATH:+:$PATH}}
+    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}%(LIBDIR)s/pkgconfig
+    export PYTHONPATH=%(PYTHONDIR)s${PYTHONPATH:+:$PYTHONPATH}
+    export PATH=%(BINDIR)s${PATH:+:$PATH}
 
     # Get the used compiler with $(pkg-config a4 --variable=CXX)
     # Get the used protoc compiler with $(pkg-config a4 --variable=PROTOC)
 
     # In Makefiles, do not forget that the syntax is:
     # CXX=$(shell pkg-config a4 --variable=CXX)
-    #""".format(
+    #""" % dict(
         PYTHONDIR=task.env.PYTHONDIR,
         LIBDIR=task.env.LIBDIR,
         BINDIR=task.env.BINDIR)))
@@ -351,7 +363,7 @@ def doc_packs(bld, packs):
         bld.fatal("No doxygen executable found! Install doxygen and repeat ./waf configure.")
     srcs = [bld.path.find_node("doc/doxygen")]
     for p in packs:
-        s = bld.path.find_or_declare("{0}/src".format(p))
+        s = bld.path.find_or_declare("%s/src" % p)
         if not s:
             continue
         if s.get_src():
@@ -391,8 +403,8 @@ def filter_a4atlas(bld, proto_sources):
     for ntup in bld.env.enabled_atlas_ntup:
         if ntup not in protos_by_ntup:
             raise RuntimeError(
-                "Invalid tuple type '{0}', valid ones are {1}"
-                .format(ntup, sorted(protos_by_ntup)))
+                "Invalid tuple type '%s', valid ones are %s"
+                % (ntup, sorted(protos_by_ntup)))
         final_proto_sources.extend(protos_by_ntup[ntup])
     
     return final_proto_sources
@@ -418,13 +430,13 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     lib_cppfiles = bld.path.ant_glob("%s/src/*.cpp" % pack)
 
     # Find applications and tests to be built
-    apps = listdir("{0}/src/apps".format(pack))
+    apps = listdir("%s/src/apps" % pack)
     app_cppfiles = {}
     for app in apps:
         if app.endswith(".cpp"):
-            app_cppfiles[app[:-4]] = ["{0}/src/apps/{1}".format(pack, app)]
+            app_cppfiles[app[:-4]] = ["%s/src/apps/%s" % (pack, app)]
         else:
-            fls = bld.path.ant_glob("{0}/src/apps/{1}/*.cpp".format(pack, app))
+            fls = bld.path.ant_glob("%s/src/apps/%s/*.cpp" % (pack, app))
             app_cppfiles[app] = fls
     test_cppfiles = bld.path.ant_glob("%s/src/tests/*.cpp" % pack)
     test_scripts = bld.path.ant_glob("%s/src/tests/*.sh" % pack)
@@ -497,7 +509,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
         bld.program(features="gtest", source=gtest_cppfiles, target=t, **opts)
 
     # install headers
-    cwd = bld.path.find_node("{0}/src/a4".format(pack))
+    cwd = bld.path.find_node("%s/src/a4" % pack)
     if cwd:
         headers = cwd.ant_glob('**/*.h')
         if headers:
@@ -508,17 +520,17 @@ def add_pack(bld, pack, other_packs=[], use=[]):
 
 
     if proto_sources:
-        cwd = bld.path.find_or_declare("{0}/proto/a4".format(pack)).get_src()
+        cwd = bld.path.find_or_declare("%s/proto/a4" % pack).get_src()
         bld.install_files('${PREFIX}/include/a4', proto_sources, cwd=cwd,
             relative_trick=True)
     
     if proto_h:
-        cwd = bld.path.find_or_declare("{0}/src/a4".format(pack)).get_bld()
+        cwd = bld.path.find_or_declare("%s/src/a4" % pack).get_bld()
         bld.install_files('${PREFIX}/include/a4', proto_h, cwd=cwd,
             relative_trick=True)
 
-    if proto_py:
-        cwd = bld.path.find_or_declare("{0}/python".format(pack)).get_bld()
+    if bld.env.enable_a4_python and proto_py:
+        cwd = bld.path.find_or_declare("%s/python" % pack).get_bld()
         paths = set(dirname(n.path_from(bld.path.get_bld())) for n in proto_py)
         initfiles = [bld.path.find_or_declare(pjoin(p,"__init__.py")) for p in paths]
         bld(rule="touch ${TGT}", target=initfiles)
@@ -534,7 +546,7 @@ def add_proto(bld, pack, pf_node, includes):
     pfd, pfn = pf_node.path_from(bld.path.get_src()), str(pf_node)
 
     if pfd[:len(pjoin(pack, "proto", spack))] != pjoin(pack, "proto", spack):
-        bld.fatal("Unexpected file: {0}".format(pfd))
+        bld.fatal("Unexpected file: %s" % pfd)
     pfd = dirname(pfd[len(pjoin(pack, "proto", spack))+1:])
 
     co = pjoin(pack, "src")
@@ -573,7 +585,7 @@ def find_at(conf, lib, where, static=False):
         conf.env.stash()
         if not static:
             conf.env.append_value('RPATH', pjoin(where, "lib"))
-        conf.parse_flags("-I{0}/include -L{0}/lib".format(where), uselib=libn,
+        conf.parse_flags("-I%s/include -L%s/lib" % (where, where), uselib=libn,
             force_static=static)
         conf.check_cxx(lib=lib, uselib_store=lib.upper(), use=[libn])
         return True
