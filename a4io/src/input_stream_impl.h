@@ -101,6 +101,7 @@ namespace a4{ namespace io{
             }
 
             void set_hint_copy(bool hint_copy);
+            bool try_read(Message & msg, const google::protobuf::Descriptor* d);
 
         private:
             UNIQUE<ZeroCopyStreamResource> _raw_in;
@@ -121,6 +122,7 @@ namespace a4{ namespace io{
             // metadata-related status
             bool _new_metadata, _current_metadata_refers_forward;
             shared<A4Message> _current_metadata;
+            shared<A4Message> _pickup;
             std::vector<std::vector<uint64_t>> _metadata_offset_per_header;
             std::vector<std::vector<shared<A4Message>>> _metadata_per_header;
             std::vector<bool> _headers_forward;
@@ -153,7 +155,54 @@ namespace a4{ namespace io{
             bool _hint_copy;
     };
 
-    shared<A4Message> InputStreamImpl::bare_message() {
+inline
+bool InputStreamImpl::try_read(Message & msg, const google::protobuf::Descriptor* d) {
+    if (!_started) 
+        startup();
+    if (!_good) 
+        return false;
+    if (_hint_copy) notify_last_unread_message();
+    if (_items_read++ % 10000 == 0) {
+        reset_coded_stream();
+    }
+
+    uint32_t size = 0;
+    if (!_coded_in->ReadLittleEndian32(&size)) {
+        if (_compressed_in && _compressed_in->ByteCount() == 0) {
+            FATAL("Reading from compressed section failed!");
+        } else {
+            FATAL("Unexpected end of file or corruption [0]!");
+        }
+    }
+
+    uint32_t class_id = 0;
+    if (size & HIGH_BIT) {
+        size = size & (HIGH_BIT - 1);
+        if (!_coded_in->ReadLittleEndian32(&class_id))
+            FATAL("Unexpected end of file [1]!");
+    }
+    if (_current_class_pool->check_match(class_id, d)) {
+        auto lim = _coded_in->PushLimit(size);
+        if (not msg.ParseFromCodedStream(_coded_in.get())) {
+            FATAL("Failed to read expected event!");
+        }
+        _coded_in->PopLimit(lim);
+        return true;
+    } else {
+        auto _message = _current_class_pool->parse_message(class_id, _coded_in, size);
+        _pickup.reset(new A4Message(class_id, _message, _current_class_pool));
+        return false;
+    }
+}
+
+inline
+shared<A4Message> InputStreamImpl::bare_message() {
+    if (_pickup) {
+        auto res = _pickup;
+        _pickup.reset();
+        return res;
+    }
+
     if (!_started) 
         startup();
     if (!_good) 
