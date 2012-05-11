@@ -97,6 +97,7 @@ def configure(conf):
     conf.check_with(conf.check_cfg, "protobuf", package="protobuf",
                     atleast_version="2.4.0", args="--cflags --libs",
                     extra_paths=["./protobuf"])
+    conf.find_program("protoc", var="PROTOC", path_list=pjoin(conf.env.PROTOBUF_HOME, "bin"))
 
     # find snappy
     conf.check_with(conf.check_cxx, "snappy", lib="snappy",
