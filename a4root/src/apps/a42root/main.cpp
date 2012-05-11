@@ -449,7 +449,7 @@ public:
 class A2RConfig : public a4::process::ConfigurationOf<a42rootProcessor> {
     public:
         std::string filename;
-        int processor_count;
+        int processor_count, compression_level;
         
         A2RConfig() : processor_count(0) {};
 
@@ -457,11 +457,14 @@ class A2RConfig : public a4::process::ConfigurationOf<a42rootProcessor> {
         void add_options(po::options_description_easy_init opt) {
             opt("root-file,R", po::value(&filename)->default_value("output.root"), 
                 "ROOT output file");
+            opt("compression-level,C", po::value(&compression_level)->default_value(1), 
+                "ROOT compression level");
         }
 
         virtual void setup_processor(a42rootProcessor& g) {
             assert(processor_count++ == 0);
             g.f = new TFile(filename.c_str(), "RECREATE");
+            g.f->SetCompressionLevel(compression_level);
         }
 };
 
