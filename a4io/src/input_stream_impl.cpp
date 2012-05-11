@@ -13,10 +13,6 @@
 #include <boost/function.hpp>
 using boost::function;
 
-#include <boost/thread.hpp>
-#include <boost/thread/locks.hpp>
-typedef boost::unique_lock<boost::mutex> Lock;
-
 #include <google/protobuf/message.h>
 #include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/descriptor.h>
@@ -41,7 +37,7 @@ typedef boost::unique_lock<boost::mutex> Lock;
 #include <a4/io/A4Stream.pb.h>
 #include <a4/input_stream.h>
 
-using std::string;
+
 
 using google::protobuf::io::ZeroCopyInputStream;
 using google::protobuf::io::FileInputStream;
@@ -57,11 +53,8 @@ using google::protobuf::Descriptor;
 using google::protobuf::FieldDescriptor;
 using google::protobuf::Reflection;
 
-const string START_MAGIC = "A4STREAM";
-const string END_MAGIC = "KTHXBYE4";
-const int START_MAGIC_len = 8;
-const int END_MAGIC_len = 8;
-const uint32_t HIGH_BIT = 1 << 31;
+
+//const uint32_t HIGH_BIT = 1 << 31;
 
 namespace a4{ 
 namespace io{
@@ -99,11 +92,12 @@ bool InputStreamImpl::set_end() {
     return false;
 }
 
-bool InputStreamImpl::set_hint_copy(bool do_copy) {
+void InputStreamImpl::set_hint_copy(bool do_copy) {
     _hint_copy = do_copy;
     if (not _hint_copy) {
         notify_last_unread_message();
     }
+
 }
 
 void InputStreamImpl::startup(bool discovery_requested) {
@@ -473,178 +467,5 @@ void InputStreamImpl::reset_coded_stream() {
     _coded_in->SetTotalBytesLimit(pow(1024, 3), pow(1024, 3));
 }
 
-shared<A4Message> InputStreamImpl::bare_message() {
-    if (!_started) 
-        startup();
-    if (!_good) 
-        return shared<A4Message>();
-
-    notify_last_unread_message();
-
-    if (_items_read++ % 100 == 0) {
-        reset_coded_stream();
-    }
-
-    uint32_t size = 0;
-    if (!_coded_in->ReadLittleEndian32(&size)) {
-        if (_compressed_in && _compressed_in->ByteCount() == 0) {
-            FATAL("Reading from compressed section failed!");
-        } else {
-            FATAL("Unexpected end of file or corruption [0]!");
-        }
-    }
-
-    uint32_t class_id = 0;
-    if (size & HIGH_BIT) {
-        size = size & (HIGH_BIT - 1);
-        if (!_coded_in->ReadLittleEndian32(&class_id))
-            FATAL("Unexpected end of file [1]!");
-    }
-
-    shared<A4Message> umsg(new A4Message(class_id, size, _coded_in, _current_class_pool));
-    _last_unread_message = umsg;
-    return umsg;
-}
-
-/// Deals with a4.io.StartCompressedSection and a4.io.EndCompressedSection messages
-bool InputStreamImpl::handle_compressed_section(shared<A4Message> msg) {
-    if (msg->is<StartCompressedSection>()) {
-        if (!start_compression(*msg->as<StartCompressedSection>()))
-            FATAL("Unable to start compressed section!");
-        return true;
-    } else if (msg->is<EndCompressedSection>()) {
-        if (!stop_compression(*msg->as<EndCompressedSection>()))
-            FATAL("Unable to stop compressed section!");
-        return true;
-    }
-    return false;
-}
-
-/// Deals with all internal messages, with class id between 100 and 200.
-bool InputStreamImpl::handle_stream_command(shared<A4Message> msg) {
-    if (msg->class_id() < 100 || msg->class_id() > 200) 
-        return false;
-    
-    if (msg->is<StreamFooter>()) {
-        notify_last_unread_message();
-        uint32_t size;
-        if (!_coded_in->ReadLittleEndian32(&size))
-            FATAL("Unexpected end of file [3]!");
-        
-        string magic;
-        if (!_coded_in->ReadString(&magic, 8))
-            FATAL("Unexpected end of file [4]!");
-            
-        if (0 != magic.compare(END_MAGIC))
-            FATAL("Corrupt footer! Read: ", magic);
-        
-        if (_coded_in->ExpectAtEnd()) {
-             // Regular end of stream
-            _good = false;
-            return true;
-        }
-        _current_header_index++;
-        if (!read_header()) {
-            if (_error)
-                FATAL("Corrupt header!");
-            _good = false; // Slightly strange but regular end of stream
-            return true;
-        }
-        _current_metadata = shared<A4Message>();
-        if (!_current_metadata_refers_forward) {
-            _current_metadata_index = 0;
-            if (_metadata_per_header[_current_header_index].size() > 0)
-                _current_metadata = _metadata_per_header[_current_header_index][0];
-        } else {
-            _current_metadata_index = -1;
-        }
-        _do_reset_metadata = false; // if we had an increment before, ignore it
-        _new_metadata = true; // a footer invalidates metadata
-        return true;
-    } else if (msg->is<StreamHeader>()) {
-        FATAL("Unexpected header!");
-    } else if (msg->is<ProtoClass>()) {
-        _current_class_pool->add_protoclass(*msg->as<ProtoClass>());
-        return true;
-    }
-    
-    {
-        static Lock l;
-        
-        static std::unordered_set<uint32_t> warned_ids;
-        const auto id = msg->class_id();
-        
-        if (warned_ids.find(id) != warned_ids.end()) {
-            warned_ids.insert(id);
-            WARNING("Encountered unexpected internal class id: ", id, 
-                    ". The input may be from a newer version of A4? "
-                    "Continuing anyway..");
-        }
-    }
-    return false;
-}
-
-bool InputStreamImpl::handle_metadata(shared<A4Message> msg) {
-    //if (_current_header_index > 0) {
-    //    for (int i = 0; i < _current_header_index; i++) {
-    //        _metadata_per_header[i].clear();
-    //    }
-    //}
-    if (msg->metadata()) {
-        _current_metadata_index++;
-        if (_current_metadata_refers_forward) {
-            _current_metadata = msg;
-            _new_metadata = true;
-        } else {
-            _do_reset_metadata = true;
-        }
-        return true;
-    }
-    return false;
-}
-
-shared<A4Message> InputStreamImpl::next_message() {
-    if (_do_reset_metadata) {
-        _do_reset_metadata = false;
-        _current_metadata = shared<A4Message>();
-        if (_metadata_per_header.size() > _current_header_index) {
-            auto& header_metadata = _metadata_per_header[_current_header_index];
-            if (static_cast<int32_t>(header_metadata.size()) > _current_metadata_index)
-                _current_metadata = header_metadata[_current_metadata_index];
-        }
-        _new_metadata = true;
-    }
-    shared<A4Message> msg = bare_message();
-    if (msg and handle_compressed_section(msg))
-        return next_message();
-    return msg;
-}
-
-shared<A4Message> InputStreamImpl::next(bool skip_metadata) {
-    shared<A4Message> msg = next_message();
-    if (msg and handle_stream_command(msg)) 
-        return next(skip_metadata);
-
-
-    if (msg and handle_metadata(msg) && skip_metadata) 
-        return next(skip_metadata);
-    return msg;
-}
-
-shared<A4Message> InputStreamImpl::next_bare_message() {
-    shared<A4Message> msg = next_message();
-    if (msg and handle_stream_command(msg))
-        return msg;
-    if (msg and handle_metadata(msg))
-        return msg;
-    return msg;
-}
-
-void InputStreamImpl::notify_last_unread_message() {
-    if (_last_unread_message) {
-        _last_unread_message->invalidate_stream();
-        _last_unread_message.reset();
-    }
-}
 
 };}; // namespace a4::io
