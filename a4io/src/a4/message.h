@@ -105,7 +105,11 @@ namespace io {
             /// Returns true if the field specified by `field_name` can be merged in the two messages
             bool check_key_mergable(const A4Message& rhs, const std::string& field_name) const;
 
+#ifdef ASSERT_MESSAGE
             bool assert_valid() const;
+#else
+            inline bool assert_valid() const {return true;};
+#endif
             
             shared<ConstDynamicField> dynamic_field(const std::string& field_name) const;
         private:
