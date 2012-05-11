@@ -89,6 +89,8 @@ namespace a4{ namespace io{
                 return _current_class_pool->get_filedescriptors();
             }
 
+            bool set_hint_copy(bool hint_copy);
+
         private:
             UNIQUE<ZeroCopyStreamResource> _raw_in;
             UNIQUE<BaseCompressedInputStream> _compressed_in;

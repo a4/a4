@@ -83,6 +83,7 @@ InputStreamImpl::InputStreamImpl(UNIQUE<ZeroCopyStreamResource> in,
     _current_metadata_index = 0;
     _last_unread_message.reset();
     _do_reset_metadata = false;
+    _hint_copy = false;
 }
 
 InputStreamImpl::~InputStreamImpl() {};
@@ -96,6 +97,13 @@ bool InputStreamImpl::set_error() {
 bool InputStreamImpl::set_end() {
     _good = false;
     return false;
+}
+
+bool InputStreamImpl::set_hint_copy(bool do_copy) {
+    _hint_copy = do_copy;
+    if (not _hint_copy) {
+        notify_last_unread_message();
+    }
 }
 
 void InputStreamImpl::startup(bool discovery_requested) {
@@ -121,7 +129,7 @@ void InputStreamImpl::startup(bool discovery_requested) {
 
 bool InputStreamImpl::read_header(bool discovery_requested)
 {
-    notify_last_unread_message();
+    if (_hint_copy) notify_last_unread_message();
     // Note: in the following i use that bool(set_end()) == false 
     // && bool(set_error()) == false
     string magic;
@@ -184,7 +192,7 @@ bool InputStreamImpl::read_header(bool discovery_requested)
 }
 
 bool InputStreamImpl::discover_all_metadata() {
-    notify_last_unread_message();
+    if (_hint_copy) notify_last_unread_message();
     assert(_metadata_per_header.size() == 0);
     // Temporary ProtoClassPool for reading static messages
     shared<ProtoClassPool> temp_pool(new ProtoClassPool());
@@ -307,7 +315,7 @@ bool InputStreamImpl::discover_all_metadata() {
 
 int64_t InputStreamImpl::seek_back(int64_t position) {
     assert(!_compressed_in);
-    notify_last_unread_message();
+    if (_hint_copy) notify_last_unread_message();
     _coded_in.reset();
     if (!_raw_in->SeekBack(-position))
         return -1;
@@ -319,7 +327,7 @@ int64_t InputStreamImpl::seek_back(int64_t position) {
 
 int64_t InputStreamImpl::seek(int64_t position) {
     assert(!_compressed_in);
-    notify_last_unread_message();
+    if (_hint_copy) notify_last_unread_message();
     _coded_in.reset();
     if (!_raw_in->Seek(position))
         return -1;
@@ -407,7 +415,7 @@ bool InputStreamImpl::seek_to(uint32_t header, int32_t metadata, bool carry) {
 
 bool InputStreamImpl::start_compression(const StartCompressedSection& cs) {
     assert(!_compressed_in);
-    notify_last_unread_message();
+    if (_hint_copy) notify_last_unread_message();
     _coded_in.reset();
 
     if (cs.compression() == StartCompressedSection_Compression_ZLIB) {
@@ -435,7 +443,7 @@ void InputStreamImpl::drop_compression() {
     if(!_compressed_in) 
         return;
         
-    notify_last_unread_message();
+    if (_hint_copy) notify_last_unread_message();
     _coded_in.reset();
     _compressed_in.reset();
     _coded_in.reset(new CodedInputStream(_raw_in.get()));
@@ -443,7 +451,7 @@ void InputStreamImpl::drop_compression() {
 
 bool InputStreamImpl::stop_compression(const EndCompressedSection& cs) {
     assert(_compressed_in);
-    notify_last_unread_message();
+    if (_hint_copy) notify_last_unread_message();
     _coded_in.reset();
     if (!_compressed_in->ExpectAtEnd()) {
         ERROR("Compressed section did not end where it should");
@@ -455,7 +463,7 @@ bool InputStreamImpl::stop_compression(const EndCompressedSection& cs) {
 }
 
 void InputStreamImpl::reset_coded_stream() {
-    notify_last_unread_message();
+    if (_hint_copy) notify_last_unread_message();
     _coded_in.reset();
     if (_compressed_in) {
         _coded_in.reset(new CodedInputStream(_compressed_in.get()));
