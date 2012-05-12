@@ -6,6 +6,9 @@
 
 #include <a4/types.h>
 
+#include <google/protobuf/message.h>
+#include <google/protobuf/descriptor.h>
+
 namespace google { 
 namespace protobuf {
     class FileDescriptor;
@@ -45,6 +48,11 @@ namespace io {
             /// always precede the data they refer to.
             shared<A4Message> next_with_metadata();
 
+            /// If the next message is compatible with the given type,
+            /// update the given message
+            template<typename MessageType>
+            bool try_read(MessageType & msg) { return try_read(msg, MessageType::descriptor()); };
+
             /// \internal Return the next bare message (includes stream messages)
             shared<A4Message> next_bare_message();
 
@@ -82,6 +90,7 @@ namespace io {
         private:
             bool _new_metadata;
             UNIQUE<InputStreamImpl> _impl;
+            bool try_read(google::protobuf::Message & msg, const google::protobuf::Descriptor* d);
     };
 
 }

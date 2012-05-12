@@ -41,6 +41,12 @@ namespace a4{ namespace io{
                     result.push_back(_descriptor_pool->FindFileByName(fd_name));
                 return result;
             }
+
+            bool check_match(uint32_t class_id, const google::protobuf::Descriptor* d) {
+                if (class_id < _class_id_descriptor.size() && _class_id_descriptor[class_id] == d) return true;
+                return false;
+            }
+    
         
         private:
             shared<Message> new_protoclass(const google::protobuf::Message* prototype);

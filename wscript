@@ -28,13 +28,23 @@ def onchange(ctx):
     
     # System because
     from os import system
-    system("common/autocompile.py ./waf {0}".format(args))
+    system("common/autocompile.py ./waf %s" % args)
         
     raise SystemExit()
 
 def options(opt):
+    from os import getcwd
+    from os.path import join as pjoin
+    
+    # Default the prefix to ${PWD}/install
+    prefix_option = opt.parser.get_option("--prefix")
+    old_default, new_default = prefix_option.default, pjoin(getcwd(), "install")
+    opt.parser.set_default("prefix", new_default)
+    prefix_option.help = prefix_option.help.replace(old_default, new_default)
+    
     opt.load('compiler_c compiler_cxx python')
-    opt.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
+    opt.load('boost unittest_gtest libtool compiler_magic check_with',
+             tooldir="common/waf")
     opt.add_option('--with-protobuf', default=None,
         help="Also look for protobuf at the given path")
     opt.add_option('--with-cern-root-system', default=None,
@@ -43,17 +53,26 @@ def options(opt):
         help="Also look for snappy at the given path")
     opt.add_option('--with-boost', default=None,
         help="Also look for boost at the given path")
+        
     opt.add_option('--enable-atlas-ntup', action="append", default=[],
         help="Build atlas ntup (e.g, photon, smwz)")
+        
+    opt.add_option('--enable-a4-python', action="store_true",
+        help="Install a4 python modules (requires python 2.6)")
 
 def configure(conf):
     import os
-    from os.path import join as pjoin
+    from os.path import join as pjoin, exists
     conf.load('compiler_c compiler_cxx python')
-    conf.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
+    conf.load('boost unittest_gtest libtool compiler_magic check_with',
+              tooldir="common/waf")
 
     conf.cc_add_flags()
-    conf.check_python_version((2,6,0))
+    min_python_version = None
+    if conf.options.enable_a4_python:
+        conf.env.enable_a4_python = "1"
+        min_python_version = (2, 6)
+    conf.check_python_version(min_python_version)
     conf.find_program("doxygen", var="DOXYGEN", mandatory=False)
 
     # comment the following line for "production" run (not recommended)
@@ -72,8 +91,90 @@ def configure(conf):
     conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="z", header_name="zlib.h", uselib_store="DEFLIB")
 
-    check_have_atomic(conf)
+    check_cxx11_features(conf)
+
+    # find root
+    root_cfg = "root-config"
+    if conf.options.with_cern_root_system:
+        root_cfg = pjoin(conf.options.with_cern_root_system, "bin/root-config")
+    conf.check_cfg(path=root_cfg, package="", uselib_store="CERN_ROOT_SYSTEM",
+                   args='--libs --cflags', mandatory=False)
+
+    # find protobuf
+    conf.check_with(conf.check_cfg, "protobuf", package="protobuf",
+                    atleast_version="2.4.0", args="--cflags --libs",
+                    extra_paths=["./protobuf"])
+    conf.find_program("protoc", var="PROTOC", path_list=pjoin(conf.env.PROTOBUF_HOME, "bin"))
+
+    # find snappy
+    conf.check_with(conf.check_cxx, "snappy", lib="snappy",
+                    mandatory=False, extra_paths=["./snappy"])
     
+    # find boost
+    def check_boost(*args, **kwargs):
+        check_path = kwargs.pop("check_path")
+        if "/miniboost" in check_path:
+            kwargs["abi"] = "-a4"
+        includes, libs = pjoin(check_path, "include"), pjoin(check_path, "lib")
+        conf.check_boost(includes=includes, libs=libs, *args, **kwargs)
+    
+    conf.check_with(check_boost, "boost", lib=boost_libs, mt=True,
+                    extra_paths=["./miniboost"])
+    
+    conf.env.enabled_atlas_ntup = conf.options.enable_atlas_ntup
+    if conf.options.enable_atlas_ntup:
+        conf.msg("Will build atlas ntup: ",
+                 ", ".join(conf.options.enable_atlas_ntup),
+                 color="WHITE")
+
+    # We should test for these...
+    conf.define("HAVE_CSTDINT", 1)
+    #conf.define("HAVE_TR1_CSTDINT", 1)
+    #conf.define("HAVE_STDINT_H", 1)
+    conf.define("HAVE_CSTRING", 1)
+    #conf.define("HAVE_TR1_CSTRING", 1)
+    #conf.define("HAVE_STRING_H", 1)
+    conf.define("HAVE_STD_SMART_PTR", 1)
+    #conf.define("HAVE_STD_TR1_SMART_PTR", 1)
+    
+    conf.start_msg("Installation directory")
+    conf.end_msg(conf.env.PREFIX, color="WHITE")
+    
+    if exists(conf.env.PREFIX) and not os.access(conf.env.PREFIX, os.W_OK):
+        conf.msg("", "Installation directory not writable!", color="RED")
+        conf.msg("", "'./waf install' as root or specify", color="YELLOW")
+        conf.msg("", "an alternative with", color="YELLOW")
+        conf.msg("", "'./waf configure --prefix=path'", color="YELLOW")
+
+    conf.to_log("Final environment:")
+    conf.to_log(conf.env)
+    conf.write_config_header('a4io/src/a4/config.h')
+
+def check_cxx11_features(conf):
+    
+    conf.check_cxx(
+        msg="Checking for C++11 auto keyword",
+        fragment="""
+            int main(int argc, char* argv[]) {
+                auto i = 10;
+                return i;
+            }""",
+        mandatory=True)
+    
+    conf.check_cxx(
+        msg="Checking for C++11 std::atomic",
+        fragment="""
+            #include <atomic>
+            int main(int argc, char* argv[]) {
+                std::atomic<int> a;
+                volatile int x = 1;
+                a += x;
+                return a;
+            }
+        """,
+        define_name="HAVE_ATOMIC",
+        mandatory=False)
+        
     conf.check_cxx(
         msg="Checking for C++11 lambda syntax",
         fragment="""int main(int argc, char* argv[]) {
@@ -108,99 +209,6 @@ def configure(conf):
         define_name="HAVE_INITIALIZER_LISTS",
         mandatory=False)
 
-    # find root
-    root_cfg = "root-config"
-    if conf.options.with_cern_root_system:
-        root_cfg = pjoin(conf.options.with_cern_root_system, "bin/root-config")
-    conf.check_cfg(path=root_cfg, package="", uselib_store="CERN_ROOT_SYSTEM",
-        args='--libs --cflags', mandatory=False)
-
-    # find protobuf
-    pb_bin = []
-    if conf.options.with_protobuf:
-        protobuf_pkg = pjoin(conf.options.with_protobuf, "lib/pkgconfig")
-        pb_bin.append(pjoin(conf.options.with_protobuf, "bin"))
-    else:
-        protobuf_pkg = pjoin(conf.path.abspath(), "protobuf/lib/pkgconfig")
-        pb_bin.append(pjoin(conf.path.abspath(), "protobuf/bin"))
-    pkgp = os.getenv("PKG_CONFIG_PATH", "")
-    if pkgp:
-        pkgp = pkgp + ":"
-    os.environ["PKG_CONFIG_PATH"] = pkgp + protobuf_pkg
-    conf.check_cfg(package="protobuf", atleast_version="2.4.0",
-        uselib_store="PROTOBUF", args='--libs --cflags')
-    conf.find_program("protoc", var="PROTOC", path_list=pb_bin)
-    if conf.env.LIBPATH_PROTOBUF:
-        conf.env.append_value('RPATH', conf.env.LIBPATH_PROTOBUF[0])
-
-    # find snappy
-    if conf.options.with_snappy:
-        find_at(conf, "snappy", conf.options.with_snappy)
-    elif not find_at(conf, "snappy", pjoin(conf.path.abspath(), "snappy")):
-        conf.check_cxx(lib="snappy", uselib_store="snappy", mandatory=False)
-
-    # find boost
-    if conf.options.with_boost:
-        if not try_boost_path(conf, conf.options.with_boost):
-            conf.fatal("Could not find boost at %s" % conf.options.with_boost)
-    else:
-        if not try_boost_path(conf):
-            conf.check_boost(lib=boost_libs, mt=True)
-
-    # print locations of used libraries
-    if conf.env.LIBPATH_SNAPPY:
-        loc = conf.env.LIBPATH_SNAPPY[0]
-        conf.msg("Using snappy library ", loc, color="WHITE")
-        conf.define("HAVE_SNAPPY", 1)
-        
-    loc = conf.env.LIBPATH_PROTOBUF
-    if loc:
-        loc = loc[0]
-    else:
-        loc = "(installed as system library)"
-    conf.msg("Using protobuf library ", loc, color="WHITE")
-    
-    boost_paths = conf.env.LIBPATH_BOOST + conf.env.STLIBPATH_BOOST
-    conf.msg("Using boost {0} libraries ".format(conf.env.BOOST_VERSION),
-        ",".join(boost_paths), color="WHITE")
-    
-    conf.env.enabled_atlas_ntup = conf.options.enable_atlas_ntup
-    if conf.options.enable_atlas_ntup:
-        conf.msg("Will build atlas ntup: ",
-                 ", ".join(conf.options.enable_atlas_ntup),
-                 color="WHITE")
-
-    # We should test for these...
-    conf.define("HAVE_CSTDINT", 1)
-    #conf.define("HAVE_TR1_CSTDINT", 1)
-    #conf.define("HAVE_STDINT_H", 1)
-    conf.define("HAVE_CSTRING", 1)
-    #conf.define("HAVE_TR1_CSTRING", 1)
-    #conf.define("HAVE_STRING_H", 1)
-    conf.define("HAVE_STD_SMART_PTR", 1)
-    #conf.define("HAVE_STD_TR1_SMART_PTR", 1)
-    conf.start_msg("Installation directory")
-    conf.end_msg(conf.env.PREFIX, color="WHITE")
-
-    conf.to_log("Final environment:")
-    conf.to_log(conf.env)
-    conf.write_config_header('a4io/src/a4/config.h')
-
-def check_have_atomic(conf):
-    conf.check_cxx(
-        msg="Checking for std::atomic",
-        fragment="""
-            #include <atomic>
-            int main(int argc, char* argv[]) {
-                std::atomic<int> a;
-                volatile int x = 1;
-                a += x;
-                return a;
-            }
-        """,
-        define_name="HAVE_ATOMIC",
-        mandatory=False)
-
 def build(bld):
     from os.path import join as pjoin
     packs = ["a4io", "a4store", "a4process", "a4hist", "a4atlas", "a4root", "a4plot"]
@@ -231,15 +239,20 @@ def build(bld):
     bld.install_files("${PREFIX}/include/a4", ch)
 
     # Install binaries
-    bld.install_files("${BINDIR}", bld.path.ant_glob("a4*/bin/*"), chmod=0755)
+    binaries = bld.path.ant_glob("a4*/bin/*")
+    if not bld.env.enable_a4_python:
+        # filter out files ending in .py
+        binaries = [b for b in binaries if not b.name.endswith(".py")]
+    bld.install_files("${BINDIR}", binaries, chmod=0755)
 
-    # Install python modules
-    for pack in packs:
-        cwd = bld.path.find_node("{0}/python".format(pack))
-        if cwd:
+    if bld.env.enable_a4_python:
+        # Install python modules
+        for pack in packs:
+            cwd = bld.path.find_node("%s/python" % pack)
+            if not cwd: continue
             files = cwd.ant_glob('**/*.py')
-            if files:
-                bld.install_files('${PYTHONDIR}', files, cwd=cwd, relative_trick=True)
+            if not files: continue
+            bld.install_files('${PYTHONDIR}', files, cwd=cwd, relative_trick=True)
 
     # Create this_a4.sh and packageconfig files, symlink python
     bld(rule=write_this_a4, target="this_a4.sh", install_path=bld.env.BINDIR)
@@ -268,21 +281,21 @@ def write_pkgcfg(task):
     lines = []
     from textwrap import dedent
     lines.append(dedent("""
-    prefix={PREFIX}
-    exec_prefix=${{prefix}}
-    includedir=${{prefix}}/include
-    libdir={LIBDIR}
-    CXX={CXX}
-    PROTOC={PROTOC}
+    prefix=%(PREFIX)s
+    exec_prefix=${prefix}
+    includedir=${prefix}/include
+    libdir=%(LIBDIR)s
+    CXX=%(CXX)s
+    PROTOC=%(PROTOC)s
 
     Name: A4
     Description: An Analysis Tool for High-Energy Physics
     URL: https://github.com/JohannesEbke/a4
-    Version: {A4_VERSION}
-    Cflags: -std=c++0x -I{PREFIX}/include {CPPFLAGS_PROTOBUF} {CPPFLAGS_BOOST} {CPPFLAGS_SNAPPY}
-    Libs: -L${{libdir}} -la4hist -la4process -la4store -la4io {protobuflibs} {boostlibs} {snappylibs}
+    Version: %(A4_VERSION)s
+    Cflags: -std=c++0x -I%(PREFIX)s/include %(CPPFLAGS_PROTOBUF)s %(CPPFLAGS_BOOST)s %(CPPFLAGS_SNAPPY)s
+    Libs: -L${libdir} -la4hist -la4process -la4store -la4io %(protobuflibs)s %(boostlibs)s %(snappylibs)s
     Requires: protobuf >= 2.4
-    """.format(
+    """ % dict(
         PREFIX=task.env.PREFIX, 
         LIBDIR=task.env.LIBDIR, 
         CXX=task.env.CXX[0], 
@@ -306,7 +319,7 @@ def write_header_test(header, cwd):
         assert len(task.inputs) == 1
         header = task.inputs[0]
         lines.append("// Check if header is self-sufficient")
-        lines.append("#include <a4/{0}>".format(include))
+        lines.append("#include <a4/%s>" % include)
         lines.append("int main() { return 0; }")
         task.outputs[0].write("\n".join(lines))
     return writer
@@ -322,24 +335,24 @@ def write_this_a4(task):
     lines = []
     if task.env.LIBPATH_PROTOBUF:
         lines.append("# Setup protobuf since it is not installed")
-        lines.append("export PKG_CONFIG_PATH=${{PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}}{0}/pkgconfig"
-                     .format(task.env.LIBPATH_PROTOBUF[0]))
+        lines.append("export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}%s/pkgconfig"
+                     % task.env.LIBPATH_PROTOBUF[0])
         pb_root = os.sep.join(task.env.LIBPATH_PROTOBUF[0].split(os.sep)[:-1])
-    lines.append("export PYTHONPATH={0}${{PYTHONPATH:+:$PYTHONPATH}}"
-                 .format(os.path.join(pb_root, "python")))
+    lines.append("export PYTHONPATH=%s${PYTHONPATH:+:$PYTHONPATH}"
+                 % os.path.join(pb_root, "python"))
 
     from textwrap import dedent
     lines.append(dedent("""
-    export PKG_CONFIG_PATH=${{PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}}{LIBDIR}/pkgconfig
-    export PYTHONPATH={PYTHONDIR}${{PYTHONPATH:+:$PYTHONPATH}}
-    export PATH={BINDIR}${{PATH:+:$PATH}}
+    export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}%(LIBDIR)s/pkgconfig
+    export PYTHONPATH=%(PYTHONDIR)s${PYTHONPATH:+:$PYTHONPATH}
+    export PATH=%(BINDIR)s${PATH:+:$PATH}
 
     # Get the used compiler with $(pkg-config a4 --variable=CXX)
     # Get the used protoc compiler with $(pkg-config a4 --variable=PROTOC)
 
     # In Makefiles, do not forget that the syntax is:
     # CXX=$(shell pkg-config a4 --variable=CXX)
-    #""".format(
+    #""" % dict(
         PYTHONDIR=task.env.PYTHONDIR,
         LIBDIR=task.env.LIBDIR,
         BINDIR=task.env.BINDIR)))
@@ -352,7 +365,7 @@ def doc_packs(bld, packs):
         bld.fatal("No doxygen executable found! Install doxygen and repeat ./waf configure.")
     srcs = [bld.path.find_node("doc/doxygen")]
     for p in packs:
-        s = bld.path.find_or_declare("{0}/src".format(p))
+        s = bld.path.find_or_declare("%s/src" % p)
         if not s:
             continue
         if s.get_src():
@@ -392,8 +405,8 @@ def filter_a4atlas(bld, proto_sources):
     for ntup in bld.env.enabled_atlas_ntup:
         if ntup not in protos_by_ntup:
             raise RuntimeError(
-                "Invalid tuple type '{0}', valid ones are {1}"
-                .format(ntup, sorted(protos_by_ntup)))
+                "Invalid tuple type '%s', valid ones are %s"
+                % (ntup, sorted(protos_by_ntup)))
         final_proto_sources.extend(protos_by_ntup[ntup])
     
     return final_proto_sources
@@ -419,13 +432,13 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     lib_cppfiles = bld.path.ant_glob("%s/src/*.cpp" % pack)
 
     # Find applications and tests to be built
-    apps = listdir("{0}/src/apps".format(pack))
+    apps = listdir("%s/src/apps" % pack)
     app_cppfiles = {}
     for app in apps:
         if app.endswith(".cpp"):
-            app_cppfiles[app[:-4]] = ["{0}/src/apps/{1}".format(pack, app)]
+            app_cppfiles[app[:-4]] = ["%s/src/apps/%s" % (pack, app)]
         else:
-            fls = bld.path.ant_glob("{0}/src/apps/{1}/*.cpp".format(pack, app))
+            fls = bld.path.ant_glob("%s/src/apps/%s/*.cpp" % (pack, app))
             app_cppfiles[app] = fls
     test_cppfiles = bld.path.ant_glob("%s/src/tests/*.cpp" % pack)
     test_scripts = bld.path.ant_glob("%s/src/tests/*.sh" % pack)
@@ -499,7 +512,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
         bld.program(features="gtest", source=gtest_cppfiles, target=t, **opts)
 
     # install headers
-    cwd = bld.path.find_node("{0}/src/a4".format(pack))
+    cwd = bld.path.find_node("%s/src/a4" % pack)
     if cwd:
         headers = cwd.ant_glob('**/*.h')
         if headers:
@@ -510,17 +523,17 @@ def add_pack(bld, pack, other_packs=[], use=[]):
 
 
     if proto_sources:
-        cwd = bld.path.find_or_declare("{0}/proto/a4".format(pack)).get_src()
+        cwd = bld.path.find_or_declare("%s/proto/a4" % pack).get_src()
         bld.install_files('${PREFIX}/include/a4', proto_sources, cwd=cwd,
             relative_trick=True)
     
     if proto_h:
-        cwd = bld.path.find_or_declare("{0}/src/a4".format(pack)).get_bld()
+        cwd = bld.path.find_or_declare("%s/src/a4" % pack).get_bld()
         bld.install_files('${PREFIX}/include/a4', proto_h, cwd=cwd,
             relative_trick=True)
 
-    if proto_py:
-        cwd = bld.path.find_or_declare("{0}/python".format(pack)).get_bld()
+    if bld.env.enable_a4_python and proto_py:
+        cwd = bld.path.find_or_declare("%s/python" % pack).get_bld()
         paths = set(dirname(n.path_from(bld.path.get_bld())) for n in proto_py)
         initfiles = [bld.path.find_or_declare(pjoin(p,"__init__.py")) for p in paths]
         bld(rule="touch ${TGT}", target=initfiles)
@@ -536,7 +549,7 @@ def add_proto(bld, pack, pf_node, includes):
     pfd, pfn = pf_node.path_from(bld.path.get_src()), str(pf_node)
 
     if pfd[:len(pjoin(pack, "proto", spack))] != pjoin(pack, "proto", spack):
-        bld.fatal("Unexpected file: {0}".format(pfd))
+        bld.fatal("Unexpected file: %s" % pfd)
     pfd = dirname(pfd[len(pjoin(pack, "proto", spack))+1:])
 
     co = pjoin(pack, "src")
@@ -565,45 +578,6 @@ def add_proto(bld, pack, pf_node, includes):
     rule = "%s %s --python_out %s --cpp_out %s ${SRC}" % (pc, incs, po, co)
     bld(rule=rule, source=pf_node, target=targets)
     return targets
-
-def find_at(conf, lib, where, static=False):
-    from os.path import exists, join as pjoin
-    if not exists(where):
-        return False
-    try:
-        libn = lib.upper()
-        conf.env.stash()
-        if not static:
-            conf.env.append_value('RPATH', pjoin(where, "lib"))
-        conf.parse_flags("-I{0}/include -L{0}/lib".format(where), uselib=libn,
-            force_static=static)
-        conf.check_cxx(lib=lib, uselib_store=lib.upper(), use=[libn])
-        return True
-    except conf.errors.ConfigurationError:
-        conf.end_msg("failed",color="YELLOW")
-        conf.env.revert()
-        return False
-
-def try_boost_path(conf, boost_path=None):
-    from os.path import exists, join as pjoin
-    if boost_path is None:
-        boost_path = pjoin(conf.path.abspath(),"miniboost")
-    boost_lib = pjoin(boost_path, "lib")
-    boost_inc = pjoin(boost_path, "include")
-    conf.msg("Checking for boost at", boost_path, color="WHITE")
-    if not exists(boost_path) or not exists(boost_lib):
-        conf.msg("Checking for boost at %s"%boost_path, "not found", color="YELLOW")
-        return False
-    try:
-        conf.env.stash()
-        conf.env.append_value('RPATH', boost_lib)
-        conf.check_boost(lib=boost_libs, mt=True, includes=boost_inc,
-            libs=boost_lib, abi="-a4")
-        return True
-    except conf.errors.ConfigurationError:
-        conf.end_msg("failed",color="YELLOW")
-        conf.env.revert()
-        return False
 
 def do_installcheck(bld):
     import os

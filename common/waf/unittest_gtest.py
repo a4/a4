@@ -38,8 +38,8 @@ import os, subprocess, sys
 from waflib.TaskGen import before, after, feature
 from waflib import Options, Task, Utils, Logs, Errors
 
-C1 = b'#XXX'
-C2 = b'#YYY'
+C1 = '#XXX'
+C2 = '#YYY'
 UNPACK_DIR = '.unittest-gtest'
 GTEST_DIR = 'gtest-1.6.0/fused-src'
 
@@ -61,15 +61,15 @@ def unpack_gtest(conf):
     if not line:
       Logs.error('not contain gtest archive')
       sys.exit(1)
-    if line == b'#==>\n':
+    if line == '#==>\n':
       txt = f.readline()
       if not txt:
         Logs.error('corrupt archive')
-      if f.readline() != b'#<==\n':
+      if f.readline() != '#<==\n':
         Logs.error('corrupt archive')
       break
 
-  txt = txt[1:-1].replace(C1, b'\n').replace(C2, b'\r')
+  txt = txt[1:-1].replace(C1, '\n').replace(C2, '\r')
 
   cleanup()
 
