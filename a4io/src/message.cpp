@@ -401,6 +401,7 @@ namespace a4{ namespace io{
         return _pool->dynamic_descriptor(_class_id);
     }
     
+#ifdef ASSERT_MESSAGE
     bool A4Message::assert_valid() const {
         if (_message) {
             assert(_descriptor == _message->GetDescriptor());
@@ -417,6 +418,7 @@ namespace a4{ namespace io{
         }
         assert(false);
     }
+#endif
     
     shared<ConstDynamicField> A4Message::dynamic_field(const std::string& field_name) const {
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);

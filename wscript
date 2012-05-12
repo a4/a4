@@ -33,8 +33,18 @@ def onchange(ctx):
     raise SystemExit()
 
 def options(opt):
+    from os import getcwd
+    from os.path import join as pjoin
+    
+    # Default the prefix to ${PWD}/install
+    prefix_option = opt.parser.get_option("--prefix")
+    old_default, new_default = prefix_option.default, pjoin(getcwd(), "install")
+    opt.parser.set_default("prefix", new_default)
+    prefix_option.help = prefix_option.help.replace(old_default, new_default)
+    
     opt.load('compiler_c compiler_cxx python')
-    opt.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
+    opt.load('boost unittest_gtest libtool compiler_magic check_with',
+             tooldir="common/waf")
     opt.add_option('--with-protobuf', default=None,
         help="Also look for protobuf at the given path")
     opt.add_option('--with-cern-root-system', default=None,
@@ -43,6 +53,7 @@ def options(opt):
         help="Also look for snappy at the given path")
     opt.add_option('--with-boost', default=None,
         help="Also look for boost at the given path")
+        
     opt.add_option('--enable-atlas-ntup', action="append", default=[],
         help="Build atlas ntup (e.g, photon, smwz)")
         
@@ -51,9 +62,10 @@ def options(opt):
 
 def configure(conf):
     import os
-    from os.path import join as pjoin
+    from os.path import join as pjoin, exists
     conf.load('compiler_c compiler_cxx python')
-    conf.load('boost unittest_gtest libtool compiler_magic', tooldir="common/waf")
+    conf.load('boost unittest_gtest libtool compiler_magic check_with',
+              tooldir="common/waf")
 
     conf.cc_add_flags()
     min_python_version = None
@@ -77,9 +89,92 @@ def configure(conf):
     conf.check(features='cxx cxxprogram', lib="dl", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
+    conf.check(features='cxx cxxprogram', lib="z", header_name="zlib.h", uselib_store="DEFLIB")
+
+    check_cxx11_features(conf)
+
+    # find root
+    root_cfg = "root-config"
+    if conf.options.with_cern_root_system:
+        root_cfg = pjoin(conf.options.with_cern_root_system, "bin/root-config")
+    conf.check_cfg(path=root_cfg, package="", uselib_store="CERN_ROOT_SYSTEM",
+                   args='--libs --cflags', mandatory=False)
+
+    # find protobuf
+    conf.check_with(conf.check_cfg, "protobuf", package="protobuf",
+                    atleast_version="2.4.0", args="--cflags --libs",
+                    extra_paths=["./protobuf"])
+    conf.find_program("protoc", var="PROTOC", path_list=pjoin(conf.env.PROTOBUF_HOME, "bin"))
+
+    # find snappy
+    conf.check_with(conf.check_cxx, "snappy", lib="snappy",
+                    mandatory=False, extra_paths=["./snappy"])
     
-    check_have_atomic(conf)
+    # find boost
+    def check_boost(*args, **kwargs):
+        check_path = kwargs.pop("check_path")
+        if "/miniboost" in check_path:
+            kwargs["abi"] = "-a4"
+        includes, libs = pjoin(check_path, "include"), pjoin(check_path, "lib")
+        conf.check_boost(includes=includes, libs=libs, *args, **kwargs)
     
+    conf.check_with(check_boost, "boost", lib=boost_libs, mt=True,
+                    extra_paths=["./miniboost"])
+    
+    conf.env.enabled_atlas_ntup = conf.options.enable_atlas_ntup
+    if conf.options.enable_atlas_ntup:
+        conf.msg("Will build atlas ntup: ",
+                 ", ".join(conf.options.enable_atlas_ntup),
+                 color="WHITE")
+
+    # We should test for these...
+    conf.define("HAVE_CSTDINT", 1)
+    #conf.define("HAVE_TR1_CSTDINT", 1)
+    #conf.define("HAVE_STDINT_H", 1)
+    conf.define("HAVE_CSTRING", 1)
+    #conf.define("HAVE_TR1_CSTRING", 1)
+    #conf.define("HAVE_STRING_H", 1)
+    conf.define("HAVE_STD_SMART_PTR", 1)
+    #conf.define("HAVE_STD_TR1_SMART_PTR", 1)
+    
+    conf.start_msg("Installation directory")
+    conf.end_msg(conf.env.PREFIX, color="WHITE")
+    
+    if exists(conf.env.PREFIX) and not os.access(conf.env.PREFIX, os.W_OK):
+        conf.msg("", "Installation directory not writable!", color="RED")
+        conf.msg("", "'./waf install' as root or specify", color="YELLOW")
+        conf.msg("", "an alternative with", color="YELLOW")
+        conf.msg("", "'./waf configure --prefix=path'", color="YELLOW")
+
+    conf.to_log("Final environment:")
+    conf.to_log(conf.env)
+    conf.write_config_header('a4io/src/a4/config.h')
+
+def check_cxx11_features(conf):
+    
+    conf.check_cxx(
+        msg="Checking for C++11 auto keyword",
+        fragment="""
+            int main(int argc, char* argv[]) {
+                auto i = 10;
+                return i;
+            }""",
+        mandatory=True)
+    
+    conf.check_cxx(
+        msg="Checking for C++11 std::atomic",
+        fragment="""
+            #include <atomic>
+            int main(int argc, char* argv[]) {
+                std::atomic<int> a;
+                volatile int x = 1;
+                a += x;
+                return a;
+            }
+        """,
+        define_name="HAVE_ATOMIC",
+        mandatory=False)
+        
     conf.check_cxx(
         msg="Checking for C++11 lambda syntax",
         fragment="""int main(int argc, char* argv[]) {
@@ -114,99 +209,6 @@ def configure(conf):
         define_name="HAVE_INITIALIZER_LISTS",
         mandatory=False)
 
-    # find root
-    root_cfg = "root-config"
-    if conf.options.with_cern_root_system:
-        root_cfg = pjoin(conf.options.with_cern_root_system, "bin/root-config")
-    conf.check_cfg(path=root_cfg, package="", uselib_store="CERN_ROOT_SYSTEM",
-        args='--libs --cflags', mandatory=False)
-
-    # find protobuf
-    pb_bin = []
-    if conf.options.with_protobuf:
-        protobuf_pkg = pjoin(conf.options.with_protobuf, "lib/pkgconfig")
-        pb_bin.append(pjoin(conf.options.with_protobuf, "bin"))
-    else:
-        protobuf_pkg = pjoin(conf.path.abspath(), "protobuf/lib/pkgconfig")
-        pb_bin.append(pjoin(conf.path.abspath(), "protobuf/bin"))
-    pkgp = os.getenv("PKG_CONFIG_PATH", "")
-    if pkgp:
-        pkgp = pkgp + ":"
-    os.environ["PKG_CONFIG_PATH"] = pkgp + protobuf_pkg
-    conf.check_cfg(package="protobuf", atleast_version="2.4.0",
-        uselib_store="PROTOBUF", args='--libs --cflags')
-    conf.find_program("protoc", var="PROTOC", path_list=pb_bin)
-    if conf.env.LIBPATH_PROTOBUF:
-        conf.env.append_value('RPATH', conf.env.LIBPATH_PROTOBUF[0])
-
-    # find snappy
-    if conf.options.with_snappy:
-        find_at(conf, "snappy", conf.options.with_snappy)
-    elif not find_at(conf, "snappy", pjoin(conf.path.abspath(), "snappy")):
-        conf.check_cxx(lib="snappy", uselib_store="snappy", mandatory=False)
-
-    # find boost
-    if conf.options.with_boost:
-        if not try_boost_path(conf, conf.options.with_boost):
-            conf.fatal("Could not find boost at %s" % conf.options.with_boost)
-    else:
-        if not try_boost_path(conf):
-            conf.check_boost(lib=boost_libs, mt=True)
-
-    # print locations of used libraries
-    if conf.env.LIBPATH_SNAPPY:
-        loc = conf.env.LIBPATH_SNAPPY[0]
-        conf.msg("Using snappy library ", loc, color="WHITE")
-        conf.define("HAVE_SNAPPY", 1)
-        
-    loc = conf.env.LIBPATH_PROTOBUF
-    if loc:
-        loc = loc[0]
-    else:
-        loc = "(installed as system library)"
-    conf.msg("Using protobuf library ", loc, color="WHITE")
-    
-    boost_paths = conf.env.LIBPATH_BOOST + conf.env.STLIBPATH_BOOST
-    conf.msg("Using boost %s libraries " % conf.env.BOOST_VERSION,
-        ",".join(boost_paths), color="WHITE")
-    
-    conf.env.enabled_atlas_ntup = conf.options.enable_atlas_ntup
-    if conf.options.enable_atlas_ntup:
-        conf.msg("Will build atlas ntup: ",
-                 ", ".join(conf.options.enable_atlas_ntup),
-                 color="WHITE")
-
-    # We should test for these...
-    conf.define("HAVE_CSTDINT", 1)
-    #conf.define("HAVE_TR1_CSTDINT", 1)
-    #conf.define("HAVE_STDINT_H", 1)
-    conf.define("HAVE_CSTRING", 1)
-    #conf.define("HAVE_TR1_CSTRING", 1)
-    #conf.define("HAVE_STRING_H", 1)
-    conf.define("HAVE_STD_SMART_PTR", 1)
-    #conf.define("HAVE_STD_TR1_SMART_PTR", 1)
-    conf.start_msg("Installation directory")
-    conf.end_msg(conf.env.PREFIX, color="WHITE")
-
-    conf.to_log("Final environment:")
-    conf.to_log(conf.env)
-    conf.write_config_header('a4io/src/a4/config.h')
-
-def check_have_atomic(conf):
-    conf.check_cxx(
-        msg="Checking for std::atomic",
-        fragment="""
-            #include <atomic>
-            int main(int argc, char* argv[]) {
-                std::atomic<int> a;
-                volatile int x = 1;
-                a += x;
-                return a;
-            }
-        """,
-        define_name="HAVE_ATOMIC",
-        mandatory=False)
-
 def build(bld):
     from os.path import join as pjoin
     packs = ["a4io", "a4store", "a4process", "a4hist", "a4atlas", "a4root", "a4plot"]
@@ -225,7 +227,7 @@ def build(bld):
         ["a4io", "a4store", "a4process"], ["CERN_ROOT_SYSTEM"])
     if bld.env.LIB_CERN_ROOT_SYSTEM:
         libsrc += add_pack(bld, "a4root",
-            ["a4io", "a4store", "a4process", "a4hist", "a4atlas"], ["CERN_ROOT_SYSTEM"])
+            ["a4io", "a4store", "a4process", "a4hist"], ["CERN_ROOT_SYSTEM"])
     libsrc += add_pack(bld, "a4atlas",
         ["a4io", "a4store", "a4process", "a4hist", "a4root"])
     #bld(features="cxx cxxstlib", target="a4", name="a4static",
@@ -444,6 +446,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
 
     # Add compilation rules
     to_use = ["DEFLIB", "PROTOBUF", "BOOST"] + use
+    to_use += [pjoin(p,p) for p in other_packs]
     incs = ["%s/src" % p for p in [pack] + other_packs]
     libnm = pjoin(pack, pack)
 
@@ -468,7 +471,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     # Set app and test options
     opts = {}
     # link dynamically against shared sublibraries
-    opts["use"] = to_use + [pjoin(p,p) for p in other_packs + [pack]]
+    opts["use"] = to_use + [pjoin(pack, pack)]
     opts["use"] += [p.upper() for p in [pack] + other_packs]
     # link against liba4.so
     #opts["use"] = to_use + ["a4"]
@@ -575,45 +578,6 @@ def add_proto(bld, pack, pf_node, includes):
     rule = "%s %s --python_out %s --cpp_out %s ${SRC}" % (pc, incs, po, co)
     bld(rule=rule, source=pf_node, target=targets)
     return targets
-
-def find_at(conf, lib, where, static=False):
-    from os.path import exists, join as pjoin
-    if not exists(where):
-        return False
-    try:
-        libn = lib.upper()
-        conf.env.stash()
-        if not static:
-            conf.env.append_value('RPATH', pjoin(where, "lib"))
-        conf.parse_flags("-I%s/include -L%s/lib" % (where, where), uselib=libn,
-            force_static=static)
-        conf.check_cxx(lib=lib, uselib_store=lib.upper(), use=[libn])
-        return True
-    except conf.errors.ConfigurationError:
-        conf.end_msg("failed",color="YELLOW")
-        conf.env.revert()
-        return False
-
-def try_boost_path(conf, boost_path=None):
-    from os.path import exists, join as pjoin
-    if boost_path is None:
-        boost_path = pjoin(conf.path.abspath(),"miniboost")
-    boost_lib = pjoin(boost_path, "lib")
-    boost_inc = pjoin(boost_path, "include")
-    conf.msg("Checking for boost at", boost_path, color="WHITE")
-    if not exists(boost_path) or not exists(boost_lib):
-        conf.msg("Checking for boost at %s"%boost_path, "not found", color="YELLOW")
-        return False
-    try:
-        conf.env.stash()
-        conf.env.append_value('RPATH', boost_lib)
-        conf.check_boost(lib=boost_libs, mt=True, includes=boost_inc,
-            libs=boost_lib, abi="-a4")
-        return True
-    except conf.errors.ConfigurationError:
-        conf.end_msg("failed",color="YELLOW")
-        conf.env.revert()
-        return False
 
 def do_installcheck(bld):
     import os

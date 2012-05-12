@@ -51,6 +51,9 @@ namespace io {
     std::vector<const google::protobuf::FileDescriptor*> InputStream::get_filedescriptors() {
         return _impl->get_filedescriptors();
     }
+    bool InputStream::try_read(google::protobuf::Message & msg, const google::protobuf::Descriptor* d) {
+        return _impl->try_read(msg, d);
+    }
 
 }
 }

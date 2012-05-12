@@ -14,7 +14,7 @@ SOURCES=$(wildcard src/*.cpp)
 CXX=$(shell pkg-config a4 --variable=CXX)
 PROTOC=$(shell pkg-config a4 --variable=PROTOC)
 MY_CPPFLAGS+=$(shell pkg-config a4 --cflags) -I$(CPPDIR)
-MY_LDFLAGS=$(shell pkg-config a4 --libs) -la4atlas
+MY_LDFLAGS=$(shell pkg-config a4 --libs)
 
 .PHONY: all
 .SECONDARY: $(PROTOBUF_PY) $(PROTOBUF_CC) $(PROTOBUF_O)
