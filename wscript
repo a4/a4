@@ -263,6 +263,11 @@ def build(bld):
     if bld.is_install:
         do_installcheck(bld)
 
+def get_git_version():
+    from commands import getstatusoutput
+    status, output = getstatusoutput("git describe --dirty")
+    if status: return "unknown"
+    return output
 
 def write_pkgcfg(task):
     def libstr(use):
@@ -287,6 +292,7 @@ def write_pkgcfg(task):
     libdir=%(LIBDIR)s
     CXX=%(CXX)s
     PROTOC=%(PROTOC)s
+    git_describe=%(GIT_VERSION)s
 
     Name: A4
     Description: An Analysis Tool for High-Energy Physics
@@ -306,7 +312,8 @@ def write_pkgcfg(task):
         CPPFLAGS_SNAPPY=cppstr("SNAPPY"),
         protobuflibs=libstr("PROTOBUF"),
         boostlibs=libstr("BOOST"),
-        snappylibs=libstr("SNAPPY")
+        snappylibs=libstr("SNAPPY"),
+        GIT_VERSION=get_git_version(),
     )))
 
     task.outputs[0].write("\n".join(lines))
