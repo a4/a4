@@ -49,6 +49,13 @@ struct variant_str : public boost::static_visitor<std::string> {
     }
 };
 
+struct variant_typeid : public boost::static_visitor<const std::type_info&> {
+    const std::type_info& operator()() const { return typeid(void); }
+    template <typename T>
+    const std::type_info& operator()(const T t) const {
+        return typeid(T);
+    }
+};
 
 struct variant_hash : public boost::static_visitor<size_t> {
     size_t operator()() const { return 0; }
@@ -188,6 +195,13 @@ class FieldContent {
             } else {
                 return boost::apply_visitor(variant_hash(), content);
             }
+        }
+        
+        const std::type_info& type() const {
+            if (_message) {
+                return typeid(void);
+            }
+            return boost::apply_visitor(variant_typeid(), content);
         }
         
         std::string str() const {
