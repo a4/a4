@@ -166,19 +166,17 @@ class FieldContent {
             return boost::apply_visitor(variant_multiplier(), content, rhs.content);
         }
 
+        // From CERN ROOT Rtypes.h
+        typedef unsigned long long ULong64_t;
+
         template<typename T>
         operator T() const {
             assert (!_message);
+            // Workaround for compiler+architecture combinations which don't
+            // consider uint64_t and ULong64_t compatible
+            if (typeid(T) == typeid(ULong64_t))
+                return boost::get<uint64_t>(content);
             return boost::get<T>(content);
-        };
-        
-        // From CERN ROOT Rtypes.h
-        // typedef unsigned long long ULong64_t;
-        typedef unsigned long long ULong64_t;
-        
-        operator ULong64_t() const {
-            // Go through uint64_t since boost isn't able to convert for some reason.
-            return boost::get<uint64_t>(content);
         }
         
         bool operator==(const FieldContent& rhs) const {
