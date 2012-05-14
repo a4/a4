@@ -17,8 +17,10 @@ def find_at(conf, check, what, where, **kwargs):
         conf.env.append_value('PKG_CONFIG_PATH', pkgconf_path)
         conf.to_log("Pkg config path: %s" % conf.env.PKG_CONFIG_PATH)
         
-        if pkgp: pkgp = pkgp + ":"
-        os.environ["PKG_CONFIG_PATH"] = pkgconf_path + pkgp
+        if pkgp:
+            os.environ["PKG_CONFIG_PATH"] = ":".join((pkgconf_path, pkgp))
+        else:
+            os.environ["PKG_CONFIG_PATH"] = pkgconf_path
         
         conf.parse_flags("-I{0}/include -L{0}/lib".format(where),
                          uselib=kwargs["uselib_store"])
