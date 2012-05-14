@@ -49,6 +49,13 @@ struct variant_str : public boost::static_visitor<std::string> {
     }
 };
 
+struct variant_typeid : public boost::static_visitor<const std::type_info&> {
+    const std::type_info& operator()() const { return typeid(void); }
+    template <typename T>
+    const std::type_info& operator()(const T t) const {
+        return typeid(T);
+    }
+};
 
 struct variant_hash : public boost::static_visitor<size_t> {
     size_t operator()() const { return 0; }
@@ -159,11 +166,18 @@ class FieldContent {
             return boost::apply_visitor(variant_multiplier(), content, rhs.content);
         }
 
+        // From CERN ROOT Rtypes.h
+        typedef unsigned long long ULong64_t;
+
         template<typename T>
         operator T() const {
             assert (!_message);
+            // Workaround for compiler+architecture combinations which don't
+            // consider uint64_t and ULong64_t compatible
+            if (typeid(T) == typeid(ULong64_t))
+                return boost::get<uint64_t>(content);
             return boost::get<T>(content);
-        };
+        }
         
         bool operator==(const FieldContent& rhs) const {
             if (_message) {
@@ -179,6 +193,13 @@ class FieldContent {
             } else {
                 return boost::apply_visitor(variant_hash(), content);
             }
+        }
+        
+        const std::type_info& type() const {
+            if (_message) {
+                return typeid(void);
+            }
+            return boost::apply_visitor(variant_typeid(), content);
         }
         
         std::string str() const {
