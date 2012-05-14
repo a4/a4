@@ -101,10 +101,15 @@ def configure(conf):
                    args='--libs --cflags', mandatory=False)
 
     # find protobuf
+    def find_protoc(*args, **kwargs):
+        if "check_path" in kwargs:
+            kwargs["path_list"] = [pjoin(kwargs.pop("check_path"), "bin")]
+        conf.find_program("protoc", **kwargs)
+        
+    conf.check_with(find_protoc, "protobuf", extra_paths=["./protobuf"])
     conf.check_with(conf.check_cfg, "protobuf", package="protobuf",
                     atleast_version="2.4.0", args="--cflags --libs",
                     extra_paths=["./protobuf"])
-    conf.find_program("protoc", var="PROTOC", path_list=pjoin(conf.env.PROTOBUF_HOME, "bin"))
 
     # find snappy
     conf.check_with(conf.check_cxx, "snappy", lib="snappy",
@@ -112,11 +117,13 @@ def configure(conf):
     
     # find boost
     def check_boost(*args, **kwargs):
-        check_path = kwargs.pop("check_path")
-        if "/miniboost" in check_path:
-            kwargs["abi"] = "-a4"
-        includes, libs = pjoin(check_path, "include"), pjoin(check_path, "lib")
-        conf.check_boost(includes=includes, libs=libs, *args, **kwargs)
+        if "check_path" in kwargs:
+            check_path = kwargs.pop("check_path")
+            if "/miniboost" in check_path:
+                kwargs["abi"] = "-a4"
+            kwargs["includes"] = pjoin(check_path, "include")
+            kwargs["libs"] = pjoin(check_path, "lib")
+        conf.check_boost(*args, **kwargs)
     
     conf.check_with(check_boost, "boost", lib=boost_libs, mt=True,
                     extra_paths=["./miniboost"])
