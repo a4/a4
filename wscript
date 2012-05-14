@@ -78,7 +78,6 @@ def configure(conf):
     # comment the following line for "production" run (not recommended)
     conf.env.append_value("CXXFLAGS", ["-g", "-Wall", "-Werror", "-ansi", "-fno-strict-aliasing"])
     conf.env.append_value("CXXFLAGS", ["-std=c++0x"])
-    conf.env.append_value("LDFLAGS", ["-Wl,--as-needed"])
     conf.env.append_value("RPATH", [conf.env.LIBDIR])
     conf.env.CXXFLAGS_OPTFAST = "-O2"
     conf.env.CXXFLAGS_OPTSIZE = "-Os"
