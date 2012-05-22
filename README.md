@@ -14,7 +14,7 @@ See also the [FAQ](http://liba4.net/a4/blob/master/doc/FAQ.md).
 
 If you are impatient, try:
 
-    git clone http://liba4.net/a4.git
+    git clone https://github.com/a4/a4.git
     cd a4
     ./waf go
     source install/bin/this_a4.sh
