@@ -45,7 +45,6 @@ Overview
  * Stores the description of messages, making the format self-describing
  * Transparent compression using different algorithms (zlib, gzip and snappy)
  * Store metadata messages for blocks of events
- * 
  * Binary concatenation of A4 files yields a valid A4 file with all metadata
  * Support linear no-seeking mode of operation, suitable for network streaming
  * Tries to minimize manual book-keeping
