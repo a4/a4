@@ -34,9 +34,9 @@ A4 is organized into modules:
 The key features of the A4 file format are:
 
  * Store protobuf messages of arbitrary types
- * Stores the description of messages, making the format self-describing and enabling the use of generic tools
- * Transparent compression using different algorithms, including zlib, gzip and snappy
+ * Stores the description of messages, making the format self-describing
+ * Transparent compression using different algorithms (zlib, gzip and snappy)
  * Store metadata messages for blocks of events
- * Binary concatenation of A4 files yields a valid A4 file with all metadata quickly available
+ * Binary concatenation of A4 files yields a valid A4 file with all metadata
  * Support linear no-seeking mode of operation, suitable for network streaming
 
