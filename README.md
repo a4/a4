@@ -13,6 +13,7 @@ More documentation is in the [doc/](http://liba4.net/a4/blob/master/doc/) direct
 See also the [FAQ](http://liba4.net/a4/blob/master/doc/FAQ.md).
 
 If you are impatient, try:
+
     git clone http://liba4.net/a4.git
     cd a4
     ./waf go
@@ -22,13 +23,13 @@ If you are impatient, try:
 For a quick start install A4 and take a look at the examples
 in the tutorial directory.
 
-Inspired and building on Samvel Khalatyans https://github.com/ksamdev/RTvsPBThreads
+Inspired and building on Samvel Khalatyans [RTvsPBThreads](https://github.com/ksamdev/RTvsPBThreads)
 
 
 Overview
 --------
 
-A4 is organized into modules:
+## Modular organization
 
  * a4io provides fast I/O of protobuf events to a custom file format
  * a4process contains processor classes with overridable event loops
@@ -38,12 +39,13 @@ A4 is organized into modules:
  * a4plot is a container module for ROOT plotting tools
  * a4atlas contains ATLAS-specific event and metadata definitions and tools
 
-The key features of the A4 file format are:
+## Key features
 
  * Store protobuf messages of arbitrary types
  * Stores the description of messages, making the format self-describing
  * Transparent compression using different algorithms (zlib, gzip and snappy)
  * Store metadata messages for blocks of events
+ * 
  * Binary concatenation of A4 files yields a valid A4 file with all metadata
  * Support linear no-seeking mode of operation, suitable for network streaming
-
+ * Tries to minimize manual book-keeping
