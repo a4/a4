@@ -1,12 +1,12 @@
 A4 - An Analysis Tool for High-Energy Physics
 ---------------------------------------------
-Johannes Ebke <ebke@cern.ch>
 
-Inspired and building on Samvel Khalatyan's
-excellent demonstration "RTvsPBThreads"
+A4 is a data processing format, tool-set and library which provides fast I/O
+of structured data using the Google protocol buffer library:
+http://code.google.com/p/protobuf/
 
-http://indico.cern.ch/contributionDisplay.py?contribId=29&confId=141309
-https://github.com/ksamdev/RTvsPBThreads
+This is currently an experimental project, but has already been successfully
+applied to physics analysis.
 
 For instructions on how to install A4, see INSTALL.
 
@@ -15,5 +15,28 @@ If you are impatient, try:
     source install/bin/this_a4.sh
     cd tutorial/
 
-A Doxygen reference page is usually available at
-http://www.ebke.org/a4
+Inspired and building on Samvel Khalatyans https://github.com/ksamdev/RTvsPBThreads
+
+
+Overview
+--------
+
+A4 is organized into modules:
+
+ * a4io provides fast I/O of protobuf events to a custom file format.
+ * a4process contains processor classes with overridable event loops
+ * a4hist contains fast and easy to use histogramming classes
+ * a4store provides a way to define and fill histograms on one line in the loop
+ * a4root contains conversion routines and tools from a4 to ROOT and back
+ * a4plot is a container module for ROOT plotting tools
+ * a4atlas contains ATLAS-specific event and metadata definitions and tools
+
+The key features of the A4 file format are:
+
+ * Store protobuf messages of arbitrary types
+ * Stores the description of messages, making the format self-describing and enabling the use of generic tools
+ * Transparent compression using different algorithms, including zlib, gzip and snappy
+ * Store metadata messages for blocks of events
+ * Binary concatenation of A4 files yields a valid A4 file with all metadata quickly available
+ * Support linear no-seeking mode of operation, suitable for network streaming
+
