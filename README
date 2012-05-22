@@ -8,10 +8,14 @@ http://code.google.com/p/protobuf/
 This is currently an experimental project, but has already been successfully
 applied to physics analysis.
 
-For instructions on how to install A4, see INSTALL.
+For instructions on how to install A4, see INSTALL. 
+More documentation is in the [doc/](http://liba4.net/a4/blob/master/doc/) directory. 
+See also the [FAQ](http://liba4.net/a4/blob/master/doc/FAQ.md).
 
 If you are impatient, try:
-    ./waf configure build install --prefix=$PWD/install
+    git clone http://liba4.net/a4.git
+    cd a4
+    ./waf go
     source install/bin/this_a4.sh
     cd tutorial/
 
@@ -26,7 +30,7 @@ Overview
 
 A4 is organized into modules:
 
- * a4io provides fast I/O of protobuf events to a custom file format.
+ * a4io provides fast I/O of protobuf events to a custom file format
  * a4process contains processor classes with overridable event loops
  * a4hist contains fast and easy to use histogramming classes
  * a4store provides a way to define and fill histograms on one line in the loop
