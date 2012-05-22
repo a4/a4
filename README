@@ -15,6 +15,9 @@ If you are impatient, try:
     source install/bin/this_a4.sh
     cd tutorial/
 
+For a quick start install A4 and take a look at the examples
+in the tutorial directory.
+
 Inspired and building on Samvel Khalatyans https://github.com/ksamdev/RTvsPBThreads
 
 
