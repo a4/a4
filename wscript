@@ -10,6 +10,12 @@ def go(ctx):
     options.prefix = pjoin(getcwd(), "install")
     commands += ["configure", "build", "install"]
 
+def fetch_deps(ctx):
+    import subprocess
+    for script in "./get_miniboost.sh ./get_protobuf.sh".split():
+        process = subprocess.Popen([script, "-j%i" % ctx.options.jobs])
+        process.wait()
+
 def onchange(ctx):
     """
     Detect changes to source files then run the following waf, e.g. "./waf onchange build"

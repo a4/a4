@@ -6,8 +6,6 @@ protobuf_name=protobuf-2.4.1
 protobuf_pack=$protobuf_name.tar.bz2
 protobuf_url=http://protobuf.googlecode.com/files/$protobuf_pack
 
-threads=4
-
 if test -d $target_name; then
   echo "Existing $target_name/ directory found, exiting..."
   exit -1
@@ -57,7 +55,7 @@ echo "---------------------------------"
 echo "A4: Compiling Protobuf Library..."
 echo "---------------------------------"
 
-if ! make -j$threads; then
+if ! make $@; then
   echo "Protobuf compilation failed! :("
   exit 1
 fi
