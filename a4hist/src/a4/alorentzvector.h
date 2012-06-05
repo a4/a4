@@ -137,6 +137,11 @@ struct ALorentzVector
         result *= sf;
         return result;
     }
+    const ALorentzVector transverse() const {
+        ALorentzVector result = *this;
+        result.pz = 0;
+        return result;
+    }
 };
 
 static __attribute__ ((unused)) ALorentzVector operator*(const double &sf, const ALorentzVector &rhs) {

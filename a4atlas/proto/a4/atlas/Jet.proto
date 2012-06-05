@@ -45,5 +45,6 @@ message Jet
     optional TruthFlavor truth_flavor = 103;
 
     optional METContribution met_contribution = 125;
-
+    optional float dR_nearest_jet = 130;
+    optional bool  is_true_b_jet = 131;
 }
