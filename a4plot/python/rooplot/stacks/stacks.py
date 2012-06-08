@@ -299,11 +299,11 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
         cmc2.GetXaxis().SetTitle("")
 
         if cdata:
-            mx = max(cd.GetBinContent(cd.GetMaximumBin())+cd.GetBinError(cd.GetMaximumBin()) for cd in cdata)
-            mn = min(cd.GetBinContent(cd.GetMinimumBin())-cd.GetBinError(cd.GetMinimumBin()) for cd in cdata)
+            mx = max(cd.GetBinContent(cd.GetMaximumBin())+0.2*cd.GetBinError(cd.GetMaximumBin()) for cd in cdata)
+            mn = min(cd.GetBinContent(cd.GetMinimumBin())-0.2*cd.GetBinError(cd.GetMinimumBin()) for cd in cdata)
             if compare:
-                mx = 1.3
-                mn = 0.7
+                mx = max(1.3, mx)
+                mn = min(0.7, mn)
             for h in cdata + [cmc, cmc2]:
                 h.SetMaximum(mx)
                 h.SetMinimum(mn)
