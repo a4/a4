@@ -255,7 +255,10 @@ def get_data(hn, files, is_data):
         if is_cutflow:
             data_by_file[f] = (h.GetTitle(), dict((label, bin_content(h, cf_label_getter(label), scale)) for label in labels))
         else:
-            data_by_file[f] = (h.GetTitle(), [bin_content(h, bin_getter(i), scale) for i in xrange(0, h.GetNbinsX()*h.GetNbinsY()*h.GetNbinsZ())])
+            nbins = [h.GetNbinsX()+2, h.GetNbinsY()+2, h.GetNbinsZ()+2][:h.GetDimension()]
+            N = reduce(int.__mul__, nbins)
+            data = [bin_content(h, bin_getter(i), scale) for i in xrange(N)]
+            data_by_file[f] = (h.GetTitle(), data)
 
     if do_cutflow:
         return labels, data_by_file
