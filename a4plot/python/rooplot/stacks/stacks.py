@@ -1,4 +1,4 @@
-from ROOT import gROOT, TLegend, TLatex, TCanvas, THStack
+from ROOT import gROOT, TLegend, TLatex, TCanvas, THStack, Double
 from ROOT import kYellow, kBlack, kWhite, kRed, kWhite, kOrange
 
 import os
@@ -111,17 +111,32 @@ def set_styles(data, mcs, signals):
         set_color_1D(mc,mc.GetTitle(), i)
 
 from ROOT import gPad, kOrange, kRed
+saver = []
 
 def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin_to=None, range=None, compare=False, sigma=False, log=False, prelim=False):
+    data = [h.Clone() for h in data]
+    list_mc = [h.Clone() for h in list_mc]
+    signals = [h.Clone() for h in signals]
+    sum_mc = sum_mc.Clone() if sum_mc else sum_mc
+
     all_histos = list_mc + signals + data
 
+    saver.extend(all_histos)
+    saver.append(sum_mc)
+
     h = all_histos[0]
+    xaxis = h.GetXaxis()
+    b1, b2 = h.GetXaxis().GetFirst(), h.GetXaxis().GetLast()
+    if range:
+        x1, x2 = range
+        x2 -= 0.000001
+        range = (x1, x2)
+        b1, b2 = xaxis.FindBin(x1), xaxis.FindBin(x2)
+
     if rebin_to:
-        xaxis = h.GetXaxis()
         nbins = xaxis.GetNbins()
         if range:
-            x1, x2 = range
-            nbins = xaxis.FindBin(x2) - xaxis.FindBin(x1) + 1
+            nbins = b2 - b1 + 1
         rebin = int(round(nbins*1.0/rebin_to))
         if rebin < 1:
             rebin = 1
@@ -129,6 +144,16 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
     if rebin != 1:
         for histo in all_histos:
             histo.Rebin(rebin)
+
+    if True: # squash overflow bins
+        e = Double()
+        for histo in all_histos + [sum_mc] if sum_mc else []:
+            c = histo.IntegralAndError(0, b1, e)
+            histo.SetBinContent(b1, c)
+            histo.SetBinError(b1, e)
+            c = histo.IntegralAndError(b2, histo.GetNbinsX() + 1, e)
+            histo.SetBinContent(b2, c)
+            histo.SetBinError(b2, e)
    
     # set up pads 
     cpad = gPad.func()
@@ -145,6 +170,8 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
     elif log:
         cpad.SetLogy()
 
+    # sort backgrounds by integral
+    list_mc.sort(key=lambda h : h.Integral())
 
     hsave, mcstack = None, None
     if list_mc:
