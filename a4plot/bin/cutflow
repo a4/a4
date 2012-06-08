@@ -97,7 +97,7 @@ def get_histos(types, patterns):
             if pat in xunits:
                 xunits.update(dict((h,xunits[pat]) for h in histos_pat))
             if pat in xrebin:
-                xrebin.update(dict((h,xrebin[pat]) for h in histos_pat))
+                xrebin.update(dict((h,int(xrebin[pat])) for h in histos_pat))
             if pat in x_range:
                 x_range.update(dict((h,x_range[pat]) for h in histos_pat))
         if not histos_pat:
@@ -146,10 +146,10 @@ def prep_histo_systematics(hn, histos, is_data):
                 if "," in range:
                     rebin_to, srange = range.split(",")
                     rebin_to = int(rebin_to)
-                    range = map(float,srange.split("-"))
-                elif "-" in range:
+                    range = map(float,srange.split(".."))
+                elif ".." in range:
                     rebin_to = None
-                    range = map(float, x_range[hn].split("-"))
+                    range = map(float, x_range[hn].split(".."))
                 else:
                     rebin_to = int(range)
                     range = None
