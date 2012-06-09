@@ -59,6 +59,8 @@ from fnmatch import filter
 
 disp = "%s fb^{-1}" % options.lumi
 width, height = (800, 600)
+width, height = (1375, 736)
+
 if do_plot:
     xtitles = dict(zip(options.histogram, options.xtitle))
     xunits  = dict(zip(options.histogram, options.unit))
@@ -67,8 +69,8 @@ if do_plot:
     if options.roostats:
         from ROOT import TFile
         roostats_file = TFile(options.roostats, "RECREATE")
-    if options.compare:
-        width, height = (680, 600)
+    #if options.compare:
+    #    width, height = (680, 600)
 x_range_bin = {}
 
 bg_files = [ATFile(fn) for fn in args]
@@ -453,11 +455,12 @@ def plot_1d(hn, examplehisto, bg_files, sg_files, data_files, content, mcsum, st
         for n, d in zip(data_names, data) + zip(bg_names, bg) + zip(sg_names, sg):
             roostats_file.WriteObject(d, "%s_%s" % (n, hist_base))
     elif options.interactive:
+        histograms = []
         histograms.append(TCanvas(hn,hn,width,height))
         histograms.append(get_draw(False, options.compare, options.sigma)())
     else:
         from rooplot import batch_mode
-        pix = 1000
+        pix = 2000
 
         width, height = int(width*pix*1.0/max(width,height)), int(height*pix*1.0/max(width,height))
 
@@ -557,6 +560,11 @@ if __name__=="__main__":
             plot_1d(hn, hb, bg_files, sg_files, data_files, dict(bcontent.items() + dcontent.items()), mcsum, options.style)
     else:
         raise Exception("What to do?")
+
+
+if options.interactive:
+    import time
+    time.sleep(10000000)
 
 import os, sys
 sys.stdout.close()

@@ -6,19 +6,24 @@ import random
 
 from colors import set_color_1D, set_color_2D, set_data_style, set_MCTotal_style, set_signal_style_1D
 
+tsize = 0.06
+toffset = 0.045 / tsize
+
+
 def get_legend(data, sum_mc, list_mc, signals):
     #legend = TLegend(0.2,0.65,0.4,0.94)
     llen = 1 + len(data) + len(list_mc) + len(signals)
     #mtop, mright, width, hinc = 0.01, 0.01, 0.38, 0.05
-    mtop, mright, width, hinc = 0.07, 0.25, 0.15, 0.01
-    x1, y1, x2, y2 = 1.0-mright-width, 1.0-mtop, 1.0 - mtop, 1.0-mright - hinc*llen
+    #mtop, mright, width, hinc = 0.07, 0.25, 0.15, 0.01
+    mtop, mright, width, hinc = 0.13, 0.07, 0.25, 0.04
+    x1, y1, x2, y2 = 1.0 - mright - width, 1.0-mtop, 1.0 - mright, 1.0 - mtop - hinc*llen
     print x1, y1, x2, y2
     legend = TLegend(x1, y1, x2, y2)
     legend.SetNColumns(2)
     legend.SetColumnSeparation(0.05)
     legend.SetBorderSize(0)
     legend.SetTextFont(42)
-    legend.SetTextSize(0.04)
+    legend.SetTextSize(0.06)
     legend.SetFillColor(0)
     legend.SetFillStyle(0)
     legend.SetLineColor(0)
@@ -34,12 +39,12 @@ def get_legend(data, sum_mc, list_mc, signals):
 
 #NB: [ATLAS Preliminary label for when plots are approved only: 
 def get_lumi_label(lumi="168 pb^{-1}", atlas=True, draft=True):
-    x, y = 0.18, (0.75 if atlas else 0.85)
+    x, y = 0.13, (0.75 if atlas else 0.77)
     n = TLatex()
     n.SetNDC()
     n.SetTextFont(32)
     n.SetTextColor(kBlack)
-    n.DrawLatex(x, y,"#sqrt{s} = 7 TeV, #intL dt ~ %s" % (lumi))
+    n.DrawLatex(x, y,"#intL dt = %s, #sqrt{s} = 7 TeV" % (lumi))
     #x, y = 0.21, 0.65
     x, y = 0.18, 0.85
     if not atlas:
@@ -156,22 +161,38 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
             histo.SetBinError(b2, e)
    
     # set up pads 
+
     cpad = gPad.func()
+    wh, ww = cpad.GetWh(), cpad.GetWw()
     if compare or sigma:
-        pad_fraction = 0.25
-        cpad.Divide(1,2, 0.01, 0.01)
-        cpad.cd(1).SetPad(0,pad_fraction,1,1.0)
-        cpad.cd(1).SetBottomMargin(0.15)
+        pad_fraction = 0.3
+        cpad.Divide(1, 2, 0.01, 0.01)
+        cpad.cd(1).SetPad(0, pad_fraction, 1, 1.0)
+        #cpad.cd(1).SetBottomMargin(0.15)
+        cpad.cd(1).SetTopMargin(0.08)
+        cpad.cd(1).SetBottomMargin(0.0)
+        cpad.cd(1).SetLeftMargin(0.1)
+        cpad.cd(1).SetFillStyle(4000)
+        #cpad.cd(1).SetGridx()
+        #cpad.cd(1).SetGridy()
         if log:
             cpad.cd(1).SetLogy()
-        cpad.cd(2).SetPad(0,0.0,1,pad_fraction)
+        cpad.cd(2).SetPad(0, 0.0, 1, pad_fraction+0.1)
+        cpad.cd(2).SetGridx()
         cpad.cd(2).SetGridy()
+        cpad.cd(2).SetFillStyle(4000)
+        cpad.cd(2).SetTopMargin(0.25)
+        cpad.cd(2).SetBottomMargin(0.4)
+        cpad.cd(2).SetLeftMargin(0.1)
         cpad.cd(1)
+        down_pad_fraction = pad_fraction+0.1
+
     elif log:
         cpad.SetLogy()
 
     # sort backgrounds by integral
     list_mc.sort(key=lambda h : h.Integral())
+    list_mc.sort(key=lambda h : h.GetTitle() != "QCD")
 
     hsave, mcstack = None, None
     if list_mc:
@@ -224,6 +245,11 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
             d.Draw("pe")
         else:
             d.Draw("pe same")
+
+    pad_factor = 1.0/(1 - pad_fraction)
+    axis.GetYaxis().SetLabelSize(tsize * pad_factor)
+    axis.GetYaxis().SetTitleSize(tsize * pad_factor)
+    axis.GetYaxis().SetTitleOffset(toffset / pad_factor)
 
     legend = get_legend(data,mc_sum,list(reversed(list_mc)),signals)
     legend.Draw()
@@ -296,17 +322,19 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
                 cmc.SetBinContent(i, 1.0)
                 cmc2.SetBinContent(i, 1.0)
                 cmc2.GetYaxis().SetTitle("Data / MC")
-        cmc2.GetXaxis().SetTitle("")
+        #cmc2.GetXaxis().SetTitle("")
 
         if cdata:
             mx = max(cd.GetBinContent(cd.GetMaximumBin())+0.2*cd.GetBinError(cd.GetMaximumBin()) for cd in cdata)
             mn = min(cd.GetBinContent(cd.GetMinimumBin())-0.2*cd.GetBinError(cd.GetMinimumBin()) for cd in cdata)
             if compare:
-                mx = max(1.3, mx)
+                mx = min(max(1.3, mx), 2)
                 mn = min(0.7, mn)
             for h in cdata + [cmc, cmc2]:
                 h.SetMaximum(mx)
                 h.SetMinimum(mn)
+
+        cmc2.GetYaxis().SetNdivisions(6,3,0)
 
         cmc2.Draw("hist")
         cmc.Draw("e2 same")
@@ -314,12 +342,15 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
             cd.Draw("pe same")
         cpad.cd()
     
-        sf = 0.7
-        cmc2.GetYaxis().SetLabelSize(cmc2.GetYaxis().GetLabelSize()*(1-pad_fraction)/pad_fraction*sf)
-        cmc2.GetXaxis().SetLabelSize(cmc2.GetXaxis().GetLabelSize()*(1-pad_fraction)/pad_fraction*sf)
-        cmc2.GetYaxis().SetTitleSize(cmc2.GetYaxis().GetTitleSize()*(1-pad_fraction)/pad_fraction*sf)
-        cmc2.GetYaxis().SetTitleOffset(cmc2.GetYaxis().GetTitleOffset()*(pad_fraction)/(1-pad_fraction)/sf)
-        cmc2.GetXaxis().SetTitleSize(cmc2.GetXaxis().GetTitleSize()*(1-pad_fraction)/pad_fraction*sf)
+        sf = 1.0
+        ysf = 0.8
+        pad_factor = 1.0/down_pad_fraction
+        cmc2.GetYaxis().SetLabelSize(tsize*pad_factor*sf*ysf)
+        cmc2.GetYaxis().SetTitleSize(tsize*pad_factor*sf)
+        cmc2.GetYaxis().SetTitleOffset(toffset / pad_factor / sf)
+        cmc2.GetXaxis().SetLabelSize(tsize*pad_factor*sf)
+        cmc2.GetXaxis().SetTitleSize(tsize*pad_factor*sf)
+        cmc2.GetXaxis().SetTitleOffset(3.5 * toffset / pad_factor / sf)
 
     return legend, mcstack, mc_sum, mc_sum_line, save
 
