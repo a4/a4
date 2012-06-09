@@ -1,4 +1,5 @@
-from ROOT import gROOT, TLegend, TLatex, TCanvas, THStack, Double
+from ROOT import gROOT, gStyle, Double
+from ROOT import TLegend, TLatex, TCanvas, THStack, TLine, TBox
 from ROOT import kYellow, kBlack, kWhite, kRed, kWhite, kOrange
 
 import os
@@ -7,8 +8,9 @@ import random
 from colors import set_color_1D, set_color_2D, set_data_style, set_MCTotal_style, set_signal_style_1D
 
 tsize = 0.06
-toffset = 0.045 / tsize
-
+tyoffset = 1.1 * 0.06 / tsize
+txoffset = 2.5 * 0.06 / tsize
+lmargin = 0.14
 
 def get_legend(data, sum_mc, list_mc, signals):
     #legend = TLegend(0.2,0.65,0.4,0.94)
@@ -16,7 +18,7 @@ def get_legend(data, sum_mc, list_mc, signals):
     #mtop, mright, width, hinc = 0.01, 0.01, 0.38, 0.05
     #mtop, mright, width, hinc = 0.07, 0.25, 0.15, 0.01
     mtop, mright, width, hinc = 0.13, 0.07, 0.25, 0.04
-    x1, y1, x2, y2 = 1.0 - mright - width, 1.0-mtop, 1.0 - mright, 1.0 - mtop - hinc*llen
+    x1, y1, x2, y2 = 1.0 - mright - width, 1.0 - mtop, 1.0 - mright, 1.0 - mtop - hinc*llen
     print x1, y1, x2, y2
     legend = TLegend(x1, y1, x2, y2)
     legend.SetNColumns(2)
@@ -39,7 +41,7 @@ def get_legend(data, sum_mc, list_mc, signals):
 
 #NB: [ATLAS Preliminary label for when plots are approved only: 
 def get_lumi_label(lumi="168 pb^{-1}", atlas=True, draft=True):
-    x, y = 0.13, (0.75 if atlas else 0.77)
+    x, y = lmargin + 0.03, (0.75 if atlas else 0.77)
     n = TLatex()
     n.SetNDC()
     n.SetTextFont(32)
@@ -92,6 +94,31 @@ def create_mc_sum(mc_list, existing_mc_sum=None):
     mc_sum.SetTitle("SM (stat)")
     return mc_sum_line, mc_sum
 
+def create_cuts(cuts_left, cuts_right, ymin, ymax, w):
+    save = []
+    hashwidth = 0.01*w
+    for vl in cuts_left + cuts_right:
+        l = TLine(vl, ymin, vl, ymax)
+        l.SetLineColor(kRed)
+        l.Draw()
+        save.append(l)
+    #gStyle.SetHatchesSpacing(0.01)
+    #gStyle.SetHatchesLineWidth(2)
+    for vl in cuts_left:
+        b = TBox(vl, ymin, vl - hashwidth, ymax)
+        b.SetFillStyle(3345)
+        b.SetFillColor(kRed)
+        b.SetLineStyle(0)
+        b.Draw()
+        save.append(b)
+    for vl in cuts_right:
+        b = TBox(vl, ymin, vl + hashwidth, ymax)
+        b.SetFillStyle(3354)
+        b.SetFillColor(kRed)
+        b.SetLineStyle(0)
+        b.Draw()
+        save.append(b)
+    return save
 #-----------------
 #Axis labels:
 #y-axis labels: Entries / x Units (x = bin width, Units = e.g. GeV)
@@ -118,7 +145,7 @@ def set_styles(data, mcs, signals):
 from ROOT import gPad, kOrange, kRed
 saver = []
 
-def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin_to=None, range=None, compare=False, sigma=False, log=False, prelim=False):
+def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin_to=None, range=None, compare=False, sigma=False, log=False, prelim=False, cuts_left=(), cuts_right=()):
     data = [h.Clone() for h in data]
     list_mc = [h.Clone() for h in list_mc]
     signals = [h.Clone() for h in signals]
@@ -132,6 +159,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
     h = all_histos[0]
     xaxis = h.GetXaxis()
     b1, b2 = h.GetXaxis().GetFirst(), h.GetXaxis().GetLast()
+
     if range:
         x1, x2 = range
         x2 -= 0.000001
@@ -159,11 +187,14 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
             c = histo.IntegralAndError(b2, histo.GetNbinsX() + 1, e)
             histo.SetBinContent(b2, c)
             histo.SetBinError(b2, e)
+
+    x1, x2 = h.GetXaxis().GetBinLowEdge(b1), h.GetXaxis().GetBinLowEdge(b2)
    
     # set up pads 
 
     cpad = gPad.func()
     wh, ww = cpad.GetWh(), cpad.GetWw()
+    pad_fraction = 0
     if compare or sigma:
         pad_fraction = 0.3
         cpad.Divide(1, 2, 0.01, 0.01)
@@ -171,7 +202,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
         #cpad.cd(1).SetBottomMargin(0.15)
         cpad.cd(1).SetTopMargin(0.08)
         cpad.cd(1).SetBottomMargin(0.0)
-        cpad.cd(1).SetLeftMargin(0.1)
+        cpad.cd(1).SetLeftMargin(lmargin)
         cpad.cd(1).SetFillStyle(4000)
         #cpad.cd(1).SetGridx()
         #cpad.cd(1).SetGridy()
@@ -183,7 +214,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
         cpad.cd(2).SetFillStyle(4000)
         cpad.cd(2).SetTopMargin(0.25)
         cpad.cd(2).SetBottomMargin(0.4)
-        cpad.cd(2).SetLeftMargin(0.1)
+        cpad.cd(2).SetLeftMargin(lmargin)
         cpad.cd(1)
         down_pad_fraction = pad_fraction+0.1
 
@@ -216,7 +247,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
     
     # get min/max
     ymax = (max(h.GetMaximum() for h in all_histos) + 1) * (1.5 if not log else 100)
-    ymin = max(1e-1,min(h.GetMinimum() for h in all_histos))
+    ymin = max(1.0,min(h.GetMinimum() for h in all_histos))
 
     # unset range for mc
     if range:
@@ -249,11 +280,14 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
     pad_factor = 1.0/(1 - pad_fraction)
     axis.GetYaxis().SetLabelSize(tsize * pad_factor)
     axis.GetYaxis().SetTitleSize(tsize * pad_factor)
-    axis.GetYaxis().SetTitleOffset(toffset / pad_factor)
+    axis.GetYaxis().SetTitleOffset(tyoffset / pad_factor)
 
     legend = get_legend(data,mc_sum,list(reversed(list_mc)),signals)
     legend.Draw()
+
     save = []
+
+    save.extend(create_cuts(cuts_left, cuts_right, 0 if log else ymin, ymax/(1.3 if not log else 50), x2-x1))
 
     # Try to fix the limits...
     axis.SetMaximum(ymax)
@@ -326,7 +360,11 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
 
         if cdata:
             mx = max(cd.GetBinContent(cd.GetMaximumBin())+0.2*cd.GetBinError(cd.GetMaximumBin()) for cd in cdata)
-            mn = min(cd.GetBinContent(cd.GetMinimumBin())-0.2*cd.GetBinError(cd.GetMinimumBin()) for cd in cdata)
+            #mn = min(cd.GetBinContent(cd.GetMinimumBin())-0.2*cd.GetBinError(cd.GetMinimumBin()) for cd in cdata)
+            mn = mx
+            for cd in cdata:
+                minc, minbin = min([(cd.GetBinContent(i),i) for i in xrange(1, cd.GetNbinsX()+1) if cd.GetBinContent(i) > 0])
+                mn = min(minc - 0.2*cd.GetBinError(minbin), mn)
             if compare:
                 mx = min(max(1.3, mx), 2)
                 mn = min(0.7, mn)
@@ -334,23 +372,26 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
                 h.SetMaximum(mx)
                 h.SetMinimum(mn)
 
-        cmc2.GetYaxis().SetNdivisions(6,3,0)
+        cmc2.GetYaxis().SetNdivisions(5,0,0)
 
         cmc2.Draw("hist")
         cmc.Draw("e2 same")
         for cd in cdata:
             cd.Draw("pe same")
-        cpad.cd()
+
     
         sf = 1.0
-        ysf = 0.8
+        ysf = 0.7
         pad_factor = 1.0/down_pad_fraction
         cmc2.GetYaxis().SetLabelSize(tsize*pad_factor*sf*ysf)
         cmc2.GetYaxis().SetTitleSize(tsize*pad_factor*sf)
-        cmc2.GetYaxis().SetTitleOffset(toffset / pad_factor / sf)
+        cmc2.GetYaxis().SetTitleOffset(tyoffset / pad_factor / sf)
         cmc2.GetXaxis().SetLabelSize(tsize*pad_factor*sf)
         cmc2.GetXaxis().SetTitleSize(tsize*pad_factor*sf)
-        cmc2.GetXaxis().SetTitleOffset(3.5 * toffset / pad_factor / sf)
+        cmc2.GetXaxis().SetTitleOffset(txoffset / pad_factor / sf)
+        save.extend(create_cuts(cuts_left, cuts_right, mn, mx, x2-x1))
+    
+        cpad.cd()
 
     return legend, mcstack, mc_sum, mc_sum_line, save
 

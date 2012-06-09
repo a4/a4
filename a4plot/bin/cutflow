@@ -40,6 +40,8 @@ if do_plot:
     parser.add_option("-x", "--xtitle", action="append", default=[], help="label of the x axis of the plot %s"%once_per_p)
     parser.add_option("-r", "--range", action="append", default=[], help="range of x axis of the plot, format: <nbins>,<start>-<end> or <start>-<end> or only <nbins> %s"%once_per_p)
     parser.add_option("-u", "--unit", action="append", default=[], help="units of the x axis of the plot %s"%once_per_p)
+    parser.add_option("--left-cut", action="append", default=[], help="add a left cut mark at this position")
+    parser.add_option("--right-cut", action="append", default=[], help="add a right cut mark at this position")
 
 (options, args) = parser.parse_args()
 
@@ -71,6 +73,9 @@ if do_plot:
         roostats_file = TFile(options.roostats, "RECREATE")
     #if options.compare:
     #    width, height = (680, 600)
+    cuts_left = map(float, options.left_cut)
+    cuts_right = map(float, options.right_cut)
+
 x_range_bin = {}
 
 bg_files = [ATFile(fn) for fn in args]
@@ -437,7 +442,7 @@ def plot_1d(hn, examplehisto, bg_files, sg_files, data_files, content, mcsum, st
 
     def get_draw(log,cmp,sgm):
         def draw():
-            legend, stack, summc, hsave, save = plot_1D(hn, data, bg, sg, sum_mc=sum_mc, lumi=disp, range=x_range_bin.get(hn,None), compare=cmp, sigma=sgm, log=log, prelim=options.preliminary)
+            legend, stack, summc, hsave, save = plot_1D(hn, data, bg, sg, sum_mc=sum_mc, lumi=disp, range=x_range_bin.get(hn,None), compare=cmp, sigma=sgm, log=log, prelim=options.preliminary,cuts_left=cuts_left,cuts_right=cuts_right)
             if stack:
                 stack.GetXaxis().SetTitle(examplehisto.GetXaxis().GetTitle())
                 stack.GetYaxis().SetTitle(examplehisto.GetYaxis().GetTitle())
