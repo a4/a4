@@ -71,8 +71,8 @@ if do_plot:
     if options.roostats:
         from ROOT import TFile
         roostats_file = TFile(options.roostats, "RECREATE")
-    #if options.compare:
-    #    width, height = (680, 600)
+    if not options.compare:
+        width, height = (800, 600)
     cuts_left = map(float, options.left_cut)
     cuts_right = map(float, options.right_cut)
 

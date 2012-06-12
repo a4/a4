@@ -17,7 +17,11 @@ def get_legend(data, sum_mc, list_mc, signals):
     llen = 1 + len(data) + len(list_mc) + len(signals)
     #mtop, mright, width, hinc = 0.01, 0.01, 0.38, 0.05
     #mtop, mright, width, hinc = 0.07, 0.25, 0.15, 0.01
-    mtop, mright, width, hinc = 0.13, 0.07, 0.25, 0.04
+
+    if tsize == 0.06:
+        mtop, mright, width, hinc = 0.13, 0.07, 0.25, 0.6666*tsize
+    else:
+        mtop, mright, width, hinc = 0.13, 0.1, 0.3, 0.6666*tsize
     x1, y1, x2, y2 = 1.0 - mright - width, 1.0 - mtop, 1.0 - mright, 1.0 - mtop - hinc*llen
     print x1, y1, x2, y2
     legend = TLegend(x1, y1, x2, y2)
@@ -25,7 +29,7 @@ def get_legend(data, sum_mc, list_mc, signals):
     legend.SetColumnSeparation(0.05)
     legend.SetBorderSize(0)
     legend.SetTextFont(42)
-    legend.SetTextSize(0.06)
+    legend.SetTextSize(tsize)
     legend.SetFillColor(0)
     legend.SetFillStyle(0)
     legend.SetLineColor(0)
@@ -46,6 +50,7 @@ def get_lumi_label(lumi="168 pb^{-1}", atlas=True, draft=True):
     n.SetNDC()
     n.SetTextFont(32)
     n.SetTextColor(kBlack)
+    n.SetTextSize(tsize*1.33)
     n.DrawLatex(x, y,"#intL dt = %s, #sqrt{s} = 7 TeV" % (lumi))
     #x, y = 0.21, 0.65
     x, y = 0.18, 0.85
@@ -195,7 +200,11 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
     cpad = gPad.func()
     wh, ww = cpad.GetWh(), cpad.GetWw()
     pad_fraction = 0
+    global tsize, tyoffset, txoffset
     if compare or sigma:
+        tsize = 0.06 # was 0.06
+        tyoffset = 1.1 * 0.06 / tsize
+        txoffset = 2.5 * 0.06 / tsize
         pad_fraction = 0.3
         cpad.Divide(1, 2, 0.01, 0.01)
         cpad.cd(1).SetPad(0, pad_fraction, 1, 1.0)
@@ -217,9 +226,15 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
         cpad.cd(2).SetLeftMargin(lmargin)
         cpad.cd(1)
         down_pad_fraction = pad_fraction+0.1
-
-    elif log:
-        cpad.SetLogy()
+    else:
+        tsize = 0.04 # was 0.06
+        tyoffset = 1.1 * 0.06 / tsize
+        txoffset = 2.5 * 0.06 / tsize
+        cpad.SetTopMargin(0.08)
+        cpad.SetBottomMargin(0.16)
+        cpad.SetLeftMargin(lmargin)
+        if log:
+            cpad.SetLogy()
 
     # sort backgrounds by integral
     list_mc.sort(key=lambda h : h.Integral())
@@ -247,7 +262,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
     
     # get min/max
     ymax = (max(h.GetMaximum() for h in all_histos) + 1) * (1.5 if not log else 100)
-    ymin = max(1.0,min(h.GetMinimum() for h in all_histos))
+    ymin = max(1.0 if log else 0.01, min(h.GetMinimum() for h in all_histos))
 
     # unset range for mc
     if range:
@@ -281,6 +296,9 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
     axis.GetYaxis().SetLabelSize(tsize * pad_factor)
     axis.GetYaxis().SetTitleSize(tsize * pad_factor)
     axis.GetYaxis().SetTitleOffset(tyoffset / pad_factor)
+    axis.GetXaxis().SetLabelSize(tsize * pad_factor)
+    axis.GetXaxis().SetTitleSize(tsize * pad_factor)
+    axis.GetXaxis().SetTitleOffset(tyoffset / pad_factor)
 
     legend = get_legend(data,mc_sum,list(reversed(list_mc)),signals)
     legend.Draw()
