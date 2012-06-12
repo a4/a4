@@ -408,7 +408,7 @@ def print_cutflow_sum(hns, bg_files, sg_files, data_files, do_sum_mc):
                 sum_uncdata[f] = uncdata[f]
         for f in data_files:
             if f in sum_cdata and f in cdata:
-                sum_cdata[f][1] = sum_cfs(sum_cdata[f][1], cdata[f][1])
+                sum_cdata[f] = (sum_cdata[f][0], sum_cfs((sum_cdata[f][1], cdata[f][1])))
             elif f in cdata:
                 sum_cdata[f] = cdata[f]
 
