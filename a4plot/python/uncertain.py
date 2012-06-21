@@ -41,7 +41,8 @@ class UncertainNumber:
     def get_physics_numbers(self, e_signif_digits=2, max_precision=-2, latex=False):
         n, e, s = self.n, self.e, self.s
         if e!=e or n!=n or s!=s:
-            return str(n), str(e), str(s)
+            if self.syst: return str(n), str(e), str(s)
+            else: return str(n), str(e)
         decade_n = int(floor(log10(abs(n)))) if n != 0 else 0
         decade_e = int(floor(log10(e))) if e != 0 else 0
         decade_s = int(floor(log10(s))) if s != 0 else 0
@@ -64,20 +65,23 @@ class UncertainNumber:
         else:
             st = "%%.%if"%max(prec,0)
             sn, se, ss = st%n, st%e, st%s
-        return sn, se, ss
+        if self.syst: return sn, se, ss
+        else: return sn, se
 
     def latex(self):
-        n, e, s = self.get_physics_numbers(latex=True)
         if not self.syst:
+            n, e = self.get_physics_numbers(latex=True)
             return "$%s \pm %s$" % (n, e)
         else:
+            n, e, s = self.get_physics_numbers(latex=True)
             return "$%s \pm %s \pm %s$" % (n, e, s)
 
     def __str__(self):
-        n, e, s = self.get_physics_numbers(latex=True)
         if not self.syst:
+            n, e = self.get_physics_numbers(latex=True)
             return "%s +- %s" % (n, e)
         else:
+            n, e, s = self.get_physics_numbers(latex=True)
             return "%s +- %s +- %s" % (n, e, s)
 
 class CertainNumber:
@@ -111,6 +115,9 @@ class CertainNumber:
             return s%n
         return "%i" % n
         """
+    def get_physics_numbers(self, latex=False):
+        ### i know there is a difference between certain and unvcertain numbers but for easier use i named the functions the same. 
+        return "%i" % self.n
 
     def latex(self):
         n = self.get_physics_number(latex=True)

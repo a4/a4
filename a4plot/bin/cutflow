@@ -310,7 +310,6 @@ def sum_labels(l1, l2):
             labels.append(l)
     return labels
 
-
 n_tables = 0
 def make_table(labels, content):
     global n_tables
@@ -319,9 +318,8 @@ def make_table(labels, content):
     table.append([""] + ["$%s$"%l.replace("#","\\") for l in labels])
     separators = [True]
     prev_type = None
-    
     ###Shows efficiency of a cut in the latex table
-    if options.signif: signallist, mcsumlist, appendix = [], [], []
+    if options.signif: signallist, mcsumlist,mcsinglelist, appendix = [], [], [], []
     if options.cuteff: prev_value, values = None, []
     ### for signif calculatoion
     if options.signif:
@@ -329,13 +327,12 @@ def make_table(labels, content):
             print >> stderr , "No matching filename for given --signif argument:", options.signif
             print >> stderr, "Possible choice: ", [os.path.split(title[1][0])[1] for title in content]
         else:
-        ### getting numbers to calculate S/sqrt(SB)
+        ### catching numbers for S/sqrt(SB)
             for ctype, (title, numbers) in content:
                 if options.signif in title:
-                    signallist = [numbers.get(label, UncertainNumber(0,0)).get_physics_numbers()[0] for label in labels]
-              
+                    signallist = [numbers.get(label, UncertainNumber(0,0)).get_physics_numbers() for label in labels]
                 elif "sumbg" in ctype:
-                    mcsumlist = [numbers.get(label, UncertainNumber(0,0)).get_physics_numbers()[0] for label in labels]
+                    mcsumlist = [numbers.get(label, UncertainNumber(0,0)).get_physics_numbers() for label in labels]
 
     for ctype, (title, numbers) in content:        
         separators.append(False if ctype == prev_type else True)
@@ -349,30 +346,29 @@ def make_table(labels, content):
                 if prev_value: values.append("$ " + "%.2f" %  (100*(value/prev_value)) + " \\% $")
                 else: values.append(" ")
                 prev_value = value
-            
         if "#" in title:
             title = "$%s$"%title.replace("#","\\")
         if options.ndigits != -1:
             fstr = "%%.%if" % int(options.ndigits)
             table.append([title] + [fstr%(numbers.get(label, UncertainNumber(0,0)).n) for label in labels])
-        ### calculating S/sqrt(SB)
-        ### this part could be more efficient but it works
+        ### calculating S/sqrt(SB) and errors
         elif options.signif and options.signif in title:
-            numberlist = []
+            signiflist = []
             if not mcsumlist or not signallist: 
                 print >> stderr, "Fatal Error in significance calculation: \n No backgroundsum\\signal found!"
                 table.append([title] + [numbers.get(label, UncertainNumber(0,0)).latex() for label in labels])
-                
             else:
-                for S, SB in zip(signallist, mcsumlist):
-                    numberlist.append( float(S)/sqrt(float(SB)) )
+                for S,SB in zip(signallist,mcsumlist):
+                    siglist = []
+                    S = [float(x) for x in S]
+                    SB = [float(x) for x in SB]
+                    squaresum = [x if SB.index(x)==0 else x**2 for x in SB]
+                    signiflist.append(0 if sum(squaresum)==0 else S[0]/sqrt(sum(squaresum)))
                 table.append([title] + [numbers.get(label, UncertainNumber(0,0)).latex() for label in labels])
-                appendix = ["$\\frac{S}{\sqrt{SB}}$"] + [str(round(SoverSB,2)) for SoverSB in numberlist]
+                appendix = ["$\\frac{S}{\sqrt{SB}}$"] + [(" $ %.2f  $") % SoverSB for SoverSB in signiflist]
                 separators.append(False)
-
         else:
             table.append([title] + [numbers.get(label, UncertainNumber(0,0)).latex() for label in labels])
-        
         if options.cuteff: 
             table.append(["eff[$\%$]"] + values)
             separators.append(False)
