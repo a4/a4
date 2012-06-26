@@ -11,9 +11,8 @@ using namespace a4::hist;
 using namespace a4::atlas::ntup::smwz;
 
 class MyProcessor : public ProcessorOf<Event> {
-  public:
+public:
     virtual void process(const Event& event) {
-        //cout << event.event_number() << endl;
         Cutflow& cf = S.T<Cutflow>("main_cutflow")("Main Cutflow");
         cf.weight(1.2);
         cf.passed("Initial");
