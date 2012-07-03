@@ -23,7 +23,8 @@ namespace io {
 
 const size_t BLOCKSIZE = 64 * 1024;
 
-GenericCompressionInputStream::GenericCompressionInputStream(ZeroCopyInputStream* sub_stream)
+GenericCompressionInputStream::GenericCompressionInputStream(
+    ZeroCopyInputStream* sub_stream)
     : _sub_stream(NULL), _backed_up_bytes(0), _byte_count(0) {
     _raw_stream = sub_stream;
     _sub_stream = new CodedInputStream(_raw_stream);
@@ -75,9 +76,10 @@ bool GenericCompressionInputStream::Next(const void** data, int* size) {
 
 // =========================================================================
 
-GenericCompressionOutputStream::GenericCompressionOutputStream(ZeroCopyOutputStream* sub_stream) 
-    : _sub_stream(new CodedOutputStream(sub_stream)), _backed_up_bytes(0), _byte_count(0) {
-}
+GenericCompressionOutputStream::GenericCompressionOutputStream(
+    ZeroCopyOutputStream* sub_stream)
+    : _sub_stream(new CodedOutputStream(sub_stream)), _backed_up_bytes(0),
+      _byte_count(0) {}
 
 GenericCompressionOutputStream::~GenericCompressionOutputStream() {
     Flush();
@@ -126,29 +128,48 @@ bool GenericCompressionOutputStream::Next(void** data, int* size) {
 
 /// Snappy implementation
 
-void SnappyInputStream::RawUncompress(char* input_buffer, size_t compressed_size) {
+void SnappyInputStream::RawUncompress(char* input_buffer, uint32_t compressed_size) {
     bool success = ::snappy::GetUncompressedLength(
         input_buffer, compressed_size, &_output_buffer_size);
     assert(success);
     
     _output_buffer.reset(new char[_output_buffer_size], array_delete<char>());
-    success = ::snappy::RawUncompress(input_buffer, compressed_size, _output_buffer.get());
+    success = ::snappy::RawUncompress(input_buffer, compressed_size,
+        _output_buffer.get());
     assert(success);    
 }
 
 
-size_t SnappyOutputStream::MaxCompressedLength(size_t input_size)
+uint32_t SnappyOutputStream::MaxCompressedLength(size_t input_size)
 {
     return ::snappy::MaxCompressedLength(input_size);
 }
 
-size_t SnappyOutputStream::RawCompress(char* input_buffer, size_t input_size, char* output_buffer)
+uint32_t SnappyOutputStream::RawCompress(char* input_buffer, size_t input_size,
+    char* output_buffer)
 {
     size_t compressed_size = 0;
-    ::snappy::RawCompress(input_buffer, input_size, output_buffer, &compressed_size);
+    ::snappy::RawCompress(input_buffer, input_size, output_buffer,
+        &compressed_size);
     return compressed_size;
 }
 
+/// LZ4 implementation
+
+void LZ4InputStream::RawUncompress(char* input_buffer, size_t compressed_size) {
+    FATAL("Not yet implemented");
+}
+
+
+size_t LZ4OutputStream::MaxCompressedLength(size_t input_size)
+{
+    FATAL("Not yet implemented");
+}
+
+size_t LZ4OutputStream::RawCompress(char* input_buffer, size_t input_size, char* output_buffer)
+{
+    FATAL("Not yet implemented");
+}
 
 }  // namespace io
 }  // namespace a4

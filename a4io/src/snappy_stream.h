@@ -33,9 +33,9 @@ class GenericCompressionInputStream : public BaseCompressedInputStream {
   bool Next(const void** data, int* size);
   void BackUp(int count);
   bool Skip(int count);
-  int64_t ByteCount() const { return _byte_count; };
+  int64_t ByteCount() const { return _byte_count; }
 
-  virtual void RawUncompress(char* input_buffer, size_t compressed_size) = 0;
+  virtual void RawUncompress(char* input_buffer, uint32_t compressed_size) = 0;
   
  protected:
   shared<char> _output_buffer;
@@ -68,8 +68,8 @@ class GenericCompressionOutputStream : public BaseCompressedOutputStream {
   bool Flush();
   bool Close() {return true; }
   
-  virtual size_t MaxCompressedLength(size_t input_size) = 0;
-  virtual size_t RawCompress(char* input_buffer, size_t input_size, char* output_buffer) = 0;
+  virtual uint32_t MaxCompressedLength(size_t input_size) = 0;
+  virtual uint32_t RawCompress(char* input_buffer, size_t input_size, char* output_buffer) = 0;
 
  protected:
   shared<char> _input_buffer;
@@ -91,17 +91,37 @@ class SnappyInputStream : public GenericCompressionInputStream {
 
   explicit SnappyInputStream(ZeroCopyInputStream* sub_stream) : GenericCompressionInputStream(sub_stream) {};
   
-  virtual void RawUncompress(char* input_buffer, size_t compressed_size);
+  virtual void RawUncompress(char* input_buffer, uint32_t compressed_size);
 };
 
 class SnappyOutputStream : public GenericCompressionOutputStream {
  public:
   explicit SnappyOutputStream(ZeroCopyOutputStream* sub_stream) : GenericCompressionOutputStream(sub_stream) {};
   
-  virtual size_t MaxCompressedLength(size_t input_size);
-  virtual size_t RawCompress(char* input_buffer, size_t input_size, char* output_buffer);
+  virtual uint32_t MaxCompressedLength(size_t input_size);
+  virtual uint32_t RawCompress(char* input_buffer, size_t input_size, char* output_buffer);
   
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(SnappyOutputStream);
+};
+
+class LZ4InputStream : public GenericCompressionInputStream {
+ public:
+
+  explicit LZ4InputStream(ZeroCopyInputStream* sub_stream) : GenericCompressionInputStream(sub_stream) {};
+  
+  virtual void RawUncompress(char* input_buffer, uint32_t compressed_size);
+  
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(LZ4InputStream);
+};
+
+class LZ4OutputStream : public GenericCompressionOutputStream {
+ public:
+  explicit LZ4OutputStream(ZeroCopyOutputStream* sub_stream) : GenericCompressionOutputStream(sub_stream) {};
+  
+  virtual uint32_t MaxCompressedLength(size_t input_size);
+  virtual uint32_t RawCompress(char* input_buffer, size_t input_size, char* output_buffer);
+  
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(LZ4OutputStream);
 };
 
 }  // namespace io
