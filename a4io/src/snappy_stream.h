@@ -20,12 +20,12 @@ using google::protobuf::io::CodedOutputStream;
 namespace a4 {
 namespace io {
 
-// A ZeroCopyInputStream that reads compressed data through Snappy
-class SnappyInputStream : public BaseCompressedInputStream {
+// A ZeroCopyInputStream that reads compressed data through GenericCompression
+class GenericCompressionInputStream : public BaseCompressedInputStream {
  public:
 
-  explicit SnappyInputStream(ZeroCopyInputStream* sub_stream);
-  virtual ~SnappyInputStream();
+  explicit GenericCompressionInputStream(ZeroCopyInputStream* sub_stream);
+  virtual ~GenericCompressionInputStream();
   
   void reset_input_stream();
   
@@ -35,28 +35,30 @@ class SnappyInputStream : public BaseCompressedInputStream {
   bool Skip(int count);
   int64_t ByteCount() const { return _byte_count; };
 
-  virtual void RawUncompress(char* input_buffer, size_t compressed_size);
-
+  virtual void RawUncompress(char* input_buffer, size_t compressed_size) = 0;
+  
+ protected:
+  shared<char> _output_buffer;
+  size_t _output_buffer_size;
+  
  private:
 
   CodedInputStream* _sub_stream;
   ZeroCopyInputStream* _raw_stream;
 
   int _backed_up_bytes;
-  shared<char> _output_buffer;
-  size_t _output_buffer_size;
 
   size_t _byte_count;
   
-  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(SnappyInputStream);
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(GenericCompressionInputStream);
 };
 
-class SnappyOutputStream : public BaseCompressedOutputStream {
+class GenericCompressionOutputStream : public BaseCompressedOutputStream {
  public:
-  // Create a SnappyOutputStream with default options.
-  explicit SnappyOutputStream(ZeroCopyOutputStream* sub_stream);
+  // Create a GenericCompressionOutputStream with default options.
+  explicit GenericCompressionOutputStream(ZeroCopyOutputStream* sub_stream);
 
-  virtual ~SnappyOutputStream();
+  virtual ~GenericCompressionOutputStream();
   
   // implements ZeroCopyOutputStream ---------------------------------
   bool Next(void** data, int* size);
@@ -66,19 +68,39 @@ class SnappyOutputStream : public BaseCompressedOutputStream {
   bool Flush();
   bool Close() {return true; }
   
-  virtual size_t MaxCompressedLength(size_t input_size);
-  virtual size_t RawCompress(char* input_buffer, size_t input_size, char* output_buffer);
-  
+  virtual size_t MaxCompressedLength(size_t input_size) = 0;
+  virtual size_t RawCompress(char* input_buffer, size_t input_size, char* output_buffer) = 0;
+
+ protected:
+  shared<char> _input_buffer;
+  size_t _input_buffer_size;
+   
  private:
   
   CodedOutputStream* _sub_stream;
   
   int _backed_up_bytes;
-  shared<char> _input_buffer;
-  size_t _input_buffer_size;
   
   size_t _byte_count;
 
+  GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(GenericCompressionOutputStream);
+};
+
+class SnappyInputStream : public GenericCompressionInputStream {
+ public:
+
+  explicit SnappyInputStream(ZeroCopyInputStream* sub_stream) : GenericCompressionInputStream(sub_stream) {};
+  
+  virtual void RawUncompress(char* input_buffer, size_t compressed_size);
+};
+
+class SnappyOutputStream : public GenericCompressionOutputStream {
+ public:
+  explicit SnappyOutputStream(ZeroCopyOutputStream* sub_stream) : GenericCompressionOutputStream(sub_stream) {};
+  
+  virtual size_t MaxCompressedLength(size_t input_size);
+  virtual size_t RawCompress(char* input_buffer, size_t input_size, char* output_buffer);
+  
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(SnappyOutputStream);
 };
 
