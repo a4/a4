@@ -35,6 +35,8 @@ class SnappyInputStream : public BaseCompressedInputStream {
   bool Skip(int count);
   int64_t ByteCount() const { return _byte_count; };
 
+  virtual void RawUncompress(char* input_buffer, size_t compressed_size);
+
  private:
 
   CodedInputStream* _sub_stream;
@@ -63,6 +65,10 @@ class SnappyOutputStream : public BaseCompressedOutputStream {
 
   bool Flush();
   bool Close() {return true; }
+  
+  virtual size_t MaxCompressedLength(size_t input_size);
+  virtual size_t RawCompress(char* input_buffer, size_t input_size, char* output_buffer);
+  
  private:
   
   CodedOutputStream* _sub_stream;

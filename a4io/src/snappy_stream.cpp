@@ -64,19 +64,23 @@ bool SnappyInputStream::Next(const void** data, int* size) {
     shared<char> tempbuffer(new char[compressed_size], array_delete<char>()); 
     _sub_stream->ReadRaw(tempbuffer.get(), compressed_size);
     
-    bool success = snappy::GetUncompressedLength(
-        tempbuffer.get(), compressed_size, &_output_buffer_size);
-    assert(success);
-    
-    _output_buffer.reset(new char[_output_buffer_size], array_delete<char>());
-    success = snappy::RawUncompress(tempbuffer.get(), compressed_size, _output_buffer.get());
-    assert(success);
+    RawUncompress(tempbuffer.get(), compressed_size);
     
     reset_input_stream(); // TODO(ebke): probably call this every Limit/BLOCKSIZE
     
     (*size) = _output_buffer_size;
     (*data) = _output_buffer.get();
     return true;
+}
+
+void SnappyInputStream::RawUncompress(char* input_buffer, size_t compressed_size) {
+    bool success = ::snappy::GetUncompressedLength(
+        input_buffer, compressed_size, &_output_buffer_size);
+    assert(success);
+    
+    _output_buffer.reset(new char[_output_buffer_size], array_delete<char>());
+    success = ::snappy::RawUncompress(tempbuffer.get(), compressed_size, _output_buffer.get());
+    assert(success);    
 }
 
 // =========================================================================
@@ -100,8 +104,8 @@ bool SnappyOutputStream::Flush()
     if (!_input_buffer || size == 0) return true;
     
     size_t compressed_size = 0;
-    shared<char> compressed_data(new char[snappy::MaxCompressedLength(size)], array_delete<char>());
-    snappy::RawCompress(_input_buffer.get(), size, compressed_data.get(), &compressed_size);
+    shared<char> compressed_data(new char[MaxCompressedLength(size)], array_delete<char>());
+    compressed_size = RawCompress(_input_buffer.get(), size, compressed_data.get());
     
     assert(compressed_size <= 2*BLOCKSIZE);
     
@@ -112,6 +116,18 @@ bool SnappyOutputStream::Flush()
     _backed_up_bytes = 0;
     _input_buffer.reset();
     return true;
+}
+
+size_t SnappyOutputStream::MaxCompressedLength(size_t input_size)
+{
+    return ::snappy::MaxCompressedLength(input_size);
+}
+
+size_t SnappyOutputStream::RawCompress(char* input_buffer, size_t input_size, char* output_buffer)
+{
+    size_t compressed_size = 0;
+    ::snappy::RawCompress(input_buffer, input_size, output_buffer, &compressed_size);
+    return compressed_size;
 }
 
 bool SnappyOutputStream::Next(void** data, int* size) {
