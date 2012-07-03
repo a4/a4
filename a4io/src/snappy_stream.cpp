@@ -15,6 +15,7 @@ using google::protobuf::io::CodedInputStream;
 using google::protobuf::io::CodedOutputStream;
 
 #include <snappy.h>
+#include "lz4.h"
 
 #include "snappy_stream.h"
 
@@ -156,19 +157,20 @@ uint32_t SnappyOutputStream::RawCompress(char* input_buffer, size_t input_size,
 
 /// LZ4 implementation
 
-void LZ4InputStream::RawUncompress(char* input_buffer, size_t compressed_size) {
-    FATAL("Not yet implemented");
+void LZ4InputStream::RawUncompress(char* input_buffer, uint32_t compressed_size) {
+    _output_buffer_size = LZ4_uncompress_unknownOutputSize(input_buffer,
+        _output_buffer.get(), compressed_size, BLOCKSIZE);
 }
 
-
-size_t LZ4OutputStream::MaxCompressedLength(size_t input_size)
+uint32_t LZ4OutputStream::MaxCompressedLength(size_t input_size)
 {
-    FATAL("Not yet implemented");
+    return LZ4_compressBound(input_size);
 }
 
-size_t LZ4OutputStream::RawCompress(char* input_buffer, size_t input_size, char* output_buffer)
+uint32_t LZ4OutputStream::RawCompress(char* input_buffer, size_t input_size,
+    char* output_buffer)
 {
-    FATAL("Not yet implemented");
+    return ::LZ4_compress(input_buffer, output_buffer, input_size);
 }
 
 }  // namespace io
