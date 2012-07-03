@@ -3,8 +3,6 @@
 
 #include <a4/config.h>
 
-#if HAVE_SNAPPY
-
 #include <iostream>
 #include <cmath>
 
@@ -14,10 +12,13 @@
 using google::protobuf::io::CodedInputStream;
 using google::protobuf::io::CodedOutputStream;
 
+#if HAVE_SNAPPY
 #include <snappy.h>
+#endif
+
 #include "lz4.h"
 
-#include "snappy_stream.h"
+#include "compressed_stream.h"
 
 namespace a4 {
 namespace io {
@@ -127,6 +128,10 @@ bool GenericCompressionOutputStream::Next(void** data, int* size) {
     return true;
 }
 
+
+
+#if HAVE_SNAPPY
+
 /// Snappy implementation
 
 void SnappyInputStream::RawUncompress(char* input_buffer, uint32_t compressed_size) {
@@ -155,6 +160,8 @@ uint32_t SnappyOutputStream::RawCompress(char* input_buffer, size_t input_size,
     return compressed_size;
 }
 
+#endif  // HAVE_SNAPPY
+
 /// LZ4 implementation
 
 void LZ4InputStream::RawUncompress(char* input_buffer, uint32_t compressed_size) {
@@ -176,4 +183,3 @@ uint32_t LZ4OutputStream::RawCompress(char* input_buffer, size_t input_size,
 }  // namespace io
 }  // namespace a4
 
-#endif  // HAVE_SNAPPY

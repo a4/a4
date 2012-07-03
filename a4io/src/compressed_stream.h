@@ -1,10 +1,8 @@
 // Author: peter.waller@gmail.com (Peter Waller)
 // Author: johannes@ebke.org (Johannes Ebke)
 
-#ifndef A4_IO_SNAPPY_STREAM_H__
-#define A4_IO_SNAPPY_STREAM_H__
-
-#include <snappy.h>
+#ifndef A4_IO_COMPRESSED_STREAM_H__
+#define A4_IO_COMPRESSED_STREAM_H__
 
 #include <google/protobuf/io/zero_copy_stream.h>
 using google::protobuf::io::ZeroCopyInputStream;
@@ -86,6 +84,8 @@ class GenericCompressionOutputStream : public BaseCompressedOutputStream {
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(GenericCompressionOutputStream);
 };
 
+#ifdef HAVE_SNAPPY
+
 class SnappyInputStream : public GenericCompressionInputStream {
  public:
 
@@ -103,6 +103,8 @@ class SnappyOutputStream : public GenericCompressionOutputStream {
   
   GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(SnappyOutputStream);
 };
+
+#endif
 
 class LZ4InputStream : public GenericCompressionInputStream {
  public:
