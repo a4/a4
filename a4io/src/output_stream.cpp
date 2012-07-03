@@ -200,6 +200,7 @@ bool OutputStream::start_compression() {
     
     if (_compression_type == SNAPPY) cs_header.set_compression(StartCompressedSection_Compression_SNAPPY);
     else if (_compression_type == ZLIB) cs_header.set_compression(StartCompressedSection_Compression_ZLIB);
+    else if (_compression_type == LZ4) cs_header.set_compression(StartCompressedSection_Compression_LZ4);
     
     if (!write(_fixed_class_id<StartCompressedSection>(), cs_header))
         FATAL("Failed to start compression");
@@ -207,12 +208,19 @@ bool OutputStream::start_compression() {
 
     switch (_compression_type) {
     case SNAPPY:
+    {
 #ifdef HAVE_SNAPPY
         _compressed_out.reset(new SnappyOutputStream(_raw_out.get()));
 #else
         FATAL("Snappy compression not compiled in!");
 #endif
         break;
+    }
+    case LZ4:
+    {
+        _compressed_out.reset(new LZ4OutputStream(_raw_out.get()));
+        break;
+    }
     case ZLIB:
     {
         a4::io::GzipOutputStream::Options o;

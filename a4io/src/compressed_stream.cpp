@@ -84,7 +84,14 @@ GenericCompressionOutputStream::GenericCompressionOutputStream(
       _byte_count(0) {}
 
 GenericCompressionOutputStream::~GenericCompressionOutputStream() {
-    Flush();
+    if (_input_buffer) {
+        // The buffer is not empty, there is stuff yet to be written.
+        // This is necessary because we can't call virtual functions from any
+        // destructor. Often this results in a pure virtual function call.
+        FATAL("Call GenericCompressionOutputStream::Flush() before destroying "
+              "this object");
+        // Flush();
+    }
     delete _sub_stream;
 }
 
@@ -165,6 +172,7 @@ uint32_t SnappyOutputStream::RawCompress(char* input_buffer, size_t input_size,
 /// LZ4 implementation
 
 void LZ4InputStream::RawUncompress(char* input_buffer, uint32_t compressed_size) {
+    _output_buffer.reset(new char[BLOCKSIZE], array_delete<char>());
     _output_buffer_size = LZ4_uncompress_unknownOutputSize(input_buffer,
         _output_buffer.get(), compressed_size, BLOCKSIZE);
 }
@@ -177,6 +185,7 @@ uint32_t LZ4OutputStream::MaxCompressedLength(size_t input_size)
 uint32_t LZ4OutputStream::RawCompress(char* input_buffer, size_t input_size,
     char* output_buffer)
 {
+    assert(input_size);
     return ::LZ4_compress(input_buffer, output_buffer, input_size);
 }
 

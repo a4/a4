@@ -47,6 +47,7 @@ message StartCompressedSection
         GZIP = 1;
         BZIP2 = 2;
         SNAPPY = 3;
+        LZ4 = 4;
     }
     optional Compression compression = 1;
 }

@@ -67,11 +67,13 @@ namespace io {
                 UNCOMPRESSED,
                 ZLIB,
                 SNAPPY,
+                LZ4,
             } CompressionType;
             CompressionType compression_type(std::string s) {
                 if(s == "UNCOMPRESSED") return UNCOMPRESSED;
                 if(s == "ZLIB") return ZLIB;
                 if(s == "SNAPPY") return SNAPPY;
+                if(s == "LZ4") return LZ4;
                 FATAL("Unknown Compression Type: ", s);
             }
             /// Set compression type and level

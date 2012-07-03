@@ -217,7 +217,10 @@ shared<A4Message> InputStreamImpl::bare_message() {
     uint32_t size = 0;
     if (!_coded_in->ReadLittleEndian32(&size)) {
         if (_compressed_in && _compressed_in->ByteCount() == 0) {
-            FATAL("Reading from compressed section failed!");
+            FATAL("Reading from compressed section failed! inside compression: ",
+                  bool(_compressed_in), " compressed bytecount: ",
+                  _compressed_in ? _compressed_in->ByteCount() : 0,
+                  " raw_in bytecount: ", _raw_in->ByteCount());
         } else {
             FATAL("Unexpected end of file or corruption [0]!");
         }
@@ -229,6 +232,8 @@ shared<A4Message> InputStreamImpl::bare_message() {
         if (!_coded_in->ReadLittleEndian32(&class_id))
             FATAL("Unexpected end of file [1]!");
     }
+    
+    //VERBOSE("Next part: ", _raw_in->ByteCount(), " -- ", size, " - ", class_id);
 
     if (_hint_copy) {
 

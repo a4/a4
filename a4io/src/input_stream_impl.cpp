@@ -423,6 +423,8 @@ bool InputStreamImpl::start_compression(const StartCompressedSection& cs) {
         FATAL("This file uses compression by the 'Snappy' library, "
               "which was not compiled in!");
 #endif
+    } else if (cs.compression() == StartCompressedSection_Compression_LZ4) {
+        _compressed_in.reset(new LZ4InputStream(_raw_in.get()));
     } else {
         ERROR("Unknown compression type: ", cs.compression());
         return false;
