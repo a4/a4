@@ -447,11 +447,10 @@ try
 
     std::vector<ProcessStats> stats(n_threads);
     if (n_threads > 1) {
-        std::vector<boost::thread> threads;
+        std::vector<boost::thread> threads(n_threads);
         for (int i = 0; i < n_threads; i++) {
             Processor* p = new_initialized_processor();
-            //threads.push_back(boost::thread(std::bind(&simple_thread, this, processors[i])));
-            threads.push_back(boost::thread(std::bind(&simple_thread, this, p, -1, boost::ref(stats[i]))));
+            threads[i] = std::move(std::bind(&simple_thread, this, p, -1, boost::ref(stats[i])));
         };
         foreach(boost::thread& t, threads) t.join();
     } else {

@@ -236,13 +236,16 @@ def boost_get_libs(self, *k, **kw):
 	for lib in Utils.to_list(k and k[0] or kw.get('lib', None)):
 		py = (lib == 'python') and '(-py%s)+' % kw['python'] or ''
 		# Trying libraries, from most strict match to least one
+		self.to_log("lib='%s' toolset='%s' tags='%s' py='%s' version='%s'" % (lib, toolset_pat,tags,py,version))
 		for pattern in ['boost_%s%s%s%s%s' % (lib, toolset_pat, tags, py, version),
 						'boost_%s%s%s%s' % (lib, tags, py, version),
 						'boost_%s%s%s' % (lib, tags, version),
+						'boost_%s%s' % (lib, version),
 						# Give up trying to find the right version
 						'boost_%s%s%s%s' % (lib, toolset_pat, tags, py),
 						'boost_%s%s%s' % (lib, tags, py),
-						'boost_%s%s' % (lib, tags)]:
+						'boost_%s%s' % (lib, tags),
+						'boost_%s' % (lib,)]:
 			self.to_log('Trying pattern %s' % pattern)
 			file = find_lib(re.compile(pattern), files)
 			if file:
@@ -344,9 +347,10 @@ def check_boost(self, *k, **kw):
 					self.end_msg("ok: winning cxxflags combination: %s" % (self.env["CXXFLAGS_%s" % var]))
 					e = None
 					break
-				except Errors.ConfigurationError, exc:
+				except Errors.ConfigurationError:
 					self.env.revert()
-					e = exc
+					import sys
+					e = sys.exec_info()[1]
 
 			if e is not None:
 				self.fatal("Could not auto-detect boost linking flags combination, you may report it to boost.py author", ex=e)
@@ -356,7 +360,7 @@ def check_boost(self, *k, **kw):
 		self.start_msg('Checking for boost linkage')
 		try:
 			try_link()
-		except Errors.ConfigurationError, e:
+		except Errors.ConfigurationError:
 			self.fatal("Could not link against boost libraries using supplied options")
 		self.end_msg('ok')
 

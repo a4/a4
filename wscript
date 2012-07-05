@@ -108,7 +108,7 @@ def configure(conf):
     conf.check_with(find_protoc, "protobuf", extra_paths=["./protobuf"])
     conf.check_with(conf.check_cfg, "protobuf", package="protobuf",
                     atleast_version="2.4.0", args="--cflags --libs",
-                    extra_paths=["./protobuf"])
+                    extra_paths=["./protobuf", "/usr"])
 
     # find snappy
     conf.check_with(conf.check_cxx, "snappy", lib="snappy",
@@ -249,7 +249,7 @@ def build(bld):
     if not bld.env.enable_a4_python:
         # filter out files ending in .py
         binaries = [b for b in binaries if not b.name.endswith(".py")]
-    bld.install_files("${BINDIR}", binaries, chmod=0755)
+    bld.install_files("${BINDIR}", binaries, chmod=int('0755', 8))
 
     if bld.env.enable_a4_python:
         # Install python modules
@@ -270,7 +270,10 @@ def build(bld):
         do_installcheck(bld)
 
 def get_git_version():
-    from commands import getstatusoutput
+    try:
+        from commands import getstatusoutput
+    except ImportError: # py3
+        from subprocess import getstatusoutput
     status, output = getstatusoutput("git describe --dirty")
     if status: return "unknown"
     return output
@@ -493,7 +496,7 @@ def add_pack(bld, pack, other_packs=[], use=[]):
 
     # Build applications
     opts["includes"] = incs
-    for app, fls in app_cppfiles.iteritems():
+    for app, fls in app_cppfiles.items():
         if fls:
             bld.program(source=fls, target=pjoin(pack,app), **opts)
 
