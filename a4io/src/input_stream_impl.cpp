@@ -28,12 +28,12 @@ using boost::function;
 #include <a4/types.h>
 
 #include <a4/dynamic_message.h>
+
 #include "gzip_stream.h"
-#ifdef HAVE_SNAPPY
-#include "snappy_stream.h"
-#endif
+#include "compressed_stream.h"
 #include "zero_copy_resource.h"
 #include "input_stream_impl.h"
+
 #include <a4/io/A4Stream.pb.h>
 #include <a4/input_stream.h>
 
@@ -423,6 +423,8 @@ bool InputStreamImpl::start_compression(const StartCompressedSection& cs) {
         FATAL("This file uses compression by the 'Snappy' library, "
               "which was not compiled in!");
 #endif
+    } else if (cs.compression() == StartCompressedSection_Compression_LZ4) {
+        _compressed_in.reset(new LZ4InputStream(_raw_in.get()));
     } else {
         ERROR("Unknown compression type: ", cs.compression());
         return false;

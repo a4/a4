@@ -138,7 +138,8 @@ def configure(conf):
 
     # find snappy
     conf.check_with(conf.check_cxx, "snappy", lib="snappy",
-                    mandatory=False, extra_paths=["./snappy"])
+                    mandatory=False, extra_paths=["./snappy"],
+                    define_name="HAVE_SNAPPY")
     
     # find boost
     def check_boost(*args, **kwargs):

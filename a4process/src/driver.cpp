@@ -53,7 +53,7 @@ public:
 };
         
 SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) 
-    : configuration(cfg) 
+    : configuration(cfg), _compression_string("ZLIB 1")
 {
     assert(configuration);
 }
@@ -66,10 +66,14 @@ class BaseOutputAdaptor : public OutputAdaptor {
         A4Output* res;
         shared<ObjectBackStore> backstore;
 
-        BaseOutputAdaptor(Driver* d, Processor* p, bool forward_metadata, 
-                          A4Output* out, A4Output* res) 
-            : out(out), res(res), forward_metadata(forward_metadata), 
-              in_block(false), driver(d), p(p), last_postfix("") 
+        BaseOutputAdaptor(Driver* d, Processor* p, bool forward_metadata,
+                          A4Output* out, A4Output* res,
+                          const a4::io::OutputStream::CompressionType compression_type,
+                          const int compression_level)
+            : out(out), res(res), forward_metadata(forward_metadata),
+              in_block(false), driver(d), p(p), last_postfix(""),
+              _compression_type(compression_type),
+              _compression_level(compression_level)
         {
             merge_key = split_key = "";
             outstream.reset();
@@ -83,13 +87,13 @@ class BaseOutputAdaptor : public OutputAdaptor {
         void start_block(std::string postfix="") {
             if (out and (!outstream or postfix != last_postfix)) {
                 outstream = out->get_stream(postfix);
-                outstream->set_compression("ZLIB", 1);
+                outstream->set_compression(_compression_type, _compression_level);
                 if (forward_metadata) 
                     outstream->set_forward_metadata();
             }
             if (res and (!resstream or postfix != last_postfix)) {
                 resstream = res->get_stream(postfix);
-                resstream->set_compression("ZLIB", 1);
+                resstream->set_compression(_compression_type, _compression_level);
                 resstream->set_forward_metadata();
             }
             backstore.reset(new ObjectBackStore());
@@ -167,12 +171,18 @@ class BaseOutputAdaptor : public OutputAdaptor {
         Driver* driver;
         Processor* p;
         std::string last_postfix;
+        
+        const a4::io::OutputStream::CompressionType _compression_type;
+        const int _compression_level;
 };
 
 class ManualOutputAdaptor : public BaseOutputAdaptor {
     public:
-        ManualOutputAdaptor(Driver* d, Processor* p, bool forward_metadata, A4Output* out, A4Output* res) 
-            : BaseOutputAdaptor(d, p, forward_metadata, out, res) {}
+        ManualOutputAdaptor(Driver* d, Processor* p, bool forward_metadata,
+                            A4Output* out, A4Output* res,
+                            const a4::io::OutputStream::CompressionType compression_type,
+                            const int compression_level)
+            : BaseOutputAdaptor(d, p, forward_metadata, out, res, compression_type, compression_level) {}
         
         void metadata(shared<const A4Message> m) {
             new_outgoing_metadata(m);
@@ -193,18 +203,21 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
         case Processor::AUTO:
             metadata_forward = (self->metakey == ""); // forward if no merging
             auto_metadata = true;
-            output_adaptor.reset(new BaseOutputAdaptor(self, p, metadata_forward, self->out.get(), self->res.get()));
+            output_adaptor.reset(new BaseOutputAdaptor(self, p, metadata_forward,
+                self->out.get(), self->res.get(), self->_compression_type, self->_compression_level));
             break;
         case Processor::MANUAL_FORWARD:
             if (self->metakey != "") FATAL("This program is not compatible with metadata merging!"); // forward if no merging
             // fall through to ...
         case Processor::DROP:
             metadata_forward = true;
-            output_adaptor.reset(new ManualOutputAdaptor(self, p, metadata_forward, self->out.get(), self->res.get()));
+            output_adaptor.reset(new ManualOutputAdaptor(self, p, metadata_forward,
+                self->out.get(), self->res.get(), self->_compression_type, self->_compression_level));
             break;
         case Processor::MANUAL_BACKWARD:
             metadata_forward = false;
-            output_adaptor.reset(new ManualOutputAdaptor(self, p, metadata_forward, self->out.get(), self->res.get()));
+            output_adaptor.reset(new ManualOutputAdaptor(self, p, metadata_forward,
+                self->out.get(), self->res.get(), self->_compression_type, self->_compression_level));
             break;
         default:
             FATAL("Unknown metadata behaviour specified: ", p->get_metadata_behavior());
@@ -360,7 +373,8 @@ try
         ("number,n", po::value<int>(&number)->default_value(-1), "maximum number of events to process (default: all)")
         ("per,p", po::value<string>(&metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
         ("split-per,s", po::value<string>(&split_metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
-        ("config,c", po::value<string>(), (string("configuration file [default is '") + config_filename + "']").c_str());
+        ("config,c", po::value<string>(), (string("configuration file [default is '") + config_filename + "']").c_str())
+        ("compression", po::value(&_compression_string)->default_value("ZLIB 1"), "compression level '[TYPE] [LEVEL]'");
 
     po::positional_options_description positional_options;
     positional_options.add("input", -1);
@@ -414,6 +428,11 @@ try
     // After finishing all option reading, notify the result
     po::notify(arguments);
     configuration->read_arguments(arguments);
+    
+    std::stringstream ss(_compression_string);
+    std::string ctype;
+    ss >> ctype >> _compression_level;
+    _compression_type = a4::io::OutputStream::compression_type(ctype);
 
     if (not no_gdb) {
         a4::Fatal::enable_throw_on_segfault();
