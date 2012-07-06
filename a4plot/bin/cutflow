@@ -40,6 +40,8 @@ if do_plot:
     parser.add_option("-x", "--xtitle", action="append", default=[], help="label of the x axis of the plot %s"%once_per_p)
     parser.add_option("-r", "--range", action="append", default=[], help="range of x axis of the plot, format: <nbins>,<start>-<end> or <start>-<end> or only <nbins> %s"%once_per_p)
     parser.add_option("-u", "--unit", action="append", default=[], help="units of the x axis of the plot %s"%once_per_p)
+    parser.add_option("--left-cut", action="append", default=[], help="add a left cut mark at this position")
+    parser.add_option("--right-cut", action="append", default=[], help="add a right cut mark at this position")
 
 (options, args) = parser.parse_args()
 
@@ -59,6 +61,8 @@ from fnmatch import filter
 
 disp = "%s fb^{-1}" % options.lumi
 width, height = (800, 600)
+width, height = (1375, 736)
+
 if do_plot:
     xtitles = dict(zip(options.histogram, options.xtitle))
     xunits  = dict(zip(options.histogram, options.unit))
@@ -67,8 +71,11 @@ if do_plot:
     if options.roostats:
         from ROOT import TFile
         roostats_file = TFile(options.roostats, "RECREATE")
-    if options.compare:
-        width, height = (680, 600)
+    if not options.compare:
+        width, height = (800, 600)
+    cuts_left = map(float, options.left_cut)
+    cuts_right = map(float, options.right_cut)
+
 x_range_bin = {}
 
 bg_files = [ATFile(fn) for fn in args]
@@ -97,7 +104,7 @@ def get_histos(types, patterns):
             if pat in xunits:
                 xunits.update(dict((h,xunits[pat]) for h in histos_pat))
             if pat in xrebin:
-                xrebin.update(dict((h,xrebin[pat]) for h in histos_pat))
+                xrebin.update(dict((h,int(xrebin[pat])) for h in histos_pat))
             if pat in x_range:
                 x_range.update(dict((h,x_range[pat]) for h in histos_pat))
         if not histos_pat:
@@ -146,10 +153,10 @@ def prep_histo_systematics(hn, histos, is_data):
                 if "," in range:
                     rebin_to, srange = range.split(",")
                     rebin_to = int(rebin_to)
-                    range = map(float,srange.split("-"))
-                elif "-" in range:
+                    range = map(float,srange.split(".."))
+                elif ".." in range:
                     rebin_to = None
-                    range = map(float, x_range[hn].split("-"))
+                    range = map(float, x_range[hn].split(".."))
                 else:
                     rebin_to = int(range)
                     range = None
@@ -255,7 +262,10 @@ def get_data(hn, files, is_data):
         if is_cutflow:
             data_by_file[f] = (h.GetTitle(), dict((label, bin_content(h, cf_label_getter(label), scale)) for label in labels))
         else:
-            data_by_file[f] = (h.GetTitle(), [bin_content(h, bin_getter(i), scale) for i in xrange(0, h.GetNbinsX()*h.GetNbinsY()*h.GetNbinsZ())])
+            nbins = [h.GetNbinsX()+2, h.GetNbinsY()+2, h.GetNbinsZ()+2][:h.GetDimension()]
+            N = reduce(int.__mul__, nbins)
+            data = [bin_content(h, bin_getter(i), scale) for i in xrange(N)]
+            data_by_file[f] = (h.GetTitle(), data)
 
     if do_cutflow:
         return labels, data_by_file
@@ -398,7 +408,7 @@ def print_cutflow_sum(hns, bg_files, sg_files, data_files, do_sum_mc):
                 sum_uncdata[f] = uncdata[f]
         for f in data_files:
             if f in sum_cdata and f in cdata:
-                sum_cdata[f][1] = sum_cfs(sum_cdata[f][1], cdata[f][1])
+                sum_cdata[f] = (sum_cdata[f][0], sum_cfs((sum_cdata[f][1], cdata[f][1])))
             elif f in cdata:
                 sum_cdata[f] = cdata[f]
 
@@ -432,7 +442,7 @@ def plot_1d(hn, examplehisto, bg_files, sg_files, data_files, content, mcsum, st
 
     def get_draw(log,cmp,sgm):
         def draw():
-            legend, stack, summc, hsave, save = plot_1D(hn, data, bg, sg, sum_mc=sum_mc, lumi=disp, range=x_range_bin.get(hn,None), compare=cmp, sigma=sgm, log=log, prelim=options.preliminary)
+            legend, stack, summc, hsave, save = plot_1D(hn, data, bg, sg, sum_mc=sum_mc, lumi=disp, range=x_range_bin.get(hn,None), compare=cmp, sigma=sgm, log=log, prelim=options.preliminary,cuts_left=cuts_left,cuts_right=cuts_right)
             if stack:
                 stack.GetXaxis().SetTitle(examplehisto.GetXaxis().GetTitle())
                 stack.GetYaxis().SetTitle(examplehisto.GetYaxis().GetTitle())
@@ -450,11 +460,12 @@ def plot_1d(hn, examplehisto, bg_files, sg_files, data_files, content, mcsum, st
         for n, d in zip(data_names, data) + zip(bg_names, bg) + zip(sg_names, sg):
             roostats_file.WriteObject(d, "%s_%s" % (n, hist_base))
     elif options.interactive:
+        histograms = []
         histograms.append(TCanvas(hn,hn,width,height))
         histograms.append(get_draw(False, options.compare, options.sigma)())
     else:
         from rooplot import batch_mode
-        pix = 1000
+        pix = 2000
 
         width, height = int(width*pix*1.0/max(width,height)), int(height*pix*1.0/max(width,height))
 
@@ -554,6 +565,11 @@ if __name__=="__main__":
             plot_1d(hn, hb, bg_files, sg_files, data_files, dict(bcontent.items() + dcontent.items()), mcsum, options.style)
     else:
         raise Exception("What to do?")
+
+
+if options.interactive:
+    import time
+    time.sleep(10000000)
 
 import os, sys
 sys.stdout.close()

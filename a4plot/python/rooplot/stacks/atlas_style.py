@@ -60,7 +60,7 @@ class AtlasStyle( ROOT.TStyle ):
 
         # Use large fonts:
         font = 42
-        tsize = 0.05
+        tsize = 0.08
         
         self.SetTextFont( font )
         self.SetLabelFont( font, "x" )
@@ -80,7 +80,7 @@ class AtlasStyle( ROOT.TStyle ):
 
         # Use bold lines and markers:
         self.SetMarkerStyle( 20 )
-        self.SetMarkerSize( 1.2 )
+        self.SetMarkerSize( 1.0 )
         self.SetHistLineWidth( 2 )
         self.SetLineStyleString( 2, "[12 12]" )
 
@@ -92,6 +92,6 @@ class AtlasStyle( ROOT.TStyle ):
         self.SetOptFit( 0 )
 
         # Put tick marks on RHS of plots:
-        self.SetPadTickY( 1 )
+        #self.SetPadTickY( 1 )
         self.SetPadTickX( 1 ) # JOHANNES
 

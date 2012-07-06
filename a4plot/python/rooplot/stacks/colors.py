@@ -56,7 +56,7 @@ def set_color_2D(h,name):
 
 def set_data_style(h):
     h.SetMarkerStyle(20)
-    h.SetMarkerSize(1.2)
+    h.SetMarkerSize(2.0)
 
 def set_MCTotal_style(h):
     h.SetMarkerSize(0)
