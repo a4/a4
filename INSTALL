@@ -42,6 +42,12 @@ source bin/this_a4.sh
 
 Now you can go into the tutorial/ directory in the A4 source distribution and
 all the examples should work with the provided Makefiles - try it!
+(NOTE: In the tutorial the ntup-swmz Event is used. To enable this you need to 
+install a4 with the cofigure option --enable-atlas-ntup=smwz. type:
+./waf configure --prefix=$HOME/my/software/a4 --enable-atlas-ntup=smwz 
+./waf build install
+after the compilation of the tutorials should work. You'll find more
+information in the tutorial source files.)
 
 The generated executables (except for the python ones) should also work if you
 have not sourced this_a4.sh.

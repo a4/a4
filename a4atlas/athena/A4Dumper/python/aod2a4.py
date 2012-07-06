@@ -1,7 +1,7 @@
 from logging import getLogger; log = getLogger("a4")
 
 from a4.atlas.Physics_pb2 import MissingEnergy
-from a4.atlas.Event_pb2 import EventMetaData
+from a4.atlas.EventMetaData_pb2 import EventMetaData
 from a4.atlas.EventStreamInfo_pb2 import EventStreamInfo, RunInfo
 from a4.atlas import EventStreamInfo_pb2
 

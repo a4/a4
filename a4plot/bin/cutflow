@@ -3,9 +3,10 @@
 from sys import argv
 do_cutflow = "cutflow" in argv[0]
 do_plot = not do_cutflow
-
 from optparse import OptionParser
 parser = OptionParser()
+import os.path 
+from math import sqrt
 
 parser.add_option("-d", "--data", action="append", default=[], help="data root file")
 parser.add_option("-s", "--signal", action="append", default=[], help="signal root files")
@@ -23,8 +24,10 @@ parser.add_option("--scale", action="append", default=[], help="scale file by gi
 
 if do_cutflow:
     parser.add_option("--latex", action="store_true", help="print as full latex document")
+    parser.add_option("--cuteff", action="store_true", help="shows efficiency of a cut in latex document \n only in latex mode")
     parser.add_option("--horizontal", action="store_true", help="invert the orientation")
     parser.add_option("-n", "--ndigits", default=-1, help="print this many digits")
+    parser.add_option("--signif", default="", help="takes name of signaldata and calculates S over sqrt(SB) \n only in latex mode and needs an unparallel argument")
 
 if do_plot:
     parser.add_option("-i", "--interactive", action="store_true", help="interactive plots")
@@ -317,27 +320,71 @@ def sum_labels(l1, l2):
             labels.append(l)
     return labels
 
-
 n_tables = 0
 def make_table(labels, content):
     global n_tables
     n_tables += 1
     table = []
     table.append([""] + ["$%s$"%l.replace("#","\\") for l in labels])
-
     separators = [True]
     prev_type = None
-    for ctype, (title, numbers) in content:
+    ###Shows efficiency of a cut in the latex table
+    if options.signif: signallist, mcsumlist,mcsinglelist, appendix = [], [], [], []
+    if options.cuteff: prev_value, values = None, []
+    ### for signif calculatoion
+    if options.signif:
+        if options.signif not in [os.path.split(title[1][0])[1] for title in content]:
+            print >> stderr , "No matching filename for given --signif argument:", options.signif
+            print >> stderr, "Possible choice: ", [os.path.split(title[1][0])[1] for title in content]
+        else:
+        ### catching numbers for S/sqrt(SB)
+            for ctype, (title, numbers) in content:
+                if options.signif in title:
+                    signallist = [numbers.get(label, UncertainNumber(0,0)).get_physics_numbers() for label in labels]
+                elif "sumbg" in ctype:
+                    mcsumlist = [numbers.get(label, UncertainNumber(0,0)).get_physics_numbers() for label in labels]
+
+    for ctype, (title, numbers) in content:        
         separators.append(False if ctype == prev_type else True)
         prev_type = ctype
+        ### just use filename as title not whole path
+        title = os.path.split(title)[1] 
+        if options.cuteff:
+            prev_value, values = None, []
+            temp = [float(numbers.get(label, UncertainNumber(0,0)).latex().strip("$").split("\pm")[0]) for label in labels]
+            for value in temp:
+                if prev_value: values.append("$ " + "%.2f" %  (100*(value/prev_value)) + " \\% $")
+                else: values.append(" ")
+                prev_value = value
         if "#" in title:
             title = "$%s$"%title.replace("#","\\")
         if options.ndigits != -1:
             fstr = "%%.%if" % int(options.ndigits)
             table.append([title] + [fstr%(numbers.get(label, UncertainNumber(0,0)).n) for label in labels])
+        ### calculating S/sqrt(SB) and errors
+        elif options.signif and options.signif in title:
+            signiflist = []
+            if not mcsumlist or not signallist: 
+                print >> stderr, "Fatal Error in significance calculation: \n No backgroundsum\\signal found!"
+                table.append([title] + [numbers.get(label, UncertainNumber(0,0)).latex() for label in labels])
+            else:
+                for S,SB in zip(signallist,mcsumlist):
+                    siglist = []
+                    S = [float(x) for x in S]
+                    SB = [float(x) for x in SB]
+                    squaresum = [x if SB.index(x)==0 else x**2 for x in SB]
+                    signiflist.append(0 if sum(squaresum)==0 else S[0]/sqrt(sum(squaresum)))
+                table.append([title] + [numbers.get(label, UncertainNumber(0,0)).latex() for label in labels])
+                appendix = ["$\\frac{S}{\sqrt{SB}}$"] + [(" $ %.2f  $") % SoverSB for SoverSB in signiflist]
+                separators.append(False)
         else:
             table.append([title] + [numbers.get(label, UncertainNumber(0,0)).latex() for label in labels])
-
+        if options.cuteff: 
+            table.append(["eff[$\%$]"] + values)
+            separators.append(False)
+        if options.signif and options.signif in title:
+            table.append(appendix)
+            
     widths_h = [max(len(line[i]) for line in table) for i in range(len(table[0]))]
     widths_v = [max(len(w) for w in line) for line in table]
 
@@ -353,13 +400,17 @@ def make_table(labels, content):
             if sep:
                 t.append("\hline")
     else:
-        columns = "".join(("c|" if s else "c")  for s in separators)
+        columns =  "".join(("|c" if s else "c")  for s in separators)
+        columns += "|"
         t.append("\\begin{tabular}{%s}" % (columns))
         t.append("\hline\hline")
+
         for i in range(len(table[0])):
             ln = []
+
             for w, e in zip(widths_v, (line[i] for line in table)):
                 ln.append(("%%%is"%w)%e)
+
             t.append(" & ".join(ln) + "\\\\")
             if i == 0:
                 t.append("\hline")
@@ -372,6 +423,7 @@ def make_table(labels, content):
         t.append("\n\\end{tiny}\\end{table}\n")
         if n_tables % 6 == 0:
             t.append("\n\\clearpage\n")
+   
     return "\n".join(t)
 
 def print_cutflow(hn, bg_files, sg_files, data_files, do_sum_mc):
@@ -384,7 +436,7 @@ def print_cutflow(hn, bg_files, sg_files, data_files, do_sum_mc):
     content.extend(("bg", uncdata[f]) for f in bg_files if f in uncdata)
     
     if do_sum_mc:
-        bgsum = sum_cfs([uncdata[f][1] for f in bg_files])
+        bgsum = sum_cfs([uncdata[f][1] for f in bg_files if f in uncdata])
         content.append(("sumbg", ("Total SM", bgsum)))
 
     content.extend(("sg", uncdata[f]) for f in sg_files if f in uncdata)
