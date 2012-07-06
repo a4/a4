@@ -73,12 +73,25 @@ def configure(conf):
     conf.load('boost unittest_gtest libtool compiler_magic check_with',
               tooldir="common/waf")
 
+    try:
+        conf.check(features='cxx cxxprogram', cxxflags="-std=c++0x")
+    except:
+        try:
+            version = conf.cmd_and_log(conf.env.CXX + ["--version"]).split("\n")[0]
+        except:
+            pass
+        else:
+            conf.msg("Compiler version:", version, color="RED")
+        print "Bad compiler. Require GCC >= 4.4 or recent Clang."
+        raise
+
     conf.cc_add_flags()
     min_python_version = None
     if conf.options.enable_a4_python:
         conf.env.enable_a4_python = "1"
         min_python_version = (2, 6)
     conf.check_python_version(min_python_version)
+    
     conf.find_program("doxygen", var="DOXYGEN", mandatory=False)
 
     # comment the following line for "production" run (not recommended)
