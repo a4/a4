@@ -10,6 +10,12 @@ def go(ctx):
     options.prefix = pjoin(getcwd(), "install")
     commands += ["configure", "build", "install"]
 
+def fetch_deps(ctx):
+    import subprocess
+    for script in "./get_miniboost.sh ./get_protobuf.sh".split():
+        process = subprocess.Popen([script, "-j%i" % ctx.options.jobs])
+        process.wait()
+
 def onchange(ctx):
     """
     Detect changes to source files then run the following waf, e.g. "./waf onchange build"
@@ -104,11 +110,18 @@ def configure(conf):
         if "check_path" in kwargs:
             kwargs["path_list"] = [pjoin(kwargs.pop("check_path"), "bin")]
         conf.find_program("protoc", **kwargs)
-        
-    conf.check_with(find_protoc, "protobuf", extra_paths=["./protobuf"])
-    conf.check_with(conf.check_cfg, "protobuf", package="protobuf",
-                    atleast_version="2.4.0", args="--cflags --libs",
-                    extra_paths=["./protobuf", "/usr"])
+
+    try:
+        conf.check_with(conf.check_cfg, "protobuf", package="protobuf",
+                        atleast_version="2.4.0", args="--cflags --libs",
+                        extra_paths=["./protobuf"])
+        conf.check_with(find_protoc, "protobuf", extra_paths=["./protobuf"])
+    except:
+        print
+        print "Protobuf appears to be unavailable or broken."
+        print "You can get a known working good version in this directory by"
+        print "running ./get_protobuf.sh or specifying --with-protobuf=/path/"
+        raise
 
     # find snappy
     conf.check_with(conf.check_cxx, "snappy", lib="snappy",
@@ -124,8 +137,15 @@ def configure(conf):
             kwargs["libs"] = pjoin(check_path, "lib")
         conf.check_boost(*args, **kwargs)
     
-    conf.check_with(check_boost, "boost", lib=boost_libs, mt=True,
-                    extra_paths=["./miniboost"])
+    try:
+        conf.check_with(check_boost, "boost", lib=boost_libs, mt=True,
+                        extra_paths=["./miniboost"])
+    except:
+        print
+        print "Boost appears to be unavailable or broken."
+        print "You can get a known working good version in this directory by"
+        print "running ./get_miniboost.sh or specifying --with-boost=/path/"
+        raise
     
     conf.env.enabled_atlas_ntup = conf.options.enable_atlas_ntup
     if conf.options.enable_atlas_ntup:

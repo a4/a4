@@ -22,7 +22,7 @@ def find_at(conf, check, what, where, **kwargs):
         else:
             os.environ["PKG_CONFIG_PATH"] = pkgconf_path
         
-        conf.parse_flags("-I{0}/include -L{0}/lib".format(where),
+        conf.parse_flags("-I%s/include -L%s/lib" % (where, where),
                          uselib=kwargs["uselib_store"])
         this_kwargs = kwargs.copy()
         this_kwargs['check_path'] = where
