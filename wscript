@@ -49,7 +49,7 @@ def options(opt):
     prefix_option.help = prefix_option.help.replace(old_default, new_default)
     
     opt.load('compiler_c compiler_cxx python')
-    opt.load('boost unittest_gtest libtool compiler_magic check_with',
+    opt.load('boost unittest_gtest libtool compiler_magic check_with platforms',
              tooldir="common/waf")
     opt.add_option('--with-protobuf', default=None,
         help="Also look for protobuf at the given path")
@@ -70,7 +70,7 @@ def configure(conf):
     import os
     from os.path import join as pjoin, exists
     conf.load('compiler_c compiler_cxx python')
-    conf.load('boost unittest_gtest libtool compiler_magic check_with',
+    conf.load('boost unittest_gtest libtool compiler_magic check_with platforms',
               tooldir="common/waf")
 
     try:
@@ -105,7 +105,8 @@ def configure(conf):
     # find useful libraries
     conf.check(features='cxx cxxprogram', lib="m", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="dl", uselib_store="DEFLIB")
-    conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB")
+    conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB",
+               mandatory=conf.is_linux())
     conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="z", header_name="zlib.h", uselib_store="DEFLIB")
 
