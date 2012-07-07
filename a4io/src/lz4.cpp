@@ -138,6 +138,7 @@
 //**************************************
 #include <stdlib.h>   // for malloc
 #include <string.h>   // for memset
+#include <limits>   // for numeric_limits<T>::max
 #include "lz4.h"
 
 
@@ -693,7 +694,7 @@ int LZ4_uncompress(const char* source,
 		if unlikely(op-ref<STEPSIZE)
 		{
 #if LZ4_ARCH64
-			size_t dec2table[]={0, 0, 0, -1, 0, 1, 2, 3};
+			size_t dec2table[]={0, 0, 0, std::numeric_limits<size_t>::max()/*-1*/, 0, 1, 2, 3};
 			size_t dec2 = dec2table[op-ref];
 #else
 			const int dec2 = 0;
@@ -782,7 +783,7 @@ int LZ4_uncompress_unknownOutputSize(
 		if unlikely(op-ref<STEPSIZE)
 		{
 #if LZ4_ARCH64
-			size_t dec2table[]={0, 0, 0, -1, 0, 1, 2, 3};
+			size_t dec2table[]={0, 0, 0, std::numeric_limits<size_t>::max()/*-1*/, 0, 1, 2, 3};
 			size_t dec2 = dec2table[op-ref];
 #else
 			const int dec2 = 0;
