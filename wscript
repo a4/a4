@@ -127,7 +127,7 @@ def configure(conf):
     try:
         conf.check_with(conf.check_cfg, "protobuf", package="protobuf",
                         atleast_version="2.4.0", args="--cflags --libs",
-                        extra_paths=["./protobuf"])
+                        extra_paths=["./protobuf", "/usr"])
         conf.check_with(find_protoc, "protobuf", extra_paths=["./protobuf"])
     except:
         print
