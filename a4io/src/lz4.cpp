@@ -693,7 +693,7 @@ int LZ4_uncompress(const char* source,
 		if unlikely(op-ref<STEPSIZE)
 		{
 #if LZ4_ARCH64
-			size_t dec2table[]={0, 0, 0, -1, 0, 1, 2, 3};
+			size_t dec2table[]={0, 0, 0, ~(size_t)0/*-1*/, 0, 1, 2, 3};
 			size_t dec2 = dec2table[op-ref];
 #else
 			const int dec2 = 0;
@@ -782,7 +782,7 @@ int LZ4_uncompress_unknownOutputSize(
 		if unlikely(op-ref<STEPSIZE)
 		{
 #if LZ4_ARCH64
-			size_t dec2table[]={0, 0, 0, -1, 0, 1, 2, 3};
+			size_t dec2table[]={0, 0, 0, ~(size_t)0/*-1*/, 0, 1, 2, 3};
 			size_t dec2 = dec2table[op-ref];
 #else
 			const int dec2 = 0;

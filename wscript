@@ -3,6 +3,8 @@
 boost_libs = "system filesystem program_options thread chrono"
 a4_version = "0.1.0"
 
+import waflib.Logs as msg
+
 def go(ctx):
     from waflib.Options import commands, options
     from os import getcwd
@@ -49,7 +51,7 @@ def options(opt):
     prefix_option.help = prefix_option.help.replace(old_default, new_default)
     
     opt.load('compiler_c compiler_cxx python')
-    opt.load('boost unittest_gtest libtool compiler_magic check_with',
+    opt.load('boost unittest_gtest libtool compiler_magic check_with platforms',
              tooldir="common/waf")
     opt.add_option('--with-protobuf', default=None,
         help="Also look for protobuf at the given path")
@@ -70,7 +72,7 @@ def configure(conf):
     import os
     from os.path import join as pjoin, exists
     conf.load('compiler_c compiler_cxx python')
-    conf.load('boost unittest_gtest libtool compiler_magic check_with',
+    conf.load('boost unittest_gtest libtool compiler_magic check_with platforms',
               tooldir="common/waf")
 
     try:
@@ -82,7 +84,7 @@ def configure(conf):
             pass
         else:
             conf.msg("Compiler version:", version, color="RED")
-        print "Bad compiler. Require GCC >= 4.4 or recent Clang."
+        msg.error("Bad compiler. Require GCC >= 4.4 or recent Clang.")
         raise
 
     conf.cc_add_flags()
@@ -105,7 +107,8 @@ def configure(conf):
     # find useful libraries
     conf.check(features='cxx cxxprogram', lib="m", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="dl", uselib_store="DEFLIB")
-    conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB")
+    conf.check(features='cxx cxxprogram', lib="rt", uselib_store="DEFLIB",
+               mandatory=conf.is_linux())
     conf.check(features='cxx cxxprogram', lib="pthread", uselib_store="DEFLIB")
     conf.check(features='cxx cxxprogram', lib="z", header_name="zlib.h", uselib_store="DEFLIB")
 
@@ -132,10 +135,10 @@ def configure(conf):
                         extra_paths=["./protobuf", "/usr"])
         conf.check_with(find_protoc, "protobuf", extra_paths=["./protobuf"])
     except:
-        print
-        print "Protobuf appears to be unavailable or broken."
-        print "You can get a known working good version in this directory by"
-        print "running ./get_protobuf.sh or specifying --with-protobuf=/path/"
+        msg.error("")
+        msg.error("Protobuf appears to be unavailable or broken.")
+        msg.error("You can get a known working good version in this directory by")
+        msg.error("running ./get_protobuf.sh or specifying --with-protobuf=/path/")
         raise
 
     # find snappy
@@ -157,10 +160,10 @@ def configure(conf):
         conf.check_with(check_boost, "boost", lib=boost_libs, mt=True,
                         extra_paths=["./miniboost"])
     except:
-        print
-        print "Boost appears to be unavailable or broken."
-        print "You can get a known working good version in this directory by"
-        print "running ./get_miniboost.sh or specifying --with-boost=/path/"
+        msg.error("")
+        msg.error("Boost appears to be unavailable or broken.")
+        msg.error("You can get a known working good version in this directory by")
+        msg.error("running ./get_miniboost.sh or specifying --with-boost=/path/")
         raise
     
     conf.env.enabled_atlas_ntup = conf.options.enable_atlas_ntup

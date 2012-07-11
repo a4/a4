@@ -33,10 +33,14 @@ D3PDMakerA4/
 
 # WAF files
 /.lock-waf_linux2_build
+/.lock-waf_darwin_build
 /.unittest-gtest/
 /.waf-*/
+/.waf3-*/
 
 /a4store/.lock-waf_linux2_build
+/a4store/.lock-waf_darwin_build
 /a4store/.waf-*/
+/a4store/.waf3-*/
 /a4store/build*/
 /a4store/install*/
