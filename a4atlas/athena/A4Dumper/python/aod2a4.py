@@ -199,8 +199,8 @@ class AOD2A4Base(PyAthena.Alg):
 
         effective_run = event.run_number
         event_weight = 1.0
+        event.average_interactions_per_crossing = self.event_info.averageInteractionsPerCrossing()
         if self.is_mc:
-            event.average_interactions_per_crossing = self.event_info.averageInteractionsPerCrossing()
             event.actual_interactions_per_crossing = self.event_info.actualInteractionsPerCrossing()
             et = self.event_info.event_type()
             event.mc_channel_number = et.mc_channel_number()
