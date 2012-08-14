@@ -104,9 +104,49 @@ data11_7TeV = {
 }
 
 data11_7TeV_period = {}
+
 for p, rns in data11_7TeV.iteritems():
     for r in rns:
         data11_7TeV_period[r] = p
+# stand fuer egamma 19.juli
+# muon fehlt
+data12_8TeV = {
+"A6"  : [201383, 201351],
+"A1"  : [200804],
+"A3"  : [200863, 200842, 200913],
+"A4"  : [201006, 201191, 201190, 201052, 201138, 200967, 200965,
+         200987, 201120, 200982, 200926, 201113],
+"A5"  : [201269, 201289, 201280, 201257],
+"A6"  : [201351, 201383],
+"A7"  : [201494, 201489],
+"A8"  : [201555, 201556],
+
+'B1'  : [202712, 202798, 202668, 202740, 202660],
+'B2'  : [203027, 202991, 202987, 202965],
+'B3'  : [203191, 203195, 203169],
+'B4'  : [203456, 203524, 203523, 203335, 203258, 203454, 203228, 
+         203432, 203336, 203353, 203277, 203256],
+'B5'  : [203602, 203680, 203636, 203605],
+'B6'  : [203760, 203745, 203739, 203719, 203792, 203779],
+'B7'  : [203875, 203876],
+'B8'  : [204071, 204026, 203934, 204073, 204025],
+'B9'  : [204153, 204158, 204134],
+'B10' : [204265, 204240, 204442, 204416],
+'B11' : [204668, 204633, 204564, 204474],
+'B12' : [204932, 204910, 204726, 204707, 205016, 205017, 205010,
+         204796, 204954, 204955, 204857, 204976, 204769, 204853,
+         204772, 204763],
+'B13' : [205055, 205071],
+'B14' : [205113, 205112],
+'C2'  : [206497, 206367, 206299, 206409, 206369, 206368],
+'C3'  : [206573, 206564, 206614]
+
+}
+data12_8TeV_period = {}
+
+for p, rns in data12_8TeV.iteritems():
+    for r in rns:
+        data12_8TeV_period[r] = p
 
 
 def athena_setup(input = None, max_events = None):
@@ -254,8 +294,12 @@ class AOD2A4Base(PyAthena.Alg):
             total_events += self.runs_encountered[run]
 
         meta.stream.extend(streams)
-        if not self.is_mc:
-            meta.period.extend(sorted(set(data11_7TeV_period[r] for r in sorted(self.runs_encountered.keys()))))
+        if not self.is_mc and self.year==2011:
+            #log.info("!!!! RUNS ENCOUNTERED KEYS:::", self.runs_encountered.keys())
+            meta.period.extend(sorted(set(data11_7TeV_period[r] for r in sorted(self.runs_encountered.keys())))) 
+        if not self.is_mc and self.year==2012:
+            #log.info("2012!!!! RUNS ENCOUNTERED KEYS:::", self.runs_encountered.keys())
+            meta.period.extend(sorted(set(data12_8TeV_period[r] for r in sorted(self.runs_encountered.keys()))))
         meta.event_count = total_events
         meta.sum_mc_weights = sum_mc_weights
 

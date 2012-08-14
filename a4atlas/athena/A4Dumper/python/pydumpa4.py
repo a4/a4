@@ -212,7 +212,78 @@ trigger_names = {
         
         # e/mu triggers
         "EF_e10_medium_mu6"
-    ]
+    ],
+
+    2012 : [
+        # level 1
+        "L1_MU15",
+        
+        # level 2
+        #"L2_mu24_tight",
+        #"L2_mu36_tight",
+
+        # Single-electron Trigger
+        "EF_e22vh_medium1",
+        "EF_e22vhi_medium1",
+        "EF_e24vh_medium1",
+        "EF_e24vhi_medium1",
+        "EF_e45_medium1",
+        "EF_e60_medium1",
+
+        # Multi-electorn tirgger
+        "EF_e24vh_medium1_e7_medium1",
+        "2e12Tvh_loose1",
+
+        # Gamma triggers
+        "EF_g20_loose",
+        "EF_g40_loose",
+        "EF_g60_loose",
+        "EF_g80_loose",
+        "EF_g100_loose",
+        "EF_g120_loose",
+        "EF_g200_etcut",
+        
+        # single muon
+        "EF_mu24i_tight",
+        "EF_mu24_tight",
+        "EF_mu36i_tight",
+        "EF_mu50_MSonly_barrel_tight", # this propably L2 ???
+        # lowest unprescaled triggers single muon
+        "EF_mu20i_tight",
+        "EF_mu18_medium",
+        "EF_mu24_medium",
+        "EF_mu36_tight",
+        "EF_mu36i_tight",
+        "EF_mu40_MSonly_barrel_tight",
+
+        # multi muon
+        "EF_2mu13",
+        "EF_mu18_tight_mu8_EFFS",
+        "EF_mu24_tight_mu6_EFFS ",
+        "EF_3mu6",
+        "EF_3mu6_MSonly",
+        "EF_mu18_tight_2mu4_EFFS",
+        # combiend [muon + jet + met]
+        "EF_2mu4T_xe60_tclcw",
+        "EF_2mu8_EFxe40_tclcw",
+        "EF_mu4T_j65_a4tchad_xe60_tclcw_loose",
+        "EF_mu24_j65_a4tchad_EFxe40_tclcw",
+        "EF_mu24_tight_4j35_a4tchad",
+        # combined [muon + e/gamma + tau]
+        "EF_e12Tvh_medium1_mu8",
+        "EF_mu18_tight_e7_medium1",
+        "EF_2e7T_loose1_mu6",
+        "EF_mu24_g20_medium1",
+        "EF_7T_loose1_2mu6",
+        "EF_mu18_2g10_medium1",
+        "EF_3mu6tau20_medium1_mu15", 
+        
+        # W tag and probe triggers 
+        "EF_e13_etcutTrk_xs60",
+        "EF_e20_etcutTrk_xe20",
+        "EF_e13_etcutTrk_xs60_dphi2j15xe20",
+        "EF_e20_etcutTrk_xs60_dphi2j15xe20"
+        ]
 }
 
 isolations = ("etcone20", "etcone30", "etcone40", "ptcone20", "ptcone30", "ptcone40")
@@ -405,6 +476,22 @@ class AOD2A4(AOD2A4Base):
                 e.medium_pp = bool(el.passID(self.egammaPID.ElectronIDMediumPP))
                 e.tight_pp = bool(el.passID(self.egammaPID.ElectronIDTightPP))
 
+            if self.year == 2012:
+                e.bad_oq = not (el.isgoodoq(self.egammaPID.BADCLUSELECTRON) == 0)
+                e.loose = bool(el.passID(self.egammaPID.ElectronIDLoose))
+                e.medium = bool(el.passID(self.egammaPID.ElectronIDMedium))
+                e.tight = bool(el.passID(self.egammaPID.ElectronIDTight))
+                e.loose_pp = bool(el.passID(self.egammaPID.ElectronIDLoosePP))
+                e.medium_pp = bool(el.passID(self.egammaPID.ElectronIDMediumPP))
+                e.tight_pp = bool(el.passID(self.egammaPID.ElectronIDTightPP))
+                
+                #temp = dir(self.egammaPID)
+                #log.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                #log.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                #log.info('Ausgabe von egammaPID = ')
+                #log.info(temp)
+                #log.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                
                 #if el.pt() > 1000.0 and e.author in (1,3) and el.trackParticle() and el.trackParticle().trackSummary() and abs(el.trackParticle().eta()) < 2.47 and not (1.37 < abs(el.trackParticle().eta()) < 1.52):
                 #    e.tight = self.isEMPlusPlusHelper.IsTightPlusPlus(el)
                     
@@ -573,6 +660,10 @@ class AOD2A4(AOD2A4Base):
     def triggers(self, pb):
         for tn in trigger_names[self.year]:
             if self.tool_tdt.isPassed(tn):
+                try: getattr(t,tn)
+                except:
+                    #log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! SKIPPED TRIGGER:  %s   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!" % tn)
+                    continue
                 t = pb.add()
                 t.name = getattr(t, tn)
                 t.fired = True
@@ -754,7 +845,6 @@ class AOD2A4(AOD2A4Base):
         self.PV = list(self.sg["VxPrimaryCandidate"])
         self.PV_rec = [pv.recVertex() for pv in self.PV]
         self.metref_composition = self.sg["MET_RefComposition"]
-
         self.triggers(event.triggers)
         event.vertices.extend(self.vertices())
 

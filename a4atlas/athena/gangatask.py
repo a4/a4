@@ -26,6 +26,7 @@ def a4_tasks(todo, year = 2011, files_per_job=1, app=None):
             tf.backend.extOutFile = ["events.a4"]
             tf.backend.nobuild = True
             tf.outputdata.location = "LRZ-LMU_LOCALGROUPDISK"
+            tf.backend.requirements.excluded_sites=["ANALY_NIKHEF-ELPROD", "ANALY_SLAC", "ANALY_GLASGOW"]
         tsks.append(t)
 
     return tsks
