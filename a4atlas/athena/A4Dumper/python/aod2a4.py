@@ -1,3 +1,4 @@
+
 from logging import getLogger; log = getLogger("a4")
 
 from a4.atlas.Physics_pb2 import MissingEnergy
@@ -295,10 +296,8 @@ class AOD2A4Base(PyAthena.Alg):
 
         meta.stream.extend(streams)
         if not self.is_mc and self.year==2011:
-            #log.info("!!!! RUNS ENCOUNTERED KEYS:::", self.runs_encountered.keys())
             meta.period.extend(sorted(set(data11_7TeV_period[r] for r in sorted(self.runs_encountered.keys())))) 
         if not self.is_mc and self.year==2012:
-            #log.info("2012!!!! RUNS ENCOUNTERED KEYS:::", self.runs_encountered.keys())
             meta.period.extend(sorted(set(data12_8TeV_period[r] for r in sorted(self.runs_encountered.keys()))))
         meta.event_count = total_events
         meta.sum_mc_weights = sum_mc_weights

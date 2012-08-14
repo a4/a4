@@ -386,10 +386,13 @@ class AOD2A4(AOD2A4Base):
 
         PyCintex.loadDictionary("egammaEnumsDict")
         PyCintex.loadDictionary("muonEventDict")
+        PyCintex.loadDictionary("egammaAnalysisUtils")
         from ROOT import MuonParameters, egammaParameters, egammaPID
+        from ROOT import ElectronMCChargeCorrector
         self.MuonParameters = MuonParameters
         self.egammaParameters = egammaParameters
         self.egammaPID = egammaPID
+        self.empp_helper = PyCintex.makeClass("isEMPlusPlusHelper")
 
         if self.year == 2010: 
             gROOT.ProcessLine(".L checkOQ.C++")
@@ -478,19 +481,10 @@ class AOD2A4(AOD2A4Base):
 
             if self.year == 2012:
                 e.bad_oq = not (el.isgoodoq(self.egammaPID.BADCLUSELECTRON) == 0)
-                e.loose = bool(el.passID(self.egammaPID.ElectronIDLoose))
-                e.medium = bool(el.passID(self.egammaPID.ElectronIDMedium))
-                e.tight = bool(el.passID(self.egammaPID.ElectronIDTight))
-                e.loose_pp = bool(el.passID(self.egammaPID.ElectronIDLoosePP))
-                e.medium_pp = bool(el.passID(self.egammaPID.ElectronIDMediumPP))
-                e.tight_pp = bool(el.passID(self.egammaPID.ElectronIDTightPP))
-                
-                #temp = dir(self.egammaPID)
-                #log.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                #log.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-                #log.info('Ausgabe von egammaPID = ')
-                #log.info(temp)
-                #log.info('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+                if (el.trackParticle()):
+                    e.loose_pp = self.empp_helper.IsLoosePlusPlus(el)
+                    e.medium_pp = self.empp_helper.IsMediumPlusPlus(el)
+                    e.tight_pp = self.empp_helper.IsTightPlusPlus(el)
                 
                 #if el.pt() > 1000.0 and e.author in (1,3) and el.trackParticle() and el.trackParticle().trackSummary() and abs(el.trackParticle().eta()) < 2.47 and not (1.37 < abs(el.trackParticle().eta()) < 1.52):
                 #    e.tight = self.isEMPlusPlusHelper.IsTightPlusPlus(el)
@@ -661,9 +655,7 @@ class AOD2A4(AOD2A4Base):
         for tn in trigger_names[self.year]:
             if self.tool_tdt.isPassed(tn):
                 try: getattr(t,tn)
-                except:
-                    #log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! SKIPPED TRIGGER:  %s   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!" % tn)
-                    continue
+                except: continue                    
                 t = pb.add()
                 t.name = getattr(t, tn)
                 t.fired = True
@@ -858,8 +850,9 @@ class AOD2A4(AOD2A4Base):
         event.met_CellOut_em.CopyFrom(self.met_detail("MET_CellOut_em"))
         event.met_CellOut_Eflow.CopyFrom(self.met_detail("MET_CellOut_Eflow"))
         event.met_CellOut_Eflow_Muid.CopyFrom(self.met_detail("MET_CellOut_Eflow_Muid"))
-        event.met_CorrTopo.CopyFrom(self.met_detail("MET_CorrTopo"))
-        event.met_Final.CopyFrom(self.met_detail("MET_Final"))
+        ### for DEV: needs to be fixed for CorrTopo & Final
+        #event.met_CorrTopo.CopyFrom(self.met_detail("MET_CorrTopo"))
+        #event.met_Final.CopyFrom(self.met_detail("MET_Final"))
         event.met_LocHadTopo.CopyFrom(self.met_detail("MET_LocHadTopo"))
         event.met_Muon.CopyFrom(self.met_detail("MET_Muon"))
         event.met_MuonMuid.CopyFrom(self.met_detail("MET_MuonMuid"))
