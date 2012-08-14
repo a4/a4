@@ -219,8 +219,8 @@ trigger_names = {
         "L1_MU15",
         
         # level 2
-        #"L2_mu24_tight",
-        #"L2_mu36_tight",
+        "L2_mu24_tight",
+        "L2_mu36_tight",
 
         # Single-electron Trigger
         "EF_e22vh_medium1",
@@ -232,7 +232,7 @@ trigger_names = {
 
         # Multi-electorn tirgger
         "EF_e24vh_medium1_e7_medium1",
-        "2e12Tvh_loose1",
+        "EF_2e12Tvh_loose1",
 
         # Gamma triggers
         "EF_g20_loose",
@@ -253,13 +253,12 @@ trigger_names = {
         "EF_mu18_medium",
         "EF_mu24_medium",
         "EF_mu36_tight",
-        "EF_mu36i_tight",
         "EF_mu40_MSonly_barrel_tight",
 
         # multi muon
         "EF_2mu13",
         "EF_mu18_tight_mu8_EFFS",
-        "EF_mu24_tight_mu6_EFFS ",
+        "EF_mu24_tight_mu6_EFFS",
         "EF_3mu6",
         "EF_3mu6_MSonly",
         "EF_mu18_tight_2mu4_EFFS",
@@ -654,8 +653,8 @@ class AOD2A4(AOD2A4Base):
     def triggers(self, pb):
         for tn in trigger_names[self.year]:
             if self.tool_tdt.isPassed(tn):
-                try: getattr(t,tn)
-                except: continue                    
+                #try: getattr(t,tn)
+                #except: continue                    
                 t = pb.add()
                 t.name = getattr(t, tn)
                 t.fired = True
