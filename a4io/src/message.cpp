@@ -41,14 +41,16 @@ namespace a4{ namespace io{
             _pool(m._pool), _size(0), _valid_bytes(), _coded_in(),
             _bytes(), _message(), _instream_read(true)
     {
-        m.invalidate_stream();
+        if (not m._coded_in.expired()) {
+            m.invalidate_stream();
+        }
         _descriptor = m._descriptor;
         _size = m._size;
         _valid_bytes = m._valid_bytes;
         _bytes = m._bytes;
-        if (m._message) {
-            _message.reset(m._message->New());
-            _message->CopyFrom(*m._message);
+        if (m._message and not _valid_bytes) {
+            _bytes = m._message->SerializeAsString();
+            _valid_bytes = true;
         }
         assert_valid();
     }
