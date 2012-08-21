@@ -1,7 +1,6 @@
 #!/bin/bash
 
-set -e
-set -u
+miniboost_name=miniboost-1.50
 
 toolset=
 if test "$CXX" = "clang" -o "$CXX" = "clang++"; then
@@ -9,12 +8,14 @@ if test "$CXX" = "clang" -o "$CXX" = "clang++"; then
 fi
 
 target_name=miniboost
+builddir_name=${miniboost_name}
 if test "x$boostsuffix" != "x"; then
   target_name=miniboost-${boostsuffix}
+  builddir_name=${miniboost_name}-${boostsuffix}
 fi
 
-miniboost_name=miniboost-1.50
-builddir_name=${miniboost_name}-${boostsuffix}
+set -e
+set -u
 
 miniboost_pack=$miniboost_name.tar.bz2
 miniboost_url=http://www.ebke.org/$miniboost_pack
