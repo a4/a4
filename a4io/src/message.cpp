@@ -19,6 +19,8 @@ using google::protobuf::Message;
 
 namespace a4{ namespace io{
 
+    /// A4Message can reference a stream that has not yet been read.
+    /// This function forces the read to happen and saves the result in _bytes
     void A4Message::invalidate_stream() const {
         if (not _instream_read) {
             auto coded_in = _coded_in.lock();
@@ -35,13 +37,20 @@ namespace a4{ namespace io{
         }
     }
     
-    /// Explicit copy from a reference via a serialized string
+    /// Explicitly (deep-)copy an A4Message from a reference. 
+    /// If the input A4Message has a protobuf _message, it is serialized to the
+    /// _bytes of this message. We could also use protobuf message copying, but
+    /// this would mean an additional protobuf CopyFrom if the message is
+    /// eventually written to file.
+    /// If you want to modify the message after copying, use the protobuf
+    /// message() directly and use pb->New() and pb->CopyFrom().
     A4Message::A4Message(const A4Message& m)
             : _class_id(m._class_id), _descriptor(m._descriptor),
             _pool(m._pool), _size(0), _valid_bytes(), _coded_in(),
             _bytes(), _message(), _instream_read(true)
     {
-        // Invalidate the stream on the original message so it is guaranteed read
+        // Make sure that the read stream that the original message references
+        // is read. After this call m._bytes or m._message (or both) are valid.
         if (not m._coded_in.expired()) {
             m.invalidate_stream();
         }
@@ -49,11 +58,14 @@ namespace a4{ namespace io{
         _size = m._size;
         _valid_bytes = m._valid_bytes;
         _bytes = m._bytes;
-        // Only serialize the original message if its serialization is invalid
+
+        // If the original message is not present in serialized form
+        // (_valid_bytes) then save the serialization
         if (m._message and not _valid_bytes) {
             _bytes = m._message->SerializeAsString();
             _valid_bytes = true;
         }
+        // Note: _message is not copied, since that would entangle the messages
         assert_valid();
     }
     

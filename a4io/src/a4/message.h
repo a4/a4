@@ -27,7 +27,17 @@ namespace io {
     static const uint32_t NO_CLASS_ID = ((1LL<<32) - 2);
     static const uint32_t NO_CLASS_ID_METADATA = ((1LL<<32) - 1);
 
+
+    /// An A4Message wraps a protobuf message that has been read or should 
+    /// be written. It transparently encapsulates and manages serialization
+    /// and deserialization, manages deferred reads and makes sure that all
+    /// objects necessary to read a message survive.
     class A4Message {
+        // An A4Message wraps exactly one protobuf message.
+        // This message can be present in several different forms:
+        // * as a protobuf object in _message
+        // * serialized in _bytes
+        // * as a reference to an input stream in _coded_in
         public:
             /// Construct an A4Message of given size going to be read from the given stream
             A4Message(uint32_t class_id, size_t size, weak_shared<google::protobuf::io::CodedInputStream> coded_in, shared<ProtoClassPool> pool);
