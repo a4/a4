@@ -10,7 +10,7 @@ set -u -e
 #  3a) or do "BOOST_ROOT=. PATH=dist/bin:$PATH ~/Projects/a4/common/make_miniboost.sh"
 #      from boost's installation directory 
 
-mboost=miniboost-1.47
+mboost=miniboost-1.50
 if test -z "$BOOST_ROOT"; then
   echo "Set BOOST_ROOT to your Boost directory!"
   exit 1

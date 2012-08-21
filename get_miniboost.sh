@@ -13,7 +13,7 @@ if test "x$boostsuffix" != "x"; then
   target_name=miniboost-${boostsuffix}
 fi
 
-miniboost_name=miniboost-1.47
+miniboost_name=miniboost-1.50
 builddir_name=${miniboost_name}-${boostsuffix}
 
 miniboost_pack=$miniboost_name.tar.bz2
@@ -66,7 +66,7 @@ echo "---------------------------------------"
 echo "A4: Compiling needed Boost Libraries..."
 echo "---------------------------------------"
 
-if ! ./b2 --buildid=-a4-mt-1_47 --prefix=$prefix cflags=-fPIC $@; then
+if ! ./b2 --buildid=-a4-mt-1_50 --prefix=$prefix cflags=-fPIC $@; then
   echo "Boost compilation failed! :("
   exit 1
 fi
@@ -75,7 +75,7 @@ echo "----------------------------------------------"
 echo "A4: Local install of needed Boost Libraries..."
 echo "----------------------------------------------"
 
-if ! ./b2 --buildid=-a4-mt-1_47 --prefix=$prefix install; then
+if ! ./b2 --buildid=-a4-mt-1_50 --prefix=$prefix install; then
   echo "Boost installation failed! :("
   exit 1
 fi
