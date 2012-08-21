@@ -35,12 +35,13 @@ namespace a4{ namespace io{
         }
     }
     
-    /// Explicit copying is allowed
+    /// Explicit copy from a reference via a serialized string
     A4Message::A4Message(const A4Message& m)
             : _class_id(m._class_id), _descriptor(m._descriptor),
             _pool(m._pool), _size(0), _valid_bytes(), _coded_in(),
             _bytes(), _message(), _instream_read(true)
     {
+        // Invalidate the stream on the original message so it is guaranteed read
         if (not m._coded_in.expired()) {
             m.invalidate_stream();
         }
@@ -48,6 +49,7 @@ namespace a4{ namespace io{
         _size = m._size;
         _valid_bytes = m._valid_bytes;
         _bytes = m._bytes;
+        // Only serialize the original message if its serialization is invalid
         if (m._message and not _valid_bytes) {
             _bytes = m._message->SerializeAsString();
             _valid_bytes = true;

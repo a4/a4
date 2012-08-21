@@ -41,7 +41,7 @@ namespace io {
             /// Construct an A4Message from a compiled-in protobuf Message
             explicit A4Message(const Message& msg, bool metadata=true);
 
-            /// Only explicit copying allowed
+            /// Explicit copy from a reference via a serialized string
             explicit A4Message(const A4Message& m);
             ~A4Message();
             
