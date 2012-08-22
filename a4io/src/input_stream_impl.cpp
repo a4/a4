@@ -76,7 +76,7 @@ InputStreamImpl::InputStreamImpl(UNIQUE<ZeroCopyStreamResource> in,
     _current_metadata_index = 0;
     _last_unread_message.reset();
     _do_reset_metadata = false;
-    _hint_copy = false;
+    _hint_copy = true;
 }
 
 InputStreamImpl::~InputStreamImpl() {};
