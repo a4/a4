@@ -235,13 +235,11 @@ shared<A4Message> InputStreamImpl::bare_message() {
     //VERBOSE("Next part: ", _raw_in->ByteCount(), " -- ", size, " - ", class_id);
 
     if (_hint_copy) {
-
-        shared<A4Message> umsg(new A4Message(class_id, size, _coded_in, _current_class_pool));
-        _last_unread_message = umsg;
-        return umsg;
+        _last_unread_message.reset(new A4Message(class_id, size, _coded_in, _current_class_pool));
+        return _last_unread_message;
     } else {
         auto _message = _current_class_pool->parse_message(class_id, _coded_in, size);
-        return shared<A4Message>(new A4Message(class_id, _message, _current_class_pool));
+        return make_shared<A4Message>(class_id, _message, _current_class_pool);
     }
 }
 

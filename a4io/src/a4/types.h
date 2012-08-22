@@ -34,6 +34,7 @@
 #include <a4/debug.h>
 
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/shared_array.hpp>
 using boost::shared_array;
 
@@ -46,6 +47,7 @@ using boost::shared_array;
     #include <boost/weak_ptr.hpp>
     #include <boost/shared_ptr.hpp>
     #define shared boost::shared_ptr
+    #define make_shared boost::make_shared
     #define weak_shared boost::weak_ptr
 
     // Boost doesn't define a unique<> so we use shared instead, which can lead
@@ -62,6 +64,7 @@ using boost::shared_array;
     namespace std_memory_prefix = std;
     #define shared std::shared_ptr
     #define UNIQUE std::unique_ptr
+    #define make_shared std::make_shared
     #define weak_shared std::weak_ptr
 
 #elif HAVE_STD_TR1_SMART_PTR
@@ -70,6 +73,7 @@ using boost::shared_array;
     namespace std_memory_prefix = std::tr1;
     #define shared std::tr1::shared_ptr
     #define UNIQUE std::tr1::unique_ptr
+    #define make_shared std::tr1::make_shared
     #define weak_shared std::tr1::weak_ptr
 
 #else

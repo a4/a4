@@ -25,6 +25,7 @@ class Driver {
         static void process_rerun_channels(Processor* p, shared<A4Message> msg) {
             ObjectStore S = p->S;
             p->process_message(msg);
+            if (p->rerun_channels.size() == 0) return;
             std::set<const char*> finished_channels;
             do {
                 std::set<const char*> channels = p->rerun_channels;
