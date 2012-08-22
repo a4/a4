@@ -485,7 +485,7 @@ try
                 if (!done[i]) {
                     if (threads[i].timed_join(boost::posix_time::millisec(100))) {
                         done[i] = true;
-                        if (errors[i]) std::rethrow_exception(errors[i]);
+                        if (errors[i] != NULL) std::rethrow_exception(errors[i]);
                     } else {
                         all_done = false;
                     }
@@ -496,7 +496,7 @@ try
         Processor* p = new_initialized_processor();
         std::exception_ptr error;
         simple_thread(this, p, number, stats[0], error);
-        if (error) std::rethrow_exception(error);
+        if (error != NULL) std::rethrow_exception(error);
     }
     
     ProcessStats total;
