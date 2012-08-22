@@ -29,7 +29,7 @@ void IncreaseBignum(const uint64_t n) {
 #ifdef HAVE_ATOMIC
 #include <atomic>
 
-volatile std::atomic<uint64_t> atomic_bignum(0);
+std::atomic<uint64_t> atomic_bignum(0);
 
 void AtomicIncreaseBignum(const uint64_t n) {
     for (uint64_t i = 0; i < n; i++)
