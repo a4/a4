@@ -88,7 +88,6 @@ namespace io {
             std::vector<const google::protobuf::FileDescriptor*> get_filedescriptors();
             
         private:
-            bool _new_metadata;
             UNIQUE<InputStreamImpl> _impl;
             bool try_read(google::protobuf::Message & msg, const google::protobuf::Descriptor* d);
     };

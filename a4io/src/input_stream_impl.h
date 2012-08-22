@@ -117,7 +117,6 @@ namespace a4{ namespace io{
             uint64_t _items_read;
             unsigned int _current_header_index;
             int32_t _current_metadata_index;
-            int _fileno;
 
             // metadata-related status
             bool _new_metadata, _current_metadata_refers_forward;
