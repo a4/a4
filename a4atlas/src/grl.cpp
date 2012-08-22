@@ -12,17 +12,17 @@ namespace a4{ namespace atlas{
 FileGRL::FileGRL(const string& fn) {
     ifstream in(fn.c_str(), ios::in);
     if (!in) {
-        FATAL("Can not open '", fn, "'!");
+        TERMINATE("Can not open '", fn, "'!");
     }
     uint32_t run, start, end;
     while(in >> run >> start >> end) {
         _data[run].insert(LBRange(end, start));
     }
     if (in.bad()) {
-        FATAL("Reading from '", fn, "' failed! Is it really in (run, lb) format?");
+        TERMINATE("Reading from '", fn, "' failed! Is it really in (run, lb) format?");
     }
     if (_data.size() == 0) {
-        FATAL("Cowardly refusing to use empty GRL from '", fn,
+        TERMINATE("Cowardly refusing to use empty GRL from '", fn,
               "'. Is it really in (run, lb) format?");
     }
 };

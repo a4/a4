@@ -191,7 +191,8 @@ class ManualOutputAdaptor : public BaseOutputAdaptor {
 
 
 void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self, 
-    Processor* p, int limit, ProcessStats& stats) {
+    Processor* p, int limit, ProcessStats& stats, std::exception_ptr& error)
+try {
     // This is MY processor! (makes sure processor is deleted on function exit)
     // The argument to this function should be a move into a UNIQUE...
     UNIQUE<Processor> processor(p);
@@ -335,6 +336,8 @@ void SimpleCommandLineDriver::simple_thread(SimpleCommandLineDriver* self,
     output_adaptor->end_block();
     stats.cputime = boost::chrono::thread_clock::now() - start;
     stats.events = cnt;
+} catch (...) {
+    error = std::current_exception();
 }
 
 Processor* SimpleCommandLineDriver::new_initialized_processor() {
@@ -465,16 +468,35 @@ try
     }
 
     std::vector<ProcessStats> stats(n_threads);
+    std::vector<std::exception_ptr> errors(n_threads);
+    std::vector<bool> done(n_threads);
     if (n_threads > 1) {
         std::vector<boost::thread> threads;
         for (int i = 0; i < n_threads; i++) {
+            done[i] = false;
+            errors[i] = NULL;
             Processor* p = new_initialized_processor();
-            threads.push_back(std::move(boost::thread(std::bind(&simple_thread, this, p, -1, boost::ref(stats[i])))));
+            threads.push_back(std::move(boost::thread(std::bind(&simple_thread, this, p, -1, boost::ref(stats[i]),  boost::ref(errors[i])))));
         };
-        foreach(boost::thread& t, threads) t.join();
+        bool all_done;
+        do {
+            all_done = true;
+            for (int i = 0; i < n_threads; i++) {
+                if (!done[i]) {
+                    if (threads[i].timed_join(boost::posix_time::millisec(100))) {
+                        done[i] = true;
+                        if (errors[i] != NULL) std::rethrow_exception(errors[i]);
+                    } else {
+                        all_done = false;
+                    }
+                }
+            }
+        } while (not all_done);
     } else {
         Processor* p = new_initialized_processor();
-        simple_thread(this, p, number, stats[0]);
+        std::exception_ptr error;
+        simple_thread(this, p, number, stats[0], error);
+        if (error != NULL) std::rethrow_exception(error);
     }
     
     ProcessStats total;
@@ -495,13 +517,15 @@ try
     //google::protobuf::ShutdownProtobufLibrary();
     return 0;
 }
+catch(a4::Terminate& x)
+{
+    std::cerr << argv[0] << ": " << x.what() << std::endl;
+    return 1;
+}
 catch(std::exception& x)
 {
-    // Clean Up any memory allocated by libprotobuf
-    //google::protobuf::ShutdownProtobufLibrary();
-
-    std::cerr << "Exception: " << x.what() << std::endl;
-    return 1;
+    std::cerr << argv[0] << ": Unexpected Error: " << x.what() << std::endl;
+    return 2;
 }
 
 };}; // namespace a4::process

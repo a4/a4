@@ -46,7 +46,7 @@ TEST(a4io, check_mergable) {
     
     merged += AM(data_m2);
     
-    EXPECT_THROW(merged += AM(mc_m1), a4::Fatal);
+    EXPECT_THROW(merged += AM(mc_m1), a4::Terminate);
     
     #undef AM
 }
@@ -90,7 +90,7 @@ TEST(a4io, metadata_merge) {
                     //std::cout << "NEXT   :\n" << new_md->message()->ShortDebugString() << std::endl;
                     if (mcnt == 1) {
                         A4Message test_sum(*current_md);
-                        EXPECT_THROW(std::cout << "ERRONEOUS: " << (test_sum += *new_md).message()->ShortDebugString() << std::endl;, a4::Fatal);
+                        EXPECT_THROW(std::cout << "ERRONEOUS: " << (test_sum += *new_md).message()->ShortDebugString() << std::endl;, a4::Terminate);
                     } else {
                         *current_md += *new_md;
                         //std::cout << "MERGED :\n" << current_md->message()->ShortDebugString() << std::endl;

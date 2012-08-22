@@ -20,7 +20,7 @@ namespace a4{ namespace io{
         mmap = NULL;
         no = ::open(name, oflag);
         if (no < 0) {
-            ERROR("Could not open '", name, "' - reason: ", strerror(errno));
+            ERROR("Could not open '", name, "': ", strerror(errno));
             return;
         }
         if (!do_mmap) {
@@ -64,7 +64,7 @@ namespace a4{ namespace io{
 
         _file.reset(new OpenFile(_name.c_str(), O_RDONLY, true));
         if (_file->error) {
-            ERROR("Could not open '", _name, "' - reason: ", strerror(errno));
+            ERROR("Could not open '", _name, "': ", strerror(errno));
             _error = true;
             return false;
         }
@@ -146,7 +146,7 @@ namespace a4{ namespace io{
 
         _file.reset(new OpenFile(_name.c_str(), O_RDONLY, false));
         if (_file->error) {
-            ERROR("Could not open '", _name, "' - reason: ", strerror(errno));
+            ERROR("Could not open '", _name, "': ", strerror(errno));
             _error = true;
             return false;
         }
@@ -155,7 +155,7 @@ namespace a4{ namespace io{
 // See https://github.com/JohannesEbke/a4/issues/34
 //        static_assert(sizeof(size_t) >= sizeof(uint64_t), "size_t is 32 bit!");
         if (fstat(_file->no, &buffer) == -1) {
-            ERROR("Could not stat '", _name, "' - reason: ", strerror(errno));
+            ERROR("Could not stat '", _name, "': ", strerror(errno));
             return false;
         }
         _size = buffer.st_size;
@@ -168,7 +168,7 @@ namespace a4{ namespace io{
         if (_mmap) munmap(_mmap, _mmap_blocksize);
         _mmap = ::mmap(NULL, _mmap_blocksize, PROT_READ, MAP_PRIVATE, _file->no, _mmap_offset);
         if (mmap == MAP_FAILED) {
-            FATAL("ERROR - Could not mmap '", _name, "': ", strerror(errno));
+            TERMINATE("Could not open (mmap) '", _name, "': ", strerror(errno));
         }
     }
 
@@ -271,12 +271,12 @@ namespace a4{ namespace io{
             fscalls.reset(new hdfs_filesystem_calls());
             filename = filename.substr(8);
         } else {
-            FATAL("Unknown remote file type: ", filename);
+            TERMINATE("Unknown remote file type: ", filename);
         }
-        if (!fscalls->loaded) FATAL("Failure to load remote access library!");
+        if (!fscalls->loaded) TERMINATE("Failure to load remote access library!");
         _fileno = fscalls->open(const_cast<char*>(filename.c_str()), O_RDONLY, 0);
         _errno = fscalls->last_errno();
-        if (_errno != 0 or _fileno == -1) FATAL("Could not open ", filename, " - Error ", _errno);
+        if (_errno != 0 or _fileno == -1) TERMINATE("Could not open '", filename, "': ", strerror(_errno));
     }
 
     RemoteCopyingFile::~RemoteCopyingFile() {
@@ -386,7 +386,7 @@ namespace a4{ namespace io{
         }
 
         struct stat buffer;
-        if (stat(url.c_str(), &buffer) == -1) FATAL("Could not open ", url);
+        if (stat(url.c_str(), &buffer) == -1) TERMINATE("Could not open '", url, "': ", strerror(errno));
 
         // If it's a FIFO, use a non-seeking buffer
         if (S_ISFIFO(buffer.st_mode) || !try_mmap) return UNIQUE<UnixFile>(new UnixFile(url));

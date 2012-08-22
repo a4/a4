@@ -420,7 +420,7 @@ bool InputStreamImpl::start_compression(const StartCompressedSection& cs) {
 #ifdef HAVE_SNAPPY
         _compressed_in.reset(new SnappyInputStream(_raw_in.get()));
 #else
-        FATAL("This file uses compression by the 'Snappy' library, "
+        TERMINATE("This file uses compression by the 'Snappy' library, "
               "which was not compiled in!");
 #endif
     } else if (cs.compression() == StartCompressedSection_Compression_LZ4) {
