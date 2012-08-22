@@ -180,5 +180,9 @@ namespace a4{
     }
 
     volatile bool Fatal::segfault_handled = false;
+
+    void Terminate::handle_exception(std::string reason) {
+        _what = reason;
+    }
 };
 

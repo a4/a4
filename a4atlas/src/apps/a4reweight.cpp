@@ -22,7 +22,7 @@ class A4ReweightProcessor : public ResultsProcessor<A4ReweightProcessor, EventMe
   public:
     void process(std::string name, shared<Storable> s) {
         if (S.get_slow<Storable>(name)) {
-            FATAL("Encountered the same histogram twice! Merge files before reweighting them!");
+            TERMINATE("Encountered the same histogram twice! Merge files before reweighting them!");
         } else {
             *s *= weight;
             S.set_slow(name, s); 
@@ -45,10 +45,10 @@ class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
     }
     void read_arguments(po::variables_map& arguments) {
         if (arguments.count("lumi") == 0) {
-            FATAL("No Luminosity specified!");
+            TERMINATE("No Luminosity specified!");
         }
         if (arguments.count("xs") == 0) {
-            FATAL("No cross-section file specified!");
+            TERMINATE("No cross-section file specified!");
         }
         std::ifstream xsf(xs_file);
         while(!xsf.eof()) {
@@ -84,22 +84,22 @@ shared<A4Message> A4ReweightProcessor::process_new_metadata() {
     int run = -1;
     if (config->use_run_number) {
         if (metadata().run_size() != 1) {
-            FATAL("Cannot reweight if runs have been merged!");
+            TERMINATE("Cannot reweight if runs have been merged!");
         }
         run = metadata().run(0);
     } else {
         if (metadata().mc_channel_size() != 1) {
-            FATAL("Cannot reweight if mc_channels have been merged!");
+            TERMINATE("Cannot reweight if mc_channels have been merged!");
         }
         run = metadata().mc_channel(0);
     }
     if (metadata().reweight_lumi() != 0) {
-        FATAL("This set of histograms has already been reweighted!");
+        TERMINATE("This set of histograms has already been reweighted!");
     }
     double sum_mcw = 0;
     if (!metadata().has_sum_mc_weights()) {
         if (!metadata().has_event_count()) {
-            FATAL("Cannot reweight without sum of MC weights or event count!");
+            TERMINATE("Cannot reweight without sum of MC weights or event count!");
         } else {
             VERBOSE("sum_mc_weights not set, falling back to event_count");
             sum_mcw = metadata().event_count();

@@ -42,7 +42,8 @@ void dump_message(const Message& message, const std::vector<std::string>& vars) 
     }    
 }
 
-int main(int argc, char ** argv) {
+int main(int argc, char ** argv) 
+try {
     a4::Fatal::enable_throw_on_segfault();
 
     namespace po = boost::program_options;
@@ -105,5 +106,15 @@ int main(int argc, char ** argv) {
         }
         stream->close();
     }
+}
+catch(a4::Terminate& x)
+{
+    std::cerr << argv[0] << ": " << x.what() << std::endl;
+    return 1;
+}
+catch(std::exception& x)
+{
+    std::cerr << argv[0] << ": Unexpected Error: " << x.what() << std::endl;
+    return 2;
 }
 

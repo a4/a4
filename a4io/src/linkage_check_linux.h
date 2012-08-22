@@ -60,7 +60,7 @@ public:
                 ERROR("  ", *i);
             }
                   
-            FATAL("Linkage check failed. Recompile! Define A4_SKIP_LINKAGECHECK "
+            TERMINATE("Linkage check failed. Recompile! Define A4_SKIP_LINKAGECHECK "
                   "if you really really really want to try anyway. "
                   "But don't complain if you get segfaults!");
         }

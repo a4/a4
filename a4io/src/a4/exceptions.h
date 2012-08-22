@@ -7,6 +7,7 @@
 
 namespace a4 {
 
+    /// Exception base class that collects a backtrace
     class BackTraceException : public std::exception {
         public:
             BackTraceException();
@@ -20,6 +21,7 @@ namespace a4 {
             std::string _full_backtrace;
     };
     
+    /// Exception for Fatal, unexpected errors
     class Fatal : public BackTraceException {
         public:
             template<typename ...Args>
@@ -38,6 +40,25 @@ namespace a4 {
 
         protected:
             static volatile bool segfault_handled;
+            std::string _what;
+    };
+    
+    /// Exception for "expected" errors that should terminate
+    /// the program ("file not found" or similar)
+    class Terminate : public std::exception {
+        public:
+            template<typename ...Args>
+            Terminate(const Args&... args) {
+                handle_exception(str_cat(args...));
+            };
+            virtual ~Terminate() throw() {};
+
+            void handle_exception(std::string);
+
+            virtual const char* what() const throw() {
+                return _what.c_str();
+            }
+        protected:
             std::string _what;
     };
 

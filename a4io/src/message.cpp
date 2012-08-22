@@ -168,7 +168,7 @@ namespace a4{ namespace io{
 
         // Fail if the full name is different (should not happen)
         if (d1->full_name() != d2->full_name()) {
-            FATAL("Compiled-in (", d1->full_name(), ") and on-disk (", d2->full_name() , ") typenames of an object do not agree!");
+            TERMINATE("Compiled-in (", d1->full_name(), ") and on-disk (", d2->full_name() , ") typenames of an object do not agree!");
         }
 
         // Do version checking if the descriptors are different
@@ -178,7 +178,7 @@ namespace a4{ namespace io{
         std::string dminor = d2->options().GetExtension(minor_version);
 
         if (mymajor != dmajor) {
-            FATAL("Major versions of compiled-in and on-disk '", d1->full_name(), "' objects do not agree:", mymajor, " != ", dmajor);
+            TERMINATE("Major versions of compiled-in and on-disk '", d1->full_name(), "' objects do not agree:", mymajor, " != ", dmajor);
         } else if (myminor != dminor) {
             WARNING("Minor versions of compiled-in and on-disk '", d1->full_name(), "' objects do not agree:", mymajor, " != ", dmajor);
         }
@@ -263,7 +263,7 @@ namespace a4{ namespace io{
                     if(!(f1 == f2)) {
                         //DEBUG("this=", message()->DebugString());
                         //DEBUG("msg2=", m2->_message->DebugString());
-                        throw a4::Fatal("Trying to merge metadata objects with different entries in ", f1.name(), ":", f1.value().str(), " != ", f2.value().str());
+                        TERMINATE("Trying to merge metadata objects with different entries in ", f1.name(), ":", f1.value().str(), " != ", f2.value().str());
                     }
                     // NOOP!
                     //f1.set(f1.value());
@@ -283,7 +283,7 @@ namespace a4{ namespace io{
                 case MERGE_DROP:
                     break;
                 default:
-                    throw a4::Fatal("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
+                    TERMINATE("Unknown merge strategy: ", merge_opts, ". Recompilation should fix it.");
             }
         }
         assert_valid();
@@ -404,10 +404,10 @@ namespace a4{ namespace io{
         const FieldDescriptor* fd = descriptor()->FindFieldByName(field_name);
         if (!fd) {
             const std::string& classname = message()->GetDescriptor()->full_name();
-            FATAL(classname, " has no member ", field_name, " necessary for metadata merging or splitting!");
+            TERMINATE(classname, " has no member ", field_name, " necessary for metadata merging or splitting!");
         }
         if (fd->is_repeated() && (message()->GetReflection()->FieldSize(*message(), fd)) > 1) {
-            FATAL(fd->full_name(), " has already multiple ", field_name, " entries - cannot achieve desired granularity!");
+            TERMINATE(fd->full_name(), " has already multiple ", field_name, " entries - cannot achieve desired granularity!");
         }
         return field_as_string(field_name);
     }

@@ -9,6 +9,11 @@
 #define A4_LOG_PREFIX(severity) \
     "[" severity "] " 
 
+#define TERMINATE(...) \
+    do { \
+        throw a4::Terminate(__VA_ARGS__); \
+    } while(0)
+
 #define FATAL(...) \
     do { \
         throw a4::Fatal(__VA_ARGS__); \

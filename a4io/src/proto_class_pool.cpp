@@ -165,7 +165,7 @@ namespace a4{ namespace io{
             std::string dmajor = gd->options().GetExtension(major_version);
             std::string dminor = gd->options().GetExtension(minor_version);
             if (cmajor != dmajor) {
-                FATAL("Major versions of compiled-in and read messages do not agree:",
+                TERMINATE("Major versions of compiled-in and read messages do not agree: ",
                       "Compiled in: '", cmajor, "', Read: '", dmajor, "'");
             } else if (cminor != dminor) {
                 WARNING("Minor versions of compiled-in and read messages do not agree: "

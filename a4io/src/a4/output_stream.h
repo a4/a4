@@ -74,7 +74,7 @@ namespace io {
                 if(s == "ZLIB") return ZLIB;
                 if(s == "SNAPPY") return SNAPPY;
                 if(s == "LZ4") return LZ4;
-                FATAL("Unknown Compression Type: ", s);
+                TERMINATE("Unknown Compression Type: ", s);
             }
             /// Set compression type and level
             OutputStream& set_compression(CompressionType t, int level = 5);

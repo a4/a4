@@ -482,7 +482,7 @@ bool dump_stream(shared<a4::io::InputStream> stream,
     // Stream in events we don't care about
     for (; skip_events; skip_events--)
         if (internal_msg ? !stream->next_bare_message() : !stream->next())
-            FATAL("Tried to read more events than there are in the file.");
+            TERMINATE("Tried to read more events than there are in the file.");
     
     StatsCollector sc;
     MessageInfoCollector mic;
@@ -521,7 +521,8 @@ bool dump_stream(shared<a4::io::InputStream> stream,
     return true;
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv) 
+try {
     a4::Fatal::enable_throw_on_segfault();
 
     namespace po = boost::program_options;
@@ -574,8 +575,8 @@ int main(int argc, char** argv) {
         return 1;
     }
     
-    if (show_footer || dump_all) {
-        FATAL_ASSERT((event_count == 1 && event_index == 0), "Specifying event count or index is incompatible with --footer and --dump-all");
+    if ((show_footer || dump_all) && (event_count == 1 && event_index == 0)) {
+        TERMINATE("Specifying event count or index is incompatible with --footer and --dump-all");
     }
     
     a4::io::A4Input in;
@@ -595,5 +596,15 @@ int main(int argc, char** argv) {
     }
     
     return 0;
+}
+catch(a4::Terminate& x)
+{
+    std::cerr << argv[0] << ": " << x.what() << std::endl;
+    return 1;
+}
+catch(std::exception& x)
+{
+    std::cerr << argv[0] << ": Unexpected Error: " << x.what() << std::endl;
+    return 2;
 }
 
