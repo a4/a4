@@ -229,7 +229,7 @@ public:
             i.set_grl_string(grl_string->GetString().Data());
         } else
         {
-            std::cout << "Couldn't get GRL string.." << std::endl;
+            WARNING("Couldn't get GRL string..");
         }
     }
     
@@ -266,7 +266,7 @@ public:
     Bool_t Notify() 
     { 
         assert(_descriptor);
-        std::cout << "Processing new file: " << _tree.GetCurrentFile()->GetName() << std::endl;
+        INFO("Processing new file: ", _tree.GetCurrentFile()->GetName());
         if (!_brand_new) {
             _flush_callback();
         }
@@ -291,13 +291,13 @@ public:
     {
     }
     
-    ~BufferingStreamWriter() { std::cout << "Destructor flush "<< std::endl; flush(); }
+    ~BufferingStreamWriter() { VERBOSE("Destructor flush "); flush(); }
     
     void write(const shared<Message>& m)
     {
         _buffer.push_back(m);
         if (_buffer.size() >= _buffer_size) {
-            std::cout << "Buffer is full!" << _buffer.size() << std::endl;
+            INFO("Buffer is full!", _buffer.size());
             flush();
         }
     }
@@ -305,7 +305,7 @@ public:
     /// Write out Metadata, then events.
     void flush()
     {
-        std::cout << "Flushing.." << std::endl;
+        INFO("Flushing...");
         _callback(_stream, _buffer);
         foreach (const shared<Message>& m, _buffer)
             _stream->write(*m);
@@ -332,7 +332,7 @@ void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream,
     if (entries < 0)
         entries = tree_entries;
         
-    std::cout << "Will process " << entries << " entries" << std::endl;
+    INFO("Will process ", entries, " entries");
     
     // Nothing to do!
     if (!entries)
@@ -373,12 +373,12 @@ void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream,
         total_bytes_read += read_data;
                 
         if (i % 100 == 0)
-            std::cout << "Progress " << i << " / " << entries << " (" << read_data << ")" << std::endl;
+            INFO("Progress ", i, " / ", entries, " (", read_data, ")");
         
         shared<Message> event = event_factory();
         
         if (metadata_factory.need_new_metadata(event)) {
-            std::cout << "Need new metadata!" << std::endl;
+            INFO("Need new metadata!");
             buffered_stream.flush();
         }
                 
@@ -393,7 +393,7 @@ void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream,
     //m.set_total_events(entries);
     //stream->metadata(m);
     
-    std::cout << "Copied " << entries << " entries (" << total_bytes_read << ")" << std::endl;
+    INFO("Copied ", entries, " entries (", total_bytes_read, ")", std::endl;
 }
 
 bool string_endswith(const std::string& s, const std::string& end) 
@@ -454,7 +454,7 @@ int main(int argc, char ** argv) {
 
     TChain input(tree_name.c_str());
     
-    std::cout << "Adding input files" << std::endl;
+    INFO("Adding input files");
     foreach (const std::string& input_file, input_files) {
         if (string_endswith(input_file, ".txt")) {
         //if (input_file.substr(input_file.rfind(".txt")) == ".txt") {
@@ -475,12 +475,12 @@ int main(int argc, char ** argv) {
                 fileList.push_back(tmp);
             }
             foreach (const std::string& x, fileList) {
-                std::cout << "--Adding sub input file: '" << x << "'" << std::endl;
+                INFO("--Adding sub input file: '", x, "'");
                 input.Add(x.c_str());
             }
         } else
         {
-            std::cout << "--Adding input '" << input_file << "'" << std::endl;
+            INFO("--Adding input '", input_file, "'");
             input.Add(input_file.c_str());
         }
     }
@@ -546,8 +546,7 @@ int main(int argc, char ** argv) {
             
         duration cputime  = chrono::thread_clock::now() - cpustart,
                  walltime = chrono::steady_clock::now() - wallstart;
-        std::cout << "Took " << walltime << " to run (" 
-                  << cputime << " CPU)" << std::endl;
+        INFO("Took ", walltime, " to run (", cputime, " CPU)");
     }
 
     foreach(std::string s, get_list_of_leaves()) {

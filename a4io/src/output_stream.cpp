@@ -84,8 +84,7 @@ bool OutputStream::open() {
     if (_fileno == -1) {
         int fd = ::open(_output_name.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (fd < 0) {
-            std::cerr << "ERROR - A4IO:OutputStream - Could not open '" << _output_name \
-                      << "' - error: " << strerror(errno) << std::endl;
+            ERROR("Could not open '", _output_name, "': ", strerror(errno));
             return false;
         }
         _file_out.reset(new FileOutputStream(fd));

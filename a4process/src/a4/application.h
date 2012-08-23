@@ -32,6 +32,7 @@ namespace a4 {
 
         template <class MyConfiguration, class MyDriver=SimpleCommandLineDriver>
         int a4_main_configuration(int argc, const char* argv[]) {
+            a4::io::set_program_name(argv[0]);
             UNIQUE<Configuration> p(new MyConfiguration);
             UNIQUE<MyDriver> driver(new MyDriver(p.get()));
             return driver->main(argc, argv);
@@ -39,6 +40,7 @@ namespace a4 {
 
         template <class MyProcessor, class MyDriver=SimpleCommandLineDriver>
         int a4_main_process(const int& argc, const char* argv[]) {
+            a4::io::set_program_name(argv[0]);
             UNIQUE<Configuration> p(new ConfigurationOf<MyProcessor>());
             UNIQUE<MyDriver> driver(new MyDriver(p.get()));
             return driver->main(argc, argv);

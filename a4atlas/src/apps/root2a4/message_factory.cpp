@@ -215,9 +215,8 @@ void submessage_setter(Message** messages, size_t count, TBranchElement* br,
     {
         static std::set<std::string> have_warned;
         if (!have_warned.count(br->GetName())) {
-            std::cerr << "Warning, unexpected branch size for " << br->GetName() 
-                     << "(expected: " << count << " got: " << values->size() << ")"
-                     << std::endl;
+            WARNING("unexpected branch size for ", br->GetName(), 
+                    "(expected: ", count, " got: ", values->size(), ")");
             have_warned.insert(br->GetName());
         }
         return;
@@ -370,7 +369,7 @@ Copier make_repeated_submessage_factory(TTree* tree,
             const std::string warning = str_cat(field->full_name(), 
                 " has no conversion specifier, e.g. [(root_prefix=\"", 
                 field->name(), "\")];.");
-            std::cerr << warning << std::endl;
+            WARNING(warning);
             continue;
             //FATAL(warning);
         }
@@ -379,9 +378,8 @@ Copier make_repeated_submessage_factory(TTree* tree,
         
         TBranchElement* br = dynamic_cast<TBranchElement*>(tree->GetBranch(leafname.c_str()));
         if (!br) {
-            std::cerr << "WARNING: " << "[" << parent_field->full_name() << " / "
-                      << field->full_name() << "]"
-                      << " couldn't load ROOT branch " << leafname << std::endl;
+            WARNING("[", parent_field->full_name(), " / ", field->full_name(), "]",
+                    " couldn't load ROOT branch ", leafname);
             continue;
         }
         leaf_names.insert(leafname);
@@ -397,8 +395,7 @@ Copier make_repeated_submessage_factory(TTree* tree,
     }
     
     if (!compute_count) {
-        std::cerr << "WARNING: " << parent_field->full_name() 
-                  << " No suitable field found to compute length!" << std::endl;
+        WARNING(parent_field->full_name(), " No suitable field found to compute length!");
         return null_copier;
     }
     
@@ -436,7 +433,7 @@ Copier make_submessage_factory(TTree* tree,
             TLeaf* leaf = tree->GetLeaf(leafname.c_str());
             if (!leaf)
             {
-                std::cerr << "Branch specified in protobuf file but not in TTree: " << leafname << std::endl;
+                WARNING("Branch specified in protobuf file but not in TTree: ", leafname);
                 continue;
             }
             leaf_names.insert(leafname);
@@ -495,7 +492,7 @@ RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc,
             TLeaf* leaf = tree->GetLeaf(leafname.c_str());
             if (!leaf)
             {
-                std::cerr << "Branch specified in protobuf file but not in TTree: " << leafname << std::endl;
+                WARNING("Branch specified in protobuf file but not in TTree: ", leafname);
                 continue;
             }
             leaf_names.insert(leafname);
@@ -519,7 +516,7 @@ RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc,
             const std::string warning = str_cat(field->full_name(), 
                 " has no or invalid conversion specifier, e.g. [(root_branch=\"", 
                 field->name(), "\")];.");
-            std::cerr << warning << std::endl;
+            WARNING(warning);
             continue;
             //FATAL(warning);
         }

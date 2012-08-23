@@ -45,6 +45,7 @@ void dump_message(const Message& message, const std::vector<std::string>& vars) 
 int main(int argc, char ** argv) 
 try {
     a4::Fatal::enable_throw_on_segfault();
+    a4::io::set_program_name(argv[0]);
 
     namespace po = boost::program_options;
 
@@ -94,11 +95,11 @@ try {
     while(shared<a4::io::InputStream> stream = in.get_stream()) {
         const auto& all_metadata = stream->all_metadata();
         
-        std::cout << "Got " << all_metadata.size() << " header(s)" << std::endl;
+        std::cout << "Got " << all_metadata.size() << " header(s)." << std::endl;
         
         int i = 0;
         foreach (const auto& header, all_metadata) {
-            std::cout << "Header " << i++ << std::endl;
+            std::cout << "Header " << i++ << ":" << std::endl;
             foreach (const auto& metadata, header) {
                 if (outs) outs->metadata(*metadata->message());
                 else dump_message(*metadata->message(), variables);
@@ -114,7 +115,7 @@ catch(a4::Terminate& x)
 }
 catch(std::exception& x)
 {
-    std::cerr << argv[0] << ": Unexpected Error: " << x.what() << std::endl;
+    std::cerr << argv[0] << ": Error (Exception): " << x.what() << std::endl;
     return 2;
 }
 

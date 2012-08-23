@@ -524,6 +524,7 @@ bool dump_stream(shared<a4::io::InputStream> stream,
 int main(int argc, char** argv) 
 try {
     a4::Fatal::enable_throw_on_segfault();
+    a4::io::set_program_name(argv[0]);
 
     namespace po = boost::program_options;
 
@@ -604,7 +605,7 @@ catch(a4::Terminate& x)
 }
 catch(std::exception& x)
 {
-    std::cerr << argv[0] << ": Unexpected Error: " << x.what() << std::endl;
+    std::cerr << argv[0] << ": Error (Exception): " << x.what() << std::endl;
     return 2;
 }
 

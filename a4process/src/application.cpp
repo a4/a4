@@ -364,19 +364,26 @@ try
     string config_filename = string(argv[0]) + ".ini";
     string output = "", results = "";
     metakey = ""; split_metakey = "";
+    bool verbose, quiet, debug;
 
     // Define all 
+    po::options_description gopt("General options");
+    gopt.add_options()
+        ("help", "print this help message")
+        ("verbose,v", po::bool_switch(&verbose), "verbose output")
+        ("debug,d", po::bool_switch(&debug), "debug output")
+        ("quiet,q", po::bool_switch(&quiet), "quiet output")
+        ("config,c", po::value<string>(), (string("configuration file [default is '") + config_filename + "']").c_str())
+        ("disable-gdb", po::bool_switch(&no_gdb), "disable internal segfault handling");
+
     po::options_description popt("Processing options");
     popt.add_options()
-        ("help", "print this help message")
-        ("disable-gdb", po::bool_switch(&no_gdb), "switch of internal segfault handling")
         ("input,i", po::value<FileList>(&inputs), "input file(s)")
         ("output,o", po::value<string>(&output), "output file")
         ("results,r", po::value<string>(&results), "result file")
         ("number,n", po::value<int>(&number)->default_value(-1), "maximum number of events to process (default: all)")
         ("per,p", po::value<string>(&metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
         ("split-per,s", po::value<string>(&split_metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
-        ("config,c", po::value<string>(), (string("configuration file [default is '") + config_filename + "']").c_str())
         ("compression", po::value(&_compression_string)->default_value("ZLIB 1"), "compression level '[TYPE] [LEVEL]'");
 
     po::positional_options_description positional_options;
@@ -389,6 +396,7 @@ try
     po::options_description useropt;
     configuration->add_options(useropt.add_options());
 
+    commandline_options.add(gopt);
     commandline_options.add(popt);
     commandline_options.add(cfgopt);
     commandline_options.add(useropt);
@@ -412,6 +420,7 @@ try
         return 1;
     }
 
+
     // Parse config file
     bool explicit_config_file = false;
     if (arguments.count("config")) {
@@ -423,14 +432,15 @@ try
     if (!config_file && explicit_config_file) {
         throw std::runtime_error("Configuration file '" + config_filename + "' not found!");
     } else if (config_file && !explicit_config_file) {
-        std::cout << "Using implicit config file '" << config_filename 
-                  << "'. Override this with -c 'other_configfile.ini'." << std::endl;
+        WARNING("Using implicit config file '", config_filename, "'. Override this with -c 'other_configfile.ini'.");
     }
     po::store(po::parse_config_file(config_file, config_file_options), arguments);
 
     // After finishing all option reading, notify the result
     po::notify(arguments);
     configuration->read_arguments(arguments);
+    
+    a4::io::set_log_level(debug ? 5 : verbose ? 4 : quiet ? 2 : 3);
     
     std::stringstream ss(_compression_string);
     std::string ctype;
@@ -524,7 +534,7 @@ catch(a4::Terminate& x)
 }
 catch(std::exception& x)
 {
-    std::cerr << argv[0] << ": Unexpected Error: " << x.what() << std::endl;
+    std::cerr << argv[0] << ": Error (Exception): " << x.what() << std::endl;
     return 2;
 }
 
