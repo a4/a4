@@ -393,7 +393,7 @@ void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream,
     //m.set_total_events(entries);
     //stream->metadata(m);
     
-    INFO("Copied ", entries, " entries (", total_bytes_read, ")", std::endl;
+    INFO("Copied ", entries, " entries (", total_bytes_read, ")");
 }
 
 bool string_endswith(const std::string& s, const std::string& end) 

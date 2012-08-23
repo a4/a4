@@ -52,6 +52,7 @@ try {
     std::vector<std::string> input_files, variables;
     size_t event_count = -1, event_index = -1;
     bool collect_stats = false;
+    bool verbose, debug, quiet;
     std::string output_file;
     
     po::positional_options_description p;
@@ -60,11 +61,14 @@ try {
     po::options_description commandline_options("Allowed options");
     commandline_options.add_options()
         ("help,h", "produce help message")
+        ("verbose,v", po::bool_switch(&verbose), "verbose output")
+        ("debug,d", po::bool_switch(&debug), "debug output")
+        ("quiet,q", po::bool_switch(&quiet), "quiet output")
         ("event-index,i", po::value(&event_index)->default_value(0), "event to start dumping from (starts at 0)")
         ("count,c", po::value(&event_count)->default_value(1), "number to dump'")
         ("input", po::value(&input_files), "input file names (runs once per specified file)")
         ("output", po::value(&output_file)->default_value(""), "output file name")
-        ("var,v", po::value(&variables), "variables to dump (defaults to all)")
+        ("var,V", po::value(&variables), "variables to dump (defaults to all)")
         ("collect-stats,S", po::value(&collect_stats), "should collect statistics for all numeric variables")
     ;
     
@@ -79,6 +83,8 @@ try {
         std::cout << commandline_options << std::endl;
         return 1;
     }
+
+    a4::io::set_log_level(debug ? 5 : verbose ? 4 : quiet ? 2 : 3);
     
     a4::io::A4Input in;
     foreach (std::string filename, input_files)
