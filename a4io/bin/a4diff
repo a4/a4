@@ -1,9 +1,10 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 
 set -u -e
 
+PROGRAM=$(basename $0)
 function usage {
-    echo Usage: $0 old.a4 new.a4 [a4dump arguments]
+    echo "$PROGRAM: Usage: $PROGRAM old.a4 new.a4 [a4dump arguments]"
     exit 1;    
 }
 
@@ -12,8 +13,8 @@ if [[ -z "${1-}" || -z "${2-}" ]]; then usage; fi
 F1=$1
 F2=$2
 
-if [[ ! -e "$F1" ]]; then echo "$F1 doesn't exist" && usage; fi
-if [[ ! -e "$F2" ]]; then echo "$F2 doesn't exist" && usage; fi
+if [[ ! -e "$F1" ]]; then echo "$PROGRAM: $F1: Not found" && exit 1; fi
+if [[ ! -e "$F2" ]]; then echo "$PROGRAM: $F2: Not found" && exit 1; fi
 
 shift 2
 ARGS=$@
@@ -32,8 +33,8 @@ if ! diff -u $TEMPDIR/$F1 $TEMPDIR/$F2 > $TEMPDIR/diff;
 then
     cat $TEMPDIR/diff
     echo
-    echo The files differ:
-    diffstat $TEMPDIR/diff    
+    echo "$PROGRAM: $F1 and $F2 differ:"
+    diffstat $TEMPDIR/diff
 else
-    echo Files equal    
+    echo "$PROGRAM: $F1 and $F2 are equal"
 fi
