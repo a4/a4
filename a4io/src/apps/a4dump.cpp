@@ -575,7 +575,7 @@ try {
         return 1;
     }
     
-    if ((show_footer || dump_all) && (event_count == 1 && event_index == 0)) {
+    if ((show_footer || dump_all) and not (event_count == 1 && event_index == 0)) {
         TERMINATE("Specifying event count or index is incompatible with --footer and --dump-all");
     }
     
