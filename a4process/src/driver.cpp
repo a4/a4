@@ -23,7 +23,7 @@ typedef chrono::duration<double> duration;
 #include <a4/input_stream.h>
 #include <a4/output.h>
 #include <a4/output_stream.h>
-#include <a4/cpu_info.h>
+#include <cpu_info.h>
 
 using std::string;
 using std::ifstream;
