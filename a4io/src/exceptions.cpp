@@ -161,14 +161,14 @@ namespace a4{
 
     void Fatal::segfault_handler(int i) {
         if (i == SIGALRM) {
-            std::cerr << "GDB backtrace timed out. Please run the debugger manually to obtain a backtrace." << std::endl;
+            std::cerr << "a4: GDB backtrace timed out. Please run the debugger manually to obtain a backtrace." << std::endl;
             std::terminate();
         }
-        std::cerr << "A4 segfault handler called..." << std::endl;
+        std::cerr << "a4: segfault handler called..." << std::endl;
         {
             Lock lock(segfault_mutex);
             if (segfault_handled) {
-                std::cerr << "double segfault or segfault in exception handler - sorry!" << std::endl;
+                std::cerr << "a4: double segfault or segfault in exception handler - sorry!" << std::endl;
                 std::terminate();
             }
             segfault_handled = true;

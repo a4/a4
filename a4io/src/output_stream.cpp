@@ -84,8 +84,7 @@ bool OutputStream::open() {
     if (_fileno == -1) {
         int fd = ::open(_output_name.c_str(), O_WRONLY | O_TRUNC | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
         if (fd < 0) {
-            std::cerr << "ERROR - A4IO:OutputStream - Could not open '" << _output_name \
-                      << "' - error: " << strerror(errno) << std::endl;
+            ERROR("Could not open '", _output_name, "': ", strerror(errno));
             return false;
         }
         _file_out.reset(new FileOutputStream(fd));
@@ -108,7 +107,7 @@ bool OutputStream::close() {
     write_footer();
     _coded_out.reset();
     if (_file_out && !_file_out->Close()) {
-        std::cerr << "ERROR - A4IO:OutputStream - Error on closing: " << _file_out->GetErrno() << std::endl;
+        ERROR("Error on closing '", _output_name , "': ", strerror(_file_out->GetErrno()));
         return false;
     }; // return false on error
     _file_out.reset();
@@ -186,7 +185,7 @@ void OutputStream::reset_coded_stream() {
 OutputStream& OutputStream::set_compression(CompressionType t, int level) {
     _compression = (t != UNCOMPRESSED);
     _compression_type = t;
-    if (level < 1 || level > 9) TERMINATE("Only compression levels between 1 and 9 are meaningful.");
+    if (t == ZLIB and (level < 1 || level > 9)) TERMINATE("For ZLIB compression, a level between 1 and 9 must be specified (got level ", level, ").");
     _compression_level = level;
     #ifndef HAVE_SNAPPY
     if (t == SNAPPY) TERMINATE("Compression with 'snappy' is specified, but the library is not compiled in!");

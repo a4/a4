@@ -524,6 +524,7 @@ bool dump_stream(shared<a4::io::InputStream> stream,
 int main(int argc, char** argv) 
 try {
     a4::Fatal::enable_throw_on_segfault();
+    a4::io::set_program_name(argv[0]);
 
     namespace po = boost::program_options;
 
@@ -532,6 +533,7 @@ try {
     bool collect_stats = false, short_form = false, message_info = false,
          internal_msg = false, dump_all = false, show_footer = false,
          show_metadata = false, dump_proto = false;
+    bool verbose, quiet, debug;
     
     DEBUG("argv[0] = ", argv[0]);
     
@@ -549,6 +551,9 @@ try {
     po::options_description commandline_options("Allowed options");
     commandline_options.add_options()
         ("help,h", "produce help message")
+        ("verbose,v", po::bool_switch(&verbose), "verbose output")
+        ("debug,d", po::bool_switch(&debug), "debug output")
+        ("quiet,q", po::bool_switch(&quiet), "quiet output")
         ("event-index,i", po::value(&event_index), "event to start dumping from (starts at 0)")
         ("all,a", po::bool_switch(&dump_all), "dump all events")
         ("number,n", po::value(&event_count), "maximum number to dump")
@@ -574,8 +579,10 @@ try {
         std::cout << commandline_options << std::endl;
         return 1;
     }
+
+    a4::io::set_log_level(debug ? 5 : verbose ? 4 : quiet ? 2 : 3);
     
-    if ((show_footer || dump_all) && (event_count == 1 && event_index == 0)) {
+    if ((show_footer || dump_all) and not (event_count == 1 && event_index == 0)) {
         TERMINATE("Specifying event count or index is incompatible with --footer and --dump-all");
     }
     
@@ -604,7 +611,7 @@ catch(a4::Terminate& x)
 }
 catch(std::exception& x)
 {
-    std::cerr << argv[0] << ": Unexpected Error: " << x.what() << std::endl;
+    std::cerr << argv[0] << ": Error (Exception): " << x.what() << std::endl;
     return 2;
 }
 

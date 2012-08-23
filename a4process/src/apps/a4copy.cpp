@@ -24,7 +24,7 @@ public:
         if (i++ < _start_index)
             return;
         if (i % 1000 == 0)
-            std::cout << "Copied " << i << " events.." << std::endl;
+            INFO("Copied ", i, " events..");
         write(m);
     }
 };
