@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os, subprocess, sys
 from waflib.TaskGen import before, after, feature
 from waflib import Options, Task, Utils, Logs, Errors
+from fnmatch import fnmatch
 
 C1 = '#XXX'
 C2 = '#YYY'
@@ -118,16 +119,21 @@ def options(opt):
 
 def match_filter(filt, targ):
     if isinstance(filt, str):
-        (pat, _, _) = filt.partition('.')
-        if pat == '*':
-            return True
-        return pat == targ
+        return fnmatch(str(targ), str(filt))
     return False
 
 @feature('testt', 'gtest', 'testsc')
 @before('process_rule')
 def test_remover(self):
-    if not Options.options.check and not Options.options.checkall and self.target != Options.options.checkone and not match_filter(Options.options.checkfilter, self.target):
+    if isinstance(self.target, str):
+        name = self.target
+    else:
+        name = self.target.bldpath()
+    keep = (Options.options.check or 
+            Options.options.checkall or 
+            name == Options.options.checkone or 
+            match_filter(Options.options.checkfilter, name))
+    if not keep:
         self.meths[:] = []
 
 @feature('gtest')
@@ -171,16 +177,20 @@ class utest(Task.Task):
     ext_in = ['.bin']
     vars = []
     def runnable_status(self):
+        if isinstance(self.generator.target, str):
+            name = self.generator.target
+        elif isinstance(self.generator.target, list):
+            name = self.generator.target[0].bldpath()
+        else:
+            name = self.generator.target.bldpath()
         if Options.options.checkall:
             return Task.RUN_ME
-        if Options.options.checkone == self.generator.name:
+        if Options.options.checkone == name:
             return Task.RUN_ME
-        if isinstance(Options.options.checkfilter, str):
-            if match_filter(Options.options.checkfilter, self.generator.name):
-                return Task.RUN_ME
+        if match_filter(Options.options.checkfilter, name):
+            return Task.RUN_ME
         if Options.options.check:
             return super(utest, self).runnable_status()
-
         return Task.SKIP_ME
 
     def run(self):
