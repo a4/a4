@@ -112,7 +112,9 @@ def options(opt):
     opt.add_option('--checkone', action = 'store', default = False,
                    help = 'Execute specified unit test')
     opt.add_option('--checkfilter', action = 'store', default = False,
-                   help = 'Execute unit tests sprcified by pattern')
+                   help = 'Execute unit tests specified by pattern')
+    opt.add_option('--valgrind', action = 'store_true', default = False,
+                   help = 'Run all unit tests with valgrind')
 
 def match_filter(filt, targ):
     if isinstance(filt, str):
@@ -169,10 +171,6 @@ class utest(Task.Task):
     ext_in = ['.bin']
     vars = []
     def runnable_status(self):
-        stat = super(utest, self).runnable_status()
-        if stat != Task.SKIP_ME:
-            return stat
-
         if Options.options.checkall:
             return Task.RUN_ME
         if Options.options.checkone == self.generator.name:
@@ -180,8 +178,10 @@ class utest(Task.Task):
         if isinstance(Options.options.checkfilter, str):
             if match_filter(Options.options.checkfilter, self.generator.name):
                 return Task.RUN_ME
+        if Options.options.check:
+            return super(utest, self).runnable_status()
 
-        return stat
+        return Task.SKIP_ME
 
     def run(self):
         """
@@ -224,6 +224,13 @@ class utest(Task.Task):
             (_, _, filt) = Options.options.checkfilter.partition('.')
             if filt != "":
                 self.ut_exec += ['--gtest_filter=' + filt]
+
+        # Add valgrind if requested
+        if Options.options.valgrind:
+            self.ut_exec = ["valgrind", "--show-below-main=yes", "--trace-children=yes",
+                            "--suppressions=%s/.valgrind_suppression" % self.generator.bld.top_dir,
+                            "--suppressions=%s/.valgrind-python.supp" % self.generator.bld.top_dir,
+                            "--leak-check=full", "--error-exitcode=1"] + self.ut_exec
 
         cwd = getattr(self.generator, 'ut_cwd', '') or self.inputs[0].parent.abspath()
         proc = Utils.subprocess.Popen(self.ut_exec, cwd=cwd, env=fu, stderr=Utils.subprocess.STDOUT, stdout=Utils.subprocess.PIPE)

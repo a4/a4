@@ -7,6 +7,11 @@
 
 #include <a4/io/A4Stream.pb.h>
 
+static void __attribute__((destructor))
+destroy_protobuf(void) {
+    google::protobuf::ShutdownProtobufLibrary();
+}
+
 namespace google {
 namespace protobuf { 
     class Message;

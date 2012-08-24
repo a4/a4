@@ -1,115 +1,40 @@
 {
-   GoogleProtobufDescriptorPool1
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
-   fun:_ZNSsC1ERKSs
-   fun:_ZN6google8protobuf24SimpleDescriptorDatabase15DescriptorIndexISt4pairIPKviEE7AddFileERKNS0_19FileDescriptorProtoES6_
-}
-{
-   GoogleProtobufDescriptorPool2
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
-   fun:_ZNSs7reserveEm
-   fun:_ZNSs6appendERKSs
-   fun:_ZStplIcSt11char_traitsIcESaIcEESbIT_T0_T1_ERKS6_S8_
-   fun:_ZN6google8protobuf24SimpleDescriptorDatabase15DescriptorIndexISt4pairIPKviEE7AddFileERKNS0_19FileDescriptorProtoES6_
-}
-{
-   GoogleProtobufDescriptorPool3
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs12_S_constructIPcEES0_T_S1_RKSaIcESt20forward_iterator_tag
-   fun:_ZNSsC1ERKSsmm
-   fun:_ZN6google8protobuf17DescriptorBuilder10AddPackageERKSsRKNS0_7MessageEPKNS0_14FileDescriptorE
-}
-{
-   GoogleProtobufDescriptorPool4
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
-   fun:_ZNSsC1ERKSs
-   fun:_ZN6google8protobuf14DescriptorPool6Tables14AllocateStringERKSs
-}
-{
-   GoogleProtobufDescriptorPool5
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
-   fun:_ZNSsC1ERKSs
-   fun:_ZN6google8protobuf14DescriptorPool6Tables14AllocateStringERKSs
-}
-{
-   GoogleProtobufDescriptorPool6
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
-   fun:_ZNSs7reserveEm
-   fun:_ZNSs6appendERKSs
-   fun:_ZN6google8protobuf17DescriptorBuilder12BuildMessageERKNS0_15DescriptorProtoEPKNS0_10DescriptorEPS5_
-}
-{
-   GoogleProtobufDescriptorPool7
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
-   fun:_ZNSs7reserveEm
-   fun:_ZNSs6appendEmc
-   fun:_ZN6google8protobuf17DescriptorBuilder12BuildMessageERKNS0_15DescriptorProtoEPKNS0_10DescriptorEPS5_
-}
-{
-   GoogleProtobufDescriptorPool8
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
-   fun:_ZNSs7reserveEm
-   fun:_ZNSs6appendEmc
-   fun:_ZN6google8protobuf17DescriptorBuilder21BuildFieldOrExtensionERKNS0_20FieldDescriptorProtoEPKNS0_10DescriptorEPNS0_15FieldDescriptorEb
-}
-{
-   GoogleProtobufDescriptorPool9
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
-   fun:_ZNSs7reserveEm
-   fun:_ZNSs6appendEmc
-   fun:_ZN6google8protobuf17DescriptorBuilder9BuildEnumERKNS0_19EnumDescriptorProtoEPKNS0_10DescriptorEPNS0_14EnumDescriptorE
-}
-{
-   GoogleProtobufDescriptorPool10
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
-   fun:_ZNSs7reserveEm
-   fun:_ZNSs6appendERKSs
-   fun:_ZN6google8protobuf17DescriptorBuilder14BuildEnumValueERKNS0_24EnumValueDescriptorProtoEPKNS0_14EnumDescriptorEPNS0_19EnumValueDescriptorE
-}
-{
-   GoogleProtobufDescriptorPool11
-   Memcheck:Leak
-   fun:_Znwm
-   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
-   fun:_ZNSs4_Rep8_M_cloneERKSaIcEm
-   fun:_ZNSs7reserveEm
-   fun:_ZNSs6appendERKSs
-   fun:_ZN6google8protobuf17DescriptorBuilder21BuildFieldOrExtensionERKNS0_20FieldDescriptorProtoEPKNS0_10DescriptorEPNS0_15FieldDescriptorEb
-}
-
-{
    ZlibStart
    Memcheck:Cond
    fun:inflateReset2
    fun:inflateInit2_
 }
+{
+   Root1
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_ZN6TClass8AddClassEPS_
+   fun:_ZN6TClass4InitEPKcsPKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorES1_S1_iib
+   fun:_ZN6TClassC1EPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorES1_S1_iib
+   fun:_ZN4ROOT11CreateClassEPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorES1_S1_ii
+   fun:_ZNK4ROOT20TDefaultInitBehavior11CreateClassEPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorES2_S2_ii
+   fun:_ZN4ROOT17TGenericClassInfo8GetClassEv
+   fun:_ZN10TObjString5ClassEv
+   fun:_ZNK10TObjString7IsEqualEPK7TObject
+}
+{
+   Root2
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   fun:_ZNSs9_M_mutateEmmm
+   fun:_ZNSs15_M_replace_safeEmmPKcm
+   fun:_ZN9TClassRef6AssignEP6TClass
+   fun:_ZN4ROOT14TSchemaRuleSet8SetClassEP6TClass
+   fun:_ZN6TClass14GetSchemaRulesEb
+   fun:_ZN6TClass7AddRuleEPKc
+   fun:_ZN12_GLOBAL__N_116ReadRulesContentEP8_IO_FILE
+   fun:_ZN6TClass9ReadRulesEv
+   fun:_ZN5TROOTC1EPKcS1_PPFvvE
+   fun:_ZN4ROOT7GetROOTEv
+}
+
 
