@@ -1,0 +1,8 @@
+language: cpp
+script: ./waf fetch_deps go
+notifications:
+  email:
+    recipients:
+      - peter.waller@cern.ch
+    on_success: always
+    on_failure: always
