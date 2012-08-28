@@ -1,5 +1,14 @@
 language: cpp
-script: ./waf fetch_deps go
+
+before_script:
+  - sudo apt-get install libboost-all-dev
+  - sudo apt-get install protobuf-c-compiler
+  
+script: ./waf go
+
+after_script:
+  - ./waf --checkall
+
 notifications:
   email:
     recipients:
