@@ -493,6 +493,10 @@ def add_pack(bld, pack, other_packs=[], use=[]):
         if app.endswith(".cpp"):
             app_cppfiles[app[:-4]] = ["%s/src/apps/%s" % (pack, app)]
         else:
+            if app == "root2a4" and not bld.env.LIB_CERN_ROOT_SYSTEM:
+                # Temporary workaround to prevent root2a4 from being built
+                # if ROOT isn't available
+                continue
             fls = bld.path.ant_glob("%s/src/apps/%s/*.cpp" % (pack, app))
             app_cppfiles[app] = fls
     test_cppfiles = bld.path.ant_glob("%s/src/tests/*.cpp" % pack)

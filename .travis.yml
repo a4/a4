@@ -1,0 +1,18 @@
+language: cpp
+
+before_script:
+  - sudo apt-get install libprotobuf-dev protobuf-compiler
+  - wget http://pwaller.net/miniboost-bin.tar.bz2
+  - tar xf miniboost-bin.tar.bz2
+  
+script: ./waf go
+
+after_script:
+  - ./waf --checkall
+
+notifications:
+  email:
+    recipients:
+      - peter.waller@cern.ch
+    on_success: always
+    on_failure: always
