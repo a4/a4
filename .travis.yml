@@ -1,8 +1,9 @@
 language: cpp
 
 before_script:
-  - sudo apt-get install libboost-all-dev
-  - sudo apt-get install protobuf-c-compiler
+  - sudo apt-get install libprotobuf-dev protobuf-compiler
+  - wget http://pwaller.net/miniboost-bin.tar.bz2
+  - tar xf miniboost-bin.tar.bz2
   
 script: ./waf go
 
