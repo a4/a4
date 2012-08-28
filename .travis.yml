@@ -8,7 +8,7 @@ before_script:
 script: ./waf go
 
 after_script:
-  - ./waf --checkall
+  - ./waf --checkall --valgrind
 
 notifications:
   email:
