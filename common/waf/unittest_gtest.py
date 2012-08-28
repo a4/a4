@@ -237,10 +237,12 @@ class utest(Task.Task):
 
         # Add valgrind if requested
         if Options.options.valgrind:
-            self.ut_exec = ["valgrind", "--show-below-main=yes", "--trace-children=yes",
-                            "--suppressions=%s/.valgrind_suppression" % self.generator.bld.top_dir,
-                            "--suppressions=%s/.valgrind-python.supp" % self.generator.bld.top_dir,
-                            "--leak-check=full", "--error-exitcode=1"] + self.ut_exec
+            valgrind_call = ["valgrind", "--show-below-main=yes", "--trace-children=yes"]
+            valgrind_call.extend("--suppressions=%s/%s" % (self.generator.bld.top_dir, f) 
+                    for f in os.listdir(self.generator.bld.top_dir) 
+                    if f.startswith(".valgrind-") and f.endswith(".supp"))
+            valgrind_call.extend(("--leak-check=full", "--error-exitcode=1"))
+            self.ut_exec = valgrind_call + self.ut_exec
 
         cwd = getattr(self.generator, 'ut_cwd', '') or self.inputs[0].parent.abspath()
         proc = Utils.subprocess.Popen(self.ut_exec, cwd=cwd, env=fu, stderr=Utils.subprocess.STDOUT, stdout=Utils.subprocess.PIPE)
