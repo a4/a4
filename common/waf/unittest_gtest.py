@@ -37,6 +37,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import os, subprocess, sys
 from waflib.TaskGen import before, after, feature
 from waflib import Options, Task, Utils, Logs, Errors
+from fnmatch import fnmatch
 
 C1 = '#XXX'
 C2 = '#YYY'
@@ -112,20 +113,27 @@ def options(opt):
     opt.add_option('--checkone', action = 'store', default = False,
                    help = 'Execute specified unit test')
     opt.add_option('--checkfilter', action = 'store', default = False,
-                   help = 'Execute unit tests sprcified by pattern')
+                   help = 'Execute unit tests specified by pattern')
+    opt.add_option('--valgrind', action = 'store_true', default = False,
+                   help = 'Run all unit tests with valgrind')
 
 def match_filter(filt, targ):
     if isinstance(filt, str):
-        (pat, _, _) = filt.partition('.')
-        if pat == '*':
-            return True
-        return pat == targ
+        return fnmatch(str(targ), str(filt))
     return False
 
 @feature('testt', 'gtest', 'testsc')
 @before('process_rule')
 def test_remover(self):
-    if not Options.options.check and not Options.options.checkall and self.target != Options.options.checkone and not match_filter(Options.options.checkfilter, self.target):
+    if isinstance(self.target, str):
+        name = self.target
+    else:
+        name = self.target.bldpath()
+    keep = (Options.options.check or 
+            Options.options.checkall or 
+            name == Options.options.checkone or 
+            match_filter(Options.options.checkfilter, name))
+    if not keep:
         self.meths[:] = []
 
 @feature('gtest')
@@ -173,15 +181,19 @@ class utest(Task.Task):
         if stat != Task.SKIP_ME:
             return stat
 
+        if isinstance(self.generator.target, str):
+            name = self.generator.target
+        elif isinstance(self.generator.target, list):
+            name = self.generator.target[0].bldpath()
+        else:
+            name = self.generator.target.bldpath()
         if Options.options.checkall:
             return Task.RUN_ME
-        if Options.options.checkone == self.generator.name:
+        if Options.options.checkone == name:
             return Task.RUN_ME
-        if isinstance(Options.options.checkfilter, str):
-            if match_filter(Options.options.checkfilter, self.generator.name):
-                return Task.RUN_ME
-
-        return stat
+        if match_filter(Options.options.checkfilter, name):
+            return Task.RUN_ME
+        return Task.SKIP_ME
 
     def run(self):
         """
@@ -224,6 +236,15 @@ class utest(Task.Task):
             (_, _, filt) = Options.options.checkfilter.partition('.')
             if filt != "":
                 self.ut_exec += ['--gtest_filter=' + filt]
+
+        # Add valgrind if requested
+        if Options.options.valgrind:
+            valgrind_call = ["valgrind", "--show-below-main=yes", "--trace-children=yes"]
+            valgrind_call.extend("--suppressions=%s/%s" % (self.generator.bld.top_dir, f) 
+                    for f in os.listdir(self.generator.bld.top_dir) 
+                    if f.startswith(".valgrind-") and f.endswith(".supp"))
+            valgrind_call.extend(("--leak-check=full", "--error-exitcode=1"))
+            self.ut_exec = valgrind_call + self.ut_exec
 
         cwd = getattr(self.generator, 'ut_cwd', '') or self.inputs[0].parent.abspath()
         proc = Utils.subprocess.Popen(self.ut_exec, cwd=cwd, env=fu, stderr=Utils.subprocess.STDOUT, stdout=Utils.subprocess.PIPE)

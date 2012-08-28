@@ -34,7 +34,7 @@ public:
 
     LinkageCheck() {
         
-        if (getenv("A4_SKIP_LINKAGECHECK") != NULL)
+        if (getenv("A4_LINKAGECHECK") == NULL)
             return;
         
         if (stat("/proc/self/exe", &_program_stat) == -1) {
@@ -60,9 +60,8 @@ public:
                 ERROR("  ", *i);
             }
                   
-            TERMINATE("Linkage check failed. Recompile! Define A4_SKIP_LINKAGECHECK "
-                  "if you really really really want to try anyway. "
-                  "But don't complain if you get segfaults!");
+            TERMINATE("Linkage check failed - recompile! "
+                  "This error was reported since you defined A4_LINKAGECHECK.");
         }
     }
 };

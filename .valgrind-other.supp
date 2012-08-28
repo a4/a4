@@ -1,0 +1,40 @@
+{
+   ZlibStart
+   Memcheck:Cond
+   fun:inflateReset2
+   fun:inflateInit2_
+}
+{
+   Root1
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   fun:_ZNSs12_S_constructIPKcEEPcT_S3_RKSaIcESt20forward_iterator_tag
+   fun:_ZNSsC1EPKcRKSaIcE
+   fun:_ZN6TClass8AddClassEPS_
+   fun:_ZN6TClass4InitEPKcsPKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorES1_S1_iib
+   fun:_ZN6TClassC1EPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorES1_S1_iib
+   fun:_ZN4ROOT11CreateClassEPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorES1_S1_ii
+   fun:_ZNK4ROOT20TDefaultInitBehavior11CreateClassEPKcsRKSt9type_infoP16TVirtualIsAProxyPFvPvR16TMemberInspectorES2_S2_ii
+   fun:_ZN4ROOT17TGenericClassInfo8GetClassEv
+   fun:_ZN10TObjString5ClassEv
+   fun:_ZNK10TObjString7IsEqualEPK7TObject
+}
+{
+   Root2
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNSs4_Rep9_S_createEmmRKSaIcE
+   fun:_ZNSs9_M_mutateEmmm
+   fun:_ZNSs15_M_replace_safeEmmPKcm
+   fun:_ZN9TClassRef6AssignEP6TClass
+   fun:_ZN4ROOT14TSchemaRuleSet8SetClassEP6TClass
+   fun:_ZN6TClass14GetSchemaRulesEb
+   fun:_ZN6TClass7AddRuleEPKc
+   fun:_ZN12_GLOBAL__N_116ReadRulesContentEP8_IO_FILE
+   fun:_ZN6TClass9ReadRulesEv
+   fun:_ZN5TROOTC1EPKcS1_PPFvvE
+   fun:_ZN4ROOT7GetROOTEv
+}
+
+
