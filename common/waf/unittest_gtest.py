@@ -177,6 +177,10 @@ class utest(Task.Task):
     ext_in = ['.bin']
     vars = []
     def runnable_status(self):
+        stat = super(utest, self).runnable_status()
+        if stat != Task.SKIP_ME:
+            return stat
+
         if isinstance(self.generator.target, str):
             name = self.generator.target
         elif isinstance(self.generator.target, list):
@@ -189,8 +193,6 @@ class utest(Task.Task):
             return Task.RUN_ME
         if match_filter(Options.options.checkfilter, name):
             return Task.RUN_ME
-        if Options.options.check:
-            return super(utest, self).runnable_status()
         return Task.SKIP_ME
 
     def run(self):
