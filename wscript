@@ -467,8 +467,8 @@ def filter_a4atlas(bld, proto_sources):
     return final_proto_sources
 
 def add_pack(bld, pack, other_packs=[], use=[]):
-    from os import listdir
-    from os.path import dirname, join as pjoin
+    from os import listdir, readlink
+    from os.path import islink, dirname, join as pjoin
 
     # Add protoc rules
     proto_sources = bld.path.ant_glob("%s/proto/**/*.proto" % pack)
@@ -487,17 +487,24 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     lib_cppfiles = bld.path.ant_glob("%s/src/*.cpp" % pack)
 
     # Find applications and tests to be built
-    apps = listdir("%s/src/apps" % pack)
+    appdir = "%s/src/apps" % pack
+    apps = listdir(appdir)
     app_cppfiles = {}
     for app in apps:
-        if app.endswith(".cpp"):
-            app_cppfiles[app[:-4]] = ["%s/src/apps/%s" % (pack, app)]
+        if islink("%s/%s" % (appdir, app)) and not \
+                "/" in readlink("%s/%s" % (appdir, app)):
+            target = readlink("%s/%s" % (appdir, app))
+            if target.endswith(".cpp"):
+                target = target[:-4]
+            bld.symlink_as(pjoin(bld.env.BINDIR, app), target)
+        elif app.endswith(".cpp"):
+            app_cppfiles[app[:-4]] = ["%s/%s" % (appdir, app)]
         else:
             if app == "root2a4" and not bld.env.LIB_CERN_ROOT_SYSTEM:
                 # Temporary workaround to prevent root2a4 from being built
                 # if ROOT isn't available
                 continue
-            fls = bld.path.ant_glob("%s/src/apps/%s/*.cpp" % (pack, app))
+            fls = bld.path.ant_glob("%s/%s/*.cpp" % (appdir, app))
             app_cppfiles[app] = fls
     test_cppfiles = bld.path.ant_glob("%s/src/tests/*.cpp" % pack)
     test_scripts = bld.path.ant_glob("%s/src/tests/*.sh" % pack)
