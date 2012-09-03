@@ -3,7 +3,7 @@
 #include <unistd.h>
 
 #include <a4/application.h>
-#include <a4/io/A4Stream.pb.h>
+#include <a4/io/Tests.pb.h>
 
 #include <a4/output_stream.h>
 
