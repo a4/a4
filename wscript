@@ -65,8 +65,8 @@ def options(opt):
     opt.add_option('--enable-atlas-ntup', action="append", default=[],
         help="Build atlas ntup (e.g, photon, smwz)")
         
-    opt.add_option('--enable-a4-python', action="store_true",
-        help="Install a4 python modules (requires python 2.6)")
+    opt.add_option('--disable-a4-python', action="store_true",
+        help="Disable a4 python modules (they require python 2.6)")
 
 def configure(conf):
     import os
@@ -89,7 +89,7 @@ def configure(conf):
 
     conf.cc_add_flags()
     min_python_version = None
-    if conf.options.enable_a4_python:
+    if not conf.options.disable_a4_python:
         conf.env.enable_a4_python = "1"
         min_python_version = (2, 6)
     conf.check_python_version(min_python_version)
@@ -393,6 +393,11 @@ def write_this_a4(task):
         lines.append("export PKG_CONFIG_PATH=${PKG_CONFIG_PATH:+$PKG_CONFIG_PATH:}%s/pkgconfig"
                      % task.env.LIBPATH_PROTOBUF[0])
         pb_root = os.sep.join(task.env.LIBPATH_PROTOBUF[0].split(os.sep)[:-1])
+    if task.env.LIBPATH_SNAPPY:
+        lines.append("# Setup snappy since it is not installed")
+        lines.append("export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}%s"
+                     % task.env.LIBPATH_SNAPPY[0])
+    lines.append("# Setup a4 python libaries")
     lines.append("export PYTHONPATH=%s${PYTHONPATH:+:$PYTHONPATH}"
                  % os.path.join(pb_root, "python"))
 

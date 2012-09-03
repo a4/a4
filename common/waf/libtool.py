@@ -103,7 +103,9 @@ def apply_libtool(self):
 
 	for l in libs:
 		for p in paths:
-			dict = read_la_file(p+'/lib'+l+'.la')
+			path = p+'/lib'+l+'.la'
+			if not os.path.exists(path): continue
+			dict = read_la_file(path)
 			linkflags2 = dict.get('dependency_libs', '')
 			for v in linkflags2.split():
 				if v.endswith('.la'):
