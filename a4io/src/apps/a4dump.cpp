@@ -29,6 +29,8 @@ using google::protobuf::Reflection;
 
 #include <a4/input.h>
 #include <a4/input_stream.h>
+#include <a4/output.h>
+#include <a4/output_stream.h>
 #include <a4/message.h>
 #include <a4/dynamic_message.h>
 
@@ -404,7 +406,8 @@ bool dump_stream(shared<a4::io::InputStream> stream,
                   const bool short_form,
                   const std::vector<Selection>& selections,
                   const bool show_metadata,
-                  const bool dump_proto)
+                  const bool dump_proto,
+                  shared<a4::io::OutputStream> out_metadata)
 {
     
     if (show_footer) {
@@ -416,17 +419,18 @@ bool dump_stream(shared<a4::io::InputStream> stream,
         return true;
     }
     
-    if (show_metadata) {
+    if (show_metadata or out_metadata) {
         const auto& all_metadata = stream->all_metadata();
-        
-        VERBOSE("File contains ", all_metadata.size(), " header(s)");
-        
+        if (show_metadata) VERBOSE("File contains ", all_metadata.size(), " header(s)");
+        int i = 0;
         foreach (const auto& header, all_metadata) {
+            if (show_metadata) VERBOSE("---- Header Nr. ", i, " ---- ");
             foreach (const auto& metadata, header) {
-                dump_message(*metadata->message(), short_form);
+                if (show_metadata) dump_message(*metadata->message(), short_form);
+                if (out_metadata) out_metadata->metadata(*metadata->message());
             }
+            i++;
         }
-        
         stream->close();
         return true;
     }
@@ -526,6 +530,10 @@ try {
     a4::Fatal::enable_throw_on_segfault();
     a4::io::set_program_name(argv[0]);
 
+    bool is_a4info = (std::string("a4info") == std::string(basename(argv[0])));
+    DEBUG("argv[0] = ", argv[0]);
+    DEBUG("is a4info? ", is_a4info);
+
     namespace po = boost::program_options;
 
     std::vector<std::string> input_files, selection_strings;
@@ -534,8 +542,7 @@ try {
          internal_msg = false, dump_all = false, show_footer = false,
          show_metadata = false, dump_proto = false;
     bool verbose, quiet, debug;
-    
-    DEBUG("argv[0] = ", argv[0]);
+    std::string output_file;
     
     std::string invocation(boost::filesystem::path(argv[0]).filename().string());
     
@@ -554,17 +561,27 @@ try {
         ("verbose,v", po::bool_switch(&verbose), "verbose output")
         ("debug,d", po::bool_switch(&debug), "debug output")
         ("quiet,q", po::bool_switch(&quiet), "quiet output")
-        ("event-index,i", po::value(&event_index), "event to start dumping from (starts at 0)")
-        ("all,a", po::bool_switch(&dump_all), "dump all events")
-        ("number,n", po::value(&event_count), "maximum number to dump")
-        ("internal,I", po::bool_switch(&internal_msg), "also dump stream internal messages")
-        ("collect-stats,S", po::bool_switch(&collect_stats), "should collect statistics for all numeric variables")
-        ("message-info,M", po::bool_switch(&message_info), "should collect statistics relating to the message")
         ("short-form,s", po::bool_switch(&short_form), "print in a compact form, one event per line")
-        ("select", po::value(&selection_strings), "Select messages by string equality (e.g. --select event_number:1234)")
+        ;
+    if (not is_a4info) {
+        commandline_options.add_options()
+            ("event-index,i", po::value(&event_index), "event to start dumping from (starts at 0)")
+            ("all,a", po::bool_switch(&dump_all), "dump all events")
+            ("number,n", po::value(&event_count), "maximum number to dump")
+            ("metadata,m", po::bool_switch(&show_metadata), "Show only metadata")
+            ("internal,I", po::bool_switch(&internal_msg), "also dump stream internal messages")
+            ("collect-stats,S", po::bool_switch(&collect_stats), "should collect statistics for all numeric variables")
+            ("message-info,M", po::bool_switch(&message_info), "should collect statistics relating to the message")
+            ("select", po::value(&selection_strings), "Select messages by string equality (e.g. --select event_number:1234)")
+        ;
+    } else {
+        dump_all = true;
+        show_metadata = true;
+    }
+    commandline_options.add_options()
         ("footer,f", po::bool_switch(&show_footer), "Show information from the footer (e.g. object counts)")
-        ("metadata,m", po::bool_switch(&show_metadata), "Show only metadata")
         ("proto,p", po::bool_switch(&dump_proto), "Dump .proto files")
+        ("skim-metadata", po::value(&output_file)->default_value(""), "Write encountered metadata to this file")
         ("input", po::value(&input_files), "input file names (runs once per specified file)")
     ;
     
@@ -590,6 +607,14 @@ try {
     
     foreach (std::string filename, input_files)
         in.add_file(filename);
+
+    shared<a4::io::A4Output> out;
+    shared<a4::io::OutputStream> outs;
+    if (output_file != "") {
+        out.reset(new a4::io::A4Output(output_file, "Metadata"));
+        outs = out->get_stream();
+        outs->set_forward_metadata();
+    }
         
     std::vector<Selection> selections;
     foreach (auto& selection_string, selection_strings)
@@ -598,10 +623,10 @@ try {
     while (shared<a4::io::InputStream> stream = in.get_stream()) {
         if (!dump_stream(stream, show_footer, internal_msg, collect_stats, 
                          message_info, dump_all, event_index, event_count, 
-                         short_form, selections, show_metadata, dump_proto))
+                         short_form, selections, show_metadata, dump_proto,
+                         outs))
             return 1;
     }
-    
     return 0;
 }
 catch(a4::Terminate& x)
