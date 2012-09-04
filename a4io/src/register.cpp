@@ -6,6 +6,7 @@
 #include <a4/register.h>
 
 #include <a4/io/A4Stream.pb.h>
+#include <a4/io/Tests.pb.h>
 
 static void __attribute__((destructor))
 destroy_protobuf(void) {

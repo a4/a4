@@ -10,7 +10,7 @@ using a4::store::TestHistoMetaData;
 A4RegisterClass(a4::store::TestHisto);
 A4RegisterClass(a4::store::TestHistoMetaData);
 
-#include <a4/io/A4Stream.pb.h>
+#include <a4/io/Tests.pb.h>
 
 using namespace a4::process;
 using namespace a4::io;

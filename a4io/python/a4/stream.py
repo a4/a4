@@ -479,7 +479,7 @@ def test_read(fn, n_events):
     assert cnt == n_events
 
 def test_rw_forward(fn):
-    from a4.io.A4Stream_pb2 import TestEvent, TestMetaData
+    from a4.io.Tests_pb2 import TestEvent, TestMetaData
     w = OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True, metadata_refers_forward=True)
     e = TestEvent()
     m = TestMetaData()
@@ -497,7 +497,7 @@ def test_rw_forward(fn):
 
 
 def test_rw_backward(fn):
-    from a4.io.A4Stream_pb2 import TestEvent, TestMetaData
+    from a4.io.Tests_pb2 import TestEvent, TestMetaData
     w = OutputStream(file(fn,"w"), "TestEvent", TestEvent, TestMetaData, True)
     e = TestEvent()
     for i in range(500):
