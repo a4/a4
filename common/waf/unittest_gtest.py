@@ -102,7 +102,8 @@ def configure(conf):
     except:
       conf.msg('Unpacking gtest', 'no')
       Logs.error(sys.exc_info()[1])
-
+    
+    conf.find_program("valgrind", var="VALGRIND", mandatory=False)
     conf.check_cxx(lib = 'pthread', uselib_store = 'GTEST_PTHREAD')
 
 def options(opt):
@@ -239,7 +240,9 @@ class utest(Task.Task):
 
         # Add valgrind if requested
         if Options.options.valgrind:
-            valgrind_call = ["valgrind", "--show-below-main=yes", "--trace-children=yes"]
+            if not self.env.VALGRIND:
+                raise RuntimeError("Valgrind requested but wasn't found at configure time")
+            valgrind_call = [self.env.VALGRIND, "--show-below-main=yes", "--trace-children=yes"]
             valgrind_call.extend("--suppressions=%s/%s" % (self.generator.bld.top_dir, f) 
                     for f in os.listdir(self.generator.bld.top_dir) 
                     if f.startswith(".valgrind-") and f.endswith(".supp"))
