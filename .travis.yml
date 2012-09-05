@@ -1,7 +1,7 @@
 language: cpp
 
 before_script:
-  - sudo apt-get install libprotobuf-dev protobuf-compiler
+  - sudo apt-get install libprotobuf-dev protobuf-compiler valgrind
   - wget http://pwaller.net/miniboost-bin.tar.bz2
   - tar xf miniboost-bin.tar.bz2
   
