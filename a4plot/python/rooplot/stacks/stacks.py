@@ -44,14 +44,14 @@ def get_legend(data, sum_mc, list_mc, signals):
     return legend
 
 #NB: [ATLAS Preliminary label for when plots are approved only: 
-def get_lumi_label(lumi="168 pb^{-1}", atlas=True, draft=True):
+def get_lumi_label(lumi="168 pb^{-1}",centermass="8", atlas=True, draft=True):
     x, y = lmargin + 0.03, (0.75 if atlas else 0.77)
     n = TLatex()
     n.SetNDC()
     n.SetTextFont(32)
     n.SetTextColor(kBlack)
-    n.SetTextSize(tsize*1.33)
-    n.DrawLatex(x, y,"#intL dt = %s, #sqrt{s} = 7 TeV" % (lumi))
+    n.SetTextSize(tsize*1.25)
+    n.DrawLatex(x, y,"#intL dt = %s, #sqrt{s} = %s TeV" % (lumi,centermass))
     #x, y = 0.21, 0.65
     x, y = 0.18, 0.85
     if not atlas:
@@ -150,7 +150,7 @@ def set_styles(data, mcs, signals):
 from ROOT import gPad, kOrange, kRed
 saver = []
 
-def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin_to=None, range=None, compare=False, sigma=False, log=False, prelim=False, cuts_left=(), cuts_right=()):
+def stack_1D(name, data, list_mc, signals, lumi="X",centermass="8", rebin=1, sum_mc=None, rebin_to=None, range=None, compare=False, sigma=False, log=False, prelim=False, cuts_left=(), cuts_right=()):
     data = [h.Clone() for h in data]
     list_mc = [h.Clone() for h in list_mc]
     signals = [h.Clone() for h in signals]
@@ -313,7 +313,7 @@ def stack_1D(name, data, list_mc, signals, lumi="X", rebin=1, sum_mc=None, rebin
 
     dhist = mcstack if mcstack else [signals + data][0]
     
-    lumiLabel, atlasLabel = get_lumi_label(lumi, atlas=prelim, draft=True)
+    lumiLabel, atlasLabel = get_lumi_label(lumi, centermass, atlas=prelim, draft=True)
     lumiLabel.Draw()
     if atlasLabel:
         atlasLabel.Draw()

@@ -45,6 +45,7 @@ if do_plot:
     parser.add_option("-u", "--unit", action="append", default=[], help="units of the x axis of the plot %s"%once_per_p)
     parser.add_option("--left-cut", action="append", default=[], help="add a left cut mark at this position")
     parser.add_option("--right-cut", action="append", default=[], help="add a right cut mark at this position")
+    parser.add_option("--centermass", default="8", help="square of center-of-mass energy in TeV")
 
 (options, args) = parser.parse_args()
 
@@ -494,7 +495,7 @@ def plot_1d(hn, examplehisto, bg_files, sg_files, data_files, content, mcsum, st
 
     def get_draw(log,cmp,sgm):
         def draw():
-            legend, stack, summc, hsave, save = plot_1D(hn, data, bg, sg, sum_mc=sum_mc, lumi=disp, range=x_range_bin.get(hn,None), compare=cmp, sigma=sgm, log=log, prelim=options.preliminary,cuts_left=cuts_left,cuts_right=cuts_right)
+            legend, stack, summc, hsave, save = plot_1D(hn, data, bg, sg, sum_mc=sum_mc, lumi=disp, centermass=options.centermass, range=x_range_bin.get(hn,None), compare=cmp, sigma=sgm, log=log, prelim=options.preliminary,cuts_left=cuts_left,cuts_right=cuts_right)
             if stack:
                 stack.GetXaxis().SetTitle(examplehisto.GetXaxis().GetTitle())
                 stack.GetYaxis().SetTitle(examplehisto.GetYaxis().GetTitle())
