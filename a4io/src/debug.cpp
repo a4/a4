@@ -46,4 +46,6 @@ namespace {
             a4::io::set_log_level(log_level);
         }
     };
+    
+    static Initializer init;
 }
