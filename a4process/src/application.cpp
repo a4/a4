@@ -226,7 +226,9 @@ try {
     output_adaptor->merge_key = self->metakey;
     output_adaptor->split_key = self->split_metakey;
     
+#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
     boost::chrono::thread_clock::time_point start = boost::chrono::thread_clock::now();
+#endif
 
     self->set_output_adaptor(p, output_adaptor.get());
 
@@ -334,7 +336,9 @@ try {
         p->process_end_metadata();
     // Stream store to output
     output_adaptor->end_block();
+#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
     stats.cputime = boost::chrono::thread_clock::now() - start;
+#endif
     stats.events = cnt;
 } catch (...) {
     error = std::current_exception();
@@ -518,7 +522,9 @@ try
     VERBOSE("A4 processed ", total.events, " objects in ", walltime.count(),
             " seconds. (", total.events / walltime.count(), "Hz)");
 
+#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
     VERBOSE("CPU time: ", total.cputime, " (", total.events / total.cputime.count(), "Hz)");
+#endif
     
     const double megabytes = total.bytes / (1024.*1024.);
     VERBOSE("Total data read ", megabytes, " (MB) Rate: ", megabytes / walltime.count(), " (MB/s)");
