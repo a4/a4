@@ -73,7 +73,9 @@ class MetadataFactory
 {
     
     chrono::steady_clock::time_point _start_wallclock;
+#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
     chrono::thread_clock::time_point _start_cpuclock;
+#endif
     
     const Descriptor* _desc;
     const Reflection* _refl;
@@ -538,15 +540,22 @@ int main(int argc, char ** argv) {
     }
     
     {
+#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
         chrono::thread_clock::time_point cpustart = chrono::thread_clock::now();
+#endif
         
         copy_chain(input, stream, &dynamic_factory, descriptor, event_count, 
             metadata_frequency, initial_offset);
             
-            
-        duration cputime  = chrono::thread_clock::now() - cpustart,
-                 walltime = chrono::steady_clock::now() - wallstart;
-        INFO("Took ", walltime, " to run (", cputime, " CPU)");
+#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
+        duration cputime  = chrono::thread_clock::now() - cpustart;
+#endif
+        duration walltime = chrono::steady_clock::now() - wallstart;
+        INFO("Took ", walltime, " to run"
+#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
+             "(", cputime, " CPU)"
+#endif
+            );
     }
 
     foreach(std::string s, get_list_of_leaves()) {

@@ -1,0 +1,23 @@
+#! /usr/bin/env bash
+
+export CCACHE_DISABLE=1
+
+if echo "$@" | grep " -o "; then
+  OUTPUT="$(echo "$@" | sed -E 's/^.* -o ([^ ]+).*$/\1/g')".time
+else
+  OUTPUT="unknown-outputname.time"
+fi
+
+THIS_PATH="$(readlink -f "$(dirname "$0")")"
+EXECUTABLE="$(basename "$0")"
+
+# Remove ourselves from the path
+IFS=:
+t=($PATH)
+unset IFS
+t=(${t[@]%%$THIS_PATH})
+IFS=:
+export PATH="${t[*]}"
+unset IFS
+
+/usr/bin/time -o "$OUTPUT" -v "$EXECUTABLE" "$@"
