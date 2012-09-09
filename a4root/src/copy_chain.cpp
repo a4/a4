@@ -96,8 +96,9 @@ public:
     virtual void reset_counters()
     {
         _start_wallclock = chrono::steady_clock::now();
+#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
         _start_cpuclock = chrono::thread_clock::now();
-        
+#endif        
         _input_events = _input_bytes_read = 0;
         
         _metadata.Clear();
@@ -149,8 +150,9 @@ public:
         p.set_name("root2a4");
     
         p.set_walltime((chrono::steady_clock::now() - _start_wallclock).count());
+#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
         p.set_cputime((chrono::thread_clock::now() - _start_cpuclock).count());
-        
+#endif        
         p.set_input_events(_input_events);
         p.set_input_bytes_read(_input_bytes_read);
         
