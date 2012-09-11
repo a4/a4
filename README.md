@@ -11,6 +11,8 @@ applied to physics analysis.
 For instructions on how to install A4, see INSTALL. 
 More documentation is in the [doc/](http://liba4.net/a4/blob/master/doc/) directory. 
 See also the [FAQ](http://liba4.net/a4/blob/master/doc/FAQ.md).
+An overview of the structure and a preliminary look at the performance is available at
+[arxiv:1208.1600](http://arxiv.org/abs/1208.1600).
 
 If you are impatient, try:
 

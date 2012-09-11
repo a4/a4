@@ -39,6 +39,8 @@ are other optional libraries which provide help with analysis: `a4atlas`,
 `a4hist`, `a4plot`, `a4process`, `a4root` and `a4store`. In addition, `a4store`
 can optionally be used by itself with CERN ROOT.
 
+An overview of A4 and preliminary benchmark results are given at [arxiv:1208.1600](http://arxiv.org/abs/1208.1600).
+
 
 What do I need?
 ---------------
