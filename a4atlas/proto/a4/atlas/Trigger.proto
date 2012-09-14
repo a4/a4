@@ -16,6 +16,8 @@ message Trigger
         L1_MU11 = 55;
         L1_MU15 = 56;
         L1_MU20 = 57;
+        L2_mu24_tight = 62;
+        L2_mu36_tight = 63;
 
         L2_mu15 = 43;
         L2_mu15_medium = 44;
@@ -30,10 +32,10 @@ message Trigger
         L2_mu20_MG = 51;
         L2_mu20_MG_medium = 52;
 
-        L2_mu22 = 49;
-        L2_mu22_medium = 50;
-        L2_mu22_MG = 51;
-        L2_mu22_MG_medium = 52;
+        L2_mu22 = 58;
+        L2_mu22_medium = 59;
+        L2_mu22_MG = 60;
+        L2_mu22_MG_medium = 61;
 
         L2_mu40_MSonly_barrel = 53;
         L2_mu40_MSonly_barrel_medium = 54;
@@ -46,6 +48,11 @@ message Trigger
         EF_e22vh_medium1 = 19; //# PRIMARY 2011
         EF_e40_medium1 = 23;
         EF_e45_medium1 = 24; //# SECONDARY 2011
+        EF_e22vhi_medium1 = 64;
+        EF_e24vh_medium1 = 65;
+        EF_e24vhi_medium1 = 66;
+        EF_e60_medium1 = 67;
+        EF_e24vh_medium1_e7_medium1 = 68;
 
         // Di- and Multielectron Triggers
         EF_2e10_medium = 25;
@@ -54,6 +61,7 @@ message Trigger
         EF_2e12Tvh_medium = 27;
         EF_2e15_medium = 28;
         EF_2e15vh_medium = 29;
+        EF_2e12Tvh_loose1 = 69;
         
         // Gamma triggers
         EF_g20_loose = 30;
@@ -62,6 +70,8 @@ message Trigger
         EF_g80_loose = 33;
         EF_g100_loose = 34;
         EF_2g20_loose = 14;
+        EF_g120_loose = 70;
+        EF_g200_etcut = 71;
 
         // Single Muon Trigger
         EF_mu10_MG = 6;
@@ -79,6 +89,15 @@ message Trigger
         EF_mu40_MSonly_tight = 39;
         EF_mu40_MSonly_barrel = 16;
         EF_mu40_MSonly_barrel_medium = 21;
+        EF_mu24i_tight = 72;
+        EF_mu24_tight = 73;
+        //EF_mu36i_tight = 74; already defined
+        EF_mu20i_tight = 75;
+        EF_mu24_medium = 76;
+        EF_mu36_tight = 77;
+        EF_mu36i_tight = 78;
+        EF_mu40_MSonly_barrel_tight = 79;
+        EF_mu50_MSonly_barrel_tight = 102;
 
         // Dimuon triggers
         EF_2mu10 = 12;
@@ -88,7 +107,32 @@ message Trigger
 
         // e/mu triggers
         EF_e10_medium_mu6 = 11;
-        // Next ID: 58
+
+        //rest of 2012 triggers
+        EF_2mu13 = 80;
+        EF_mu18_tight_mu8_EFFS = 81;
+        EF_mu24_tight_mu6_EFFS  = 82;
+        EF_3mu6 = 83;
+        EF_3mu6_MSonly = 84;
+        EF_mu18_tight_2mu4_EFFS = 85;
+        EF_2mu4T_xe60_tclcw = 86;
+        EF_2mu8_EFxe40_tclcw = 87;
+        EF_mu4T_j65_a4tchad_xe60_tclcw_loose = 88;
+        EF_mu24_j65_a4tchad_EFxe40_tclcw = 89;
+        EF_mu24_tight_4j35_a4tchad = 90;
+        EF_e12Tvh_medium1_mu8 = 91;
+        EF_mu18_tight_e7_medium1 = 92;
+        EF_2e7T_loose1_mu6 = 93;
+        EF_mu24_g20_medium1 = 94;
+        EF_7T_loose1_2mu6 = 95;
+        EF_mu18_2g10_medium1 = 96;
+        EF_3mu6tau20_medium1_mu15 = 97;
+        EF_e13_etcutTrk_xs60 = 98;
+        EF_e20_etcutTrk_xe20 = 99;
+        EF_e13_etcutTrk_xs60_dphi2j15xe20 = 100;
+        EF_e20_etcutTrk_xs60_dphi2j15xe20 = 101;
+        
+        // Next ID: 103
     }
 
     required TriggerName name = 1;
