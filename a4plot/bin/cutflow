@@ -41,7 +41,7 @@ if do_plot:
     once_per_p = "(specify once for each -p option)"
     parser.add_option("-b", "--rebin", action="append", default=[], help="rebin factor %s"%once_per_p)
     parser.add_option("-x", "--xtitle", action="append", default=[], help="label of the x axis of the plot %s"%once_per_p)
-    parser.add_option("-r", "--range", action="append", default=[], help="range of x axis of the plot, format: <nbins>,<start>-<end> or <start>-<end> or only <nbins> %s"%once_per_p)
+    parser.add_option("-r", "--range", action="append", default=[], help="range of x axis of the plot, format: <nbins>,<start>..<end> or <start>..<end> or only <nbins> %s"%once_per_p)
     parser.add_option("-u", "--unit", action="append", default=[], help="units of the x axis of the plot %s"%once_per_p)
     parser.add_option("--left-cut", action="append", default=[], help="add a left cut mark at this position")
     parser.add_option("--right-cut", action="append", default=[], help="add a right cut mark at this position")
