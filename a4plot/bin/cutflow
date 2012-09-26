@@ -619,10 +619,10 @@ if __name__=="__main__":
     else:
         raise Exception("What to do?")
 
-
-if options.interactive:
-    import time
-    time.sleep(10000000)
+if do_plot:
+    if options.interactive:
+        import time
+        time.sleep(10000000)
 
 import os, sys
 sys.stdout.close()
