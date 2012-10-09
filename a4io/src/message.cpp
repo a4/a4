@@ -52,9 +52,7 @@ namespace a4{ namespace io{
     {
         // Make sure that the read stream that the original message references
         // is read. After this call m._bytes or m._message (or both) are valid.
-        if (not m._coded_in.expired()) {
-            m.invalidate_stream();
-        }
+        m.invalidate_stream();
         _descriptor = m._descriptor;
         _size = m._size;
         _valid_bytes = m._valid_bytes;
@@ -62,11 +60,10 @@ namespace a4{ namespace io{
 
         // If the original message is not present in serialized form
         // (_valid_bytes) then save the serialization
-        if (m._message and not _valid_bytes) {
-            _bytes = m._message->SerializeAsString();
-            _valid_bytes = true;
+        if (m._message) {
+            _message.reset(m._message->New());
+            _message->CopyFrom(*m._message);
         }
-        // Note: _message is not copied, since that would entangle the messages
         assert_valid();
     }
     
