@@ -110,6 +110,8 @@ message Event
     repeated Jet jets_antikt4lctopo = 42;
 
     optional int32 error_state_lar = 50;
+    optional int32 error_state_tile = 107;
+    optional int32 error_state_coreflag = 108; 
 
     enum HFORDecision {
         None = 0;

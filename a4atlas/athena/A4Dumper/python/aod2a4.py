@@ -237,6 +237,8 @@ class AOD2A4Base(PyAthena.Alg):
         event.lumi_block = eid.lumi_block()
         event.bunch_crossing_id = eid.bunch_crossing_id()
         event.error_state_lar = self.event_info.errorState(self.event_info.LAr)
+        event.error_state_tile = self.event_info.errorState(self.event_info.Tile)
+        event.error_state_coreflag = self.event_info.errorState(self.event_info.Core)
 
         effective_run = event.run_number
         event_weight = 1.0
