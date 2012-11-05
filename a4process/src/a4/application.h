@@ -17,14 +17,19 @@ namespace a4 {
             public:
                 SimpleCommandLineDriver(Configuration *);
                 int main(int argc, const char* argv[]);
+
             protected:
-                static void simple_thread(SimpleCommandLineDriver*, Processor *, int, ProcessStats&, std::exception_ptr&);
+                static void simple_thread(SimpleCommandLineDriver*, Processor *,
+                        int, ProcessStats&, std::exception_ptr&);
+
                 Processor* new_initialized_processor();
-                Configuration* configuration;
-                std::string metakey, split_metakey;
-                shared<a4::io::A4Input> in;
-                shared<a4::io::A4Output> out, res;
-                int threads;
+                Configuration* _configuration;
+                std::string _metakey, _split_metakey;
+
+                shared<a4::io::A4Input> _input;
+                shared<a4::io::A4Output> _output, _result;
+
+                int _threads;
                 std::string _compression_string;
                 a4::io::OutputStream::CompressionType _compression_type;
                 int _compression_level;
