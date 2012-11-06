@@ -1,24 +1,27 @@
 #ifndef _A4_INPUT_STREAM_IMPL_
 #define _A4_INPUT_STREAM_IMPL_
 
-#include <tuple>
-#include <unordered_set>
 #include <a4/types.h>
-
-#include "base_compressed_streams.h"
-#include "proto_class_pool.h"
-#include "zero_copy_resource.h"
-
 #include <a4/io/A4Stream.pb.h>
 
-#include <boost/thread.hpp>
-#include <boost/thread/locks.hpp>
-typedef boost::unique_lock<boost::mutex> Lock;
+#include <tuple>
+#include <unordered_set>
+#include <vector>
 
-using std::string;
+namespace google {
+namespace protobuf {
+
+class Descriptor;
+class FileDescriptor;
+class Message;
+
+}
+}
 
 namespace a4 {
 namespace io {
+
+class A4Message;
 
 class InputStreamImpl
 {
@@ -58,7 +61,7 @@ class InputStreamImpl
         virtual const std::vector<StreamFooter>& footers() = 0;
         virtual std::vector<const google::protobuf::FileDescriptor*> get_filedescriptors() = 0;
         virtual void set_hint_copy(bool hint_copy) = 0;
-        virtual bool try_read(Message & msg, const google::protobuf::Descriptor* d) = 0;
+        virtual bool try_read(google::protobuf::Message & msg, const google::protobuf::Descriptor* d) = 0;
 };
 
 }

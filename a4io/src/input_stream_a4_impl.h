@@ -1,28 +1,31 @@
 #ifndef _A4_INPUT_STREAM_A4_IMPL_
 #define _A4_INPUT_STREAM_A4_IMPL_
 
+#include <a4/types.h>
+
+#include <string>
 #include <tuple>
 #include <unordered_set>
-#include <a4/types.h>
+#include <vector>
 
 #include "base_compressed_streams.h"
 #include "proto_class_pool.h"
 #include "zero_copy_resource.h"
 
+#include <a4/message.h>
 #include <a4/io/A4Stream.pb.h>
 
 #include <boost/thread.hpp>
 #include <boost/thread/locks.hpp>
 typedef boost::unique_lock<boost::mutex> Lock;
 
-using std::string;
 const uint32_t HIGH_BIT = 1 << 31;
-const string START_MAGIC = "A4STREAM";
-const string END_MAGIC = "KTHXBYE4";
+const std::string START_MAGIC = "A4STREAM";
+const std::string END_MAGIC = "KTHXBYE4";
 const int START_MAGIC_len = 8;
 const int END_MAGIC_len = 8;
 
-#include "input_stream_impl.h"
+#include <a4/input_stream_impl.h>
 
 namespace a4 {
 namespace io {
@@ -273,7 +276,7 @@ bool InputStreamA4Impl::handle_stream_command(shared<A4Message> msg) {
         if (!_coded_in->ReadLittleEndian32(&size))
             FATAL("Unexpected end of file [3]!");
         
-        string magic;
+        std::string magic;
         if (!_coded_in->ReadString(&magic, 8))
             FATAL("Unexpected end of file [4]!");
             

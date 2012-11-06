@@ -126,7 +126,7 @@ bool InputStreamA4Impl::read_header(bool discovery_requested)
     if (_hint_copy) notify_last_unread_message();
     // Note: in the following i use that bool(set_end()) == false 
     // && bool(set_error()) == false
-    string magic;
+    std::string magic;
     if (!_coded_in->ReadString(&magic, 8))
         return set_end();
 
@@ -203,7 +203,7 @@ bool InputStreamA4Impl::discover_all_metadata() {
         if (seek_back(-size - END_MAGIC_len) == -1)
             return false;
         
-        string magic;
+        std::string magic;
         if (!_coded_in->ReadString(&magic, 8)) {
             ERROR("Unexpected EOF during metadata scan");
             return false;
