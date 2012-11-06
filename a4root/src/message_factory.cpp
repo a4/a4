@@ -32,7 +32,7 @@ using google::protobuf::Reflection;
 #include <a4/string.h>
 #include <a4/exceptions.h>
 
-#include "common.h"
+#include <a4/root/common.h>
 
 #include "a4/root/RootExtension.pb.h"
 
@@ -156,7 +156,7 @@ Copier make_copier_from_leaf(TBranch* branch, TLeaf* leaf,
     
     switch (field->cpp_type())
     {
-        #include "apps/root2a4/convertable_types.cc"
+        #include "convertable_types.cc"
         
         default:
             FATAL("Unknown field type in make_copier_from_branch ", field->cpp_type());
@@ -328,7 +328,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
     
     switch (field->cpp_type())
     {
-        #include "apps/root2a4/convertable_types.cc"
+        #include "convertable_types.cc"
         
         default:
             FAILURE(str_cat("field with typecode", field->cpp_type()));
