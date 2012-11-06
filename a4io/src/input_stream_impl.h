@@ -24,135 +24,135 @@ const int END_MAGIC_len = 8;
 
 namespace a4{ namespace io{
 
-    class InputStreamImpl
-    {
-        public:
-            InputStreamImpl(UNIQUE<ZeroCopyStreamResource>, std::string name);
-            virtual ~InputStreamImpl();
+class InputStreamImpl
+{
+    public:
+        InputStreamImpl(UNIQUE<ZeroCopyStreamResource>, std::string name);
+        virtual ~InputStreamImpl();
 
-            /// Returns the next regular message in the stream.
-            shared<A4Message> next(bool skip_metadata=true);
-            /// Returns the next bare message in the stream.
-            shared<A4Message> next_bare_message();
-            /// Returns the next regular or metadata message in the stream.
-            shared<A4Message> next_with_metadata() { return next(false); }
-            /// Return the current metadata message.
-            shared<const A4Message> current_metadata() {return _current_metadata; }
-            /// Seek to the given header/metadata combination.
-            /// If carry==false, specifying a metadata index not in that header section
-            /// causes an exception, otherwise the next header is used, or false is returned on EOF.
-            bool seek_to(uint32_t header, int32_t metadata, bool carry=false);
-            /// Skip to the start of the next metadata block. Return false if EOF, true if not.
-            bool skip_to_next_metadata() {
-                return seek_to(_current_header_index, _current_metadata_index+1, true);
+        /// Returns the next regular message in the stream.
+        shared<A4Message> next(bool skip_metadata=true);
+        /// Returns the next bare message in the stream.
+        shared<A4Message> next_bare_message();
+        /// Returns the next regular or metadata message in the stream.
+        shared<A4Message> next_with_metadata() { return next(false); }
+        /// Return the current metadata message.
+        shared<const A4Message> current_metadata() {return _current_metadata; }
+        /// Seek to the given header/metadata combination.
+        /// If carry==false, specifying a metadata index not in that header section
+        /// causes an exception, otherwise the next header is used, or false is returned on EOF.
+        bool seek_to(uint32_t header, int32_t metadata, bool carry=false);
+        /// Skip to the start of the next metadata block. Return false if EOF, true if not.
+        bool skip_to_next_metadata() {
+            return seek_to(_current_header_index, _current_metadata_index+1, true);
+        }
+        /// True if new metadata has appeared since the last call to this function.
+        bool new_metadata() { 
+            if (!_started) startup();
+            if (_new_metadata) {
+                _new_metadata = false;
+                return true;
             }
-            /// True if new metadata has appeared since the last call to this function.
-            bool new_metadata() { 
-                if (!_started) startup();
-                if (_new_metadata) {
-                    _new_metadata = false;
-                    return true;
-                }
-                return false;
+            return false;
+        }
+        /// True if the stream has not ended or encountered an error.
+        bool good() { return _good; }
+        /// True if the stream has encountered an error.
+        bool error() { return _error; }
+        /// True if the stream has finished without error.
+        bool end() { return !_error && !_good; }
+        /// explicitely close the stream
+        void close() {
+            _coded_in.reset();
+            _compressed_in.reset();
+            _raw_in.reset();
+            _good = false;
+        };
+        
+        size_t ByteCount() { return _raw_in->ByteCount(); }
+
+        std::string str() { return _inputname; };
+        
+        const std::vector<std::vector<shared<a4::io::A4Message>>>& all_metadata() {
+            if (_metadata_per_header.size() == 0) {
+                if (_started)
+                    FATAL("Coding Bug: all_metadata first called after reading started!");
+                startup(true);
             }
-            /// True if the stream has not ended or encountered an error.
-            bool good() { return _good; }
-            /// True if the stream has encountered an error.
-            bool error() { return _error; }
-            /// True if the stream has finished without error.
-            bool end() { return !_error && !_good; }
-            /// explicitely close the stream
-            void close() {
-                _coded_in.reset();
-                _compressed_in.reset();
-                _raw_in.reset();
-                _good = false;
-            };
-            
-            size_t ByteCount() { return _raw_in->ByteCount(); }
-
-            std::string str() { return _inputname; };
-            
-            const std::vector<std::vector<shared<a4::io::A4Message>>>& all_metadata() {
-                if (_metadata_per_header.size() == 0) {
-                    if (_started)
-                        FATAL("Coding Bug: all_metadata first called after reading started!");
-                    startup(true);
-                }
-                return _metadata_per_header;
+            return _metadata_per_header;
+        }
+        
+        const std::vector<StreamFooter>& footers() {
+            if (_footers.size() == 0) {
+                if (_started) 
+                    FATAL("Coding Bug: footers() first called after reading started!");
+                startup(true);
             }
-            
-            const std::vector<StreamFooter>& footers() {
-                if (_footers.size() == 0) {
-                    if (_started) 
-                        FATAL("Coding Bug: footers() first called after reading started!");
-                    startup(true);
-                }
-                return _footers;
+            return _footers;
+        }
+        
+        std::vector<const google::protobuf::FileDescriptor*> get_filedescriptors() {
+            if (not _current_class_pool) {
+                if (_started) 
+                    FATAL("Coding Bug: footers() first called after reading started!");
+                startup(true);
             }
-            
-            std::vector<const google::protobuf::FileDescriptor*> get_filedescriptors() {
-                if (not _current_class_pool) {
-                    if (_started) 
-                        FATAL("Coding Bug: footers() first called after reading started!");
-                    startup(true);
-                }
-                return _current_class_pool->get_filedescriptors();
-            }
+            return _current_class_pool->get_filedescriptors();
+        }
 
-            void set_hint_copy(bool hint_copy);
-            bool try_read(Message & msg, const google::protobuf::Descriptor* d);
+        void set_hint_copy(bool hint_copy);
+        bool try_read(Message & msg, const google::protobuf::Descriptor* d);
 
-        private:
-            UNIQUE<ZeroCopyStreamResource> _raw_in;
-            UNIQUE<BaseCompressedInputStream> _compressed_in;
-            shared<google::protobuf::io::CodedInputStream> _coded_in;
-            shared<ProtoClassPool> _current_class_pool;
+    private:
+        UNIQUE<ZeroCopyStreamResource> _raw_in;
+        UNIQUE<BaseCompressedInputStream> _compressed_in;
+        shared<google::protobuf::io::CodedInputStream> _coded_in;
+        shared<ProtoClassPool> _current_class_pool;
 
-            // variables set at construction time
-            std::string _inputname;
+        // variables set at construction time
+        std::string _inputname;
 
-            // status variables
-            bool _good, _error, _started, _discovery_complete, _do_reset_metadata;
-            uint64_t _items_read;
-            unsigned int _current_header_index;
-            int32_t _current_metadata_index;
+        // status variables
+        bool _good, _error, _started, _discovery_complete, _do_reset_metadata;
+        uint64_t _items_read;
+        unsigned int _current_header_index;
+        int32_t _current_metadata_index;
 
-            // metadata-related status
-            bool _new_metadata, _current_metadata_refers_forward;
-            shared<A4Message> _current_metadata;
-            shared<A4Message> _pickup;
-            std::vector<std::vector<uint64_t>> _metadata_offset_per_header;
-            std::vector<std::vector<shared<A4Message>>> _metadata_per_header;
-            std::vector<bool> _headers_forward;
-            std::vector<StreamFooter> _footers;
-    
-            // internal functions
-            void startup(bool discovery_requested=false);
-            void reset_coded_stream();
-            bool discover_all_metadata();
-            bool start_compression(const a4::io::StartCompressedSection& cs);
-            bool stop_compression(const a4::io::EndCompressedSection& cs);
-            void drop_compression();
-            bool read_header(bool discovery_requested=false);
-            int64_t seek(int64_t position);
-            int64_t seek_back(int64_t position);
-            shared<A4Message> bare_message();
-            shared<A4Message> next_message();
-            bool handle_compressed_section(shared<A4Message> msg);
-            bool handle_stream_command(shared<A4Message> msg);
-            bool handle_metadata(shared<A4Message> msg);
-            bool carry_metadata(uint32_t& header, int32_t& metadata);
+        // metadata-related status
+        bool _new_metadata, _current_metadata_refers_forward;
+        shared<A4Message> _current_metadata;
+        shared<A4Message> _pickup;
+        std::vector<std::vector<uint64_t>> _metadata_offset_per_header;
+        std::vector<std::vector<shared<A4Message>>> _metadata_per_header;
+        std::vector<bool> _headers_forward;
+        std::vector<StreamFooter> _footers;
 
-            void notify_last_unread_message();
-            shared<A4Message> _last_unread_message;
+        // internal functions
+        void startup(bool discovery_requested=false);
+        void reset_coded_stream();
+        bool discover_all_metadata();
+        bool start_compression(const a4::io::StartCompressedSection& cs);
+        bool stop_compression(const a4::io::EndCompressedSection& cs);
+        void drop_compression();
+        bool read_header(bool discovery_requested=false);
+        int64_t seek(int64_t position);
+        int64_t seek_back(int64_t position);
+        shared<A4Message> bare_message();
+        shared<A4Message> next_message();
+        bool handle_compressed_section(shared<A4Message> msg);
+        bool handle_stream_command(shared<A4Message> msg);
+        bool handle_metadata(shared<A4Message> msg);
+        bool carry_metadata(uint32_t& header, int32_t& metadata);
 
-            // set error/end status and return A4Message
-            bool set_error();
-            bool set_end();
+        void notify_last_unread_message();
+        shared<A4Message> _last_unread_message;
 
-            bool _hint_copy;
-    };
+        // set error/end status and return A4Message
+        bool set_error();
+        bool set_end();
+
+        bool _hint_copy;
+};
 
 inline
 bool InputStreamImpl::try_read(Message & msg, const google::protobuf::Descriptor* d) {
