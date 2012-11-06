@@ -8,11 +8,11 @@ using boost::function;
 
 namespace google {
 namespace protobuf {
-class Message;
-class MessageFactory;
-class FieldDescriptor;
-};
-};
+    class Message;
+    class MessageFactory;
+    class FieldDescriptor;
+}
+}
 
 class TBranchElement;
 
