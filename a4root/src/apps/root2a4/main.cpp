@@ -54,14 +54,12 @@ using google::protobuf::compiler::SourceTreeDescriptorDatabase;
 //#include <a4/atlas/ntup/photon/Event.pb.h>
 //#include <a4/atlas/ntup/smwz/Event.pb.h>
 
-#include <a4/atlas/Event.pb.h>
-#include <a4/atlas/EventMetaData.pb.h>
+#include <a4/root/EventMetaData.pb.h>
+//#include <a4/atlas/Event.pb.h>
 
 using a4::atlas::EventMetaData;
 using a4::atlas::ProcessingStep;
 using a4::atlas::InputFile;
-
-#include <a4/root/test/Event.pb.h>
 
 typedef std::vector<shared<Message> > MessageBuffer;
 typedef boost::function<void (shared<a4::io::OutputStream>, const MessageBuffer&)> MetadataCallback;
