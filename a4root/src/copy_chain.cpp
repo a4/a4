@@ -241,7 +241,7 @@ class EventFactoryBuilder : public TObject
 {
     TTree& _tree;
     const Descriptor* _descriptor;
-    RootToMessageFactory* _factory;
+    ROOTMessageFactory* _factory;
     MessageFactory* _dynamic_factory;
     FlushCallback _flush_callback;
     
@@ -250,7 +250,7 @@ class EventFactoryBuilder : public TObject
 public:
 
     /// 
-    EventFactoryBuilder(TTree& t, const Descriptor* d, RootToMessageFactory* f, 
+    EventFactoryBuilder(TTree& t, const Descriptor* d, ROOTMessageFactory* f, 
                         MessageFactory* dynamic_factory, 
                         FlushCallback flush_callback)
         : _tree(t), _descriptor(d), _factory(f), 
@@ -343,7 +343,7 @@ void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream,
     
     // An event_factory is automatically created when the branch pointers change
     // through the Tree Notify() call.
-    RootToMessageFactory event_factory;
+    ROOTMessageFactory event_factory;
     
     D3PDMetadataFactory metadata_factory(tree);
     

@@ -166,16 +166,6 @@ Copier make_copier_from_leaf(TBranch* branch, TLeaf* leaf,
     #undef TRY_MATCH
 }
 
-shared<Message> message_factory(const Message* default_instance, 
-    const Copiers& copiers)
-{
-    shared<Message> message(default_instance->New());
-    
-    foreach (const Copier& copier, copiers) copier(message.get());
-    
-    return message;
-}
-
 void run_copiers(Message* message, const FieldDescriptor* parent_field,
     const Reflection* refl, const Copiers& copiers)
 {
@@ -458,7 +448,7 @@ Copier make_submessage_factory(TTree* tree,
 }
 /// Creates a function (RootToMessageFactory) which returns a Message* generated
 /// from the current `tree`'s entry.
-RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc, 
+ROOTMessageFactory make_message_factory(TTree* tree, const Descriptor* desc,
     const std::string& prefix, MessageFactory* dynamic_factory)
 {
     Copiers copiers;
@@ -522,6 +512,6 @@ RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc,
         }
     }
     
-    return bind(message_factory, default_instance, copiers);
+    return ROOTMessageFactory(default_instance, copiers);
 }
 
