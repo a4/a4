@@ -53,31 +53,26 @@ public:
 };
         
 SimpleCommandLineDriver::SimpleCommandLineDriver(Configuration* cfg) 
-    : configuration(cfg), _compression_string("ZLIB 1")
+    : _configuration(cfg), _compression_string("ZLIB 1")
 {
-    assert(configuration);
+    assert(_configuration);
 }
 
 class BaseOutputAdaptor : public OutputAdaptor {
     public:
-        shared<A4Message> current_metadata;
-        std::string merge_key, split_key; 
-        A4Output* out;
-        A4Output* res;
-        shared<ObjectBackStore> backstore;
 
         BaseOutputAdaptor(Driver* d, Processor* p, bool forward_metadata,
                           A4Output* out, A4Output* res,
                           const a4::io::OutputStream::CompressionType compression_type,
                           const int compression_level)
-            : out(out), res(res), forward_metadata(forward_metadata),
-              in_block(false), driver(d), p(p), last_postfix(""),
+            : _output(out), _result(res), _forward_metadata(forward_metadata),
+              _in_block(false), _driver(d), _p(p), _last_postfix(""),
               _compression_type(compression_type),
               _compression_level(compression_level)
         {
             merge_key = split_key = "";
-            outstream.reset();
-            resstream.reset();
+            _outstream.reset();
+            _resstream.reset();
             backstore.reset();
             start_block(); // This writes no metadata
         }
@@ -85,40 +80,40 @@ class BaseOutputAdaptor : public OutputAdaptor {
         virtual ~BaseOutputAdaptor() {}
 
         void start_block(std::string postfix="") {
-            if (out and (!outstream or postfix != last_postfix)) {
-                outstream = out->get_stream(postfix);
-                outstream->set_compression(_compression_type, _compression_level);
-                if (forward_metadata) 
-                    outstream->set_forward_metadata();
+            if (_output and (!_outstream or postfix != _last_postfix)) {
+                _outstream = _output->get_stream(postfix);
+                _outstream->set_compression(_compression_type, _compression_level);
+                if (_forward_metadata) 
+                    _outstream->set_forward_metadata();
             }
-            if (res and (!resstream or postfix != last_postfix)) {
-                resstream = res->get_stream(postfix);
-                resstream->set_compression(_compression_type, _compression_level);
-                resstream->set_forward_metadata();
+            if (_result and (!_resstream or postfix != _last_postfix)) {
+                _resstream = _result->get_stream(postfix);
+                _resstream->set_compression(_compression_type, _compression_level);
+                _resstream->set_forward_metadata();
             }
             backstore.reset(new ObjectBackStore());
-            driver->set_store(p, backstore->store());
-            if (outstream and forward_metadata and current_metadata) {
+            _driver->set_store(_p, backstore->store());
+            if (_outstream and _forward_metadata and current_metadata) {
                 current_metadata->unionize();                
-                outstream->metadata(*current_metadata->message());
+                _outstream->metadata(*current_metadata->message());
             }
-            in_block = true;
+            _in_block = true;
         }
 
         void end_block() {            
-            if (resstream && current_metadata) {
+            if (_resstream && current_metadata) {
                 current_metadata->unionize();
-                resstream->metadata(*current_metadata->message());
+                _resstream->metadata(*current_metadata->message());
             }
-            if (backstore && resstream) {
-                backstore->to_stream(*resstream);
+            if (_resstream && backstore) {
+                backstore->to_stream(*_resstream);
             }
             backstore.reset();
-            if (outstream and !forward_metadata and current_metadata) {
+            if (_outstream and !_forward_metadata and current_metadata) {
                 current_metadata->unionize();
-                outstream->metadata(*current_metadata->message());
+                _outstream->metadata(*current_metadata->message());
             }
-            in_block = false;
+            _in_block = false;
         }
 
         void new_outgoing_metadata(shared<const A4Message> new_metadata) {
@@ -156,21 +151,28 @@ class BaseOutputAdaptor : public OutputAdaptor {
         }
     
         void write(shared<const A4Message> m) {
-            if (!in_block) 
+            if (!_in_block) 
                 FATAL("Whoa?? Writing outside of a metadata block? How did you do this?");
             
-            if (outstream) 
-                outstream->write(m);
+            if (_outstream) 
+                _outstream->write(m);
         }
 
-    protected:
-        bool forward_metadata;
-        shared<OutputStream> outstream, resstream;
+        shared<A4Message> current_metadata;
+        std::string merge_key, split_key; 
+        shared<ObjectBackStore> backstore;
 
-        bool in_block;
-        Driver* driver;
-        Processor* p;
-        std::string last_postfix;
+    protected:
+        A4Output* _output;
+        A4Output* _result;
+
+        bool _forward_metadata;
+        shared<OutputStream> _outstream, _resstream;
+
+        bool _in_block;
+        Driver* _driver;
+        Processor* _p;
+        std::string _last_postfix;
         
         const a4::io::OutputStream::CompressionType _compression_type;
         const int _compression_level;
@@ -202,29 +204,29 @@ try {
     bool auto_metadata = false;
     switch(p->get_metadata_behavior()) {
         case Processor::AUTO:
-            metadata_forward = (self->metakey == ""); // forward if no merging
+            metadata_forward = (self->_metakey == ""); // forward if no merging
             auto_metadata = true;
             output_adaptor.reset(new BaseOutputAdaptor(self, p, metadata_forward,
-                self->out.get(), self->res.get(), self->_compression_type, self->_compression_level));
+                self->_output.get(), self->_result.get(), self->_compression_type, self->_compression_level));
             break;
         case Processor::MANUAL_FORWARD:
-            if (self->metakey != "") FATAL("This program is not compatible with metadata merging!"); // forward if no merging
+            if (self->_metakey != "") FATAL("This program is not compatible with metadata merging!"); // forward if no merging
             // fall through to ...
         case Processor::DROP:
             metadata_forward = true;
             output_adaptor.reset(new ManualOutputAdaptor(self, p, metadata_forward,
-                self->out.get(), self->res.get(), self->_compression_type, self->_compression_level));
+                self->_output.get(), self->_result.get(), self->_compression_type, self->_compression_level));
             break;
         case Processor::MANUAL_BACKWARD:
             metadata_forward = false;
             output_adaptor.reset(new ManualOutputAdaptor(self, p, metadata_forward,
-                self->out.get(), self->res.get(), self->_compression_type, self->_compression_level));
+                self->_output.get(), self->_result.get(), self->_compression_type, self->_compression_level));
             break;
         default:
             FATAL("Unknown metadata behaviour specified: ", p->get_metadata_behavior());
     }
-    output_adaptor->merge_key = self->metakey;
-    output_adaptor->split_key = self->split_metakey;
+    output_adaptor->merge_key = self->_metakey;
+    output_adaptor->split_key = self->_split_metakey;
     
 #ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
     boost::chrono::thread_clock::time_point start = boost::chrono::thread_clock::now();
@@ -240,7 +242,7 @@ try {
     // Try as long as there are inputs
     int cnt = 0;
     bool run = true, should_close_stream = false;
-    while (shared<InputStream> instream = self->in->get_stream()) {
+    while (shared<InputStream> instream = self->_input->get_stream()) {
         if (!run)
             break;
 
@@ -345,8 +347,8 @@ try {
 }
 
 Processor* SimpleCommandLineDriver::new_initialized_processor() {
-    Processor* p = configuration->new_processor();
-    configuration->setup_processor(*p);
+    Processor* p = _configuration->new_processor();
+    _configuration->setup_processor(*p);
     return p;
 }
 
@@ -367,7 +369,7 @@ try
     po::options_description config_file_options;
     string config_filename = string(argv[0]) + ".ini";
     string output = "", results = "";
-    metakey = ""; split_metakey = "";
+    _metakey = ""; _split_metakey = "";
     bool verbose, quiet, debug;
 
     // Define all 
@@ -386,8 +388,8 @@ try
         ("output,o", po::value<string>(&output), "output file")
         ("results,r", po::value<string>(&results), "result file")
         ("number,n", po::value<int>(&number)->default_value(-1), "maximum number of events to process (default: all)")
-        ("per,p", po::value<string>(&metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
-        ("split-per,s", po::value<string>(&split_metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
+        ("per,p", po::value<string>(&_metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
+        ("split-per,s", po::value<string>(&_split_metakey), "granularity of output by metadata key (e.g. period, run, lumiblock...). Default is input granularity.")
         ("compression", po::value(&_compression_string)->default_value("ZLIB 1"), "compression level '[TYPE] [LEVEL]'");
 
     po::positional_options_description positional_options;
@@ -398,7 +400,7 @@ try
         ("config.threads,t", po::value<int>(&n_threads)->default_value(hw_threads), "run N multi-threads [# of cores]");
 
     po::options_description useropt;
-    configuration->add_options(useropt.add_options());
+    _configuration->add_options(useropt.add_options());
 
     commandline_options.add(gopt);
     commandline_options.add(popt);
@@ -442,7 +444,7 @@ try
 
     // After finishing all option reading, notify the result
     po::notify(arguments);
-    configuration->read_arguments(arguments);
+    _configuration->read_arguments(arguments);
     
     a4::io::set_log_level(debug ? 5 : verbose ? 4 : quiet ? 2 : 3);
     
@@ -465,19 +467,19 @@ try
     //cout << "n_threads = " << n_threads << endl;
 
     // Set up I/O
-    in.reset(new A4Input("A4 Input Files"));
+    _input.reset(new A4Input("A4 Input Files"));
     foreach(string& i, inputs) 
-        in->add_file(i);
+        _input->add_file(i);
 
     if (output.size()) 
-        out.reset(new A4Output(output, "A4 Output File"));
+        _output.reset(new A4Output(output, "A4 Output File"));
 
     shared<A4Output> a4results;
     if (results.size()) {
         if (results == output) {
-            res = out;
+            _result = _output;
         } else {
-            res.reset(new A4Output(results, "A4 Results File"));
+            _result.reset(new A4Output(results, "A4 Results File"));
         }
     }
 

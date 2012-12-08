@@ -49,24 +49,24 @@ InputStream* A4Input::pop_file() {
 
 /// Callback executed when a stream is deleted.
 /// Collates errors, reschedules unfinished streams.
-void A4Input::report_finished(A4Input* input, InputStream* _s) {
+void A4Input::report_finished(A4Input* input, InputStream* stream) {
     Lock l2(input->_mutex);
     
-    if (_s->end()) {
-        assert(input->_processing.erase(_s) == 1);
-        input->_finished.insert(_s);
-        VERBOSE("Finished processing ", _s->str());
-        _s->close();
-    } else if (_s->error() || input->_resched_count[_s] > 0) {
-        ERROR("Encountered an error during reading: ", _s->str());
+    if (stream->end()) {
+        assert(input->_processing.erase(stream) == 1);
+        input->_finished.insert(stream);
+        VERBOSE("Finished processing ", stream->str());
+        stream->close();
+    } else if (stream->error() || input->_resched_count[stream] > 0) {
+        ERROR("Encountered an error during reading: ", stream->str());
         
-        input->_error.insert(_s);
+        input->_error.insert(stream);
         
     } else {
-        WARNING("Finished but not fully processed (rescheduling): ", _s->str());
+        WARNING("Finished but not fully processed (rescheduling): ", stream->str());
         
-        input->_ready.push_front(_s);
-        input->_resched_count[_s]++;
+        input->_ready.push_front(stream);
+        input->_resched_count[stream]++;
     }
 }
 
