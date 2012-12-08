@@ -32,7 +32,7 @@ using google::protobuf::Reflection;
 #include <a4/string.h>
 #include <a4/exceptions.h>
 
-#include "common.h"
+#include <a4/root/common.h>
 
 #include "a4/root/RootExtension.pb.h"
 
@@ -156,7 +156,7 @@ Copier make_copier_from_leaf(TBranch* branch, TLeaf* leaf,
     
     switch (field->cpp_type())
     {
-        #include "apps/root2a4/convertable_types.cc"
+        #include "convertable_types.cc"
         
         default:
             FATAL("Unknown field type in make_copier_from_branch ", field->cpp_type());
@@ -164,16 +164,6 @@ Copier make_copier_from_leaf(TBranch* branch, TLeaf* leaf,
      
     #undef FAILURE
     #undef TRY_MATCH
-}
-
-shared<Message> message_factory(const Message* default_instance, 
-    const Copiers& copiers)
-{
-    shared<Message> message(default_instance->New());
-    
-    foreach (const Copier& copier, copiers) copier(message.get());
-    
-    return message;
 }
 
 void run_copiers(Message* message, const FieldDescriptor* parent_field,
@@ -328,7 +318,7 @@ SubmessageSetter make_submessage_setter(TBranchElement* branch_element,
     
     switch (field->cpp_type())
     {
-        #include "apps/root2a4/convertable_types.cc"
+        #include "convertable_types.cc"
         
         default:
             FAILURE(str_cat("field with typecode", field->cpp_type()));
@@ -458,7 +448,7 @@ Copier make_submessage_factory(TTree* tree,
 }
 /// Creates a function (RootToMessageFactory) which returns a Message* generated
 /// from the current `tree`'s entry.
-RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc, 
+ROOTMessageFactory make_message_factory(TTree* tree, const Descriptor* desc,
     const std::string& prefix, MessageFactory* dynamic_factory)
 {
     Copiers copiers;
@@ -522,6 +512,6 @@ RootToMessageFactory make_message_factory(TTree* tree, const Descriptor* desc,
         }
     }
     
-    return bind(message_factory, default_instance, copiers);
+    return ROOTMessageFactory(default_instance, copiers);
 }
 

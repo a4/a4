@@ -48,30 +48,25 @@ using google::protobuf::compiler::SourceTreeDescriptorDatabase;
 #include <a4/output_stream.h>
 #include <a4/input.h>
 
-#include "common.h"
-#include "period_mapping.h"
+#include <a4/root/common.h>
+#include <a4/root/period_mapping.h>
 
 //#include <a4/atlas/ntup/photon/Event.pb.h>
 //#include <a4/atlas/ntup/smwz/Event.pb.h>
 
-#include <a4/atlas/Event.pb.h>
-#include <a4/atlas/EventMetaData.pb.h>
-
+#include <a4/root/EventMetaData.pb.h>
 using a4::atlas::EventMetaData;
 using a4::atlas::ProcessingStep;
 using a4::atlas::InputFile;
 
-#include <a4/root/test/Event.pb.h>
 
 typedef std::vector<shared<Message> > MessageBuffer;
 typedef boost::function<void (shared<a4::io::OutputStream>, const MessageBuffer&)> MetadataCallback;
 typedef boost::function<void ()> FlushCallback;
 
-
-
 class MetadataFactory
 {
-    
+protected:
     chrono::steady_clock::time_point _start_wallclock;
 #ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
     chrono::thread_clock::time_point _start_cpuclock;
@@ -160,25 +155,6 @@ public:
         p.set_input_bytes_read(_input_bytes_read);
         
         _metadata.set_event_count(buffer.size());
-        
-        if (buffer.size() >= 1) {
-            if (_field_run) {
-                auto run_number = _refl->GetUInt32(*buffer[0], _field_run);
-                _metadata.add_run(run_number);
-                
-                auto* full_period = get_period(run_number);
-                std::string period = full_period;
-                
-                if (period != "UNK") {
-                    period = period[0];
-                }
-                
-                _metadata.add_period(period);
-                _metadata.add_subperiod(full_period);
-            }
-            if (_field_mc_channel && _refl->HasField(*buffer[0], _field_mc_channel)) 
-                _metadata.add_mc_channel(_refl->GetUInt32(*buffer[0], _field_mc_channel));
-        }
     }
         
     void write_metadata(shared<a4::io::OutputStream> stream, 
@@ -238,6 +214,25 @@ public:
     void compute_info(const MessageBuffer& buffer)
     {   
         super::compute_info(buffer);
+        
+        if (buffer.size() >= 1) {
+            if (_field_run) {
+                auto run_number = _refl->GetUInt32(*buffer[0], _field_run);
+                _metadata.add_run(run_number);
+                
+                auto* full_period = get_period(run_number);
+                std::string period = full_period;
+                
+                if (period != "UNK") {
+                    period = period[0];
+                }
+                
+                _metadata.add_period(period);
+                _metadata.add_subperiod(full_period);
+            }
+            if (_field_mc_channel && _refl->HasField(*buffer[0], _field_mc_channel)) 
+                _metadata.add_mc_channel(_refl->GetUInt32(*buffer[0], _field_mc_channel));
+        }
     }
 };
 
@@ -246,7 +241,7 @@ class EventFactoryBuilder : public TObject
 {
     TTree& _tree;
     const Descriptor* _descriptor;
-    RootToMessageFactory* _factory;
+    ROOTMessageFactory* _factory;
     MessageFactory* _dynamic_factory;
     FlushCallback _flush_callback;
     
@@ -254,7 +249,8 @@ class EventFactoryBuilder : public TObject
 
 public:
 
-    EventFactoryBuilder(TTree& t, const Descriptor* d, RootToMessageFactory* f, 
+    /// 
+    EventFactoryBuilder(TTree& t, const Descriptor* d, ROOTMessageFactory* f, 
                         MessageFactory* dynamic_factory, 
                         FlushCallback flush_callback)
         : _tree(t), _descriptor(d), _factory(f), 
@@ -321,11 +317,12 @@ private:
     uint32_t _buffer_size;
 };
 
+
 /// Copies `tree` into the `stream` using information taken from the compiled in
 /// Event class.
 void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream, 
-    MessageFactory* dynamic_factory, const Descriptor* message_descriptor, 
-    Long64_t entries=-1, const uint32_t metadata_frequency=100000, 
+    MessageFactory* dynamic_factory, const Descriptor* message_descriptor,
+    Long64_t entries=-1, const uint32_t metadata_frequency=100000,
     const Long64_t initial_offset=0)
 {
     const Long64_t tree_entries = tree.GetEntries();
@@ -346,13 +343,14 @@ void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream,
     
     // An event_factory is automatically created when the branch pointers change
     // through the Tree Notify() call.
-    RootToMessageFactory event_factory;
+    ROOTMessageFactory event_factory;
     
     D3PDMetadataFactory metadata_factory(tree);
     
-    BufferingStreamWriter buffered_stream(
-        stream, bind(&D3PDMetadataFactory::write_metadata, 
-                     boost::ref(metadata_factory), _1, _2), metadata_frequency);
+    auto metadata_callback = bind(&D3PDMetadataFactory::write_metadata, 
+                     boost::ref(metadata_factory), _1, _2);
+    
+    BufferingStreamWriter buffered_stream(stream, metadata_callback, metadata_frequency);
     
     // This is the only place where we say that we're wanting to build the 
     // Event class.
@@ -397,170 +395,3 @@ void copy_chain(TChain& tree, shared<a4::io::OutputStream> stream,
     
     INFO("Copied ", entries, " entries (", total_bytes_read, ")");
 }
-
-bool string_endswith(const std::string& s, const std::string& end) 
-{
-    auto pos = s.rfind(end);
-    if (pos == std::string::npos) return false;
-    return s.substr(pos) == end;
-}
-
-int main(int argc, char ** argv) {
-    a4::Fatal::enable_throw_on_segfault();
-        
-    assert(gROOT->GetVersionCode() == ROOT_VERSION_CODE && "Check build ROOT version check against dynamic library");
-    
-    chrono::steady_clock::time_point wallstart = chrono::steady_clock::now();
-
-    namespace po = boost::program_options;
-
-    std::string tree_name, tree_type, output_file, compression_type;
-    std::vector<std::string> input_files;
-    Long64_t event_count = -1, initial_offset = 0;
-    uint32_t metadata_frequency = 100000;
-    
-    #ifdef HAVE_SNAPPY
-    const char* default_compression = "SNAPPY";
-    #else
-    const char* default_compression = "ZLIB 9";
-    #endif
-
-    po::positional_options_description p;
-    p.add("input", -1);
-
-    po::options_description commandline_options("Allowed options");
-    commandline_options.add_options()
-        ("help,h", "produce help message")
-        ("tree-name,t", po::value<std::string>(&tree_name), "input TTree name")
-        ("tree-type,T", po::value<std::string>(&tree_type)->default_value("test"),
-            "which event factory to use (SMWZ, PHOTON, test or .proto file with Event message)")
-        ("input,i", po::value<std::vector<std::string> >(&input_files), "input file names")
-        ("output,o", po::value<std::string>(&output_file)->default_value("test_io.a4"), "output file name")
-        ("number,n", po::value<Long64_t>(&event_count), "number of events to process (-1=all available)")
-        ("offset,O", po::value<Long64_t>(&initial_offset), "initial offset (0=first event)")
-        ("compression-type,C", po::value(&compression_type)->default_value(default_compression), "compression level '[TYPE] [LEVEL]'")
-        ("metadata-frequency,m", po::value(&metadata_frequency)->default_value(metadata_frequency), "Metadata frequency [N] (1 per N)")
-    ;
-    
-    po::variables_map arguments;
-    po::store(po::command_line_parser(argc, argv).
-              options(commandline_options).positional(p).run(), arguments);
-    po::notify(arguments);
-    
-    if (arguments.count("help") || !arguments.count("input"))
-    {
-        std::cout << "Usage: " << argv[0] << " [Options] input(s)" << std::endl;
-        std::cout << commandline_options << std::endl;
-        return 1;
-    }
-
-    TChain input(tree_name.c_str());
-    
-    INFO("Adding input files");
-    foreach (const std::string& input_file, input_files) {
-        if (string_endswith(input_file, ".txt")) {
-        //if (input_file.substr(input_file.rfind(".txt")) == ".txt") {
-            ifstream input_file_stream(input_file);
-
-            std::string argStr;
-            std::ifstream ifs(input_file);
-            std::getline(ifs, argStr);
-
-            // split by ','
-            std::vector<std::string> fileList;
-            for (size_t i = 0, n; i <= argStr.length(); i = n+1)
-            {
-                n = argStr.find_first_of(',',i);
-                if (n == std::string::npos)
-                    n = argStr.length();
-                std::string tmp = argStr.substr(i,n-i);
-                fileList.push_back(tmp);
-            }
-            foreach (const std::string& x, fileList) {
-                INFO("--Adding sub input file: '", x, "'");
-                input.Add(x.c_str());
-            }
-        } else
-        {
-            INFO("--Adding input '", input_file, "'");
-            input.Add(input_file.c_str());
-        }
-    }
-    
-    
-
-    a4::io::A4Output a4o(output_file, "Event");
-    shared<a4::io::OutputStream> stream = a4o.get_stream("", true);
-    std::stringstream ss(compression_type);
-    std::string ctype; int level;
-    ss >> ctype >> level;
-    stream->set_compression(ctype, level);
-    
-    class ErrorCollector : public MultiFileErrorCollector {
-        void AddError(const std::string& filename, int line, int column, const std::string& message) {
-            FATAL("Proto import error in ", filename, ":", line, ":", column, " ", message);
-        }
-    };
-    
-    DiskSourceTree source_tree;
-    source_tree.MapPath("", current_path().string());
-    source_tree.MapPath("a4/root/", "");
-    
-    SourceTreeDescriptorDatabase source_tree_db(&source_tree);
-    ErrorCollector e;
-    source_tree_db.RecordErrorsTo(&e);
-    DescriptorPool source_pool(&source_tree_db, source_tree_db.GetValidationErrorCollector());
-    
-    DescriptorPoolDatabase builtin_pool(*DescriptorPool::generated_pool());
-    MergedDescriptorDatabase merged_pool(&builtin_pool, &source_tree_db);
-    
-    DescriptorPool pool(&merged_pool, source_tree_db.GetValidationErrorCollector());
-    
-    DynamicMessageFactory dynamic_factory(&pool);
-    dynamic_factory.SetDelegateToGeneratedFactory(true);
-    
-    const Descriptor* descriptor = NULL;
-    /*
-    if (tree_type == "test")
-        descriptor = a4::root::test::Event::descriptor();
-    else if (tree_type == "PHOTON")
-        descriptor = a4::atlas::ntup::photon::Event::descriptor();
-    else if (tree_type == "SMWZ")
-        descriptor = a4::atlas::ntup::smwz::Event::descriptor();
-        
-    else
-    */
-    {        
-        const FileDescriptor* file_descriptor = pool.FindFileByName(tree_type);
-                
-        descriptor = file_descriptor->FindMessageTypeByName("Event");
-        
-        if (!descriptor)
-            FATAL("Couldn't find an \"Event\" class in ", tree_type);
-    }
-    
-    {
-#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
-        chrono::thread_clock::time_point cpustart = chrono::thread_clock::now();
-#endif
-        
-        copy_chain(input, stream, &dynamic_factory, descriptor, event_count, 
-            metadata_frequency, initial_offset);
-            
-#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
-        duration cputime  = chrono::thread_clock::now() - cpustart;
-#endif
-        duration walltime = chrono::steady_clock::now() - wallstart;
-        INFO("Took ", walltime, " to run"
-#ifdef BOOST_CHRONO_HAS_THREAD_CLOCK
-             "(", cputime, " CPU)"
-#endif
-            );
-    }
-
-    foreach(std::string s, get_list_of_leaves()) {
-        std::cout << "-" << s << std::endl;
-    }
-}
-
-
