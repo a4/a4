@@ -14,5 +14,6 @@ notifications:
   email:
     recipients:
       - peter.waller@cern.ch
-    on_success: always
+      - ebke@cern.ch
+    on_success: change
     on_failure: always
