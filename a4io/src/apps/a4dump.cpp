@@ -530,7 +530,7 @@ try {
     a4::Fatal::enable_throw_on_segfault();
     a4::io::set_program_name(argv[0]);
 
-    bool is_a4info = (std::string("a4info") == std::string(basename(argv[0])));
+    bool is_a4info = (std::string("a4info") == std::string(boost::filesystem::basename(argv[0])));
     DEBUG("argv[0] = ", argv[0]);
     DEBUG("is a4info? ", is_a4info);
 
