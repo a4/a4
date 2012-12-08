@@ -1,7 +1,7 @@
 #include <a4/input_stream.h>
 #include <a4/message.h>
 
-#include "input_stream_impl.h"
+#include "input_stream_a4_impl.h"
 
 #include <a4/io/A4Stream.pb.h>
 
@@ -10,7 +10,7 @@ namespace io {
 
     // Forward everything to the implementation object.
     InputStream::InputStream(std::string url) {
-        _impl.reset(new InputStreamImpl(resource_from_url(url), url));
+        _impl.reset(new InputStreamA4Impl(resource_from_url(url), url));
     }
 
     InputStream::InputStream(UNIQUE<InputStreamImpl> impl) {

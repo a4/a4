@@ -10,11 +10,11 @@
 
 #include <a4/types.h>
 #include <a4/register.h>
-#include <a4/message.h>
 
 #include <a4/io/A4Stream.pb.h>
 
-namespace a4{ namespace io{
+namespace a4 {
+namespace io {
 
     /// Keeps track of ProtoClass classes and Metadata classes and offsets in a single
     /// block between Header and Footer.
@@ -59,6 +59,7 @@ namespace a4{ namespace io{
             shared<google::protobuf::DynamicMessageFactory> _message_factory;
     };
 
-};};
+}
+}
 
 #endif
