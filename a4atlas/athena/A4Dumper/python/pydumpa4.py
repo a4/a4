@@ -285,6 +285,7 @@ trigger_names = {
         ]
 }
 
+topoisolations = ("topoetcone20", "topoetcone30", "topoetcone40")
 isolations = ("etcone20", "etcone30", "etcone40", "ptcone20", "ptcone30", "ptcone40")
 
 useSpectrometerTrack = 0 #/< Use the track reconstructed in the MS
@@ -364,10 +365,6 @@ class AOD2A4(AOD2A4Base):
         PyCintex.loadDictionary("TrigObjectMatching")
         self.tmefih = PyCintex.makeClass("TrigMatch::TrigMuonEFInfoHelper")
 
-        #PyCintex.loadDictionary("egammaAnalysisUtils")
-        #from ROOT import isEMPlusPlusHelper
-        #self.isEMPlusPlusHelper = isEMPlusPlusHelper()
-
         from ROOT import vector
 
         PyCintex.loadDictionary("JetUtils")
@@ -375,6 +372,10 @@ class AOD2A4(AOD2A4Base):
         from ROOT import JetCaloHelper, JetCaloQualityUtils, Long, CaloSampling
         self.jet_emf = lambda jet : JetCaloHelper.jetEMFraction(jet)
         self.jet_hecF = lambda jet : JetCaloQualityUtils.hecF(jet)
+        ### smax needed for jet cealning
+        #### FIX THIS: don't know either getNumberOfSamplings() or Unknown
+        #### UPDATE: getNumberOfSamplings just returns Unknown!
+        self.jet_smax = Long(CaloSampling.getNumberOfSamplings())
         self.jet_fmax = lambda jet : JetCaloQualityUtils.fracSamplingMax(jet, Long(CaloSampling.Unknown))
         self.jet_time = lambda jet : JetCaloQualityUtils.jetTimeCells(jet)
         self.jet_quality_lar = lambda jet : JetCaloQualityUtils.jetQualityLAr(jet)
@@ -386,6 +387,8 @@ class AOD2A4(AOD2A4Base):
         PyCintex.loadDictionary("egammaEnumsDict")
         PyCintex.loadDictionary("muonEventDict")
         PyCintex.loadDictionary("egammaAnalysisUtils")
+        
+        PyCintex.loadDictionary("MissingETEvent")
         from ROOT import MuonParameters, egammaParameters, egammaPID
         from ROOT import ElectronMCChargeCorrector
         self.MuonParameters = MuonParameters
@@ -458,6 +461,8 @@ class AOD2A4(AOD2A4Base):
             e.author = el.author()
             for iso in isolations:
                 setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
+            for iso in topoisolations:
+                setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
 
             if self.year == 2011:
                 e.bad_oq = not (el.isgoodoq(self.egammaPID.BADCLUSELECTRON) == 0)
@@ -485,22 +490,11 @@ class AOD2A4(AOD2A4Base):
                     e.medium_pp = self.empp_helper.IsMediumPlusPlus(el)
                     e.tight_pp = self.empp_helper.IsTightPlusPlus(el)
                 
-                #if el.pt() > 1000.0 and e.author in (1,3) and el.trackParticle() and el.trackParticle().trackSummary() and abs(el.trackParticle().eta()) < 2.47 and not (1.37 < abs(el.trackParticle().eta()) < 1.52):
-                #    e.tight = self.isEMPlusPlusHelper.IsTightPlusPlus(el)
-                    
-                    #other_tight = self.isEMPlusPlusHelper.IsTightPlusPlus(el)
-                    #if e.tight_pp == other_tight:
-                    #    self.tight_same_count += 1
-                    #elif e.tight_pp:
-                    #    self.only_tight_count += 1
-                    #else:
-                    #    self.only_othertight_count += 1
-                    #assert e.tight_pp == other_tight
-
             trk = el.trackParticle()
             if trk:
                 e.p4_track.CopyFrom(make_lv(trk))
                 self.perigee_z0_d0(e.perigee, trk)
+                self.perigee_z0_d0_unbiased(e.perigee_unbiased, trk)
                 set_track_hits(e.track_hits, trk)
             if el.cluster():
                 e.p4_cluster.CopyFrom(make_lv(el.cluster()))
@@ -526,6 +520,7 @@ class AOD2A4(AOD2A4Base):
             m.p4.CopyFrom(make_lv(mu))
             assert int(mu.charge()) == mu.charge()
             m.charge = int(mu.charge())
+            m.author = mu.author()
             vx = mu.origin()
             if vx:
                 #if vx.position():
@@ -545,6 +540,7 @@ class AOD2A4(AOD2A4Base):
             if trk:
                 m.p4_track.CopyFrom(make_lv(trk))
                 self.perigee_z0_d0(m.perigee_id, trk)
+                self.perigee_z0_d0_unbiased(m.perigee_unbiased, trk)
                 set_track_hits(m.track_hits, trk)
     
             ms_trk = mu.muonExtrapolatedTrackParticle()
@@ -627,6 +623,7 @@ class AOD2A4(AOD2A4Base):
             j.hecf = self.jet_hecF(jet)
             j.timing = jet.getMoment("Timing")
             j.fmax = self.jet_fmax(jet)
+            j.smax = self.jet_smax
             j.sum_pt_trk = jet.getMoment("sumPtTrk")
             j.avg_lar_qf = jet.getMoment("AverageLArQF")
             j.eta_origin = jet.getMoment('EtaOrigin')
@@ -711,6 +708,17 @@ class AOD2A4(AOD2A4Base):
     def perigee_z0_d0(self, p, trk):
         if trk and len(self.PV) > 0:
             res = self.tool_ttv.d0z0AtVertex(trk, self.PV_rec[0].position())
+            p.d0, p.d0err = res.first.first, res.first.second
+            p.z0, p.z0err = res.second.first, res.second.second
+
+    def perigee_z0_d0_unbiased(self, p, trk):
+        if trk and len(self.PV) > 0:
+            #print "!!!!!!!"
+            #print type(self.PV)
+            #print type(self.PV[0])
+            #print type(self.PV_rec)
+            #print type(self.PV_rec[0])
+            res = self.tool_ttv.d0z0AtVertex_unbiased(trk, self.PV[0])
             p.d0, p.d0err = res.first.first, res.first.second
             p.z0, p.z0err = res.second.first, res.second.second
             
@@ -857,6 +865,10 @@ class AOD2A4(AOD2A4Base):
         event.met_MuonMuid.CopyFrom(self.met_detail("MET_MuonMuid"))
         event.met_RefEle.CopyFrom(self.met_detail("MET_RefEle"))
         event.met_RefFinal_em.CopyFrom(self.met_detail("MET_RefFinal_em"))
+        ### for dev testing STVF
+        #event.met_RefFinal_STVF_em.CopyFrom(self.met_detail("MET_RefFinal_STVF_em"))
+        #event.met_RefFinal_STVF.CopyFrom(self.met_detail("MET_RefFinal_STVF"))
+        ### end dev
         event.met_RefGamma.CopyFrom(self.met_detail("MET_RefGamma"))
         event.met_RefJet.CopyFrom(self.met_detail("MET_RefJet"))
         event.met_RefMuon.CopyFrom(self.met_detail("MET_RefMuon"))
@@ -869,6 +881,10 @@ class AOD2A4(AOD2A4Base):
         if self.is_mc:
             event.met_Truth.CopyFrom(self.met_detail("MET_Truth"))
             event.met_Truth_PileUp.CopyFrom(self.met_detail("MET_Truth_PileUp"))
+            #Nonint testing
+            mettruth = self.sg["MET_Truth"]
+            event.met_Truth_NonInt.x = mettruth.exTruth(mettruth.NonInt)
+            event.met_Truth_NonInt.y = mettruth.eyTruth(mettruth.NonInt)
 
         event.jets_antikt4lctopo.extend(self.jets("AntiKt4LCTopoJets"))
         event.jets_antikt4h1topoem.extend(self.jets("AntiKt4TopoEMJets"))
@@ -1009,6 +1025,33 @@ if True:
 
 # do autoconfiguration of input
 include ("RecExCommon/RecExCommon_topOptions.py")
+
+#### test of implementing missing et d3pdmaker
+#from MissingETD3PDMaker.MissingETD3PDMakerFlags        import MissingETD3PDMakerFlags
+#from MissingETD3PDMaker.MissingETD3PDObject            import *
+#from MissingETD3PDMaker.MissingETD3PDTriggerBitsObject import *
+#MissingETD3PDMakerFlags.doCellOutEflow=True
+#MissingETD3PDMakerFlags.METDefaultJetCollectionSGKey = 'AntiKt4LCTopoJets'
+#MissingETD3PDMakerFlags.METDefaultJetPrefix = "jet_AntiKt4LCTopo_MET_"
+#MissingETD3PDMakerFlags.doTruth=True
+#from RecExConfig.RecFlags                            import rec
+#rec.doTruth()
+
+###Truth object, can also be used for customized MET Truth objects
+#MissingETTruthD3PDObject = make_SG_D3PDObject ('MissingEtTruth', MissingETD3PDMakerFlags.METTruthSGKey(), 'MET_Truth_', 'MissingETTruthD3PDObject')
+#MissingETTruthD3PDObject.defineBlock (1, 'MET_Truth_NonInt', MissingETD3PDMaker.MissingETTruthNonIntFillerTool)
+#MissingETTruthD3PDObject.defineBlock (1, 'MET_Truth_NonInt_Phi', MissingETD3PDMaker.MissingETTruthNonIntPhiFillerTool)
+#MissingETTruthD3PDObject.defineBlock (1, 'MET_Truth_NonInt_Et', MissingETD3PDMaker.ScalarMissingETTruthNonIntFillerTool)
+#MissingETTruthD3PDObject.defineBlock (1, 'MET_Truth_NonInt_SumEt', MissingETD3PDMaker.SumETTruthNonIntFillerTool)
+#MissingETTruthD3PDObject.defineBlock (3, 'MET_Truth_Int', MissingETD3PDMaker.MissingETTruthIntFillerTool)
+#MissingETTruthD3PDObject.defineBlock (3, 'MET_Truth_Int_Phi', MissingETD3PDMaker.MissingETTruthIntPhiFillerTool)
+#MissingETTruthD3PDObject.defineBlock (3, 'MET_Truth_Int_Et', MissingETD3PDMaker.ScalarMissingETTruthIntFillerTool)
+#MissingETTruthD3PDObject.defineBlock (3, 'MET_Truth_Int_SumEt', MissingETD3PDMaker.SumETTruthIntFillerTool)
+
+#topSequence += MissingETTruthD3PDObject 
+#from AthenaCommon.AlgSequence import AlgSequence
+#theJob = AlgSequence()
+#theJob += MissingETTruthD3PDObject(level=10,sgkey='MissingET', include=['MET_Truth_NonInt'], allowMissing=True)
 
 ana = AOD2A4("AOD2A4", int(options["year"]), options)
 topSequence += ana

@@ -103,6 +103,10 @@ message Event
     optional MissingEnergy met_Track = 81;
     optional MissingEnergy met_Truth = 82;
     optional MissingEnergy met_Truth_PileUp = 83;
+    // new mets til now not implementet in pydump.a4
+    optional MissingEnergy met_RefFinal_STVF = 109;   
+    optional MissingEnergy met_RefFinal_STVF_em = 110; 
+    optional MissingEnergy met_Truth_NonInt = 111;
 
 
     repeated Jet jets_antikt4h1topo = 40;

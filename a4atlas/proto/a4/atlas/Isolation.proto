@@ -9,6 +9,10 @@ message Isolation
     optional double etcone50 = 5;
     optional double etcone60 = 6;
 
+    optional double topoetcone20 = 20;
+    optional double topoetcone30 = 21;
+    optional double topoetcone40 = 22;
+
     optional double ptcone10 = 10;
     optional double ptcone20 = 11;
     optional double ptcone30 = 12;

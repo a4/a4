@@ -39,6 +39,7 @@ message Electron
     optional TrackHits track_hits = 10;
 
     optional Perigee perigee = 12;
+    optional Perigee perigee_unbiased = 13;
     
     optional ShowerShape shower_shape = 11;
     
