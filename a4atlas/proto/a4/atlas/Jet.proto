@@ -29,6 +29,7 @@ message Jet
     optional double hecf = 116;
     optional double timing = 117;
     optional double fmax = 118;
+    optional double smax = 132;
     optional double n_trk = 124;
     optional double sum_pt_trk = 119;
     optional double avg_lar_qf = 123; 

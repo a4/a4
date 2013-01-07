@@ -34,13 +34,13 @@ def get_legend(data, sum_mc, list_mc, signals):
     legend.SetFillStyle(0)
     legend.SetLineColor(0)
     for d in data:
-        legend.AddEntry(d, d.GetTitle(), "p")
+        legend.AddEntry(d, os.path.split(d.GetTitle())[1][:-5] if d.GetTitle()[-5:]=='.root' else os.path.split(d.GetTitle())[1], "p")
     if sum_mc:
         legend.AddEntry(sum_mc,"MC (stat)","flp")  # <== NB: omit this entry for 2D histogram
     for h in list_mc: # sorted by initial XS
-        legend.AddEntry(h,h.GetTitle(),"f")
+        legend.AddEntry(h, os.path.split(h.GetTitle())[1][:-5] if h.GetTitle()[-5:]=='.root' else os.path.split(h.GetTitle())[1],"f")
     for s in signals:
-       legend.AddEntry(s,s.GetTitle(),"l")
+       legend.AddEntry(s, os.path.split(s.GetTitle())[1][:-5] if s.GetTitle()[-5:]=='.root' else os.path.split(s.GetTitle())[1],"l")
     return legend
 
 #NB: [ATLAS Preliminary label for when plots are approved only: 
@@ -292,13 +292,16 @@ def stack_1D(name, data, list_mc, signals, lumi="X",centermass="8", rebin=1, sum
         else:
             d.Draw("pe same")
 
+    comparefactor = 1
+    if compare:
+        comparefactor = 0
     pad_factor = 1.0/(1 - pad_fraction)
     axis.GetYaxis().SetLabelSize(tsize * pad_factor)
     axis.GetYaxis().SetTitleSize(tsize * pad_factor)
     axis.GetYaxis().SetTitleOffset(tyoffset / pad_factor)
-    axis.GetXaxis().SetLabelSize(tsize * pad_factor)
-    axis.GetXaxis().SetTitleSize(tsize * pad_factor)
-    axis.GetXaxis().SetTitleOffset(tyoffset / pad_factor)
+    axis.GetXaxis().SetLabelSize(tsize * pad_factor * comparefactor)
+    axis.GetXaxis().SetTitleSize(tsize * pad_factor * comparefactor)
+    axis.GetXaxis().SetTitleOffset(comparefactor * tyoffset / pad_factor)
 
     legend = get_legend(data,mc_sum,list(reversed(list_mc)),signals)
     legend.Draw()

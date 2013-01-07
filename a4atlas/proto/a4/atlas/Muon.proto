@@ -16,6 +16,7 @@ message Muon
     optional Isolation isolation = 5;
     
     optional bool combined = 16;
+    optional int32 author = 14;
     optional bool tight = 18;
     optional bool segment_tagged = 19;
 
@@ -27,6 +28,7 @@ message Muon
 
     optional Perigee perigee_id = 12;
     optional Perigee perigee_cmb = 13;
+    optional Perigee perigee_unbiased = 15;
 
     optional int32 vertex_index = 30;
 

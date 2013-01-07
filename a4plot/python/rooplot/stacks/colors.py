@@ -3,6 +3,7 @@ from ROOT import kAzure, kBlue, kWhite, kRed, kBlack, kGray, kGreen, kYellow, kT
 clrs = (kWhite, kRed, kBlack, kGray, kGreen, kYellow, kTeal, kCyan, kSpring, kBlue)
 clrs = (kWhite, kGray, kBlack, kBlue, kGreen, kTeal, kTeal, kRed, kSpring, kMagenta)
 clrs = (kGray, kBlack, kBlue, kGreen, kTeal, kRed, kMagenta, kYellow, kCyan)
+clrs = (kBlue, kGreen, kYellow, kCyan, kRed, kMagenta,  kTeal, kBlack, kGray)
 
 # WW paper:
 #Wjets/dijet  kBlue

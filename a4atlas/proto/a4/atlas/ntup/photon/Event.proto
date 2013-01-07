@@ -171,4 +171,5 @@ message Event {
     optional EF ef = 4002 [(root_prefix)="EF_"];
 
     extensions 100000 to max;
+
 }
