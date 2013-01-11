@@ -6,6 +6,7 @@ from aod2a4 import AOD2A4Base, athena_setup
 
 from AthenaCommon.AppMgr import topSequence
 from ROOT import gROOT, TLorentzVector
+from ctypes import c_float
 
 from array import array
 from glob import glob
@@ -361,6 +362,9 @@ class AOD2A4(AOD2A4Base):
         self.a4 = OutputStream(open(self.file_name, "w"), "AOD2A4", Event, EventStreamInfo)
 
         import PyCintex
+        PyCintex.loadDict("egammaAnalysisTools")
+        self.tool_ciwt = PyAthena.py_tool("CaloIsolationWrapperTool", iface="ICaloIsolationWrapperTool")
+        assert bool(self.tool_ciwt)
         PyCintex.loadDictionary("TrigMuonEvent")
         PyCintex.loadDictionary("TrigObjectMatching")
         self.tmefih = PyCintex.makeClass("TrigMatch::TrigMuonEFInfoHelper")
@@ -463,6 +467,10 @@ class AOD2A4(AOD2A4Base):
                 setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
             for iso in topoisolations:
                 setattr(e.isolation, iso, el.detailValue(getattr(self.egammaParameters, iso)))
+            # Get ED corrected isolation
+            f = c_float()
+            self.tool_ciwt.GetEDCorrectedIsolation(el, 40, f)
+            e.custom_isolation.etcone40_ED_corrected = f.value
 
             if self.year == 2011:
                 e.bad_oq = not (el.isgoodoq(self.egammaPID.BADCLUSELECTRON) == 0)
@@ -1023,6 +1031,8 @@ if True:
         make_JetMomentGetter( 'AntiKt4TopoEMJets' , [jvatool] ) 
 
 
+from egammaAnalysisTools.CaloIsolationWrapperTool import CaloIsolationWrapperTool
+caloIsoTool = CaloIsolationWrapperTool()
 # do autoconfiguration of input
 include ("RecExCommon/RecExCommon_topOptions.py")
 
