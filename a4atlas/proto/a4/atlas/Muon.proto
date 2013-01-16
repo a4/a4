@@ -19,6 +19,7 @@ message Muon
     optional int32 author = 14;
     optional bool tight = 18;
     optional bool segment_tagged = 19;
+    optional bool stand_alone = 52;
 
     optional LorentzVector p4_track = 7;
     optional LorentzVector p4_ms = 9;
@@ -42,4 +43,5 @@ message Muon
     repeated Trigger.TriggerName matched_trigger_efi_mgt = 48; // A17
 
     optional METContribution met_contribution = 50;
+    repeated SpaceTime spacetimes = 51;
 }

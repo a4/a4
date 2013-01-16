@@ -20,7 +20,7 @@ from a4.atlas.Photon_pb2 import Photon
 from a4.atlas.Jet_pb2 import Jet
 from a4.atlas.Event_pb2 import Event, Track, TruthParticle
 from a4.atlas.EventStreamInfo_pb2 import EventStreamInfo
-from a4.atlas.Physics_pb2 import LorentzVector, Vertex, MissingEnergy, Perigee
+from a4.atlas.Physics_pb2 import LorentzVector, Vertex, MissingEnergy, Perigee, SpaceTime
 
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
 
@@ -353,6 +353,15 @@ def set_met_contrib(mc, weight):
         mc.status_word = weight.statusWord()
         #print mc.status_word, mc.wet, mc.wpx, mc.wpy
 
+def make_spacetime(spacetime):
+    spt = SpaceTime()
+    spt.det_id = spacetime.measurementType()
+    spt.t, spt.t_error = spacetime.time(), spacetime.errorTime()
+    spt.weight = spacetime.weight()
+    spt.x, spt.y, spt.z = spacetime.globalPosition().x(), spacetime.globalPosition().y(), spacetime.globalPosition().z()
+    return spt
+
+
 JETEMSCALE = 0 # http://alxr.usatlas.bnl.gov/lxr/source/atlas/Event/EventKernel/EventKernel/ISignalState.h#021
 
 class AOD2A4(AOD2A4Base):
@@ -410,6 +419,9 @@ class AOD2A4(AOD2A4Base):
         self.tool_tdt = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
         self.tool_tmt = PyAthena.py_tool("TrigMatchTool/TrigMatchTool")
         self.tool_hfor= PyAthena.py_tool("HforTool",iface="IHforTool")
+        self.tool_timing = PyAthena.py_tool("Rec::MuonCombinedTimingTool/MuonCombinedTimingTool", iface="Rec::IMuonCombinedTimingTool")
+        PyCintex.loadDictionary("TrkSpaceTimePoint")
+
         #self.tool_extrap = PyAthena.py_tool("Trk::Extrapolator/AtlasExtrapolator",iface="Trk::IExtrapolator")
         #import ROOT
         #self.PerigeeSurface = ROOT.__getattr__("Trk::PerigeeSurface")
@@ -539,6 +551,7 @@ class AOD2A4(AOD2A4Base):
 
             m.tight = (mu.isTight() == 1)
             m.segment_tagged = mu.isSegmentTaggedMuon()
+            m.stand_alone = mu.isStandAloneMuon()
             if muon_algo == "Muid":
                 m.combined = mu.isAuthor(self.MuonParameters.MuidCo)
             elif muon_algo == "Staco":
@@ -582,6 +595,9 @@ class AOD2A4(AOD2A4Base):
             #chns.clear()
             if self.metref_composition.contains(mu):
                 set_met_contrib(m.met_contribution, self.metref_composition.getParameter(mu))
+            try: spcts = self.tool_timing.timeMeasurements(mu)
+            except: spcts = False
+            if spcts: m.spacetimes.extend([make_spacetime(spct) for spct in spcts])
             mus.append(m)
         return mus
 
@@ -1027,41 +1043,15 @@ if True:
 
         from JetMomentTools.SetupJetMomentTools import getJetVertexAssociationTool
         jvatool = getJetVertexAssociationTool('AntiKt', 0.4, 'Topo') # parameters are irrelevant, these will work for any jets
-        #make_JetMomentGetter( 'AntiKt4TopoJets' , [jvatool] ) 
+        jvatool_lc = getJetVertexAssociationTool('AntiKt', 0.4, 'LCTopo') # parameters are irrelevant, these will work for any jets
         make_JetMomentGetter( 'AntiKt4TopoEMJets' , [jvatool] ) 
+        make_JetMomentGetter( 'AntiKt4LCTopoJets' , [jvatool_lc] ) 
 
 
 from egammaAnalysisTools.CaloIsolationWrapperTool import CaloIsolationWrapperTool
 caloIsoTool = CaloIsolationWrapperTool()
 # do autoconfiguration of input
 include ("RecExCommon/RecExCommon_topOptions.py")
-
-#### test of implementing missing et d3pdmaker
-#from MissingETD3PDMaker.MissingETD3PDMakerFlags        import MissingETD3PDMakerFlags
-#from MissingETD3PDMaker.MissingETD3PDObject            import *
-#from MissingETD3PDMaker.MissingETD3PDTriggerBitsObject import *
-#MissingETD3PDMakerFlags.doCellOutEflow=True
-#MissingETD3PDMakerFlags.METDefaultJetCollectionSGKey = 'AntiKt4LCTopoJets'
-#MissingETD3PDMakerFlags.METDefaultJetPrefix = "jet_AntiKt4LCTopo_MET_"
-#MissingETD3PDMakerFlags.doTruth=True
-#from RecExConfig.RecFlags                            import rec
-#rec.doTruth()
-
-###Truth object, can also be used for customized MET Truth objects
-#MissingETTruthD3PDObject = make_SG_D3PDObject ('MissingEtTruth', MissingETD3PDMakerFlags.METTruthSGKey(), 'MET_Truth_', 'MissingETTruthD3PDObject')
-#MissingETTruthD3PDObject.defineBlock (1, 'MET_Truth_NonInt', MissingETD3PDMaker.MissingETTruthNonIntFillerTool)
-#MissingETTruthD3PDObject.defineBlock (1, 'MET_Truth_NonInt_Phi', MissingETD3PDMaker.MissingETTruthNonIntPhiFillerTool)
-#MissingETTruthD3PDObject.defineBlock (1, 'MET_Truth_NonInt_Et', MissingETD3PDMaker.ScalarMissingETTruthNonIntFillerTool)
-#MissingETTruthD3PDObject.defineBlock (1, 'MET_Truth_NonInt_SumEt', MissingETD3PDMaker.SumETTruthNonIntFillerTool)
-#MissingETTruthD3PDObject.defineBlock (3, 'MET_Truth_Int', MissingETD3PDMaker.MissingETTruthIntFillerTool)
-#MissingETTruthD3PDObject.defineBlock (3, 'MET_Truth_Int_Phi', MissingETD3PDMaker.MissingETTruthIntPhiFillerTool)
-#MissingETTruthD3PDObject.defineBlock (3, 'MET_Truth_Int_Et', MissingETD3PDMaker.ScalarMissingETTruthIntFillerTool)
-#MissingETTruthD3PDObject.defineBlock (3, 'MET_Truth_Int_SumEt', MissingETD3PDMaker.SumETTruthIntFillerTool)
-
-#topSequence += MissingETTruthD3PDObject 
-#from AthenaCommon.AlgSequence import AlgSequence
-#theJob = AlgSequence()
-#theJob += MissingETTruthD3PDObject(level=10,sgkey='MissingET', include=['MET_Truth_NonInt'], allowMissing=True)
 
 ana = AOD2A4("AOD2A4", int(options["year"]), options)
 topSequence += ana
