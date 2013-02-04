@@ -169,7 +169,7 @@ public:
         switch (_field->cpp_type()) {
             ROOT_TYPE(INT32, "Int_t")
             ROOT_TYPE(INT64, "Long64_t")
-            ROOT_TYPE(UINT32, "UInt")
+            ROOT_TYPE(UINT32, "UInt_t")
             ROOT_TYPE(UINT64, "ULong64_t")
             ROOT_TYPE(DOUBLE, "Double_t")
             ROOT_TYPE(FLOAT, "Float_t")
