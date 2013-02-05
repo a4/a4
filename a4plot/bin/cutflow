@@ -561,7 +561,7 @@ if __name__=="__main__":
                 hb, bcontent = get_data(hn, bg_files+sg_files, is_data=False)
                 hd, dcontent = get_data(hn, data_files, is_data=True)
 
-                if isinstance(hb, list):
+                if isinstance(hb, list) and isinstance(hd, list):
                     labels = sum_labels(hb, hd)
                     hb = make_cf_histo(hn, hn, labels)
                     _bcontent, _dcontent = bcontent, dcontent
@@ -573,7 +573,7 @@ if __name__=="__main__":
                         nv = [CertainNumber()] + [v.get(l,CertainNumber()) for l in labels] + [CertainNumber()]
                         dcontent[f] = (t, nv)
                 mcsum = None if options.no_mcsum else sum_histos((bcontent[f][1] for f in bcontent), noneg=True)
-                plot_1d(hn, hb, bg_files, sg_files, data_files, dict(bcontent.items() + dcontent.items()), mcsum, options.style)
+                plot_1d(hn, hb if hb else hd, bg_files, sg_files, data_files, dict(bcontent.items() + dcontent.items()), mcsum, options.style)
         else:
             exh = None
             _bcontent, _dcontent = {}, {}
