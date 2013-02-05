@@ -279,6 +279,9 @@ def stack_1D(name, data, list_mc, signals, lumi="X",centermass="8", rebin=1, sum
             mcstack.GetXaxis().SetRangeUser(*range)
         mc_sum.Draw("e2same")
         mc_sum_line.Draw("hist same")
+    else:
+        mc_sum = None
+        mc_sum_line = None
     for signal in signals:
         if not list_mc and signal == signals[0]:
             axis = signal

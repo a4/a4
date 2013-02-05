@@ -133,5 +133,7 @@ message Event
     repeated TruthParticle truth_electrons = 103;
     repeated TruthParticle truth_muons = 104;
 
+    repeated Vertex truth_vertices = 106;
+
     optional PDFInfo pdf_info = 105;
 }

@@ -45,3 +45,18 @@ message Perigee
     optional float d0err = 4;
 }
 
+message SpaceTime
+{
+        optional int32 det_id = 1;
+
+        optional float t = 2;
+        optional float t_error = 3;
+        optional float weight = 4;
+
+        optional float x = 5;
+        optional float y = 6;
+        optional float z = 7;
+        optional float x_error = 8;
+        optional float y_error = 9;
+}
+
