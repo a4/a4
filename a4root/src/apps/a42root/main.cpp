@@ -418,6 +418,7 @@ public:
 class a42rootProcessor : public a4::process::Processor {
 public:
     std::map<std::string, shared<TreeFiller>> class_map;
+    std::vector<shared<const a4::io::A4Message>> keepalive_list;
     
     TFile* f;
     
@@ -432,6 +433,7 @@ public:
         auto class_name = m->message()->GetDescriptor()->full_name();
         if (class_map.find(class_name) == class_map.end()) {
             class_map[class_name].reset(new TreeFiller(m->descriptor()));
+            keepalive_list.push_back(m);
         }
         
         auto& tree_filler = *class_map[class_name];
