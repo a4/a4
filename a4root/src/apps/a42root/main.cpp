@@ -30,7 +30,8 @@ class MessageTreeNode {
     std::map<uint32_t, shared<MessageTreeNode>> _children;
     
     std::string _prefix;
-    const FieldDescriptor* _field;
+    int _field_number;
+    FieldDescriptor::CppType _field_cpp_type;
     bool _repeated;
     int _depth;
     TTree* _tree;
@@ -40,7 +41,7 @@ public:
     
     // Root node (Whole event)
     MessageTreeNode(TTree* tree)
-        : _prefix(), _field(NULL), _repeated(false), _depth(0), _tree(tree),
+        : _prefix(), _field_number(-1), _field_cpp_type(FieldDescriptor::MAX_CPPTYPE), _repeated(false), _depth(0), _tree(tree),
           _branch(NULL)
     {
     
@@ -48,7 +49,7 @@ public:
     
     MessageTreeNode(const FieldDescriptor* field, uint32_t parent_depth,
                     const std::string& prefix, TTree* tree)
-        : _prefix(prefix), _field(field), _tree(tree), _branch(NULL)
+        : _prefix(prefix), _field_number(field->number()), _field_cpp_type(field->cpp_type()), _tree(tree), _branch(NULL)
     {
         _repeated = field->is_repeated();
         _depth = parent_depth + (_repeated ? 1 : 0);
@@ -98,7 +99,7 @@ public:
                     type##_value_2.back().push_back(content);\
                 } \
                 break;
-        switch (_field->cpp_type())  {
+        switch (_field_cpp_type)  {
             SET_TYPE(INT32, Int)
             SET_TYPE(INT64, Long64)
             SET_TYPE(UINT32, UInt)
@@ -122,7 +123,7 @@ public:
                         _depth == 1 ? reinterpret_cast<void*>(&type##_value_1_p) : \
                         _depth == 2 ? reinterpret_cast<void*>(&type##_value_2_p) : NULL );
                         
-        switch (_field->cpp_type()) {
+        switch (_field_cpp_type) {
             GET_ADDRESS(INT32, Int)
             GET_ADDRESS(INT64, Long64)
             GET_ADDRESS(UINT32, UInt)
@@ -141,7 +142,7 @@ public:
             case FieldDescriptor::CPPTYPE_##proto_type: \
                 return type;
                         
-        switch (_field->cpp_type()) {
+        switch (_field_cpp_type) {
             ROOT_TYPE(INT32, 'I')
             ROOT_TYPE(INT64, 'L')
             ROOT_TYPE(UINT32, 'i')
@@ -166,7 +167,7 @@ public:
                 else if (_depth == 2) \
                     return "vector<vector<" type "> >";
                         
-        switch (_field->cpp_type()) {
+        switch (_field_cpp_type) {
             ROOT_TYPE(INT32, "Int_t")
             ROOT_TYPE(INT64, "Long64_t")
             ROOT_TYPE(UINT32, "UInt_t")
@@ -216,7 +217,7 @@ public:
                 type##_value_2.push_back(std::vector<type##_t>()); \
                 break;
         
-        switch (_field->cpp_type()) {
+        switch (_field_cpp_type) {
             PUSH_BACK(INT32, Int)
             PUSH_BACK(INT64, Long64)
             PUSH_BACK(UINT32, UInt)
@@ -233,7 +234,7 @@ public:
         foreach (auto& child_iter, _children)
             child_iter.second->clear();
             
-        if (not _field)
+        if (_field_number < 0)
             return;
     
         #define CLEAR(proto_type, type) \
@@ -246,7 +247,7 @@ public:
                     type##_value_2.clear(); \
                 break;
                         
-        switch (_field->cpp_type()) {
+        switch (_field_cpp_type) {
             CLEAR(INT32, Int)
             CLEAR(INT64, Long64)
             CLEAR(UINT32, UInt)
@@ -283,14 +284,18 @@ public:
     
     void fill(const Message& m) {
         // Initialize empty vectors for our children
-        if (_field && _repeated) {
+        if (_field_number >= 0 && _repeated) {
             foreach (auto child_iter, _children)
                 child_iter.second->push_back(_depth);
         }
                 
         if (is_simple_type()) {
             // Simple types (numeric, etc)
-            ConstDynamicField fieldcontent(m, _field);
+            const FieldDescriptor * field = m.GetDescriptor()->FindFieldByNumber(_field_number);
+            if (not field) {
+                field = m.GetReflection()->FindKnownExtensionByNumber(_field_number);
+            }
+            ConstDynamicField fieldcontent(m, field);
             if (_repeated) {
                 for (int i = 0; i < fieldcontent.size(); i++)
                     set(fieldcontent.value(i));
@@ -305,7 +310,11 @@ public:
             foreach (auto child_iter, _children) {
                 auto child = child_iter.second;
                 if (not child->is_simple_type()) {
-                    ConstDynamicField fieldcontent(m, child->_field);
+                    const FieldDescriptor * field = m.GetDescriptor()->FindFieldByNumber(child->_field_number);
+                    if (not field) {
+                        field = m.GetReflection()->FindKnownExtensionByNumber(child->_field_number);
+                    }
+                    ConstDynamicField fieldcontent(m, field);
                     if (child->_repeated) {
                         // Repeated complex sub-message (e.g. 'repeated Electron electrons')
                         for (int i = 0; i < fieldcontent.size(); i++) {
