@@ -292,7 +292,9 @@ public:
         if (is_simple_type()) {
             // Simple types (numeric, etc)
             const FieldDescriptor * field = m.GetDescriptor()->FindFieldByNumber(_field_number);
-            if (not field) return;
+            if (not field) {
+                field = m.GetReflection()->FindKnownExtensionByNumber(_field_number);
+            }
             ConstDynamicField fieldcontent(m, field);
             if (_repeated) {
                 for (int i = 0; i < fieldcontent.size(); i++)
@@ -309,7 +311,9 @@ public:
                 auto child = child_iter.second;
                 if (not child->is_simple_type()) {
                     const FieldDescriptor * field = m.GetDescriptor()->FindFieldByNumber(child->_field_number);
-                    if (not field) return;
+                    if (not field) {
+                        field = m.GetReflection()->FindKnownExtensionByNumber(child->_field_number);
+                    }
                     ConstDynamicField fieldcontent(m, field);
                     if (child->_repeated) {
                         // Repeated complex sub-message (e.g. 'repeated Electron electrons')
