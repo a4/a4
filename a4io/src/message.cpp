@@ -52,18 +52,36 @@ namespace a4{ namespace io{
     {
         // Make sure that the read stream that the original message references
         // is read. After this call m._bytes or m._message (or both) are valid.
-        m.invalidate_stream();
+
+        if (not m._coded_in.expired()) {
+            m.invalidate_stream();
+        }
+
         _descriptor = m._descriptor;
         _size = m._size;
         _valid_bytes = m._valid_bytes;
-        _bytes = m._bytes;
 
-        // If the original message is not present in serialized form
-        // (_valid_bytes) then save the serialization
-        if (m._message) {
-            _message.reset(m._message->New());
-            _message->CopyFrom(*m._message);
+        if (_valid_bytes) {
+            DEBUG("_valid_bytes true");
+            _bytes = m._bytes;
+
+        } else if (m._message and not _valid_bytes) {
+            DEBUG("_valid_bytes decoded..");
+
+            //_bytes = m._message->SerializeAsString();
+            _valid_bytes = true;
+
+            // TODO(pwaller): If the following code is missing, a4atlas tests
+            //                 will crash.
+            
+            // If the original message is not present in serialized form
+            // (_valid_bytes) then save the serialization
+            // _message.reset(m._message->New());
+            // _message->CopyFrom(*m._message);
+        } else {
+            FATAL_ASSERT(false, "codepath shouldn't be reached.");
         }
+
         assert_valid();
     }
     
