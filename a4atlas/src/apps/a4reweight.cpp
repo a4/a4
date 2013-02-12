@@ -51,6 +51,7 @@ class A4ReweightConfiguration : public ConfigurationOf<A4ReweightProcessor> {
             TERMINATE("No cross-section file specified!");
         }
         std::ifstream xsf(xs_file);
+        FATAL_ASSERT(xsf.good(), "Couldn't read xs file");
         while(!xsf.eof()) {
             std::string _ln;
             std::getline(xsf, _ln);
