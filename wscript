@@ -511,8 +511,10 @@ def add_pack(bld, pack, other_packs=[], use=[]):
                 continue
             fls = bld.path.ant_glob("%s/%s/*.cpp" % (appdir, app))
             app_cppfiles[app] = fls
+            
     test_cppfiles = bld.path.ant_glob("%s/src/tests/*.cpp" % pack)
     test_scripts = bld.path.ant_glob("%s/src/tests/*.sh" % pack)
+    test_data = bld.path.ant_glob("%s/src/tests/data/*" % pack)
     gtest_cppfiles = bld.path.ant_glob("%s/src/gtests/*.cpp" % pack)
 
     # Add compilation rules
@@ -581,6 +583,14 @@ def add_pack(bld, pack, other_packs=[], use=[]):
     if gtest_cppfiles:
         t = pjoin(pack, "tests", "gtest")
         bld.program(features="gtest", source=gtest_cppfiles, target=t, **opts)
+                
+    # Copy test data
+    # Beware that test runners don't have any dependencies on the test data!
+    # i.e, updating test data won't cause a re-run with --check, use --checkall.
+    for datafile in test_data:
+        t = pjoin(pack, "tests", "data", str(datafile))
+        t = bld.path.find_or_declare(t)
+        tsk = bld(rule="cp ${SRC} ${TGT}", source=datafile, target=t)
 
     # install headers
     cwd = bld.path.find_node("%s/src/a4" % pack)
