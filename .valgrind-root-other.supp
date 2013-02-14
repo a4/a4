@@ -1,0 +1,44 @@
+{
+    CintProcessline
+    Memcheck:Leak
+    ...
+    fun:_ZN5TCint11ProcessLineEPKcPN12TInterpreter10EErrorCodeE
+}
+
+{
+   CintResetAllEv
+   Memcheck:Leak
+   fun:_Znwm
+   ...
+   fun:_ZN5TCint8ResetAllEv
+}
+
+
+{
+   process_cmd
+   Memcheck:Leak
+   fun:_Znwm
+   ...
+   fun:G__process_cmd
+}
+
+{
+   Library loading suppression
+   Memcheck:Leak
+   fun:_Znwm
+   ...
+   fun:G__search_tagname
+   fun:G__get_linked_tagnum
+   fun:G__get_linked_tagnum_fwd
+   ...
+}
+
+{
+   Library loading suppression
+   Memcheck:Leak
+   fun:_Znwm
+   ...
+   fun:G__search_typename
+   fun:G__search_typename2
+   ...
+}
