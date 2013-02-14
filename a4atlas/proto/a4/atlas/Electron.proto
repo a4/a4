@@ -10,7 +10,7 @@ import "a4/atlas/Trigger.proto";
 
 message Electron
 {
-    required LorentzVector p4 = 1;
+    optional LorentzVector p4 = 1;
     optional int32 charge = 2;
     optional Vertex vertex = 3;
     optional int32 index = 4;
