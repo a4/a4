@@ -4,7 +4,7 @@ import "a4/atlas/Physics.proto";
 
 message Jet
 {
-    required LorentzVector p4 = 1;
+    optional LorentzVector p4 = 1;
     optional Vertex vertex = 2;
     optional int32 index = 3;
     optional double jet_vertex_fraction = 4;

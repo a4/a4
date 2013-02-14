@@ -107,7 +107,7 @@ if s3:
             print "Take _a4post/result/data.xml to the luminosity calculator and call me again with the additional arguments '-3 -4 -l <lumi in pb>'"
             sys.exit(-1)
 
-        if os.system("a4merge --per period --split-per period -r _a4post/result/data/period _a4post/step2/sim.0") != 0:
+        if os.system("a4merge --per run --split-per run -r _a4post/result/data/run _a4post/step2/sim.0") != 0:
             print "Failed a4merge of data!"
             sys.exit(-1)
     else:

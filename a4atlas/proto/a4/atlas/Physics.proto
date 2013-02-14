@@ -2,10 +2,10 @@ package a4.atlas;
 
 message LorentzVector
 {
-    required float e = 1;
-    required float px = 2;
-    required float py = 3;
-    required float pz = 4;
+    optional float e = 1;
+    optional float px = 2;
+    optional float py = 3;
+    optional float pz = 4;
 }
 
 message Vertex
@@ -19,8 +19,8 @@ message Vertex
 
 message MissingEnergy
 {
-    required float x = 1;
-    required float y = 2;
+    optional float x = 1;
+    optional float y = 2;
     optional float sum = 3;
     optional MissingEnergy met_central = 6;
     optional MissingEnergy met_endcap = 7;

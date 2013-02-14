@@ -8,7 +8,7 @@ import "a4/atlas/DataQuality.proto";
 
 message Photon
 {    
-    required LorentzVector p4 = 1;
+    optional LorentzVector p4 = 1;
     optional Vertex vertex = 2;
     optional int32 index = 3;
     optional Isolation isolation = 9;

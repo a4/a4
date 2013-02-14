@@ -21,8 +21,8 @@ enum Stream {
 
 message RunInfo 
 {
-    required int32 run_number = 1;
-    required int32 event_count = 2;
+    optional int32 run_number = 1;
+    optional int32 event_count = 2;
     repeated int32 lumi_blocks = 3;
     repeated Stream stream = 4;
     optional double sum_mc_weights = 5;
