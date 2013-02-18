@@ -413,6 +413,13 @@
 }
 
 {
+   Py2
+   Memcheck:Value4
+   ...
+   obj:/usr/bin/python*
+}
+
+{
    Py3
    Memcheck:Addr4
    ...
