@@ -576,13 +576,15 @@ if __name__=="__main__":
                 plot_1d(hn, hb if hb else hd, bg_files, sg_files, data_files, dict(bcontent.items() + dcontent.items()), mcsum, options.style)
         else:
             exh = None
+            ehd = None
             _bcontent, _dcontent = {}, {}
             for hn in sorted(histos_1d):
                 hb, bcontent = get_data(hn, bg_files+sg_files, is_data=False)
                 hd, dcontent = get_data(hn, data_files, is_data=True)
-                if isinstance(hb, list):
+                if isinstance(hb, list) and isinstance(hd, list):
                     labels = sum_labels(hb, hd)
                     exh = labels if exh is None else sum_labels(exh, labels)
+                    exd = labels if exd is None else sum_labels(exd, labels)
                     for f, (t,v) in bcontent.iteritems():
                         if f in _bcontent:
                             v = sum_cfs((_bcontent[f][1], v))
@@ -593,6 +595,7 @@ if __name__=="__main__":
                         _dcontent[f] = (t, v)
                 else:
                     exh = hb
+                    exd = hd
                     for f, (t,v) in bcontent.iteritems():
                         if f in _bcontent:
                             v = sum_histos((_bcontent[f][1], v))
@@ -602,8 +605,8 @@ if __name__=="__main__":
                             v = sum_histos((_dcontent[f][1], v))
                         _dcontent[f] = (t, v)
 
-            hb, bcontent, dcontent = exh, _bcontent, _dcontent
-            if isinstance(hb, list):
+            hb, hd, bcontent, dcontent = exh, exd, _bcontent, _dcontent
+            if isinstance(hb, list) and isinstance(hd, list):
                 labels = sum_labels(hb, hd)
                 hb = make_cf_histo(hn, hn, labels)
                 _bcontent, _dcontent = bcontent, dcontent
@@ -615,7 +618,7 @@ if __name__=="__main__":
                     nv = [CertainNumber()] + [v[l] for l in labels] + [CertainNumber()]
                     dcontent[f] = (t, nv)
             mcsum = None if options.no_mcsum else sum_histos(bcontent[f][1] for f in bcontent)
-            plot_1d(hn, hb, bg_files, sg_files, data_files, dict(bcontent.items() + dcontent.items()), mcsum, options.style)
+            plot_1d(hn, hb if hb else hd, bg_files, sg_files, data_files, dict(bcontent.items() + dcontent.items()), mcsum, options.style)
     else:
         raise Exception("What to do?")
 
