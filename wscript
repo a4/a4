@@ -308,6 +308,21 @@ def build(bld):
     if bld.is_install:
         do_installcheck(bld)
 
+    bld.add_post_fun(ut_exit_code)
+
+def ut_exit_code(bld):
+    some_failed = False
+    for (f, fail, out, err) in getattr(bld, 'utest_results', []):
+        if fail:
+            some_failed = True
+            print("Test %s failed with exit code %i:\n%s" % (f, fail, out))
+            if err:
+                print ("STDERR:\n%s" % err)
+    if some_failed:
+        print("Some unit tests failed.")
+        import sys
+        sys.exit(-1)
+
 def get_git_version():
     try:
         from commands import getstatusoutput
