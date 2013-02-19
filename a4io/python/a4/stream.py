@@ -334,13 +334,12 @@ class InputStream(object):
 
         if cls == StartCompressedSection:
             self._orig_in_stream = self.in_stream
-            if msg.compression is msg.ZLIB:
+            if msg.compression == msg.ZLIB:
                 self.in_stream = ZlibInputStream(self._orig_in_stream)
-            elif msg.compression is msg.SNAPPY:
-
+            elif msg.compression == msg.SNAPPY:
                 self.in_stream = SnappyInputStream(self._orig_in_stream)
             else:
-                raise RuntimeError("Unknown compression in input: %s" % str(msg))
+                raise RuntimeError("Unknown compression in input: %s = %s" % (str(msg), msg.compression))
             return self.read_message()
         elif cls == EndCompressedSection:
             self.in_stream.close()

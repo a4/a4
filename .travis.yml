@@ -5,10 +5,9 @@ before_script:
   - wget http://pwaller.net/miniboost-bin.tar.bz2
   - tar xf miniboost-bin.tar.bz2
   
-script: ./waf go
-
-after_script:
-  - ./waf --checkall --valgrind
+script:
+  - ./waf go
+  - ./waf install --checkall --valgrind
 
 notifications:
   email:

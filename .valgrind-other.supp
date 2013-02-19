@@ -37,4 +37,10 @@
    fun:_ZN4ROOT7GetROOTEv
 }
 
-
+{
+    SELinux
+    Memcheck:Leak
+    ...
+    obj:/lib/libselinux.so.1
+    ...
+}
