@@ -33,7 +33,7 @@ class MessageTreeNode {
     std::string _prefix;
     int _field_number;
     FieldDescriptor::CppType _field_cpp_type;
-    bool _repeated, _first_time;
+    bool _repeated;
     int _depth;
     TTree* _tree;
     TBranch* _branch;
@@ -43,7 +43,7 @@ public:
     // Root node (Whole event)
     MessageTreeNode(TTree* tree)
         : _prefix(), _field_number(-1), _field_cpp_type(FieldDescriptor::MAX_CPPTYPE),
-          _repeated(false), _first_time(true), _depth(0), _tree(tree), _branch(NULL)
+          _repeated(false), _depth(0), _tree(tree), _branch(NULL)
     {
     
     }
@@ -51,7 +51,7 @@ public:
     MessageTreeNode(const FieldDescriptor* field, uint32_t parent_depth,
                     const std::string& prefix, TTree* tree)
         : _prefix(prefix), _field_number(field->number()),
-          _field_cpp_type(field->cpp_type()), _first_time(true), _tree(tree),
+          _field_cpp_type(field->cpp_type()), _tree(tree),
           _branch(NULL)
     {
         _repeated = field->is_repeated();
@@ -285,14 +285,6 @@ public:
         return child;
     }
     
-    const FieldDescriptor* field_descriptor(const Message& m) {
-        auto* field = m.GetDescriptor()->FindFieldByNumber(_field_number);
-        if (not field) {
-            field = m.GetReflection()->FindKnownExtensionByNumber(_field_number);
-        }
-        return field;
-    }
-    
     void fill(const Message& m) {    
         std::vector<const FieldDescriptor*> fields;
         auto* refl = m.GetReflection();
@@ -300,8 +292,6 @@ public:
                 
         foreach (auto* field, fields) {
             //DEBUG("Processing field: ", field->number(), " ", field->full_name());
-            auto ci = _children.find(field->number());
-            shared<MessageTreeNode> child;
             
             switch (field->cpp_type()) {
             // TODO(pwaller): ENUM and STRING are not currently handled.
@@ -312,12 +302,17 @@ public:
                 break;
             }
             
+            auto ci = _children.find(field->number());
+            shared<MessageTreeNode> child;
+            
+            // Check if the child exists, otherwise create it
             if (ci == _children.end()) {
                 child = add_child(field);
             } else {
                 child = ci->second;
             }
             
+            // Create space in multi-dimensional vectors
             if (_field_number >= 0 && _repeated) {
                 child->push_back(_depth);
             }
@@ -344,125 +339,6 @@ public:
                     }
                 } else {
                     child->fill(fieldcontent.submessage());
-                }
-            }
-            
-            /*
-            if (not child->is_simple_type()) {
-                ConstDynamicField fieldcontent(m, field);
-                if (child->_repeated) {
-                    // Repeated complex sub-message (e.g. 'repeated Electron electrons')
-                    for (int i = 0; i < fieldcontent.size(); i++) {
-                        child->fill(fieldcontent.submessage(i));
-                    }
-                } else {
-                    child->fill(fieldcontent.submessage());
-                }
-            } else {
-                child->fill(m);
-            }*/
-        }
-    }
-    
-    void fill_old(const Message& m) {
-        /*
-        if (unlikely(_first_time)) {
-            _first_time = false;
-            
-            if (_children.empty() && _field_cpp_type == FieldDescriptor::CPPTYPE_MESSAGE) {
-                // We're encountering a recursive descriptor which needs to be
-                // populated.                
-                make_tree(std::unordered_set<const FieldDescriptor*>(),
-                          _tree, m.GetDescriptor());
-            }
-        } */
-        /*
-        std::cout << "Here: " << this << " " << m.GetDescriptor()->full_name() << " -- " << _field_number << std::endl;
-    
-        if (unlikely(_first_time)) {
-            _first_time = false;
-            
-            std::cout << "  First time!" << std::endl;
-            std::cout << "  Empty? " << _children.empty() << std::endl;
-            std::cout << "  Is message? " << (_field_cpp_type == FieldDescriptor::CPPTYPE_MESSAGE) << std::endl;
-            
-            if (_children.empty() && _field_cpp_type == FieldDescriptor::CPPTYPE_MESSAGE) {
-                // We're encountering a recursive descriptor which needs to be
-                // populated.
-                std::cout << "Initializing !!! "<< std::endl;
-                
-                make_tree(std::unordered_set<const FieldDescriptor*>(),
-                          _tree, m.GetDescriptor());
-            }
-        }
-        */
-        
-        // Initialize empty vectors for our children
-        if (_field_number >= 0 && _repeated) {
-            foreach (auto child_iter, _children)
-                child_iter.second->push_back(_depth);
-        }
-                
-        if (_field_cpp_type != FieldDescriptor::CPPTYPE_MESSAGE) {
-            // Simple types (numeric, etc)
-            const FieldDescriptor * field = m.GetDescriptor()->FindFieldByNumber(_field_number);
-            if (not field) {
-                field = m.GetReflection()->FindKnownExtensionByNumber(_field_number);
-            }
-            ConstDynamicField fieldcontent(m, field);
-            if (_repeated) {
-                for (int i = 0; i < fieldcontent.size(); i++)
-                    set(fieldcontent.value(i));
-            } else {
-                // Skip empty fields
-                if (!fieldcontent.present())
-                    return;
-                set(fieldcontent.value());
-            }
-        } else {
-            // We have children (we are a message type)
-            /*
-            std::vector<const FieldDescriptor*> fields;
-            auto* refl = m.GetReflection();
-            refl->ListFields(m, &fields);
-            
-            foreach (auto* field, fields) {
-                auto child = _children[field->number()];
-                
-                if (not child->is_simple_type()) {
-                    ConstDynamicField fieldcontent(m, field);
-                    if (child->_repeated) {
-                        // Repeated complex sub-message (e.g. 'repeated Electron electrons')
-                        for (int i = 0; i < fieldcontent.size(); i++) {
-                            child->fill(fieldcontent.submessage(i));
-                        }
-                    } else {
-                        child->fill(fieldcontent.submessage());
-                    }
-                } else {
-                    child->fill(m);
-                }
-            }
-            */
-
-            foreach (auto child_iter, _children) {
-                auto child = child_iter.second;
-                if (not child->is_simple_type()) {
-                    const FieldDescriptor * field = m.GetDescriptor()->FindFieldByNumber(child->_field_number);
-                    if (not field) {
-                        field = m.GetReflection()->FindKnownExtensionByNumber(child->_field_number);
-                    }
-                    ConstDynamicField fieldcontent(m, field);
-                    if (child->_repeated) {
-                        // Repeated complex sub-message (e.g. 'repeated Electron electrons')
-                        for (int i = 0; i < fieldcontent.size(); i++) {
-                            child->fill(fieldcontent.submessage(i));
-                        }
-                    } else {
-                        child->fill(fieldcontent.submessage());
-                    }
-                } else {
-                    child->fill(m);
                 }
             }
         }
@@ -550,10 +426,6 @@ public:
         _root_tree->SetAutoFlush();
         
         _top_node.reset(new MessageTreeNode(_root_tree));
-        
-        //_top_node->make_tree(std::unordered_set<const FieldDescriptor*>(),
-                             //_root_tree, descriptor);
-        
     }
     
     void fill(const a4::io::A4Message& m) {
@@ -599,8 +471,7 @@ class A2RConfig : public a4::process::ConfigurationOf<a42rootProcessor> {
         std::string filename;
         int processor_count, compression_level;
         
-        A2RConfig() : processor_count(0) {};
-
+        A2RConfig() : processor_count(0) {}
 
         void add_options(po::options_description_easy_init opt) {
             opt("root-file,R", po::value(&filename)->default_value("output.root"), 
