@@ -6,7 +6,8 @@ private
 use GaudiInterface             GaudiInterface-*        External
 use AtlasROOT                  AtlasROOT-*             External
 use AthenaKernel               AthenaKernel-*          Control
-use AnalysisTools              AnalysisTools-*         PhysicsAnalysis/AnalysisCommon
+use AtlasBoost                 AtlasBoost-*            External
+use AthenaBaseComps            AthenaBaseComps-*       Control
 use D3PDMakerInterfaces        D3PDMakerInterfaces-*   PhysicsAnalysis/D3PDMaker
 end_private
 
