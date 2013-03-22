@@ -71,22 +71,28 @@ uintptr_t Cutflow::new_bin(std::string name) {
 }
 
 std::vector<Cutflow::CutNameCount> Cutflow::content() const {
-    std::vector<Cutflow::CutNameCount> result;
+    std::vector<Cutflow::CutNameCount> all_results;
+    std::vector<Cutflow::CutNameCount> results;
+    std::vector<bool> is_doublet;
     for(uint32_t i = 0; i < _cut_names.size(); i++) {
         double w = _bin[i];
         if (_weights_squared) w = (*_weights_squared)[i];
         bool doublet = false;
         for(uint32_t j = 0; j < i; j++) {
             if (_cut_names[i] == _cut_names[j]) {
-                result[j].count += _bin[i];
-                result[j].weights_squared += w;
+                all_results[j].count += _bin[i];
+                all_results[j].weights_squared += w;
                 doublet = true;
                 break;
             }
         }
-        if (!doublet) result.push_back(Cutflow::CutNameCount(_cut_names[i], _bin[i], w));
+        is_doublet.push_back(doublet);
+        all_results.push_back(Cutflow::CutNameCount(_cut_names[i], _bin[i], w));
     }
-    return result;
+    for(uint32_t i = 0; i < all_results.size(); i++) {
+        if (not is_doublet[i]) results.push_back(all_results[i]);
+    }
+    return results;
 }
 
 void Cutflow::print(std::ostream &out) const
